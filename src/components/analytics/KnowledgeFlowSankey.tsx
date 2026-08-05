@@ -12,7 +12,7 @@ type Props = {
   hasData: boolean;
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function KnowledgeFlowSankeyChart({ links, title, hint, emptyLabel, hasData }: Props) {
   const layout = useMemo(() => sankeyNodeLayout(), []);
   const maxCol = 6;
@@ -170,7 +170,7 @@ export function MasteryWaterfallChart({
                   {step.delta}
                 </text>
                 <text x={x + w / 2} y={252} textAnchor="middle" className="fill-text-muted type-micro">
-                  {step.label.length > 14 ? `${step.label.slice(0, 12)}β€¦` : step.label}
+                  {step.label.length > 14 ? `${step.label.slice(0, 12)}…` : step.label}
                 </text>
                 {i > 0 && (
                   <line
@@ -201,7 +201,7 @@ export function MasteryWaterfallChart({
           >
             <div className="font-semibold text-text-primary">
               {s.delta >= 0 ? '+' : ''}
-              {s.delta} β€” {s.label}
+              {s.delta} — {s.label}
             </div>
             <div className="mt-1 text-text-tertiary leading-relaxed">{s.note}</div>
           </div>

@@ -34,7 +34,7 @@ const statusToneClass: Record<ReturnType<typeof assignmentStatusTone>, string> =
   negative: 'bg-accent-rose/15 text-accent-rose',
 };
 
-/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function StudentOrgView({
   settings,
   lang = settings.language ?? 'en',
@@ -185,7 +185,7 @@ export function StudentOrgView({
     <div
       className={cn(
         'platform-page w-full max-w-none space-y-6',
-        /* OPT-K85 β€” non-Minimal full column; Minimal keeps side gutters */
+        /* OPT-K85 — non-Minimal full column; Minimal keeps side gutters */
         isMinimal ? 'p-4 md:p-6 enterprise-calm' : 'py-4 md:py-6 shell-edge-balance',
       )}
       data-testid="student-org-view"
@@ -318,7 +318,7 @@ export function StudentOrgView({
                       </div>
                       {completionPct != null && (
                         <div className="flex items-center gap-2 pt-1 max-w-xs">
-                          {/* Wave P-2 C08 β€” student completion track uses --viz-bar-track. */}
+                          {/* Wave P-2 C08 — student completion track uses --viz-bar-track. */}
                           <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                             <div
                               className="h-full bg-brand-500 rounded-full"
@@ -363,7 +363,7 @@ export function StudentOrgView({
                                 <tr className="border-b border-border-subtle/30 last:border-0">
                                   <td className="p-2 text-text-secondary">{a.title}</td>
                                   <td className="p-2 text-text-muted whitespace-nowrap">
-                                    {a.dueAt ? formatShortDate(a.dueAt, lang) : 'β€”'}
+                                    {a.dueAt ? formatShortDate(a.dueAt, lang) : '—'}
                                   </td>
                                   <td className="p-2 text-right">
                                     <span className="inline-flex items-center gap-2 justify-end flex-wrap">
@@ -445,7 +445,7 @@ export function StudentOrgView({
                 {orgs.map(({ org, membership }) => (
                   <tr key={org.id} className="border-b border-border-subtle/50">
                     <td className="p-3">{org.name}</td>
-                    <td className="p-3 capitalize">{membership?.role ?? 'β€”'}</td>
+                    <td className="p-3 capitalize">{membership?.role ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>

@@ -38,7 +38,7 @@ const typeIcons: Record<string, string> = {
   theory: conceptTypeGlyph('theory'),
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function ConceptGraph({
   nodes,
   edges,
@@ -141,7 +141,7 @@ export function ConceptGraph({
                 fill={isHovered || isSelected ? 'var(--color-text-primary)' : 'var(--color-text-tertiary)'}
                 fontWeight={isHovered ? '600' : '400'}
               >
-                {node.label.length > 18 ? node.label.slice(0, 16) + 'β€¦' : node.label}
+                {node.label.length > 18 ? node.label.slice(0, 16) + '…' : node.label}
               </text>
             </motion.g>
           );
@@ -152,9 +152,9 @@ export function ConceptGraph({
       <div className="flex items-center justify-center gap-4 py-3 border-t border-border-subtle">
         {(
           [
-            ['strong', 'Strong β‰¥80%'],
-            ['proficient', 'Proficient β‰¥60%'],
-            ['developing', 'Developing β‰¥40%'],
+            ['strong', 'Strong ≥80%'],
+            ['proficient', 'Proficient ≥60%'],
+            ['developing', 'Developing ≥40%'],
             ['weak', 'Weak <40%'],
           ] as [MasteryBand, string][]
         ).map(([band, label]) => (

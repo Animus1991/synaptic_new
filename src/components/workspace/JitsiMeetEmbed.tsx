@@ -153,7 +153,7 @@ export function JitsiMeetEmbed({ roomName, lang: _lang = 'en', className }: Prop
           <button type="button" className="ws-link-action" onClick={focusPopup}>
             {t('jitsiFocusWindow')}
           </button>
-          {' Β· '}
+          {' · '}
           <button type="button" className="ws-link-action" onClick={returnInline}>
             {t('jitsiReturnHere')}
           </button>

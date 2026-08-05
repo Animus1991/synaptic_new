@@ -21,7 +21,7 @@ function pluginHookLabels(plugin: SynapsePlugin, t: (key: I18nKey) => string): s
   });
 }
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function PluginMarketplacePanel() {
   const { t } = useI18n();
   const [tick, setTick] = useState(0);

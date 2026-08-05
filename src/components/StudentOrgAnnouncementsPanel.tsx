@@ -4,7 +4,7 @@ import type { StudentOrgContent } from '../lib/studentOrgContent';
 import { formatDateTime } from '../lib/localeFormat';
 import { cn } from '../utils/cn';
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export type StudentAnnouncementItem = {
   id: string;
   classId: string;

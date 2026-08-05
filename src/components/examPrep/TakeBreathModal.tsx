@@ -10,7 +10,7 @@ type Props = {
   presetId?: string;
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function TakeBreathModal({ open, onClose, presetId = 'calm-30' }: Props) {
   const { t } = useI18n();
   const preset = BREATH_PRESETS.find((p) => p.id === presetId) ?? BREATH_PRESETS[0]!;

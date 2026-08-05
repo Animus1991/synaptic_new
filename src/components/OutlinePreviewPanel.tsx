@@ -19,14 +19,14 @@ const KIND_BADGE: Record<DocumentStructureKind, string> = {
 const KIND_BADGE_EL: Record<DocumentStructureKind, string> = {
   conversation: 'Chat / Q&A',
   faq: 'FAQ',
-  slides: 'Ξ”ΞΉΞ±Ο†Ξ¬Ξ½ΞµΞΉΞµΟ‚',
-  headings: 'Ξ•Ξ½ΟΟ„Ξ·Ο„ΞµΟ‚',
-  dialogue: 'Ξ”ΞΉΞ¬Ξ»ΞΏΞ³ΞΏΟ‚',
-  journal: 'Ξ—ΞΌΞµΟΞΏΞ»ΟΞ³ΞΉΞΏ',
-  flat: 'Ξ£Ο…Ξ½ΞµΟ‡Ξ­Ο‚ ΞΊΞµΞ―ΞΌΞµΞ½ΞΏ',
+  slides: 'Διαφάνειες',
+  headings: 'Ενότητες',
+  dialogue: 'Διάλογος',
+  journal: 'Ημερολόγιο',
+  flat: 'Συνεχές κείμενο',
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function OutlinePreviewPanel({
   preview,
   loading,
@@ -105,7 +105,7 @@ export function OutlinePreviewPanel({
               {t('outlinePreview')}
             </span>
             <span className={cn('type-caption font-semibold', bandColor)}>
-              {quality.score}/100 Β· {quality.band}
+              {quality.score}/100 · {quality.band}
             </span>
             {structure.sectionCount >= 1 && (
               <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 type-micro font-medium bg-surface-hover text-text-secondary">

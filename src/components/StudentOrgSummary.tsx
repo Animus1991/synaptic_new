@@ -20,7 +20,7 @@ export function StudentOrgSummary({ dashboard, ui }: Props) {
       <div className="rounded-xl border border-border-subtle bg-surface-card/60 p-3">
         <p className="type-micro text-text-muted">{ui.statAvgScore}</p>
         <p className="text-lg font-semibold text-text-primary">
-          {dashboard.avgScore != null ? `${Math.round(dashboard.avgScore)}%` : 'β€”'}
+          {dashboard.avgScore != null ? `${Math.round(dashboard.avgScore)}%` : '—'}
         </p>
       </div>
       <div className="rounded-xl border border-border-subtle bg-surface-card/60 p-3">
@@ -28,7 +28,7 @@ export function StudentOrgSummary({ dashboard, ui }: Props) {
         <p className="text-lg font-semibold text-text-primary">
           {dashboard.completionRate != null
             ? `${Math.round(dashboard.completionRate * 100)}%`
-            : 'β€”'}
+            : '—'}
         </p>
       </div>
       <div className="rounded-xl border border-border-subtle bg-surface-card/60 p-3">

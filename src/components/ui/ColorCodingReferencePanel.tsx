@@ -34,7 +34,7 @@ const COG_KEYS: Record<ColorCodingEntryId, I18nKey> = {
   inferred: 'colorRefInferredCog',
 };
 
-/** Semantic mastery & trust color reference β€” Option-B Wave E15. */
+/** Semantic mastery & trust color reference — Option-B Wave E15. */
 export function ColorCodingReferencePanel({ className }: { className?: string }) {
   const { t } = useI18n();
 

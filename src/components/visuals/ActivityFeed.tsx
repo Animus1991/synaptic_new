@@ -27,7 +27,7 @@ interface Props {
   maxItems?: number;
 }
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function ActivityFeed({ activities, maxItems = 6 }: Props) {
   const { t, lang } = useI18n();
 

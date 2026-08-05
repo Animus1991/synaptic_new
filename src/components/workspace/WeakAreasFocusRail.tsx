@@ -6,7 +6,7 @@ import { isWeakSpotFocused } from '../../lib/workspaceWeakAreas';
 import type { WorkspaceEmptyAction } from '../../lib/workspaceEmptyState';
 import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 
-/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function WeakAreasFocusRail({
   spots,
   focusTerm,
@@ -24,7 +24,7 @@ export function WeakAreasFocusRail({
   expanded: boolean;
   onToggle: () => void;
   onFocusWeakSpot: (concept: string) => void;
-  /** OPT-AI-A β€” Explain / Quiz / Cards try actions for a weak concept. */
+  /** OPT-AI-A — Explain / Quiz / Cards try actions for a weak concept. */
   onTryWeakSpot?: (concept: string, action: 'explain' | 'quiz' | 'cards') => void;
   emptyMessage?: string;
   emptyActions?: WorkspaceEmptyAction[];
@@ -77,7 +77,7 @@ export function WeakAreasFocusRail({
                   type="button"
                   data-testid={`weak-area-chip-${normalizeChipKey(spot.concept)}`}
                   onClick={() => onFocusWeakSpot(spot.concept)}
-                  title={`${spot.concept} Β· ${spot.mastery}%`}
+                  title={`${spot.concept} · ${spot.mastery}%`}
                   className={cn(
                     'shrink-0 max-w-[150px] truncate rounded-full border px-2.5 py-1 type-caption transition-colors',
                     active ? 'ws-chip-danger' : 'ws-chip-neutral hover:opacity-90',

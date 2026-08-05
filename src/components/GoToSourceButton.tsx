@@ -9,7 +9,7 @@ interface Props {
   lang?: 'en' | 'el';
 }
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function GoToSourceButton({ onClick, label, className }: Props) {
   const { t } = useI18n();
   const text = label ?? t('goToSource');

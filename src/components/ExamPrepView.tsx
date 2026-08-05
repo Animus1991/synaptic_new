@@ -44,7 +44,7 @@ type ExamPhase = 'setup' | 'active' | 'review' | 'results';
 type ExamMode = 'standard' | 'practice';
 type AnswerState = { answer: number | null; flagged: boolean; timeSpent: number };
 
-/* OPT-K98 β€” markup debt: decorative brand type -> ink */
+/* OPT-K98 — markup debt: decorative brand type -> ink */
 export function ExamPrepView({
   onClose,
   onOpenAgent,
@@ -175,7 +175,7 @@ export function ExamPrepView({
             <p className="text-sm font-semibold">{sessionTitle}</p>
             <p className="text-xs text-text-tertiary flex items-center gap-1">
               <GraduationCap className="w-3 h-3 text-accent-rose" />
-              {examCourse} Β· {t('examPrepTimedSimulation')}
+              {examCourse} · {t('examPrepTimedSimulation')}
             </p>
           </div>
         </div>
@@ -216,7 +216,7 @@ export function ExamPrepView({
             <div className="text-center">
               <h2 className="text-xl font-semibold">{examTopic}</h2>
               <p className="text-sm text-text-secondary mt-2">
-                {examCourse} Β· {t('examPrepSubtitleFlow')}
+                {examCourse} · {t('examPrepSubtitleFlow')}
               </p>
             </div>
 
@@ -343,7 +343,7 @@ export function ExamPrepView({
             <div
               className={cn(
                 'max-w-none w-full py-6 space-y-5',
-                /* OPT-K85 β€” non-Minimal full column */
+                /* OPT-K85 — non-Minimal full column */
                 isMinimal ? 'px-4 sm:px-6 lg:px-8' : 'shell-edge-balance',
               )}
             >
@@ -449,7 +449,7 @@ export function ExamPrepView({
                                 ? 'bg-brand-600 text-white'
                                 : 'bg-surface-hover text-text-tertiary',
                         )}>
-                          {isCorrect ? 'β“' : isWrongSelected ? 'β—' : String.fromCharCode(65 + i)}
+                          {isCorrect ? '✓' : isWrongSelected ? '✗' : String.fromCharCode(65 + i)}
                         </span>
                         <span className="text-sm leading-relaxed text-current">{opt}</span>
                       </button>
@@ -621,7 +621,7 @@ export function ExamPrepView({
                         <p className="text-sm font-medium text-text-primary truncate">Q{i + 1}: {question.question}</p>
                         <p className="text-xs text-text-tertiary">
                           {answer.answer === null ? t('examPrepLegendNotAttempted') : t('examPrepSelected').replace('{letter}', String.fromCharCode(65 + answer.answer))}
-                          {answer.flagged ? ` Β· ${t('examPrepFlagged')}` : ''}
+                          {answer.flagged ? ` · ${t('examPrepFlagged')}` : ''}
                         </p>
                       </div>
                       <ArrowRight className="w-4 h-4 text-text-tertiary shrink-0" />

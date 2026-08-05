@@ -9,7 +9,7 @@ interface CalibrationCompareBarProps {
 
 const MIN_IN_BAR_LABEL = 24;
 
-/** Predicted vs actual confidence β€” labels inside fills with high-contrast white text. */
+/** Predicted vs actual confidence — labels inside fills with high-contrast white text. */
 export function CalibrationCompareBar({
   predictedPct,
   actualPct,
@@ -22,9 +22,9 @@ export function CalibrationCompareBar({
   const showActualInside = actual >= MIN_IN_BAR_LABEL;
 
   return (
-    // Wave P-2 C08 β€” CalibrationCompareBar track migrated from bg-viz-track
+    // Wave P-2 C08 — CalibrationCompareBar track migrated from bg-viz-track
     // (which passed through the raw --viz-track hue and collapsed to ~1.1:1 on
-    // spectrum + warm-light) to --viz-bar-track (theme-tuned to β‰¥3:1 vs card).
+    // spectrum + warm-light) to --viz-bar-track (theme-tuned to ≥3:1 vs card).
     <div
       className="relative h-7 flex-1 rounded-lg overflow-hidden"
       style={{ backgroundColor: 'var(--viz-bar-track)' }}

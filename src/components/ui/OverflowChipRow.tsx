@@ -19,12 +19,12 @@ type Props = {
   moreTestId?: string;
   moreAriaLabel?: (hiddenCount: number) => string;
   lessAriaLabel?: string;
-  /** Optional trailing control (e.g. β€+ Fileβ€) always after chips. */
+  /** Optional trailing control (e.g. “+ File”) always after chips. */
   trailing?: ReactNode;
 };
 
 /**
- * OPT-K14 β€” densify chip walls: show a short row + β€+Nβ€, expand to reach every tag.
+ * OPT-K14 — densify chip walls: show a short row + “+N”, expand to reach every tag.
  * Zero feature removal: overflow never drops items.
  */
 export function OverflowChipRow({
@@ -120,7 +120,7 @@ export function OverflowChipRow({
             moreClassName,
           )}
         >
-          {expanded ? 'β’' : `+${hiddenCount}`}
+          {expanded ? '−' : `+${hiddenCount}`}
         </button>
       )}
       {expanded && hiddenCount > 0 && (

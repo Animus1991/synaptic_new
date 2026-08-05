@@ -73,7 +73,7 @@ function stepProgress(index: number, activeIndex: number, snapshot: WorkspaceLiv
   return 82;
 }
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function DashboardLivePreview({
   live,
   lang,
@@ -83,7 +83,7 @@ export function DashboardLivePreview({
   live: WorkspaceLiveSync;
   lang: Lang;
   onOpenWorkspace?: () => void;
-  /** Dense mockup strip (Wave J-D03) β€” eyebrow + title + Continue. */
+  /** Dense mockup strip (Wave J-D03) — eyebrow + title + Continue. */
   compact?: boolean;
 }) {
   const { t } = useI18n();
@@ -91,7 +91,7 @@ export function DashboardLivePreview({
   const activeIndex = activeStepIndex(steps, live.snapshot);
   const concept = live.snapshot.activeConcept?.trim();
   const course = live.snapshot.courseLabel?.trim();
-  const headline = [concept, course].filter(Boolean).join(' Β· ')
+  const headline = [concept, course].filter(Boolean).join(' · ')
     || course
     || concept
     || t('dashboardResumeTitle');
@@ -198,7 +198,7 @@ export function DashboardLivePreview({
           <span className="font-medium text-text-primary">
             {nextActionLabel(live.nextAction.primary, lang)}
           </span>
-          {' β€” '}{live.nextAction.reason}
+          {' — '}{live.nextAction.reason}
         </p>
       )}
 

@@ -25,7 +25,7 @@ type Props = {
   };
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function ConceptMasteryHeatmapChart({
   model,
   title,
@@ -83,7 +83,7 @@ export function ConceptMasteryHeatmapChart({
             <div className="w-28 shrink-0" />
             {dayLabels.map((daysAgo) => (
               <div key={daysAgo} className="flex-1 text-center type-micro text-text-muted">
-                {daysAgo === 0 ? 'Β·' : daysAgo % 7 === 0 ? daysAgo : ''}
+                {daysAgo === 0 ? '·' : daysAgo % 7 === 0 ? daysAgo : ''}
               </div>
             ))}
           </div>

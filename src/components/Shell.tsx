@@ -123,7 +123,7 @@ function NavActiveIndicator({ quiet = false }: { quiet?: boolean }) {
         quiet ? 'rounded-md' : 'rounded-xl',
       )}
       initial={false}
-      // OPT-R17 β€” Minimal: short tween instead of spring float feel.
+      // OPT-R17 — Minimal: short tween instead of spring float feel.
       transition={
         quiet
           ? { type: 'tween', duration: 0.16, ease: [0, 0, 0.2, 1] }
@@ -141,7 +141,7 @@ const QUICK_ACCESS_ICONS: Record<GlobalQuickActionId, { icon: typeof Network; in
   exam: { icon: Zap, inkClass: 'text-accent-rose', washClass: 'bg-accent-rose/15' },
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function Shell({
   children,
   currentView,
@@ -172,11 +172,11 @@ export function Shell({
 }: ShellProps) {
   const { t, lang } = useI18n();
   const activeLang = language ?? lang;
-  /** OPT-C3 β€” ChatGPT-calm: single-line nav under Minimal; subtitles stay in title tooltips. */
+  /** OPT-C3 — ChatGPT-calm: single-line nav under Minimal; subtitles stay in title tooltips. */
   const quietNav = useMinimalTheme();
-  /** OPT-R9 β€” optional icon-collapsed desktop rail (all themes; Minimal still defaults compact). */
+  /** OPT-R9 — optional icon-collapsed desktop rail (all themes; Minimal still defaults compact). */
   const [railCollapsed, setRailCollapsed] = useState(() => loadShellRailCollapsed(quietNav));
-  /** OPT-K10 β€” secondary chrome (trust badges + study space) in overflow under Minimal. */
+  /** OPT-K10 — secondary chrome (trust badges + study space) in overflow under Minimal. */
   const [chromeMoreOpen, setChromeMoreOpen] = useState(false);
   const chromeMoreRef = useRef<HTMLDivElement>(null);
   const iconRail = railCollapsed;
@@ -196,7 +196,7 @@ export function Shell({
     onOpenWorkspace && (studyWorkspaceOpen || showMobileWorkspaceNav),
   );
   const navViews = filterNavigationRegistry(user);
-  /** OPT-K1 β€” Cursor-like section groups under Minimal (flat list on Blueprint). */
+  /** OPT-K1 — Cursor-like section groups under Minimal (flat list on Blueprint). */
   const navGroups = useMemo(
     () => (quietNav ? groupShellNavEntries(navViews) : [{ id: 'study' as ShellNavGroupId, entries: navViews }]),
     [quietNav, navViews],
@@ -298,7 +298,7 @@ export function Shell({
             </div>
             {!iconRail && <span className="text-lg font-bold ws-serif">Synapse</span>}
           </div>
-          {/* OPT-K13 β€” expand control near brand when compact (foot toggle alone was easy to miss). */}
+          {/* OPT-K13 — expand control near brand when compact (foot toggle alone was easy to miss). */}
           {iconRail && (
             <button
               type="button"
@@ -340,7 +340,7 @@ export function Shell({
                 const insertWorkspaceAfter = item.view === 'agent';
                 const label = t(item.labelKey);
                 const subtitle = item.subtitleKey ? t(item.subtitleKey) : undefined;
-                const tip = subtitle ? `${label} β€” ${subtitle}` : label;
+                const tip = subtitle ? `${label} — ${subtitle}` : label;
                 return (
                   <div key={item.view}>
                     <button
@@ -388,8 +388,8 @@ export function Shell({
                         data-tour="nav-workspace"
                         onClick={() => onOpenWorkspace?.()}
                         {...workspaceEntryPrefetchHandlers()}
-                        title={`${t('navStudyWorkspace')} β€” ${t('navSubtitleWorkspace')}`}
-                        aria-label={`${t('navStudyWorkspace')} β€” ${t('navSubtitleWorkspace')}`}
+                        title={`${t('navStudyWorkspace')} — ${t('navSubtitleWorkspace')}`}
+                        aria-label={`${t('navStudyWorkspace')} — ${t('navSubtitleWorkspace')}`}
                         className={cn(shellNavClass(studyWorkspaceOpen, quietNav, iconRail), 'mt-1')}
                       >
                         <Layout className="w-5 h-5 shrink-0" />
@@ -453,8 +453,8 @@ export function Shell({
                 type="button"
                 onClick={onContinueCourse}
                 data-testid="active-course-card"
-                title={`${activeCourse.title} β€” ${shellUx.continueCourse}`}
-                aria-label={`${activeCourse.title} β€” ${shellUx.continueCourse}`}
+                title={`${activeCourse.title} — ${shellUx.continueCourse}`}
+                aria-label={`${activeCourse.title} — ${shellUx.continueCourse}`}
                 className={cn(shellNavClass(false, quietNav, true), 'mt-2')}
               >
                 <BookOpen className="w-5 h-5 shrink-0 text-text-secondary" />
@@ -543,8 +543,8 @@ export function Shell({
             type="button"
             onClick={() => onNavigate('settings')}
             data-testid="nav-profile-settings"
-            title={`${user.name} Β· Level ${user.level}`}
-            aria-label={`${user.name} Β· Level ${user.level}`}
+            title={`${user.name} · Level ${user.level}`}
+            aria-label={`${user.name} · Level ${user.level}`}
             className={cn(
               'w-full flex items-center rounded-lg hover:bg-surface-hover transition-colors',
               iconRail ? 'justify-center p-1.5' : 'gap-3 px-2 text-left',
@@ -556,7 +556,7 @@ export function Shell({
             {!iconRail && (
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{user.name}</p>
-                <p className="text-xs text-text-tertiary">Level {user.level} Β· {user.xp} XP</p>
+                <p className="text-xs text-text-tertiary">Level {user.level} · {user.xp} XP</p>
               </div>
             )}
           </button>
@@ -613,7 +613,7 @@ export function Shell({
                   key={item.view}
                   {...navButtonProps(item.view)}
                   onClick={() => { onNavigate(item.view); onToggleSidebar(false); }}
-                  title={subtitle ? `${label} β€” ${subtitle}` : label}
+                  title={subtitle ? `${label} — ${subtitle}` : label}
                   className={shellNavClass(currentView === item.view && !studyWorkspaceOpen, quietNav)}
                 >
                   <NavIcon className="w-5 h-5" />
@@ -653,18 +653,18 @@ export function Shell({
       {/* Main content area */}
       <div
         className={cn(
-          /* OPT-K85 β€” full remaining column beside fixed sidebar; never sit under the rail */
+          /* OPT-K85 — full remaining column beside fixed sidebar; never sit under the rail */
           'flex-1 min-h-screen flex flex-col w-full min-w-0 max-w-none',
           iconRail ? 'lg:ml-14' : 'lg:ml-56',
         )}
         data-testid="shell-main-offset"
         data-rail-state={iconRail ? 'compact' : 'expanded'}
       >
-        {/* Top bar β€” Wave J-D05 dense utility chrome */}
+        {/* Top bar — Wave J-D05 dense utility chrome */}
         <header
           className={cn(
             'sticky top-0 z-20 glass-strong border-b border-border-subtle',
-            /* OPT-K94 β€” calm topbar on every theme (Minimal clarity β†’ non-Minimal) */
+            /* OPT-K94 — calm topbar on every theme (Minimal clarity → non-Minimal) */
             'shell-topbar-calm',
           )}
           data-testid="shell-topbar"
@@ -686,7 +686,7 @@ export function Shell({
                     <span className="text-text-secondary font-medium truncate max-w-[160px]">{breadcrumb.course}</span>
                     {breadcrumb.lesson && (
                       <>
-                        <span aria-hidden="true">β€Ί</span>
+                        <span aria-hidden="true">›</span>
                         <span className="truncate max-w-[160px]">{breadcrumb.lesson}</span>
                       </>
                     )}
@@ -697,14 +697,14 @@ export function Shell({
                   </span>
                 )}
               </div>
-              {/* OPT-K10 β€” trust badges live in chrome overflow under Minimal (still reachable). */}
+              {/* OPT-K10 — trust badges live in chrome overflow under Minimal (still reachable). */}
               {!quietNav && (
                 <HeaderTrustBadgeRow lang={activeLang} className="hidden 2xl:flex shrink-0" />
               )}
             </div>
 
             <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-              {/* Utility icon cluster β€” kept under Minimal (quiet icons, not competing CTAs) */}
+              {/* Utility icon cluster — kept under Minimal (quiet icons, not competing CTAs) */}
               <div className="hidden md:flex items-center gap-0.5" data-testid="shell-utility-icons">
                 <button
                   type="button"
@@ -835,7 +835,7 @@ export function Shell({
                 );
               })()}
 
-              {/* OPT-K10/K23 β€” solid primary CTA; on Tasks view, quieter outline so page CTAs lead */}
+              {/* OPT-K10/K23 — solid primary CTA; on Tasks view, quieter outline so page CTAs lead */}
               {onStartSession && (
                 <button
                   type="button"
@@ -843,7 +843,7 @@ export function Shell({
                   data-testid="shell-start-session"
                   data-on-tasks={currentView === 'tasks' ? '1' : '0'}
                   className={cn(
-                    /* OPT-K78 β€” match topbar control height (h-8), not full --btn-height */
+                    /* OPT-K78 — match topbar control height (h-8), not full --btn-height */
                     'hidden sm:inline-flex h-8 min-h-8 max-h-8 items-center gap-1.5 px-2.5 rounded-lg type-caption font-semibold leading-none transition-colors whitespace-nowrap',
                     currentView === 'tasks'
                       ? 'shell-start-session shell-start-session-on-tasks border border-border-subtle bg-transparent text-text-secondary hover:bg-surface-hover hover:text-text-primary'
@@ -865,7 +865,7 @@ export function Shell({
                 />
               )}
 
-              {/* OPT-K10 β€” overflow: study space + trust badges (all still reachable) */}
+              {/* OPT-K10 — overflow: study space + trust badges (all still reachable) */}
               {quietNav && (
                 <div className="relative hidden md:block" ref={chromeMoreRef}>
                   <button
@@ -1014,13 +1014,13 @@ export function Shell({
                     active ? 'platform-nav-mobile-active' : 'text-text-tertiary',
                     item.kind === 'workspace' && !active && 'text-text-secondary',
                   )}
-                  title={item.kind === 'workspace' ? `${label} β€” ${workspaceHint}` : label}
+                  title={item.kind === 'workspace' ? `${label} — ${workspaceHint}` : label}
                 >
                   <Icon className="w-5 h-5 shrink-0" />
                   <span className="type-micro font-medium w-full text-center leading-tight truncate">
                     {label}
                   </span>
-                  {/* OPT-C7 β€” under Minimal, hint stays in title only (less label noise). */}
+                  {/* OPT-C7 — under Minimal, hint stays in title only (less label noise). */}
                   {item.kind === 'workspace' && !quietNav && (
                     <span className="type-micro type-micro text-text-tertiary truncate w-full text-center">
                       {workspaceHint}

@@ -18,7 +18,7 @@ export function CohortTopicMasteryHeatmap({ analytics, lang }: Props) {
   const heatmaps = analytics.topicMasteryHeatmap ?? [];
   if (heatmaps.length === 0) return null;
 
-  const title = lang === 'el' ? 'Mastery Ξ±Ξ½Ξ¬ ΞΈΞ­ΞΌΞ±' : 'Topic mastery heatmap';
+  const title = lang === 'el' ? 'Mastery ανά θέμα' : 'Topic mastery heatmap';
 
   return (
     <div className="space-y-3 pt-3 border-t border-border-subtle/50" data-testid="topic-mastery-heatmap">
@@ -31,7 +31,7 @@ export function CohortTopicMasteryHeatmap({ analytics, lang }: Props) {
               const tip =
                 topic.avgScore != null
                   ? `${topic.topicLabel}: ${Math.round(topic.avgScore)}% (${topic.gradedCount})`
-                  : `${topic.topicLabel}: β€”`;
+                  : `${topic.topicLabel}: —`;
               return (
                 <div
                   key={`${hm.classId}-${topic.topicId}`}
@@ -43,7 +43,7 @@ export function CohortTopicMasteryHeatmap({ analytics, lang }: Props) {
                 >
                   <p className="text-[7px] text-text-primary truncate leading-tight">{topic.topicLabel}</p>
                   <p className="type-micro font-bold text-text-primary text-center">
-                    {topic.avgScore != null ? `${Math.round(topic.avgScore)}%` : 'β€”'}
+                    {topic.avgScore != null ? `${Math.round(topic.avgScore)}%` : '—'}
                   </p>
                 </div>
               );

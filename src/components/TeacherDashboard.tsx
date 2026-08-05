@@ -417,15 +417,15 @@ export function TeacherDashboard({
     <div
       className={cn(
         'ux-flow-shell platform-page w-full max-w-none pb-24 space-y-6',
-        /* OPT-K85 β€” non-Minimal full column; Minimal keeps side gutters */
+        /* OPT-K85 — non-Minimal full column; Minimal keeps side gutters */
         isMinimal ? 'p-4 sm:p-6 lg:px-8 enterprise-calm teacher-wells' : 'py-4 sm:py-6 shell-edge-balance',
       )}
       data-testid="teacher-dashboard"
     >
-      {/* OPT-K97 β€” teacher chrome ink */}
+      {/* OPT-K97 — teacher chrome ink */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          {/* OPT-K7/K8 β€” text-first title under Minimal (no leading icon tile). */}
+          {/* OPT-K7/K8 — text-first title under Minimal (no leading icon tile). */}
           <h1 className={cn('text-lg font-semibold', !isMinimal && 'flex items-center gap-2')}>
             {!isMinimal && <Users className="w-5 h-5 text-text-secondary" />}
             {ui.title}
@@ -471,19 +471,19 @@ export function TeacherDashboard({
               <div>
                 <p className="type-micro text-text-muted">{ui.cohortCompletion}</p>
                 <p className="text-sm font-semibold text-text-primary">
-                  {orgAnalytics.completionRate != null ? `${Math.round(orgAnalytics.completionRate * 100)}%` : 'β€”'}
+                  {orgAnalytics.completionRate != null ? `${Math.round(orgAnalytics.completionRate * 100)}%` : '—'}
                 </p>
               </div>
               <div>
                 <p className="type-micro text-text-muted">{ui.cohortAvgMastery}</p>
                 <p className="text-sm font-semibold text-text-primary">
-                  {orgAnalytics.avgMastery != null ? `${Math.round(orgAnalytics.avgMastery)}%` : 'β€”'}
+                  {orgAnalytics.avgMastery != null ? `${Math.round(orgAnalytics.avgMastery)}%` : '—'}
                 </p>
               </div>
               <div>
                 <p className="type-micro text-text-muted">{ui.cohortAvgScore}</p>
                 <p className="text-sm font-semibold text-text-primary">
-                  {orgAnalytics.avgScore != null ? `${Math.round(orgAnalytics.avgScore)}%` : 'β€”'}
+                  {orgAnalytics.avgScore != null ? `${Math.round(orgAnalytics.avgScore)}%` : '—'}
                 </p>
               </div>
               </div>
@@ -622,9 +622,9 @@ export function TeacherDashboard({
                     <tbody>
                       {roster.map((row) => (
                         <tr key={row.id} className="border-b border-border-subtle/50" data-testid={`teacher-roster-row-${row.id}`}>
-                          <td className="py-2 pr-3">{row.displayName ?? 'β€”'}</td>
+                          <td className="py-2 pr-3">{row.displayName ?? '—'}</td>
                           <td className="py-2 pr-3">{row.studentEmail}</td>
-                          <td className="py-2 pr-3">{row.mastery != null ? `${row.mastery}%` : 'β€”'}</td>
+                          <td className="py-2 pr-3">{row.mastery != null ? `${row.mastery}%` : '—'}</td>
                           <td className="py-2 pr-3 text-text-muted">{formatShortDate(row.enrolledAt, lang)}</td>
                           <td className="py-2 text-right">
                             <button
@@ -651,14 +651,14 @@ export function TeacherDashboard({
                   onClick={() => setLtiRosterOpen((v) => !v)}
                 >
                   <span>{ui.ltiRosterTitle}</span>
-                  <span className="type-micro text-text-muted">{ltiRosterOpen ? 'β’' : '+'}</span>
+                  <span className="type-micro text-text-muted">{ltiRosterOpen ? '−' : '+'}</span>
                 </button>
                 {ltiRosterOpen && (
                   <div className="mt-3 space-y-2">
                     {ltiLaunchHint && (
                       <p className="type-caption text-text-secondary border border-border-subtle rounded-lg px-3 py-2 bg-surface-secondary/50">
                         {ui.ltiLaunchWelcome}
-                        {ltiLaunchHint.contextTitle ? ` β€” ${ltiLaunchHint.contextTitle}` : ''}
+                        {ltiLaunchHint.contextTitle ? ` — ${ltiLaunchHint.contextTitle}` : ''}
                         {ltiLaunchHint.contextId ? ` (${ltiLaunchHint.contextId})` : ''}
                       </p>
                     )}
@@ -732,7 +732,7 @@ export function TeacherDashboard({
                     disabled={!announcementTitle.trim() && !announcementBody.trim()}
                     onClick={() => {
                       const draft = {
-                        title: announcementTitle.trim() || (lang === 'el' ? 'Ξ‘Ξ½Ξ±ΞΊΞΏΞ―Ξ½Ο‰ΟƒΞ·' : 'Announcement'),
+                        title: announcementTitle.trim() || (lang === 'el' ? 'Ανακοίνωση' : 'Announcement'),
                         body: announcementBody.trim() || announcementTitle.trim(),
                         weakCount: 0,
                       };
@@ -855,7 +855,7 @@ export function TeacherDashboard({
                             <tr className="border-b border-border-subtle/50" data-testid={`teacher-assignment-row-${row.id}`}>
                               <td className="py-2 pr-3 font-medium">{row.title}</td>
                               <td className="py-2 pr-3 text-text-muted">
-                                {row.dueAt ? formatShortDate(row.dueAt, lang) : 'β€”'}
+                                {row.dueAt ? formatShortDate(row.dueAt, lang) : '—'}
                               </td>
                               <td className="py-2 text-right space-x-2">
                                 {selectedClassId && (
@@ -965,7 +965,7 @@ export function TeacherDashboard({
                           <th className="text-left py-2 pr-3">{ui.colOverallMastery}</th>
                           {assignments.map((asg) => (
                             <th key={asg.id} className="text-left py-2 pr-3 min-w-[72px]" title={asg.title}>
-                              {asg.title.length > 14 ? `${asg.title.slice(0, 14)}β€¦` : asg.title}
+                              {asg.title.length > 14 ? `${asg.title.slice(0, 14)}…` : asg.title}
                             </th>
                           ))}
                         </tr>
@@ -977,7 +977,7 @@ export function TeacherDashboard({
                               {student.displayName ?? student.studentEmail}
                             </td>
                             <td className="py-2 pr-3 text-text-muted">
-                              {student.mastery != null ? `${student.mastery}%` : 'β€”'}
+                              {student.mastery != null ? `${student.mastery}%` : '—'}
                             </td>
                             {assignments.map((asg) => {
                               const score = gradebookCellScore(student.id, asg.id);
@@ -1029,13 +1029,13 @@ export function TeacherDashboard({
             <div className="flex items-center justify-between flex-wrap gap-2">
               <h2 className="font-semibold flex items-center gap-2">
                 <Zap className="w-4 h-4 text-text-secondary" />
-                {ui.llmUsageMonth} Β· {data.usage.month}
+                {ui.llmUsageMonth} · {data.usage.month}
               </h2>
               <span className="text-xs text-text-muted">
-                {data.account.email} Β· {data.account.plan} {ui.planLabel}
+                {data.account.email} · {data.account.plan} {ui.planLabel}
               </span>
             </div>
-            {/* Wave P-2 C08 β€” plan usage track uses --viz-bar-track. */}
+            {/* Wave P-2 C08 — plan usage track uses --viz-bar-track. */}
             <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
               <div
                 className={cn('h-full rounded-full transition-all', usagePct > 85 ? 'bg-accent-rose' : 'bg-brand-500')}
@@ -1083,11 +1083,11 @@ export function TeacherDashboard({
                         <td className="py-2.5 pr-3 text-text-secondary">{course.topicCount}</td>
                         <td className="py-2.5 pr-3 text-text-secondary">{course.fileCount}</td>
                         <td className="py-2.5 pr-3 text-text-secondary">
-                          {course.mastery != null ? `${course.mastery}%` : 'β€”'}
+                          {course.mastery != null ? `${course.mastery}%` : '—'}
                         </td>
-                        <td className="py-2.5 pr-3 text-text-muted hidden sm:table-cell">{course.status ?? 'β€”'}</td>
+                        <td className="py-2.5 pr-3 text-text-muted hidden sm:table-cell">{course.status ?? '—'}</td>
                         <td className="py-2.5 pr-3 text-text-muted hidden md:table-cell">
-                          {course.examDate ? formatShortDate(course.examDate, lang) : 'β€”'}
+                          {course.examDate ? formatShortDate(course.examDate, lang) : '—'}
                         </td>
                         <td className="py-2.5">
                           {localCourseIds.has(course.id) && onOpenCourse && (
@@ -1131,7 +1131,7 @@ export function TeacherDashboard({
                   <li key={ann.id} className="flex justify-between gap-2 border-b border-border-subtle/50 pb-1.5">
                     <span className="text-text-secondary truncate">
                       <span className="text-text-secondary font-medium">{ann.type}</span>
-                      {' Β· '}
+                      {' · '}
                       {ann.text || ann.fileKey}
                     </span>
                     <span className="text-text-muted shrink-0">{formatDateTime(ann.createdAt, lang)}</span>
@@ -1231,7 +1231,7 @@ function StatCard({
     <div className="ux-flow-panel p-4">
       <Icon className="w-5 h-5 text-text-secondary mb-2" />
       <p className="ux-stat-value">{value}</p>
-      <p className="text-xs text-text-muted">{label} Β· {sub}</p>
+      <p className="text-xs text-text-muted">{label} · {sub}</p>
     </div>
   );
 }
@@ -1244,7 +1244,7 @@ function FeaturePill({ on, label }: { on: boolean; label: string }) {
         on ? 'border-accent-emerald/40 bg-accent-emerald/10 text-accent-emerald ink-allow-accent' : 'border-border-subtle text-text-muted',
       )}
     >
-      {on ? 'β“' : 'β—‹'} {label}
+      {on ? '✓' : '○'} {label}
     </span>
   );
 }

@@ -19,7 +19,7 @@ const SOURCE_ICONS: Record<UserSettings['sourceMode'], ElementType> = {
   'notes-only': FileText,
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export type AgentCatalogMode = {
   mode: AgentMode;
   label: string;
@@ -127,7 +127,7 @@ export function AgentModeSidebar({
   sourceModeHeading,
   className,
 }: AgentModeSidebarProps) {
-  /** OPT-C2 / OPT-R14 β€” quiet + grouped under Minimal; every mode stays reachable. */
+  /** OPT-C2 / OPT-R14 — quiet + grouped under Minimal; every mode stays reachable. */
   const quietModes = useMinimalTheme();
   const { t } = useI18n();
   const groups = useMemo(() => partitionAgentModesByGroup(modes), [modes]);

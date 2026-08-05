@@ -30,11 +30,11 @@ type Props = {
   onAskAgent?: () => void;
   onSelectionAction?: (action: WorkspaceSelectionActionId, ctx: WorkspaceSelectionContext) => void;
   onExplainDifference?: (row: { term: string; text: string }) => void;
-  /** OPT-AI-B β€” source-grounded compare micro-diff (may hand off to Agent). */
+  /** OPT-AI-B — source-grounded compare micro-diff (may hand off to Agent). */
   onAiDiff?: (left: string, right: string) => void;
 };
 
-/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function ComparePanel({
   session,
   concept,

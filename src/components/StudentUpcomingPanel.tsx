@@ -34,7 +34,7 @@ export function StudentUpcomingPanel({ upcoming, ui, lang }: Props) {
               <p className="font-medium text-text-primary truncate">{row.title}</p>
               <p className="text-xs text-text-muted truncate">
                 {row.className}
-                {row.dueAt ? ` Β· ${formatShortDate(row.dueAt, lang)}` : ''}
+                {row.dueAt ? ` · ${formatShortDate(row.dueAt, lang)}` : ''}
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">

@@ -26,7 +26,7 @@ function Metric({
   );
 }
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function RecognitionReportPanel({
   snapshot,
   summary: summaryProp,
@@ -62,7 +62,7 @@ export function RecognitionReportPanel({
             {summary.subject}
             {summary.hasEmbeddingClusters && (
               <span className="ml-2 text-accent-emerald">
-                Β· {t('recognitionReportOfflineClusters', language)}
+                · {t('recognitionReportOfflineClusters', language)}
               </span>
             )}
           </p>

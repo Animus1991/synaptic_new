@@ -55,7 +55,7 @@ export function VideoSummarizeButton({ file, settings, lang, className }: Props)
 
   const runFromBlob = async (blob: Blob, filename: string, action: 'summarize' | 'chapters') => {
     if (!token || !settings) {
-      setError(lang === 'el' ? 'Ξ‘Ο€Ξ±ΞΉΟ„ΞµΞ―Ο„Ξ±ΞΉ ΟƒΟΞ½Ξ΄ΞµΟƒΞ· ΟƒΟ„ΞΏ proxy.' : 'Proxy sign-in required.');
+      setError(lang === 'el' ? 'Απαιτείται σύνδεση στο proxy.' : 'Proxy sign-in required.');
       return;
     }
     setBusy(true);
@@ -100,9 +100,9 @@ export function VideoSummarizeButton({ file, settings, lang, className }: Props)
     inputRef.current?.click();
   };
 
-  const summarizeLabel = lang === 'el' ? 'Ξ£ΟΞ½ΞΏΟΞ· Ξ²Ξ―Ξ½Ο„ΞµΞΏ/Ξ®Ο‡ΞΏΟ…' : 'Summarize media';
-  const chaptersLabel = lang === 'el' ? 'ΞΞµΟ†Ξ¬Ξ»Ξ±ΞΉΞ±' : 'Chapters';
-  const signInHint = lang === 'el' ? 'Ξ£ΟΞ½Ξ΄ΞµΟƒΞ· Ξ±Ο€Ξ±ΞΉΟ„ΞµΞ―Ο„Ξ±ΞΉ Ξ³ΞΉΞ± Whisper' : 'Sign in for Whisper jobs';
+  const summarizeLabel = lang === 'el' ? 'Σύνοψη βίντεο/ήχου' : 'Summarize media';
+  const chaptersLabel = lang === 'el' ? 'Κεφάλαια' : 'Chapters';
+  const signInHint = lang === 'el' ? 'Σύνδεση απαιτείται για Whisper' : 'Sign in for Whisper jobs';
 
   return (
     <div className={cn('flex flex-col gap-2 min-w-[10rem]', className)}>
@@ -135,8 +135,8 @@ export function VideoSummarizeButton({ file, settings, lang, className }: Props)
           )}
           {busy && busyAction === 'summarize'
             ? lang === 'el'
-              ? 'Ξ£ΟΞ½ΞΏΟΞ·β€¦'
-              : 'Summarizingβ€¦'
+              ? 'Σύνοψη…'
+              : 'Summarizing…'
             : summarizeLabel}
         </button>
         <button
@@ -161,8 +161,8 @@ export function VideoSummarizeButton({ file, settings, lang, className }: Props)
           )}
           {busy && busyAction === 'chapters'
             ? lang === 'el'
-              ? 'ΞΞµΟ†Ξ¬Ξ»Ξ±ΞΉΞ±β€¦'
-              : 'Chaptersβ€¦'
+              ? 'Κεφάλαια…'
+              : 'Chapters…'
             : chaptersLabel}
           {chapters.length > 0 &&
             (chaptersOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}

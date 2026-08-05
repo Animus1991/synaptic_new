@@ -17,15 +17,15 @@ interface Props {
   onMarkAllRead: () => void;
   onNavigate: (view: AppView) => void;
   onOpenTasks?: (filter?: 'review' | 'exam') => void;
-  /** OPT-M17 β€” live app toast surfaced in inbox */
+  /** OPT-M17 — live app toast surfaced in inbox */
   appToastMessage?: string | null;
   onDismissAppToast?: () => void;
-  /** OPT-M17 β€” proactive study alerts (same actions as Dashboard strip) */
+  /** OPT-M17 — proactive study alerts (same actions as Dashboard strip) */
   proactiveAlerts?: ProactiveAgentAlert[];
   onRunProactiveAlert?: (alert: ProactiveAgentAlert) => void;
 }
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function NotificationsPanel({
   open,
   onClose,
@@ -227,7 +227,7 @@ export function NotificationsPanel({
                         </p>
                         <p className="type-micro text-text-muted mt-0.5 font-mono">
                           {formatDateTime(a.timestamp, lang)}
-                          {a.xp ? ` Β· +${a.xp} XP` : ''}
+                          {a.xp ? ` · +${a.xp} XP` : ''}
                         </p>
                         {deepLink && (
                           <button

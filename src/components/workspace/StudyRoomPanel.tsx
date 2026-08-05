@@ -36,7 +36,7 @@ type Props = {
   onCoViewBridge?: (bridge: StudyRoomCoViewBridge | null) => void;
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function StudyRoomPanel(props: Props) {
   const { open, onClose, lang, activeTool, onFollowSharedTool, onCoViewBridge } = props;
   const tr = (key: Parameters<typeof t>[0]) => t(key, lang);
@@ -205,7 +205,7 @@ export function StudyRoomPanel(props: Props) {
                 <span className="font-semibold">{room.name}</span>
                 <span className="text-text-muted">
                   {' '}
-                  Β· {room.members.length} {tr('studyRoomMembersOnline')}
+                  · {room.members.length} {tr('studyRoomMembersOnline')}
                   {room.localOnly ? tr('studyRoomLocalSuffix') : ''}
                 </span>
               </div>
@@ -275,13 +275,13 @@ export function StudyRoomPanel(props: Props) {
                   <li key={m.id} className={`rounded-lg border px-3 py-2 text-xs ${m.id === memberId ? 'ws-chip-brand' : 'ws-chip-neutral'}`}>
                     <span className="font-medium">{m.displayName}</span>
                     {m.id === memberId && <span className="text-text-muted"> ({tr('studyRoomYou')})</span>}
-                    {m.leading && <span className="text-text-muted"> Β· {tr('studyRoomLeadingBadge')}</span>}
+                    {m.leading && <span className="text-text-muted"> · {tr('studyRoomLeadingBadge')}</span>}
                     {(m.tool || m.concept || typeof m.stepIndex === 'number') && (
                       <p className="text-text-muted mt-0.5 truncate">
                         {m.tool ? workspaceToolLabel(m.tool as WorkspaceToolId, lang) : ''}
-                        {m.tool && (m.concept || typeof m.stepIndex === 'number') ? ' Β· ' : ''}
-                        {typeof m.stepIndex === 'number' ? `Β§${m.stepIndex + 1}` : ''}
-                        {typeof m.stepIndex === 'number' && m.concept ? ' Β· ' : ''}
+                        {m.tool && (m.concept || typeof m.stepIndex === 'number') ? ' · ' : ''}
+                        {typeof m.stepIndex === 'number' ? `§${m.stepIndex + 1}` : ''}
+                        {typeof m.stepIndex === 'number' && m.concept ? ' · ' : ''}
                         {m.concept ?? ''}
                       </p>
                     )}
@@ -330,7 +330,7 @@ export function StudyRoomPanel(props: Props) {
                 memberId={memberId}
                 displayName={displayName}
               />
-              {/* Device-local until collab review sync β€” banner inside panel (P1). */}
+              {/* Device-local until collab review sync — banner inside panel (P1). */}
               {memberId && !room.localOnly ? (
                 <CoReadingHubPanel
                   lang={lang}

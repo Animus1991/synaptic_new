@@ -1,5 +1,5 @@
 /**
- * Wave CH-3/4 UI β€” Co-reading explanation challenges + protected peer votes.
+ * Wave CH-3/4 UI — Co-reading explanation challenges + protected peer votes.
  * Storage is device-local until collab review sync ships (see collabReviewSync).
  */
 import { useEffect, useState } from 'react';
@@ -30,10 +30,10 @@ type Props = {
 function dimensionLabel(dim: PeerDimension, lang: Lang): string {
   const el = lang === 'el';
   const map: Record<PeerDimension, [string, string]> = {
-    clarity: ['Clarity', 'Ξ£Ξ±Ο†Ξ®Ξ½ΞµΞΉΞ±'],
-    sourceGrounding: ['Source grounding', 'Ξ£Ο„Ξ®ΟΞΉΞΎΞ· ΟƒΞµ Ο€Ξ·Ξ³Ξ®'],
-    completeness: ['Completeness', 'Ξ Ξ»Ξ·ΟΟΟ„Ξ·Ο„Ξ±'],
-    examUsefulness: ['Exam usefulness', 'Ξ§ΟΞ·ΟƒΞΉΞΌΟΟ„Ξ·Ο„Ξ± ΞµΞΎΞµΟ„Ξ¬ΟƒΞµΟ‰Ξ½'],
+    clarity: ['Clarity', 'Σαφήνεια'],
+    sourceGrounding: ['Source grounding', 'Στήριξη σε πηγή'],
+    completeness: ['Completeness', 'Πληρότητα'],
+    examUsefulness: ['Exam usefulness', 'Χρησιμότητα εξετάσεων'],
   };
   return el ? map[dim][1] : map[dim][0];
 }

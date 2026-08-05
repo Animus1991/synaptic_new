@@ -12,7 +12,7 @@ type Props = {
   className?: string;
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function AudioStudyGuideButton({ course, lang, settings, className }: Props) {
   const [playing, setPlaying] = useState(false);
   const [neural, setNeural] = useState(false);
@@ -88,9 +88,9 @@ export function AudioStudyGuideButton({ course, lang, settings, className }: Pro
     lang === 'el'
       ? playing
         ? neural
-          ? 'Ξ”ΞΉΞ±ΞΊΞΏΟ€Ξ® podcast'
-          : 'Ξ”ΞΉΞ±ΞΊΞΏΟ€Ξ® ΞΏΞ΄Ξ·Ξ³ΞΏΟ'
-        : 'Podcast ΞΌΞµΞ»Ξ­Ο„Ξ·Ο‚ (2 Ο†Ο‰Ξ½Ξ­Ο‚)'
+          ? 'Διακοπή podcast'
+          : 'Διακοπή οδηγού'
+        : 'Podcast μελέτης (2 φωνές)'
       : playing
         ? neural
           ? 'Stop podcast'

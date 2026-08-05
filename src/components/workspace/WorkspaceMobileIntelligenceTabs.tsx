@@ -1,15 +1,15 @@
 import { cn } from '../../utils/cn';
 import { t, type Lang } from '../../lib/i18n';
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export type MobileIntelTab = 'discover' | 'concept-bus' | 'weak-areas';
 
 type TabDef = { id: MobileIntelTab; labelEn: string; labelEl: string };
 
 const TABS: TabDef[] = [
-  { id: 'discover', labelEn: 'Tips', labelEl: 'Ξ£Ο…ΞΌΞ²ΞΏΟ…Ξ»Ξ­Ο‚' },
-  { id: 'concept-bus', labelEn: 'Concepts', labelEl: 'ΞΞ½Ξ½ΞΏΞΉΞµΟ‚' },
-  { id: 'weak-areas', labelEn: 'Weak spots', labelEl: 'Ξ‘Ξ΄ΟΞ½Ξ±ΞΌΞ±' },
+  { id: 'discover', labelEn: 'Tips', labelEl: 'Συμβουλές' },
+  { id: 'concept-bus', labelEn: 'Concepts', labelEl: 'Έννοιες' },
+  { id: 'weak-areas', labelEn: 'Weak spots', labelEl: 'Αδύναμα' },
 ];
 
 export function intelPanelId(tab: MobileIntelTab): string {

@@ -24,11 +24,11 @@ type Props = {
   onAskAgent?: (claimText?: string) => void;
   onSelectionAction?: (action: WorkspaceSelectionActionId, ctx: WorkspaceSelectionContext) => void;
   onRebuttalPersisted?: (rebuttalText: string) => void;
-  /** OPT-AI-B β€” generate / hand off a counter-argument for the selected claim. */
+  /** OPT-AI-B — generate / hand off a counter-argument for the selected claim. */
   onAiCounter?: (claimText: string) => void;
 };
 
-/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function DebatePanel({
   session,
   concept,
@@ -161,7 +161,7 @@ export function DebatePanel({
                 onClick={() => selectClaim(text)}
                 className="rounded-md border border-brand-500/25 bg-brand-500/5 px-2 py-0.5 type-caption text-text-primary hover:bg-brand-500/10 hover:border-brand-500/40 transition-colors"
               >
-                {text.slice(0, 56)}{text.length > 56 ? 'β€¦' : ''}
+                {text.slice(0, 56)}{text.length > 56 ? '…' : ''}
               </button>
             ))}
           </div>

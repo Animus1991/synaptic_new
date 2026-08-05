@@ -86,17 +86,17 @@ type CourseTab = CourseTabId;
 function buildSourcePreviewText(file: UploadedFile, course: Course): string | null {
   if (file.extractedText?.trim()) {
     const text = file.extractedText.replace(/\s+/g, ' ').trim();
-    return text.length > 160 ? `${text.slice(0, 157)}β€¦` : text;
+    return text.length > 160 ? `${text.slice(0, 157)}…` : text;
   }
   const span = course.conceptSpans?.find((s) => s.fileId === file.id && s.sentence?.trim());
   if (span?.sentence) {
     const sentence = span.sentence.replace(/\s+/g, ' ').trim();
-    return sentence.length > 160 ? `${sentence.slice(0, 157)}β€¦` : sentence;
+    return sentence.length > 160 ? `${sentence.slice(0, 157)}…` : sentence;
   }
   return null;
 }
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function CourseView({
   course,
   uploadedFiles = [],
@@ -208,7 +208,7 @@ export function CourseView({
     if (ok !== false) setReprocessApplied(true);
   };
 
-  /** B10/B11 β€” warm workspace + reader chunks while viewing course overview. */
+  /** B10/B11 — warm workspace + reader chunks while viewing course overview. */
   useEffect(() => {
     prefetchWorkspaceEntry();
   }, [course.id]);
@@ -508,7 +508,7 @@ export function CourseView({
           <span className="text-sm font-medium">Course Progress</span>
           <span className="text-sm text-text-secondary">{course.completedLessons}/{course.totalLessons} lessons</span>
         </div>
-        {/* Wave P-2 C08 β€” Course Progress top-of-page track uses --viz-bar-track. */}
+        {/* Wave P-2 C08 — Course Progress top-of-page track uses --viz-bar-track. */}
         <div className="w-full rounded-full h-3" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
           <div
             className="h-3 rounded-full transition-all duration-700"
@@ -712,7 +712,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
                   <span className="text-text-muted">Mastery</span>
                   <span className="font-medium">{topic.mastery}%</span>
                 </div>
-                {/* Wave P-2 C08 β€” Topic mastery track uses --viz-bar-track. */}
+                {/* Wave P-2 C08 — Topic mastery track uses --viz-bar-track. */}
                 <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                   <div
                     className="h-1.5 rounded-full transition-all"
@@ -1013,7 +1013,7 @@ function SourceFiles({
         </div>
         {course.pipelineMeta && (
           <p className="mt-3 type-micro text-text-muted">
-            Pipeline v{course.pipelineMeta.version} Β· {course.pipelineMeta.outlineSource} Β· {new Date(course.pipelineMeta.generatedAt).toLocaleString()}
+            Pipeline v{course.pipelineMeta.version} · {course.pipelineMeta.outlineSource} · {new Date(course.pipelineMeta.generatedAt).toLocaleString()}
           </p>
         )}
       </div>
@@ -1063,10 +1063,10 @@ function SourceFiles({
             Source Analysis Report
           </p>
           <ul className="text-xs text-text-secondary space-y-1">
-            <li>β€Ά {provenanceCount} concept spans linked to source sentences</li>
-            <li>β€Ά All content is source-grounded from your uploaded materials</li>
+            <li>‶ {provenanceCount} concept spans linked to source sentences</li>
+            <li>‶ All content is source-grounded from your uploaded materials</li>
             {course.sourceQuality?.warnings.slice(0, 2).map((w) => (
-              <li key={w}>β€Ά {w}</li>
+              <li key={w}>‶ {w}</li>
             ))}
           </ul>
         </div>
@@ -1117,7 +1117,7 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
           {course.topics.slice(0, 6).map(topic => (
             <div key={topic.id} className="flex items-center gap-2">
               <span className="text-xs text-text-secondary w-24 truncate">{topic.title}</span>
-              {/* Wave P-2 C08 β€” Study Time Distribution track uses --viz-bar-track. */}
+              {/* Wave P-2 C08 — Study Time Distribution track uses --viz-bar-track. */}
               <div className="flex-1 rounded-full h-2" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                 <div
                   className="h-2 rounded-full bg-brand-500 transition-all"
@@ -1159,7 +1159,7 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
             </div>
             {velocity > 0 && (
               <div>
-                <div className={cn('ux-kpi-value', velocity >= 1 ? 'text-accent-emerald' : 'text-accent-amber')}>{velocity.toFixed(2)}Γ—</div>
+                <div className={cn('ux-kpi-value', velocity >= 1 ? 'text-accent-emerald' : 'text-accent-amber')}>{velocity.toFixed(2)}×</div>
                 <p className="text-xs text-text-tertiary mt-1">
                   {velocity >= 1.05 ? 'Ahead of the expected pace' : velocity <= 0.95 ? 'Behind the expected pace' : 'On the expected pace'}
                 </p>

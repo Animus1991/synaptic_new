@@ -85,7 +85,7 @@ const FLOW_STAGES = [
   { key: 'processing', labelKey: 'uploadStageCourse', hintKey: 'uploadStageCourseHint' },
 ] as const;
 
-/* OPT-K98 β€” markup debt: decorative brand type -> ink */
+/* OPT-K98 — markup debt: decorative brand type -> ink */
 export function UploadModal({
   isOpen,
   onClose,
@@ -121,9 +121,9 @@ export function UploadModal({
   const dialogRef = useRef<HTMLDivElement>(null);
   const wasOpenRef = useRef(false);
   const previewLang = userSettings?.language === 'el' ? 'el' : 'en';
-  /** OPT-R10 β€” prompt-first create chrome under Minimal. */
+  /** OPT-R10 — prompt-first create chrome under Minimal. */
   const createPrompt = useMinimalTheme();
-  // OPT-R10 β€” under Minimal, keep paste/YouTube disclosed (prompt-first create).
+  // OPT-R10 — under Minimal, keep paste/YouTube disclosed (prompt-first create).
   const moreSourcesOpen = createPrompt || Boolean(pastedContent.trim() || youtubeUrl.trim());
 
   const extendableCourses = courses.filter((c) => !isDemoCourse(c.id));
@@ -516,7 +516,7 @@ export function UploadModal({
                   <p className="text-xs text-text-secondary">{t('uploadNextStepHint', previewLang)}</p>
                 </div>
 
-                {/* OPT-R10 β€” paste/YouTube disclosed under Minimal; always present */}
+                {/* OPT-R10 — paste/YouTube disclosed under Minimal; always present */}
                 <CollapsibleChromeSection
                   title={t('uploadMoreSources', previewLang)}
                   defaultOpen={moreSourcesOpen}

@@ -25,7 +25,7 @@ type Props = {
 const fieldClass =
   'w-full rounded-lg border border-border-subtle bg-surface-secondary px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:border-brand-500 focus:outline-none';
 
-/** Study Room lobby β€” create/join a collaborative co-reading session, then enter the Study Hub. */
+/** Study Room lobby — create/join a collaborative co-reading session, then enter the Study Hub. */
 export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
   const { t } = useI18n();
   const [apiStatus, setApiStatus] = useState<StudyRoomApiStatus | null>(null);
@@ -280,7 +280,7 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
                       >
                         <span className="font-medium">{m.displayName}</span>
                         {m.id === memberId && <span className="text-text-muted"> ({t('studyRoomYou')})</span>}
-                        {m.leading && <span className="text-text-muted"> Β· {t('studyRoomLeadingBadge')}</span>}
+                        {m.leading && <span className="text-text-muted"> · {t('studyRoomLeadingBadge')}</span>}
                       </li>
                     ))}
                   </ul>

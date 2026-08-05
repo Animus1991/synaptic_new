@@ -78,7 +78,7 @@ function validationMessage(
   }
 }
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function Onboarding({ onComplete }: OnboardingProps) {
   const { lang } = useI18n();
   const content = getOnboardingContent(lang);
@@ -509,13 +509,13 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                       <div className="flex justify-between gap-4">
                         <span className="text-text-tertiary">{content.summaryProfile}</span>
                         <span className="text-text-primary font-medium text-right">
-                          {selectedRoleMeta?.label ?? 'β€”'}
+                          {selectedRoleMeta?.label ?? '—'}
                         </span>
                       </div>
                       <div className="flex justify-between gap-4">
                         <span className="text-text-tertiary">{content.summaryGoals}</span>
                         <span className="text-text-primary font-medium text-right">
-                          {selectedGoalLabels.length > 0 ? selectedGoalLabels.join(', ') : 'β€”'}
+                          {selectedGoalLabels.length > 0 ? selectedGoalLabels.join(', ') : '—'}
                         </span>
                       </div>
                       <div className="flex justify-between gap-4">

@@ -20,9 +20,9 @@ export function CohortHeatmap({ analytics, lang }: Props) {
     ...heatmaps.flatMap((h) => h.days.map((d) => d.gradedCount)),
   );
 
-  const title = lang === 'el' ? 'Cohort heatmap (14 Ξ·ΞΌΞ­ΟΞµΟ‚)' : 'Cohort heatmap (14 days)';
-  const gradedLabel = lang === 'el' ? 'Ξ²Ξ±ΞΈΞΌΞΏΞ―' : 'grades';
-  const activeLabel = lang === 'el' ? 'ΞµΞ½ΞµΟΞ³ΞΏΞ―' : 'active';
+  const title = lang === 'el' ? 'Cohort heatmap (14 ημέρες)' : 'Cohort heatmap (14 days)';
+  const gradedLabel = lang === 'el' ? 'βαθμοί' : 'grades';
+  const activeLabel = lang === 'el' ? 'ενεργοί' : 'active';
 
   return (
     <div className="space-y-3 pt-3 border-t border-border-subtle/50" data-testid="cohort-heatmap">

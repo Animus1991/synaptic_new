@@ -5,7 +5,7 @@ import { cn } from '../../utils/cn';
 import { BlueprintSurface } from '../ui/BlueprintSurface';
 import { AllCapsLabel } from '../ui/AllCapsLabel';
 
-/* OPT-K97 β€” event cards share calm wells; delta/dot carry semantic chroma */
+/* OPT-K97 — event cards share calm wells; delta/dot carry semantic chroma */
 const TYPE_STYLE: Record<TimelineEventType, { border: string; bg: string; text: string }> = {
   lesson: { border: 'border-border-subtle', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
   quiz: { border: 'border-border-subtle', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },

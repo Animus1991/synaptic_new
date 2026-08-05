@@ -19,7 +19,7 @@ interface Props {
   lang: Lang;
 }
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function WorkspaceMobileToolDrawer({
   open,
   onClose,

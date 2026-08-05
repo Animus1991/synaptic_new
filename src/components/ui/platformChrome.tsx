@@ -9,10 +9,10 @@ import { BLUEPRINT_MOTION, useBlueprintTheme } from '../../lib/useBlueprintTheme
 import { OverflowChipRow } from './OverflowChipRow';
 import { AllCapsLabel } from './AllCapsLabel';
 
-/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export { BlueprintSurface } from './BlueprintSurface';
 
-/** In-page section chrome β€” Option-B eyebrow / title / subtitle (distinct from PageHeader). */
+/** In-page section chrome — Option-B eyebrow / title / subtitle (distinct from PageHeader). */
 export function SectionHeader({
   eyebrow,
   title,
@@ -59,7 +59,7 @@ const CALLOUT_CLASS: Record<UxCalloutVariant, string> = {
   warn: 'ux-callout-warn',
 };
 
-/** Semantic alert / callout β€” danger zone, next best action, trust notes. */
+/** Semantic alert / callout — danger zone, next best action, trust notes. */
 export function UxCallout({
   variant,
   title,
@@ -77,7 +77,7 @@ export function UxCallout({
   action?: ReactNode;
   className?: string;
   testId?: string;
-  /** OPT-K17 β€” urgency taxonomy for Minimal left-edge signal */
+  /** OPT-K17 — urgency taxonomy for Minimal left-edge signal */
   dataTone?: string;
 }) {
   return (
@@ -99,7 +99,7 @@ export function UxCallout({
   );
 }
 
-/** Source-trust pill row β€” mirrors Option-B source viewer badges. */
+/** Source-trust pill row — mirrors Option-B source viewer badges. */
 export function TrustBadgeRow({
   sourceMode,
   lang,
@@ -125,7 +125,7 @@ export function TrustBadgeRow({
   );
 }
 
-/** Session launcher card β€” Option-B left-aligned duration tag + detail. */
+/** Session launcher card — Option-B left-aligned duration tag + detail. */
 export function SessionLauncherCard({
   label,
   desc,
@@ -190,7 +190,7 @@ export function SessionLauncherCard({
   );
 }
 
-/** Subtle hero radial glow β€” Dashboard / Tasks page headers. */
+/** Subtle hero radial glow — Dashboard / Tasks page headers. */
 export function HeroGlow({
   children,
   className,
@@ -216,7 +216,7 @@ export type DescriptiveTabItem<T extends string = string> = {
   count?: number;
 };
 
-/** Option-B sticky section tabs β€” title + summary per tab (progressive disclosure). */
+/** Option-B sticky section tabs — title + summary per tab (progressive disclosure). */
 export function DescriptiveStickyTabBar<T extends string>({
   items,
   activeId,
@@ -234,7 +234,7 @@ export function DescriptiveStickyTabBar<T extends string>({
   testIdPrefix?: string;
   /** When set, tabs expose `aria-controls` pointing at `{panelIdPrefix}-{id}` panels. */
   panelIdPrefix?: string;
-  /** Optional trailing control (e.g. Tasks filter icon) β€” kept outside the scrollable tablist. */
+  /** Optional trailing control (e.g. Tasks filter icon) — kept outside the scrollable tablist. */
   trailing?: ReactNode;
   ariaLabel?: string;
 }) {
@@ -307,10 +307,10 @@ export function DescriptiveStickyTabBar<T extends string>({
   );
 }
 
-/** Nested topic / prerequisite rhythm β€” Option-B Library InfoStack.
+/** Nested topic / prerequisite rhythm — Option-B Library InfoStack.
  *  When onItemClick / onSecondaryClick are provided, entries render as
  *  keyboard-accessible buttons that deep-link into the owning surface.
- *  OPT-L1 β€” full-width responsive grid; no narrow max-width trap. */
+ *  OPT-L1 — full-width responsive grid; no narrow max-width trap. */
 export function InfoStack({
   title,
   items,
@@ -321,9 +321,9 @@ export function InfoStack({
   onSecondaryClick,
   itemHint,
   secondaryHint,
-  /** OPT-K14 / L1 β€” densify primary items; remainder via +N (all still reachable). */
+  /** OPT-K14 / L1 — densify primary items; remainder via +N (all still reachable). */
   maxVisibleItems = 6,
-  /** OPT-K14 / L1 β€” densify secondary pills; remainder via +N. */
+  /** OPT-K14 / L1 — densify secondary pills; remainder via +N. */
   maxVisibleSecondary = 8,
 }: {
   title: string;
@@ -385,7 +385,7 @@ export function InfoStack({
   );
 }
 
-/** Option-B three-bar brand glyph β€” cyan / violet / emerald. */
+/** Option-B three-bar brand glyph — cyan / violet / emerald. */
 export function SynapseBrandGlyph({ className }: { className?: string }) {
   return (
     <div className={cn('synapse-brand-glyph', className)} aria-hidden>
@@ -396,7 +396,7 @@ export function SynapseBrandGlyph({ className }: { className?: string }) {
   );
 }
 
-/** Shell header trust pills β€” Source grounded, PWA, offline reviews (Option-B). */
+/** Shell header trust pills — Source grounded, PWA, offline reviews (Option-B). */
 export function HeaderTrustBadgeRow({ lang, className }: { lang: Lang; className?: string }) {
   return (
     <div
@@ -410,7 +410,7 @@ export function HeaderTrustBadgeRow({ lang, className }: { lang: Lang; className
   );
 }
 
-/** Compact paired alert β€” Option-B amber / violet MiniAlert. */
+/** Compact paired alert — Option-B amber / violet MiniAlert. */
 export function MiniAlert({
   title,
   body,
@@ -423,7 +423,7 @@ export function MiniAlert({
   body: string;
   tone: 'amber' | 'violet';
   className?: string;
-  /** OPT-L3 β€” optional deep-link (upload / reprocess). */
+  /** OPT-L3 — optional deep-link (upload / reprocess). */
   actionLabel?: string;
   onAction?: () => void;
 }) {
@@ -445,7 +445,7 @@ export function MiniAlert({
   );
 }
 
-/** Compact EN/Ξ•Ξ› toggle for shell header β€” Option-B segmented pill. */
+/** Compact EN/ΕΛ toggle for shell header — Option-B segmented pill. */
 export function HeaderLangPill({
   lang,
   onChange,
@@ -476,7 +476,7 @@ export function HeaderLangPill({
         aria-pressed={lang === 'el'}
         onClick={() => onChange('el')}
       >
-        Ξ•Ξ›
+        ΕΛ
       </button>
     </div>
   );

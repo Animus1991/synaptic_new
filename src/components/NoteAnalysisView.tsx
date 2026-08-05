@@ -36,7 +36,7 @@ type Props = {
   onReprocess?: () => void;
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function NoteAnalysisView({
   course,
   files,
@@ -178,7 +178,7 @@ export function NoteAnalysisView({
         })}
       </div>
 
-      {/* Stage 1 β€” File Processing */}
+      {/* Stage 1 — File Processing */}
       {activeStage === 1 && (
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
@@ -195,7 +195,7 @@ export function NoteAnalysisView({
         </div>
       )}
 
-      {/* Stage 2 β€” Content Diagnosis */}
+      {/* Stage 2 — Content Diagnosis */}
       {activeStage === 2 && (
         <div className="space-y-4">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -246,7 +246,7 @@ export function NoteAnalysisView({
                           onClick={() => runIssueAction(issue.action)}
                           className="text-xs font-medium text-text-secondary hover:text-text-primary"
                         >
-                          β†’ {actionLabel(issue.action)}
+                          → {actionLabel(issue.action)}
                         </button>
                       </div>
                     )}
@@ -258,7 +258,7 @@ export function NoteAnalysisView({
         </div>
       )}
 
-      {/* Stage 2.5 β€” Algorithm Transparency */}
+      {/* Stage 2.5 — Algorithm Transparency */}
       {activeStage === 2.5 && (
         <div className="space-y-4">
           <p className="text-sm text-text-secondary">{c.algorithmTransparency}</p>
@@ -343,7 +343,7 @@ export function NoteAnalysisView({
         </div>
       )}
 
-      {/* Stage 3 β€” Knowledge Graph */}
+      {/* Stage 3 — Knowledge Graph */}
       {activeStage === 3 && (
         <div className="ux-card">
           <h3 className="text-sm font-semibold text-text-primary mb-4">{c.knowledgeGraph}</h3>
@@ -355,7 +355,7 @@ export function NoteAnalysisView({
         </div>
       )}
 
-      {/* Stage 4 β€” Course Architecture */}
+      {/* Stage 4 — Course Architecture */}
       {activeStage === 4 && (
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-text-primary">{c.courseArchitecture}</h3>
@@ -369,7 +369,7 @@ export function NoteAnalysisView({
                 <div>
                   <p className="text-sm font-semibold text-text-primary">{mod.title}</p>
                   <p className="text-xs text-text-tertiary mt-0.5">
-                    {mod.lessonCount} lessons Β· {mod.minutes} min Β· {mod.concepts} concepts
+                    {mod.lessonCount} lessons · {mod.minutes} min · {mod.concepts} concepts
                   </p>
                 </div>
                 <ArrowRight className={cn('w-4 h-4 text-text-muted transition-transform', expandedModule === mod.id && 'rotate-90')} />
@@ -377,7 +377,7 @@ export function NoteAnalysisView({
               {expandedModule === mod.id && (
                 <ul className="mt-3 pt-3 border-t border-border-subtle space-y-1">
                   {mod.lessons.map((lesson) => (
-                    <li key={lesson} className="text-xs text-text-secondary">Β· {lesson}</li>
+                    <li key={lesson} className="text-xs text-text-secondary">· {lesson}</li>
                   ))}
                 </ul>
               )}
@@ -386,7 +386,7 @@ export function NoteAnalysisView({
         </div>
       )}
 
-      {/* Stage 5 β€” Quality Assurance */}
+      {/* Stage 5 — Quality Assurance */}
       {activeStage === 5 && (
         <div className="space-y-4">
           {snapshot.qaMetrics.length === 0 ? (

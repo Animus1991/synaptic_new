@@ -13,12 +13,12 @@ type Props = {
   className?: string;
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function SubjectMasteryGrid({ tiles, onSelect, className }: Props) {
   const { lang } = useI18n();
-  const title = lang === 'el' ? 'Mastery Ξ±Ξ½Ξ¬ ΞΌΞ¬ΞΈΞ·ΞΌΞ±' : 'Subject mastery';
-  const empty = lang === 'el' ? 'Ξ”ΞµΞ½ Ο…Ο€Ξ¬ΟΟ‡ΞΏΟ…Ξ½ Ξ­Ο„ΞΏΞΉΞΌΞ± ΞΌΞ±ΞΈΞ®ΞΌΞ±Ο„Ξ± Ξ±ΞΊΟΞΌΞ±.' : 'No ready courses yet.';
-  const pending = lang === 'el' ? 'ΞµΞΊΞΊΟΞµΞΌΞµΞ―Ο‚ Ξ­Ξ½Ξ½ΞΏΞΉΞµΟ‚' : 'pending concepts';
+  const title = lang === 'el' ? 'Mastery ανά μάθημα' : 'Subject mastery';
+  const empty = lang === 'el' ? 'Δεν υπάρχουν έτοιμα μαθήματα ακόμα.' : 'No ready courses yet.';
+  const pending = lang === 'el' ? 'εκκρεμείς έννοιες' : 'pending concepts';
 
   return (
     <div className={cn('space-y-2', className)} data-testid="subject-mastery-grid">

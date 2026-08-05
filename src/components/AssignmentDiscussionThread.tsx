@@ -16,7 +16,7 @@ import { cn } from '../utils/cn';
 import { AssignmentCanonPanel } from './AssignmentCanonPanel';
 import { hashContent } from '../lib/contributionLedger';
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export type DiscussionUi = {
   toggle: string;
   hint: string;
@@ -195,7 +195,7 @@ function PostCard({
             disabled={busy}
             className="px-2 py-1.5 rounded-lg border border-border-subtle type-micro"
           >
-            Γ—
+            ×
           </button>
         </div>
       )}
@@ -223,7 +223,7 @@ export function AssignmentDiscussionThread({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const token = settings.authToken?.trim() ?? '';
-  const actorName = settings.authEmail?.trim() || (lang === 'el' ? 'ΞΞ­Ξ»ΞΏΟ‚' : 'Member');
+  const actorName = settings.authEmail?.trim() || (lang === 'el' ? 'Μέλος' : 'Member');
   const actorId = settings.authEmail?.trim()
     || (token ? `user-${hashContent(token).slice(-10)}` : `anon-${classId.slice(0, 6)}`);
 
@@ -334,11 +334,11 @@ export function AssignmentDiscussionThread({
       {open && (
         <div className="mt-2 rounded-xl border border-border-subtle/60 bg-surface-card/40 p-3 space-y-2 text-xs">
           <p className="type-micro text-text-muted">
-            {ui.hint} β€” {assignmentTitle}
+            {ui.hint} — {assignmentTitle}
           </p>
           {error && <p className="text-accent-rose type-micro">{error}</p>}
           {loading ? (
-            <p className="text-text-muted type-micro">β€¦</p>
+            <p className="text-text-muted type-micro">…</p>
           ) : rootPosts.length === 0 ? (
             <p className="text-text-muted type-micro">{ui.empty}</p>
           ) : (

@@ -35,7 +35,7 @@ type Props = {
   initialMainTab?: MainTab;
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function SimulatorPanel({
   session,
   concept,
@@ -191,7 +191,7 @@ export function SimulatorPanel({
           <span className="type-caption text-text-muted">
             {session.numericCues.length} {t('panelParameters')}
             {session.economicsMode && (
-              <> Β· {t('panelEconMode')}</>
+              <> · {t('panelEconMode')}</>
             )}
           </span>
           {onStartTimedPractice && (
@@ -227,7 +227,7 @@ export function SimulatorPanel({
                 onClick={() => onOpenInReader?.(cue.context.slice(0, 80) || cue.label)}
                 className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 type-caption text-text-primary hover:opacity-90"
               >
-                {cue.label.slice(0, 48)}{cue.label.length > 48 ? 'β€¦' : ''}
+                {cue.label.slice(0, 48)}{cue.label.length > 48 ? '…' : ''}
               </button>
             ))}
           </div>

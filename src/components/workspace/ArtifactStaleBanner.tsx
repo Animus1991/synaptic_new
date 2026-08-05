@@ -9,12 +9,12 @@ type Props = {
 };
 
 const TOOL_LABEL: Record<StalePracticeTool, { en: string; el: string }> = {
-  quiz: { en: 'quiz questions', el: 'ΞµΟΟ‰Ο„Ξ®ΟƒΞµΞΉΟ‚ ΞΊΞΏΟ…Ξ―Ξ¶' },
-  leitner: { en: 'flashcards', el: 'ΞΊΞ¬ΟΟ„ΞµΟ‚' },
-  simulator: { en: 'simulator parameters', el: 'Ο€Ξ±ΟΞ¬ΞΌΞµΟ„ΟΞΏΞΉ Ο€ΟΞΏΟƒΞΏΞΌΞΏΞ―Ο‰ΟƒΞ·Ο‚' },
+  quiz: { en: 'quiz questions', el: 'ερωτήσεις κουίζ' },
+  leitner: { en: 'flashcards', el: 'κάρτες' },
+  simulator: { en: 'simulator parameters', el: 'παράμετροι προσομοίωσης' },
 };
 
-/** Visible stale flag after source reprocess (Β§11). */
+/** Visible stale flag after source reprocess (§11). */
 export function ArtifactStaleBanner({ lang, tool, onDismiss }: Props) {
   const label = TOOL_LABEL[tool][lang];
 

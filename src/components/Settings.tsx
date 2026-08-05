@@ -49,7 +49,7 @@ interface SettingsProps {
   onApplyCalendarSync?: (updates: TaskCalendarSyncUpdate[]) => void;
 }
 
-/* OPT-K98 β€” markup debt: decorative brand type -> ink */
+/* OPT-K98 — markup debt: decorative brand type -> ink */
 export function Settings({
   settings,
   onUpdate,
@@ -175,7 +175,7 @@ export function Settings({
   );
   const [activeSection, setActiveSection] = useState(settingsSections[0]?.id ?? 'settings-teaching');
 
-  // OPT-R16 β€” highlight the section nearest the viewport top while scrolling (Minimal IDE nav).
+  // OPT-R16 — highlight the section nearest the viewport top while scrolling (Minimal IDE nav).
   useEffect(() => {
     if (!isMinimal) return;
     const elements = settingsSections
@@ -246,7 +246,7 @@ export function Settings({
         })}
       </nav>
 
-      {/* Wave P-L01 β€” masonry column flow (Blueprint). OPT-R16 Minimal uses a single
+      {/* Wave P-L01 — masonry column flow (Blueprint). OPT-R16 Minimal uses a single
           IDE-like content column beside the section rail instead of multi-column cards. */}
       <div
         className={cn(
@@ -721,7 +721,7 @@ export function Settings({
                     <div className="min-w-0">
                       <p className="text-text-secondary truncate">
                         {s.current ? c.sessionCurrent : c.sessionOther}
-                        {s.userAgent ? ` Β· ${s.userAgent.slice(0, 48)}` : ''}
+                        {s.userAgent ? ` · ${s.userAgent.slice(0, 48)}` : ''}
                       </p>
                       <p className="text-text-muted">{new Date(s.createdAt).toLocaleString()}</p>
                     </div>
@@ -1018,7 +1018,7 @@ function SettingsSection({ id, title, icon, children, delay }: { id: string; tit
 
 function ToggleRow({ label, options, value, onChange }: { label: string; options: { value: string; label: string }[]; value: string; onChange: (v: string) => void }) {
   const isMinimal = useMinimalTheme();
-  // OPT-K8 β€” Spending-like label β†” control row under Minimal.
+  // OPT-K8 — Spending-like label ↔ control row under Minimal.
   if (isMinimal) {
     return (
       <div className="settings-pref-row">
@@ -1090,7 +1090,7 @@ function ThemePickerRow({
             ? cn('settings-pref-chip inline-flex items-center gap-1.5', active && 'is-active')
             : cn(
                 'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 type-caption font-medium transition-all',
-                /* Wave P-3 C12 β€” .ux-theme-chip-active uses brand-700 ink on light
+                /* Wave P-3 C12 — .ux-theme-chip-active uses brand-700 ink on light
                    themes (brand-300 collapsed to ~2:1 on warm-light white cards). */
                 active
                   ? 'ux-theme-chip-active'

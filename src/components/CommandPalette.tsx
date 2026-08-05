@@ -14,7 +14,7 @@ import type { DashboardNextAction } from '../lib/dashboardNextAction';
 import { paletteQuickActions, type GlobalQuickActionId } from '../lib/globalActionRegistry';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export type CommandAction =
   | { type: 'navigate'; view: AppView; label: string; icon: typeof Search }
   | { type: 'workspace'; label: string; icon: typeof LayoutGrid }
@@ -306,7 +306,7 @@ export function useCommandPalette() {
   return { open, toggle, close, setOpen };
 }
 
-/** B9 β€” Global palette: defer mount until idle; mount immediately when opened. */
+/** B9 — Global palette: defer mount until idle; mount immediately when opened. */
 export function AppCommandPaletteMount(props: Props) {
   const { open } = props;
   const [mounted, setMounted] = useState(open);

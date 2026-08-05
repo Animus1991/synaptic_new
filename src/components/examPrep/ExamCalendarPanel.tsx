@@ -6,7 +6,7 @@ import { PlatformSection } from '../ui/primitives';
 
 type PresetFilter = 'all' | 'general' | 'panhellenic-informatics';
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function ExamCalendarPanel() {
   const { t } = useI18n();
   const [preset, setPreset] = useState<PresetFilter>('all');
@@ -48,7 +48,7 @@ export function ExamCalendarPanel() {
             className="rounded-xl border border-border-subtle bg-surface-card/40 p-3"
             data-testid={`exam-calendar-entry-${entry.id}`}
           >
-            {/* OPT-K9b β€” link beside title cluster, not far-right of ultrawide card */}
+            {/* OPT-K9b — link beside title cluster, not far-right of ultrawide card */}
             <div className="proximity-row items-start">
               <div className="proximity-row-label min-w-0">
                 <p className="type-micro text-text-muted mb-1">{entry.date}</p>

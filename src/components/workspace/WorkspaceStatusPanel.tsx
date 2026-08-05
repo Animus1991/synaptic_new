@@ -1,6 +1,6 @@
 /**
- * OPT-M9 β€” Aggregated Status panel for mirrored strip bus items.
- * OPT-R11 β€” Console chrome under Minimal (Errors / Activity groups). Zero alert loss.
+ * OPT-M9 — Aggregated Status panel for mirrored strip bus items.
+ * OPT-R11 — Console chrome under Minimal (Errors / Activity groups). Zero alert loss.
  */
 import { useState } from 'react';
 import { AlertTriangle, CheckCircle2, AlertCircle, ChevronDown, ChevronRight, Terminal } from '@/lib/lucide-shim';
@@ -58,7 +58,7 @@ function StatusItemButton({
   );
 }
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function WorkspaceStatusPanel({ className, defaultOpen = false }: Props) {
   const { t } = useI18n();
   const bus = useWorkspaceStatusBus();

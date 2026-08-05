@@ -34,12 +34,12 @@ export function StudyBehaviorCharts({ activities, className }: Props) {
 
   return (
     <div className={cn('space-y-3', className)} data-testid="study-behavior-charts">
-      <SectionLabel>{lang === 'el' ? 'Ξ£Ο…ΞΌΟ€ΞµΟΞΉΟ†ΞΏΟΞ¬ ΞΌΞµΞ»Ξ­Ο„Ξ·Ο‚' : 'Study behavior'}</SectionLabel>
+      <SectionLabel>{lang === 'el' ? 'Συμπεριφορά μελέτης' : 'Study behavior'}</SectionLabel>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         <div className="rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="study-behavior-bars">
           <p className="type-micro font-semibold uppercase tracking-wide text-text-tertiary mb-2">
-            <AllCapsLabel>{lang === 'el' ? 'Ξ”ΟΞ±ΟƒΟ„Ξ·ΟΞΉΟΟ„Ξ·Ο„Ξ±' : 'Activity'}</AllCapsLabel>
+            <AllCapsLabel>{lang === 'el' ? 'Δραστηριότητα' : 'Activity'}</AllCapsLabel>
           </p>
           <div className="flex items-end gap-1 h-24">
             {model.dayBars.map((d) => (
@@ -57,7 +57,7 @@ export function StudyBehaviorCharts({ activities, className }: Props) {
 
         <div className="rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="study-behavior-effectiveness">
           <p className="type-micro font-semibold uppercase tracking-wide text-text-tertiary mb-2">
-            <AllCapsLabel>{lang === 'el' ? 'Ξ‘Ο€ΞΏΟ„ΞµΞ»ΞµΟƒΞΌΞ±Ο„ΞΉΞΊΟΟ„Ξ·Ο„Ξ±' : 'Effectiveness'}</AllCapsLabel>
+            <AllCapsLabel>{lang === 'el' ? 'Αποτελεσματικότητα' : 'Effectiveness'}</AllCapsLabel>
           </p>
           <svg viewBox={`0 0 ${Math.max(model.effectiveness.length * 24, 120)} 80`} className="w-full h-24" role="img">
             <polyline
@@ -104,7 +104,7 @@ export function StudyBehaviorCharts({ activities, className }: Props) {
           <ul className="space-y-1 min-w-0">
             {model.sessionTypes.length === 0 ? (
               <li className="type-micro text-text-muted">
-                {lang === 'el' ? 'Ξ§Ο‰ΟΞ―Ο‚ Ξ΄ΞµΞ΄ΞΏΞΌΞ­Ξ½Ξ± ΟƒΟ„ΞΏ ΞµΟΟΞΏΟ‚' : 'No data in range'}
+                {lang === 'el' ? 'Χωρίς δεδομένα στο εύρος' : 'No data in range'}
               </li>
             ) : (
               model.sessionTypes.map((s) => (

@@ -117,7 +117,7 @@ function StepRailPreview({
 
         >
 
-          {step.title.length > 22 ? `${step.title.slice(0, 20)}β€¦` : step.title}
+          {step.title.length > 22 ? `${step.title.slice(0, 20)}…` : step.title}
 
         </button>
 
@@ -131,7 +131,7 @@ function StepRailPreview({
 
 
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function ReprocessPreviewModal({
 
   open,
@@ -492,13 +492,13 @@ export function ReprocessPreviewModal({
 
                       <p>
 
-                        {tr('reprocessSections')}: {preview.sectionCountBefore} β†’ {preview.sectionCountAfter}
+                        {tr('reprocessSections')}: {preview.sectionCountBefore} → {preview.sectionCountAfter}
 
                       </p>
 
                       <p>
 
-                        {tr('reprocessTopics')}: {preview.topicCountBefore} β†’ {preview.topicCountAfter}
+                        {tr('reprocessTopics')}: {preview.topicCountBefore} → {preview.topicCountAfter}
 
                       </p>
 
@@ -565,7 +565,7 @@ export function ReprocessPreviewModal({
 
                           >
 
-                            {preview.beforeSnippet || 'β€”'}
+                            {preview.beforeSnippet || '—'}
 
                           </pre>
 
@@ -587,7 +587,7 @@ export function ReprocessPreviewModal({
 
                           >
 
-                            {preview.afterSnippet || 'β€”'}
+                            {preview.afterSnippet || '—'}
 
                           </pre>
 

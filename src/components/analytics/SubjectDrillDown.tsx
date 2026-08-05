@@ -11,14 +11,14 @@ type Props = {
   onStudyConcept: (concept: string) => void;
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function SubjectDrillDown({ tile, onClose, onStudyConcept }: Props) {
   const { lang } = useI18n();
   if (!tile) return null;
 
-  const title = lang === 'el' ? 'ΞΞ½Ξ½ΞΏΞΉΞµΟ‚ ΞΌΞ±ΞΈΞ®ΞΌΞ±Ο„ΞΏΟ‚' : 'Course concepts';
-  const study = lang === 'el' ? 'ΞΞµΞ»Ξ­Ο„Ξ·' : 'Study';
-  const closeLabel = lang === 'el' ? 'ΞΞ»ΞµΞ―ΟƒΞΉΞΌΞΏ' : 'Close';
+  const title = lang === 'el' ? 'Έννοιες μαθήματος' : 'Course concepts';
+  const study = lang === 'el' ? 'Μελέτη' : 'Study';
+  const closeLabel = lang === 'el' ? 'Κλείσιμο' : 'Close';
 
   const topics = [...tile.topics].sort((a, b) => a.mastery - b.mastery);
 
@@ -54,7 +54,7 @@ export function SubjectDrillDown({ tile, onClose, onStudyConcept }: Props) {
         <ul className="overflow-y-auto p-3 space-y-2">
           {topics.length === 0 ? (
             <li className="text-xs text-text-tertiary px-1">
-              {lang === 'el' ? 'Ξ”ΞµΞ½ Ο…Ο€Ξ¬ΟΟ‡ΞΏΟ…Ξ½ ΞΈΞ­ΞΌΞ±Ο„Ξ± Ξ±ΞΊΟΞΌΞ±.' : 'No topics yet.'}
+              {lang === 'el' ? 'Δεν υπάρχουν θέματα ακόμα.' : 'No topics yet.'}
             </li>
           ) : (
             topics.map((topic) => (

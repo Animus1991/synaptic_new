@@ -16,7 +16,7 @@ type Props = {
   onStepFocus?: (stepId: string | null) => void;
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function WhiteboardDiagramCoach({
   plan,
   coverageReport,
@@ -25,7 +25,7 @@ export function WhiteboardDiagramCoach({
   onAskAgent,
   onStepFocus,
 }: Props) {
-  /** Wave E3 β€” canvas-first: coach starts collapsed */
+  /** Wave E3 — canvas-first: coach starts collapsed */
   const [expanded, setExpanded] = useState(false);
   const [activeStepId, setActiveStepId] = useState<string | null>(plan.steps[0]?.id ?? null);
   const { t } = useI18n();
@@ -51,7 +51,7 @@ export function WhiteboardDiagramCoach({
           <LayoutTemplate className="w-3.5 h-3.5 text-text-primary shrink-0" />
           <span className="type-caption font-semibold text-text-secondary truncate">
             {t('wbDiagramCoach')}
-            {' Β· '}
+            {' · '}
             {blueprintKindLabel(plan.kind, lang)}
           </span>
         </div>
@@ -123,7 +123,7 @@ export function WhiteboardDiagramCoach({
                       >
                         {step.toolHint}
                       </span>
-                      {' β€” '}
+                      {' — '}
                       {step.hint}
                     </span>
                   </button>

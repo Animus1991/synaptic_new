@@ -13,7 +13,7 @@ type Props = {
   score: number | null;
   sectionCount?: number;
   showMigration: boolean;
-  /** TOOL-RD-03 β€” pre-v2.4 column/Greek corruption path */
+  /** TOOL-RD-03 — pre-v2.4 column/Greek corruption path */
   showPre24Greek?: boolean;
   showQualityWarning: boolean;
   reprocessing?: boolean;
@@ -62,7 +62,7 @@ export function WorkspaceSourceStatusBar({
 
   const pipelineBadge = (showMigration || showPre24Greek)
     ? (storedPipelineVersion
-      ? `Pipeline v${storedPipelineVersion} β†’ v${CONTENT_PIPELINE_VERSION}`
+      ? `Pipeline v${storedPipelineVersion} → v${CONTENT_PIPELINE_VERSION}`
       : `Pipeline v${CONTENT_PIPELINE_VERSION}`)
     : undefined;
 
@@ -100,7 +100,7 @@ export function WorkspaceSourceStatusBar({
                 {typeof sectionCount === 'number' && (
                   <span className="font-normal text-text-muted">
                     {' '}
-                    Β· <span className="ws-num">{sectionCount}</span> {t('sourceSectionsWord')}
+                    · <span className="ws-num">{sectionCount}</span> {t('sourceSectionsWord')}
                   </span>
                 )}
               </>
@@ -136,10 +136,10 @@ export function WorkspaceSourceStatusBar({
                 data-testid="source-status-hygiene"
               >
                 {t('sourceHygiene')}{' '}
-                <span className="ws-num text-text-primary">{textHygieneScore ?? 'β€”'}</span>
+                <span className="ws-num text-text-primary">{textHygieneScore ?? '—'}</span>
                 {typeof textCorruptionScore === 'number' && (
                   <span className="ml-1 text-text-muted">
-                    Β· {t('sourceCorruption')}{' '}
+                    · {t('sourceCorruption')}{' '}
                     <span className="ws-num">{textCorruptionScore}</span>
                   </span>
                 )}

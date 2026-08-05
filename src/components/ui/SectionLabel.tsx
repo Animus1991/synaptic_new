@@ -3,7 +3,7 @@ import { cn } from '../../utils/cn';
 import { AllCapsLabel } from './AllCapsLabel';
 
 /** Dense uppercase section label used across Dashboard / Library / Tasks / Analytics. */
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function SectionLabel({
   icon: Icon,
   children,

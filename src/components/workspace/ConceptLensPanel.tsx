@@ -33,7 +33,7 @@ type Props = {
   onOpenReaderSection?: () => void;
 };
 
-/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function ConceptLensPanel({
   lens,
   activity,
@@ -208,7 +208,7 @@ export function ConceptLensPanel({
                   className="rounded-full border border-white/10 px-1.5 py-0.5 type-caption text-text-secondary"
                   data-testid={`concept-lens-hit-${tool}`}
                 >
-                  {TOOL_LABELS[tool][lang]} Γ—{count}
+                  {TOOL_LABELS[tool][lang]} ×{count}
                 </span>
               ))}
             </div>

@@ -65,7 +65,7 @@ type Props = {
   conceptBusRows?: ConceptBusRow[];
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function DashboardPanel({
   session,
   concept,
@@ -226,7 +226,7 @@ export function DashboardPanel({
           </UxCallout>
         )}
 
-        {/* Wave E12 β€” KPI strip + one focus action; exports demoted to menu */}
+        {/* Wave E12 — KPI strip + one focus action; exports demoted to menu */}
         <div className="mb-2 flex flex-wrap items-center gap-2" data-testid="dashboard-kpi-row">
           {session.weakSpotCount > 0 && (
             <span className="rounded-lg border border-accent-rose/40 bg-accent-rose/12 px-2 py-1 type-caption font-semibold text-text-primary">

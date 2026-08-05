@@ -39,7 +39,7 @@ interface LessonViewProps {
   onUpload?: () => void;
 }
 
-/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function LessonView({
   onClose,
   onOpenAgent,
@@ -83,7 +83,7 @@ export function LessonView({
 
   const quizDef = noteBundle.quiz ?? {
     question: t('lessonViewUploadForQuiz'),
-    options: ['β€”', 'β€”', 'β€”', 'β€”'],
+    options: ['—', '—', '—', '—'],
     correctIndex: 0,
   };
 
@@ -197,7 +197,7 @@ export function LessonView({
               <AllCapsLabel>{lessonCourse}</AllCapsLabel>
               {noteBundle.hasSource && (
                 <span className="ml-1.5 text-accent-emerald normal-case tracking-normal">
-                  Β· {t('lessonViewFromYourNotes')}
+                  · {t('lessonViewFromYourNotes')}
                 </span>
               )}
             </p>
@@ -271,7 +271,7 @@ export function LessonView({
         <div
           className={cn(
             'w-full min-w-0 max-w-none py-6 sm:py-8',
-            /* OPT-K85 β€” non-Minimal full column */
+            /* OPT-K85 — non-Minimal full column */
             isMinimal ? 'px-4 sm:px-6 lg:px-8' : 'shell-edge-balance',
           )}
         >
@@ -344,7 +344,7 @@ export function LessonView({
             </p>
             {noteBundle.hasSource && (
               <p className="ws-num type-micro text-text-muted mt-0.5">
-                {overallMastery}% Β· {streak}d
+                {overallMastery}% · {streak}d
               </p>
             )}
           </div>

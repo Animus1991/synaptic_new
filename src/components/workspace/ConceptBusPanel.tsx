@@ -33,7 +33,7 @@ type Props = {
   onReprocess?: () => void;
 };
 
-/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function ConceptBusPanel({
   rows,
   activeTool,
@@ -172,7 +172,7 @@ export function ConceptBusPanel({
                       onClick={() => onFocusTerm(r.label)}
                       className="rounded px-1.5 py-0.5 type-caption border border-border-subtle text-text-muted hover:text-text-primary"
                     >
-                      β† {r.label}
+                      ← {r.label}
                     </button>
                   ))}
                   {activeLens.related.slice(0, 2).map((r) => (
@@ -194,7 +194,7 @@ export function ConceptBusPanel({
                   className="mt-1 type-caption text-text-primary hover:underline"
                   data-testid="concept-bus-reader-link"
                 >
-                  {t('busOpenInReader')} Β· {activeLens.sourceSections[0]}
+                  {t('busOpenInReader')} · {activeLens.sourceSections[0]}
                 </button>
               )}
             </div>
@@ -250,7 +250,7 @@ export function ConceptBusPanel({
               </div>
               {row.signals.length > 0 && (
                 <p className="mt-1 type-caption text-text-muted truncate">
-                  {row.signals.map((s) => SIGNAL_LABELS[s][lang]).join(' β†’ ')}
+                  {row.signals.map((s) => SIGNAL_LABELS[s][lang]).join(' → ')}
                 </p>
               )}
               {onRemediate && (row.struggling || row.signals.some((s) => s === 'quiz-wrong' || s === 'leitner-hard' || s === 'annotated-confusing')) && (

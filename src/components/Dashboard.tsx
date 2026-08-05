@@ -112,7 +112,7 @@ interface DashboardProps {
   onResolveMisconception?: (misconceptionId: string) => void;
   /** Open Study Workspace with reader focus on a weak-area concept */
   onFocusWeakArea?: (concept: string) => void;
-  /** Β§2.1 β€” last synced workspace state for resume + next-action projection */
+  /** §2.1 — last synced workspace state for resume + next-action projection */
   workspaceLive?: WorkspaceLiveSync | null;
   dashboardNextAction?: DashboardNextAction | null;
   smartCTAs?: DashboardSmartCTA[];
@@ -122,7 +122,7 @@ interface DashboardProps {
   onOpenWorkspacePractice?: (launch: WorkspacePracticeLaunch) => void;
   lang?: Lang;
   theoryVsPractice?: number;
-  /** Fresh upload highlight β€” show workspace CTA on dashboard */
+  /** Fresh upload highlight — show workspace CTA on dashboard */
   postUploadCourse?: Course | null;
   onDismissPostUpload?: () => void;
   onOpenTasksReview?: () => void;
@@ -134,12 +134,12 @@ interface DashboardProps {
   onDashboardWallpaperChange?: (dataUrl: string | undefined) => void;
 }
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onSelectCourse, onOpenWorkspace, onOpenExamTimer, onUpload, onExploreDemo, prerequisiteRepairs = [], calibration, conceptMastery = [], activities = [], masteryDelta = 0, daysToExam = null, antiPassiveAlert = false, onStartTask, onStartSession, onResolveMisconception, onFocusWeakArea, workspaceLive = null, dashboardNextAction = null, smartCTAs = [], onRunSmartCTA, proactiveAgentAlerts = [], onRunProactiveAgentAlert, onOpenWorkspacePractice, lang = 'en', postUploadCourse = null, onDismissPostUpload, onOpenTasksReview, settingsExamDate, personalStudyDates = [], onExamDateChange, onPersonalStudyDatesChange, dashboardWallpaperDataUrl, onDashboardWallpaperChange }: DashboardProps) {
   const { t } = useI18n();
   const isMinimal = useMinimalTheme();
   const warmSandPage = useWarmSandPageScope();
-  /* OPT-K92 β€” 1/2/3 columns on every theme (Minimal defaults dual; others stacked). */
+  /* OPT-K92 — 1/2/3 columns on every theme (Minimal defaults dual; others stacked). */
   const [layoutMode, setLayoutMode] = useState<DashboardLayoutMode>(() =>
     loadDashboardLayoutMode(isMinimal ? 'dual' : 'stacked'),
   );
@@ -199,7 +199,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         data-testid="dashboard-empty"
         className="p-4 sm:p-6 lg:px-8 pb-24 lg:pb-6 w-full min-w-0 flex items-start justify-center pt-8 sm:pt-16"
       >
-        {/* OPT-K2 β€” page shell stays full-width; copy column may stay readable. */}
+        {/* OPT-K2 — page shell stays full-width; copy column may stay readable. */}
         <MotionSection initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl">
           <div className="text-center mb-8">
             <h1 className="text-[length:var(--ux-type-hero)] font-semibold leading-tight text-text-primary mb-2">
@@ -262,7 +262,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       {...warmSandScopeProps(warmSandPage)}
       className={cn(
         'w-full min-w-0 max-w-none pb-24 lg:pb-8 ux-fade-up',
-        /* OPT-K85 β€” scrollbar-sized edge pad on both sides (L/R column balance) */
+        /* OPT-K85 — scrollbar-sized edge pad on both sides (L/R column balance) */
         isMinimal ? 'dashboard-calm hub-quiet' : 'shell-edge-balance',
       )}
       data-testid="dashboard-page"
@@ -346,7 +346,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                       onClick={() => setDashboardLayout(mode)}
                       data-testid={`dashboard-layout-${mode}`}
                       aria-pressed={active}
-                      aria-label={`${digit} β€” ${label}`}
+                      aria-label={`${digit} — ${label}`}
                       title={label}
                       className={cn(
                         'inline-flex h-7 min-w-7 items-center justify-center rounded-md px-1.5 type-caption font-semibold tabular-nums transition-colors',
@@ -404,7 +404,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               </HubSection>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3" data-testid="dashboard-page-stats">
-                {/* OPT-K86 β€” decorative KPI icons quiet (ink owns values; accents stay semantic elsewhere) */}
+                {/* OPT-K86 — decorative KPI icons quiet (ink owns values; accents stay semantic elsewhere) */}
                 <StatCard icon={<Flame className="w-3.5 h-3.5 text-text-secondary" />} label={t('dashboardStatStreak')} value={t('dashboardStatDaysSuffix').replace('{count}', String(pageStats.streak))} data-testid="dashboard-stat-streak" />
                 <StatCard icon={<Zap className="w-3.5 h-3.5 text-text-secondary" />} label={t('dashboardStatTodayXp')} value={`${pageStats.todayXp}`} data-testid="dashboard-stat-today-xp" />
                 <StatCard
@@ -425,7 +425,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
       <div
         className={cn(
-          /* OPT-K85 β€” page shell owns edge pad; Minimal keeps its calm gutters here */
+          /* OPT-K85 — page shell owns edge pad; Minimal keeps its calm gutters here */
           'mt-3 sm:mt-4 w-full min-w-0 dashboard-breath-stack flex flex-col',
           isMinimal && 'px-4 sm:px-6 lg:px-8',
         )}
@@ -463,7 +463,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         </MotionSection>
       )}
 
-      {/* Dual secondary prompts β€” quieter under Minimal (OPT-R15); side-by-side when both present */}
+      {/* Dual secondary prompts — quieter under Minimal (OPT-R15); side-by-side when both present */}
       {(daysToExam !== null || antiPassiveAlert || stats.antiPassiveAlert) && (
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <CollapsibleChromeSection
@@ -532,14 +532,14 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         </MotionSection>
       )}
 
-      {/* I-D10: workspace resume lives in hub only β€” no duplicate below stats */}
+      {/* I-D10: workspace resume lives in hub only — no duplicate below stats */}
 
       {!showWorkspaceResume && dashboardNextAction && (
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <UxCallout
             variant="next-action"
             className={cn(
-              /* OPT-K93 β€” next-action stays calm on all themes (no spark wash) */
+              /* OPT-K93 — next-action stays calm on all themes (no spark wash) */
               isMinimal && 'dashboard-one-step-strip',
             )}
             title={dashboardNextAction.reason || t('dashboardSuggestedNext')}
@@ -565,7 +565,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         </MotionSection>
       )}
 
-      {/* OPT-K92 β€” 1/2/3 column body on Minimal and non-Minimal alike. */}
+      {/* OPT-K92 — 1/2/3 column body on Minimal and non-Minimal alike. */}
       <div
         className={cn(
           isMinimal ? 'hub-section-stack' : 'space-y-2.5 xl:space-y-0',
@@ -591,12 +591,12 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   label={t('examReadiness')}
                   sublabel={t('dashReadinessSublabel')}
                 />
-                {/* OPT-K9b β€” signals use proximity UtilityRows inside a tight track */}
+                {/* OPT-K9b — signals use proximity UtilityRows inside a tight track */}
                 <div className="proximity-track space-y-1 min-w-0">
                   <UtilityRow label={t('dashSignalAccuracy')} value={`${Math.round(learnerModel.retentionRate * 100)}%`} barPct={Math.round(learnerModel.retentionRate * 100)} hint={t('dashSignalAccuracyDetail')} />
                   <UtilityRow label={t('dashSignalReliance')} value={`${Math.round((1 - learnerModel.helpSeekingRate) * 100)}%`} barPct={Math.round((1 - learnerModel.helpSeekingRate) * 100)} hint={t('dashSignalRelianceDetail')} />
                   <UtilityRow label={t('dashSignalVolume')} value={`${Math.min(100, Math.round(learnerModel.totalSessions * 2.1))}%`} barPct={Math.min(100, Math.round(learnerModel.totalSessions * 2.1))} hint={t('dashSignalVolumeDetail').replace('{count}', String(learnerModel.totalSessions))} />
-                  {/* OPT-K11 β€” retrieval lives here only under Minimal (no duplicate well). */}
+                  {/* OPT-K11 — retrieval lives here only under Minimal (no duplicate well). */}
                   <UtilityRow
                     label={t('dashSignalRetrieval')}
                     value={`${Math.round(learnerModel.retrievalPerformance * 100)}%`}
@@ -685,7 +685,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   : undefined}
               />
 
-              {/* L-D02: retrieval strength bar β€” Blueprint only (Minimal: in readiness HubSection). */}
+              {/* L-D02: retrieval strength bar — Blueprint only (Minimal: in readiness HubSection). */}
               {!isMinimal && (
               <div
                 className="rounded-xl border border-border-subtle bg-surface-card/50 px-3 py-2"
@@ -760,18 +760,18 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                       onStartTask?.(task.id);
                     }
                   }}
-                  /* Wave P-3 D02 β€” soft elev-popover on hover for Priority Task rows
-                      (dark theme especially); no spring β€” CSS class only. */
+                  /* Wave P-3 D02 — soft elev-popover on hover for Priority Task rows
+                      (dark theme especially); no spring — CSS class only. */
                   className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-colors cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60">
                   <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-text-secondary shrink-0" />
                   <TaskActionIcon task={task} size="xs" />
                   <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: resolveCourseColor(task.courseColor) }} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate group-hover:text-text-primary transition-colors">{task.title}</p>
-                    <p className="text-xs text-text-tertiary mt-0.5">{task.courseName} Β· {taskDurationLabel(task.estimatedMinutes, t)}</p>
+                    <p className="text-xs text-text-tertiary mt-0.5">{task.courseName} · {taskDurationLabel(task.estimatedMinutes, t)}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    {/* Wave P-3 C14 β€” solid on-accent chips so HIGH/CRITICAL pills
+                    {/* Wave P-3 C14 — solid on-accent chips so HIGH/CRITICAL pills
                         clear WCAG AA on white spectrum + warm-light cards. */}
                     <span className={cn(
                       'type-micro font-semibold px-2 py-0.5 rounded-md',
@@ -785,7 +785,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </div>
           </BlueprintSurface>
 
-          {/* OPT-K91 β€” neutral panel; urgency via content/bars, not orange wash */}
+          {/* OPT-K91 — neutral panel; urgency via content/bars, not orange wash */}
           {fixTasks.length > 0 && (
             <div className="rounded-panel border border-border-subtle bg-surface-secondary p-5">
               <SectionLabel icon={Shield}>{t('dashNeedsFixing')}</SectionLabel>
@@ -846,11 +846,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     <h3 className="font-semibold text-sm mb-1 group-hover:text-text-primary transition-colors">{course.title}</h3>
                     <div className="flex items-center gap-2 text-xs text-text-tertiary mb-3">
                       <span>{t('dashLessonsCount').replace('{done}', String(course.completedLessons)).replace('{total}', String(course.totalLessons))}</span>
-                      <span>Β·</span>
+                      <span>·</span>
                       <span>{t('dashConceptsCount').replace('{count}', String(course.conceptCount))}</span>
                     </div>
-                    {/* Wave P-2 C08 β€” Active Courses lesson-progress track uses
-                        --viz-bar-track for β‰¥3:1 contrast vs card surface. */}
+                    {/* Wave P-2 C08 — Active Courses lesson-progress track uses
+                        --viz-bar-track for ≥3:1 contrast vs card surface. */}
                     <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                       <div className="h-1.5 rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (course.completedLessons / Math.max(course.totalLessons, 1)) * 100)}%`, backgroundColor: resolveCourseColor(course.color) }} />
                     </div>
@@ -884,8 +884,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <div className="flex items-end gap-1.5 h-20">
                 {masteryTrend.map((val, i) => (
                   <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                    {/* Wave P-C01 β€” historical bars use --viz-bar-fill-muted (theme-tuned
-                        55% brand mix on card; guarantees β‰¥3:1 contrast). Current day keeps
+                    {/* Wave P-C01 — historical bars use --viz-bar-fill-muted (theme-tuned
+                        55% brand mix on card; guarantees ≥3:1 contrast). Current day keeps
                         its theme-aware accent highlight for emphasis. */}
                     <div
                       className="w-full rounded-t-sm transition-all duration-500"
@@ -905,14 +905,14 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             )}
             <div className="mt-2 text-center">
               <span className="ux-stat-value">{learnerModel.overallMastery}%</span>
-              {/* OPT-K90 β€” delta copy is ink; mastery bars carry semantic hue */}
+              {/* OPT-K90 — delta copy is ink; mastery bars carry semantic hue */}
               <span className="text-xs ml-2 text-text-secondary">
                 {masteryDelta >= 0 ? '+' : ''}{masteryDelta}% {t('dashThisWeek')}
               </span>
             </div>
           </BlueprintSurface>
 
-          {/* Weak Areas β€” OPT-K18: pair with Almost-there under Minimal when both exist */}
+          {/* Weak Areas — OPT-K18: pair with Almost-there under Minimal when both exist */}
           {isMinimal && learnerModel.almostKnown.length > 0 ? (
             <div className="dashboard-pair-row" data-testid="dashboard-pair-weak-almost">
           <div className="min-w-0">
@@ -940,7 +940,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   {area.reasons[0] && (
                     <p className="type-caption text-text-tertiary line-clamp-1">{area.reasons[0].label}</p>
                   )}
-                  {/* Wave P-C04 β€” track uses --viz-bar-track (theme-tuned to β‰¥3:1 vs card)
+                  {/* Wave P-C04 — track uses --viz-bar-track (theme-tuned to ≥3:1 vs card)
                       so low-mastery fills (3-20%) always reveal a visible track behind them. */}
                   <div className="dashboard-progress-track">
                     <div
@@ -1033,7 +1033,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             )}
           </BlueprintSurface>
 
-          {/* Almost Known β€” OPT-K17 Minimal: UtilityRows (no peach banner). Blueprint keeps warn well. */}
+          {/* Almost Known — OPT-K17 Minimal: UtilityRows (no peach banner). Blueprint keeps warn well. */}
           {learnerModel.almostKnown.length > 0 && (
             isMinimal ? (
               <div className="dashboard-almost-there proximity-track space-y-1" data-testid="dashboard-almost-there">
@@ -1071,7 +1071,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </>
           )}
 
-          {/* Upcoming Exam β€” OPT-K19: full-width primary under Minimal (not paired with meta) */}
+          {/* Upcoming Exam — OPT-K19: full-width primary under Minimal (not paired with meta) */}
           {isMinimal && courses.some(c => c.examDate) ? (
             <div className="dashboard-exam-primary min-w-0" data-testid="dashboard-upcoming-exam">
               <SectionLabel icon={Calendar}>{t('dashUpcomingExam')}</SectionLabel>
@@ -1086,7 +1086,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                       <div
                         className={cn(
                           'dashboard-progress-fill',
-                          /* OPT-K64 β€” rose only when weak; mid/strong use calmer fills */
+                          /* OPT-K64 — rose only when weak; mid/strong use calmer fills */
                           courseMastery < 50
                             ? 'dashboard-progress-fill--weak'
                             : courseMastery < 70
@@ -1147,7 +1147,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             )
           )}
 
-          {/* Calibration + insight β€” OPT-K19: quiet meta pair under Minimal when both exist */}
+          {/* Calibration + insight — OPT-K19: quiet meta pair under Minimal when both exist */}
           {isMinimal ? (
               <div
                 className={cn(
@@ -1247,7 +1247,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </>
           )}
 
-          {/* Misconceptions + Spaced rep β€” OPT-K18 pair under Minimal when misconceptions exist */}
+          {/* Misconceptions + Spaced rep — OPT-K18 pair under Minimal when misconceptions exist */}
           {isMinimal && unresolvedMisconceptions.length > 0 ? (
             <div className="dashboard-pair-row" data-testid="dashboard-pair-misconceptions-spaced">
               <div className="min-w-0">

@@ -9,7 +9,7 @@ type Props = {
   onRun: (cta: DashboardSmartCTA) => void;
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function DashboardSmartCTAStrip({ ctas, onRun }: Props) {
   const { t } = useI18n();
   if (ctas.length === 0) return null;

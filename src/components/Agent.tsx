@@ -98,7 +98,7 @@ interface AgentProps {
   onConsumeDraftPrompt?: () => void;
   autoSendDraft?: boolean;
   onConsumeAutoSend?: () => void;
-  /** OPT-AI-C β€” pin a library file once when opening Agent from Library Ask. */
+  /** OPT-AI-C — pin a library file once when opening Agent from Library Ask. */
   initialPinnedFileId?: string | null;
   onConsumePinnedFileId?: () => void;
   workspaceContext?: AgentWorkspaceContext | null;
@@ -111,21 +111,21 @@ interface AgentProps {
   onChangeSourceMode?: (mode: UserSettings['sourceMode']) => void;
   dashboardNextAction?: DashboardNextAction | null;
   weakAreas?: SkillNode[];
-  /** Tasks β€” used for review-due hints in daily check-in. */
+  /** Tasks — used for review-due hints in daily check-in. */
   tasks?: Task[];
   learnerPreferredSessionLength?: number;
   onApplyDailyCheckIn?: (patch: Partial<DailyCheckInAnswers>) => DailyCheckInRecord | void;
   /** Soft-start daily check-in when the Agent opens (default true on full page). */
   enableDailyCheckIn?: boolean;
-  /** After check-in completes β€” auto-start matched task/session. */
+  /** After check-in completes — auto-start matched task/session. */
   onLaunchFromCheckIn?: (launch: CheckInLaunch) => void;
   /** Write-back: open Tasks with a filter inferred from chat signals. */
   onTasksFilterFromSignals?: (filter: TasksFilterPreset) => void;
-  /** Soft CTA after check-in β€” open Settings Google Calendar (does not sync by itself). */
+  /** Soft CTA after check-in — open Settings Google Calendar (does not sync by itself). */
   onOpenCalendarSync?: () => void;
 }
 
-/* OPT-K90 β€” mode icons use ink; soft washes / active brand carry identity */
+/* OPT-K90 — mode icons use ink; soft washes / active brand carry identity */
 const AGENT_MODE_META: { mode: AgentMode; icon: typeof Brain; color: string }[] = [
   { mode: 'socratic', icon: HelpCircle, color: 'text-text-secondary' },
   { mode: 'direct', icon: Lightbulb, color: 'text-text-secondary' },
@@ -144,7 +144,7 @@ const AGENT_MODE_META: { mode: AgentMode; icon: typeof Brain; color: string }[] 
   { mode: 'motivation', icon: Sparkles, color: 'text-text-secondary' },
 ];
 
-/* OPT-K100 β€” markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function Agent({
   messages,
   mode,
@@ -189,7 +189,7 @@ export function Agent({
   const [attachSource, setAttachSource] = useState(true);
   const [pinnedFileId, setPinnedFileId] = useState<string | null>(null);
   const [showSourceSettings, setShowSourceSettings] = useState(false);
-  // Wave M-X05 β€” embedded compact source picker popover (single control, no re-open of full page).
+  // Wave M-X05 — embedded compact source picker popover (single control, no re-open of full page).
   const [showEmbeddedSource, setShowEmbeddedSource] = useState(false);
   const [showAttachPicker, setShowAttachPicker] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
@@ -315,7 +315,7 @@ export function Agent({
   useEffect(() => {
     const thread = threadRef.current;
     if (thread) {
-      // Scroll the thread pane only β€” avoid scrollIntoView pulling ancestors under workspace chrome.
+      // Scroll the thread pane only — avoid scrollIntoView pulling ancestors under workspace chrome.
       thread.scrollTo({ top: thread.scrollHeight, behavior: 'smooth' });
       return;
     }
@@ -349,7 +349,7 @@ export function Agent({
     });
   }, [messages, ttsEnabled, lang]);
 
-  /** Soft daily check-in bootstrap β€” greeting + first closed question. */
+  /** Soft daily check-in bootstrap — greeting + first closed question. */
   useEffect(() => {
     if (!checkInEnabled || checkInBootstrappedRef.current) return;
     if (draftPrompt?.trim()) return; // let draft / notification drive the first turn
@@ -475,7 +475,7 @@ export function Agent({
     if (!slot) return null;
 
     const skipRe = lang === 'el'
-      ? /Ο€Ξ±ΟΞ¬Ξ»ΞµΞΉΟΞ·|Ξ¬ΟƒΟ„ΞΏ|Ξ±ΟΞ³ΟΟ„ΞµΟΞ±|skip/i
+      ? /παράλειψη|άστο|αργότερα|skip/i
       : /skip|later|not now|pass/i;
     if (skipRe.test(rawText)) {
       const next = skipSlot(record, slot);
@@ -516,7 +516,7 @@ export function Agent({
     const rawText = (overrideText ?? input).trim();
     if (!rawText || isThinking) return;
 
-    // Wave AI-K β€” passive multi-slot extract from every casual utterance.
+    // Wave AI-K — passive multi-slot extract from every casual utterance.
     const extraction = chipPatch && Object.keys(chipPatch).length > 0
       ? {
           patch: chipPatch,
@@ -536,7 +536,7 @@ export function Agent({
       checkInEnabled
       && (Boolean(activeCheckInSlot) || !isCheckInComplete(afterExtract) || Boolean(chipPatch));
 
-    // Active / incomplete check-in: multi-slot merge already applied β€” advance or ask gaps only.
+    // Active / incomplete check-in: multi-slot merge already applied — advance or ask gaps only.
     if (inCheckInFlow && (chipPatch || extraction.filledSlots.length > 0 || activeCheckInSlot)) {
       // Keep slot-skip / openFeel edge cases via resolver when extract was empty.
       if (!extraction.filledSlots.length && !chipPatch) {
@@ -571,8 +571,8 @@ export function Agent({
       }
     }
 
-    // Pure routine utterance outside formal check-in β€” silent consistency, no RAG.
-    const academicAsk = /what is|Ο„ΞΉ ΞµΞ―Ξ½Ξ±ΞΉ|explain|ΞµΞΎΞ®Ξ³Ξ·Οƒ|how does|Ο€ΟΟ‚ Ξ»ΞµΞΉΟ„ΞΏΟ…ΟΞ³|why |Ξ³ΞΉΞ±Ο„Ξ― /i.test(rawText);
+    // Pure routine utterance outside formal check-in — silent consistency, no RAG.
+    const academicAsk = /what is|τι είναι|explain|εξήγησ|how does|πώς λειτουργ|why |γιατί /i.test(rawText);
     if (
       !academicAsk
       && looksLikeStudyRoutineUtterance(rawText)
@@ -590,8 +590,8 @@ export function Agent({
       emitAnalyticsLearningEvent('agent_message', { isHint: false, command: '' });
       const ack = silentCaptureAck(lang, extraction.filledSlots, extraction.patch)
         ?? (lang === 'el'
-          ? 'Ξ¤ΞΏ ΞΊΟΞ¬Ο„Ξ·ΟƒΞ± β€” ΟƒΟ…Ξ½ΞµΟ‡Ξ―Ξ¶ΞΏΟ…ΞΌΞµ Ξ®ΟƒΟ…Ο‡Ξ± Ξ±Ο€Ο ΞµΞΊΞµΞ―.'
-          : "Got it β€” we'll quietly go from there.");
+          ? 'Το κράτησα — συνεχίζουμε ήσυχα από εκεί.'
+          : "Got it — we'll quietly go from there.");
       onSendMessage({
         id: `msg-${Date.now() + 1}`,
         role: 'agent',
@@ -614,7 +614,7 @@ export function Agent({
       return;
     }
 
-    // Academic question that also carried routine signals β€” soft note, then RAG.
+    // Academic question that also carried routine signals — soft note, then RAG.
     if (extraction.filledSlots.length >= 2) {
       const note = silentCaptureAck(lang, extraction.filledSlots, extraction.patch);
       if (note) {
@@ -650,7 +650,7 @@ export function Agent({
       try {
         const query =
           lang === 'el'
-            ? 'Ξ£ΟΞ½ΞΈΞµΟƒΞµ Ο„Ξ± ΞΊΟΟΞΉΞ± ΞΈΞ­ΞΌΞ±Ο„Ξ± ΞΊΞ±ΞΉ Ο„ΞΉΟ‚ ΟƒΟ‡Ξ­ΟƒΞµΞΉΟ‚ ΞΌΞµΟ„Ξ±ΞΎΟ Ο„Ο‰Ξ½ ΞµΞ³Ξ³ΟΞ¬Ο†Ο‰Ξ½ Ο„Ξ·Ο‚ Ξ²ΞΉΞ²Ξ»ΞΉΞΏΞΈΞ®ΞΊΞ·Ο‚ ΞΌΞΏΟ….'
+            ? 'Σύνθεσε τα κύρια θέματα και τις σχέσεις μεταξύ των εγγράφων της βιβλιοθήκης μου.'
             : 'Synthesize the main themes and connections across my library documents.';
         const { synthesis, sourceCount, citations } = await runMultiDocSynthesize(
           settings.authToken!,
@@ -678,7 +678,7 @@ export function Agent({
           id: `msg-${Date.now() + 1}`,
           role: 'agent',
           content: lang === 'el'
-            ? `Ξ— ΟƒΟΞ½ΞΈΞµΟƒΞ· Ξ±Ο€Ξ­Ο„Ο…Ο‡Ξµ: ${e instanceof Error ? e.message : 'ΟƒΟ†Ξ¬Ξ»ΞΌΞ±'}`
+            ? `Η σύνθεση απέτυχε: ${e instanceof Error ? e.message : 'σφάλμα'}`
             : `Synthesis failed: ${e instanceof Error ? e.message : 'error'}`,
           timestamp: new Date().toISOString(),
           type: 'text',
@@ -702,7 +702,7 @@ export function Agent({
     };
     onSendMessage(msg);
     emitAnalyticsLearningEvent('agent_message', {
-      isHint: rawText.includes("Don't give me") || rawText.includes('ΞΞ· ΞΌΞΏΟ… Ξ΄ΟΟƒΞµΞΉΟ‚') || /hint|Ξ²ΞΏΞ®ΞΈ/i.test(rawText),
+      isHint: rawText.includes("Don't give me") || rawText.includes('Μη μου δώσεις') || /hint|βοήθ/i.test(rawText),
       command: parsedCommand?.command ?? '',
     });
     setInput('');
@@ -767,8 +767,8 @@ export function Agent({
     // Perf (product-scale): coalesce per-token stream updates into animation
     // frames. Without this, a streamed reply calls onUpdateMessage on every SSE
     // token, and because the app store is a single useState-based hook, each
-    // token re-renders the entire App tree β€” including the whole Study
-    // Workspace and every Studio panel β€” which freezes the UI while streaming.
+    // token re-renders the entire App tree — including the whole Study
+    // Workspace and every Studio panel — which freezes the UI while streaming.
     // The final content is always committed synchronously below.
     let streamPending: string | null = null;
     let streamRaf: number | null = null;
@@ -806,7 +806,7 @@ export function Agent({
       chatHistory,
     );
 
-    // Drop any queued intermediate frame β€” the gated final content wins.
+    // Drop any queued intermediate frame — the gated final content wins.
     if (streamRaf !== null) {
       window.cancelAnimationFrame(streamRaf);
       streamRaf = null;
@@ -814,7 +814,7 @@ export function Agent({
     streamPending = null;
 
     const citationLine = retrieval.citations.length > 0
-      ? retrieval.citations.slice(0, 3).map(formatCitation).join('  Β·  ')
+      ? retrieval.citations.slice(0, 3).map(formatCitation).join('  ·  ')
       : undefined;
 
     const strictGrounding =
@@ -864,7 +864,7 @@ export function Agent({
   useEffect(() => {
     if (!draftPrompt?.trim()) return;
     const prompt = draftPrompt.trim();
-    const isCheckInDraft = /check-in|checkin|ΟΞΏΟ…Ο„Ξ―Ξ½Ξ±Ο‚|ΟƒΞ·ΞΌΞµΟΞΉΞ½Ο check-in/i.test(prompt);
+    const isCheckInDraft = /check-in|checkin|ρουτίνας|σημερινό check-in/i.test(prompt);
     if (isCheckInDraft && checkInEnabled) {
       onConsumeDraftPrompt?.();
       onConsumeAutoSend?.();
@@ -999,7 +999,7 @@ export function Agent({
 
   const handleSkipCheckInSlot = () => {
     if (!activeCheckInSlot) return;
-    void handleSend(lang === 'el' ? 'Ξ Ξ±ΟΞ¬Ξ»ΞµΞΉΟΞ· Ο€ΟΞΏΟ‚ Ο„ΞΏ Ο€Ξ±ΟΟΞ½' : 'Skip for now');
+    void handleSend(lang === 'el' ? 'Παράλειψη προς το παρόν' : 'Skip for now');
   };
 
   const handlePathTryChip = (chip: PathTryChip) => {
@@ -1034,9 +1034,9 @@ export function Agent({
 
   const currentMode = agentModes.find(m => m.mode === mode)!;
   const currentVisual = AGENT_MODE_VISUALS[mode];
-  /** OPT-C2 β€” mute rainbow mode chrome under Minimal. */
+  /** OPT-C2 — mute rainbow mode chrome under Minimal. */
   const quietModes = useMinimalTheme();
-  /* OPT-K85 β€” non-Minimal: scrollbar-sized L/R pad; Minimal keeps prior gutters */
+  /* OPT-K85 — non-Minimal: scrollbar-sized L/R pad; Minimal keeps prior gutters */
   const pagePadX = quietModes ? 'px-4 sm:px-6' : 'shell-edge-balance';
   const lastUserMessage = useMemo(
     () => [...messages].reverse().find((m) => m.role === 'user'),
@@ -1153,7 +1153,7 @@ export function Agent({
                   quietModes ? 'text-text-secondary' : 'text-text-secondary',
                 )}
               >
-                {ui.pinnedFileLabel}: {analyzedFiles.find((f) => f.id === pinnedFileId)?.name ?? 'β€¦'}
+                {ui.pinnedFileLabel}: {analyzedFiles.find((f) => f.id === pinnedFileId)?.name ?? '…'}
               </span>
             )}
             <button
@@ -1243,7 +1243,7 @@ export function Agent({
             <ChevronDown className={cn('h-3 w-3 transition-transform', showModes && 'rotate-180')} />
           </button>
           <div className="flex items-center gap-1 relative">
-            {/* Wave M-X05 β€” compact source picker inline in embedded chrome (no full-page trip required). */}
+            {/* Wave M-X05 — compact source picker inline in embedded chrome (no full-page trip required). */}
             <button
               type="button"
               onClick={() => setShowEmbeddedSource((v) => !v)}
@@ -1330,14 +1330,14 @@ export function Agent({
                 )}
                 data-testid="agent-open-full-page"
               >
-                {lang === 'el' ? 'Ξ Ξ»Ξ®ΟΞ·Ο‚ Ο€ΟΞΏΞ²ΞΏΞ»Ξ®' : 'Full view'}
+                {lang === 'el' ? 'Πλήρης προβολή' : 'Full view'}
               </button>
             )}
           </div>
         </div>
       )}
 
-      {/* Wave E13 β€” one session status strip (avoid repeating offline under every message). */}
+      {/* Wave E13 — one session status strip (avoid repeating offline under every message). */}
       {embedded && !llmReady && (
         <div
           className="platform-banner-warn flex items-center gap-2 border-b px-3 py-1.5 shrink-0"
@@ -1352,7 +1352,7 @@ export function Agent({
 
       {!embedded && (
         <div className={cn('agent-chat-column w-full pt-3', pagePadX)}>
-          {/* OPT-R14 β€” flow rail stays collapsible; Minimal defaults collapsed (M2). */}
+          {/* OPT-R14 — flow rail stays collapsible; Minimal defaults collapsed (M2). */}
           <CollapsibleChromeSection title={t('chromeAgentFlow')} data-testid="agent-flow-chrome" defaultOpen={false}>
             <AgentFlowRail
               activeIndex={messages.length === 0 ? 0 : messages.length < 4 ? 1 : 2}
@@ -1414,7 +1414,7 @@ export function Agent({
         </div>
       )}
 
-      {/* Mode Selector Dropdown β€” mobile / embedded */}
+      {/* Mode Selector Dropdown — mobile / embedded */}
       <AnimatePresence initial={false}>
         {showModes && (
           <motion.div
@@ -1469,7 +1469,7 @@ export function Agent({
         )}
       </AnimatePresence>
 
-      {/* Messages β€” OPT-C1 centered conversation column */}
+      {/* Messages — OPT-C1 centered conversation column */}
       <div
         ref={threadRef}
         className="agent-thread flex-1 overflow-y-auto"
@@ -1600,7 +1600,7 @@ export function Agent({
           )}
           <div ref={messagesEndRef} />
 
-          {/* Quick Actions β€” collapsed in embedded chat to save vertical space */}
+          {/* Quick Actions — collapsed in embedded chat to save vertical space */}
           {showQuickActions && messages.length <= 4 && !embedded && (
             <motion.div
               {...entranceMotion(quietModes)}
@@ -1625,7 +1625,7 @@ export function Agent({
         </div>
       </div>
 
-      {/* Input β€” OPT-C1 sticky soft composer (still holds source/attach/send) */}
+      {/* Input — OPT-C1 sticky soft composer (still holds source/attach/send) */}
       <div
         className={cn(
           'agent-composer border-t border-border-subtle bg-surface-secondary/30 shrink-0',
@@ -1658,7 +1658,7 @@ export function Agent({
                 style={{ minHeight: embedded ? '38px' : '46px', maxHeight: '120px' }}
               />
             </div>
-            {/* OPT-K75 β€” tools beside field (never absolute-over placeholder on phone) */}
+            {/* OPT-K75 — tools beside field (never absolute-over placeholder on phone) */}
             <div className="agent-composer-tools flex items-end gap-0.5 shrink-0 self-end pb-0.5" data-testid="agent-composer-tools">
               <button
                 type="button"
@@ -1674,7 +1674,7 @@ export function Agent({
                 )}
               >
                 <Mic className={cn('w-4 h-4', voiceListening && 'animate-pulse')} aria-hidden="true" />
-                {/* Wave E13 β€” always show captions: notebook AI column is often <sm */}
+                {/* Wave E13 — always show captions: notebook AI column is often <sm */}
                 <span className="type-caption leading-none text-text-muted">
                   {t('agentComposerVoice')}
                 </span>
@@ -1765,10 +1765,10 @@ export function Agent({
           {!embedded && (
           <div className="flex items-center justify-between mt-2 flex-wrap gap-2">
             <p className="type-micro text-text-muted text-center w-full sm:text-left sm:w-auto">
-              {lang === 'el' ? 'Ξ Ξ·Ξ³Ξ®' : 'Source'}: {activeSourceLabel}
-              {' Β· '}
+              {lang === 'el' ? 'Πηγή' : 'Source'}: {activeSourceLabel}
+              {' · '}
               {ui.sourceModeFooter(activeSourceMode)}
-              {' Β· '}
+              {' · '}
               <button
                 type="button"
                 onClick={handleNoAnswerHint}
@@ -1782,7 +1782,7 @@ export function Agent({
               >
                 {ui.noAnswerHint}
               </button>
-              {' Β· '}
+              {' · '}
               {ui.shiftEnter}
             </p>
             {canRegenerate && lastUserMessage && (
@@ -1793,7 +1793,7 @@ export function Agent({
                 className="inline-flex items-center gap-1 type-micro text-text-tertiary hover:text-text-secondary transition-colors"
               >
                 <RotateCcw className="w-3 h-3" aria-hidden="true" />
-                {lang === 'el' ? 'Ξ•Ο€Ξ±Ξ½Ξ¬Ξ»Ξ·ΟΞ·' : 'Regenerate'}
+                {lang === 'el' ? 'Επανάληψη' : 'Regenerate'}
               </button>
             )}
           </div>
@@ -1825,7 +1825,7 @@ function CitationList({
         className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-text-primary transition-colors"
       >
         <FileText className="w-3 h-3" />
-        {citations.length} {citations.length === 1 ? ui.citationSingular : ui.citationPlural} Β· {ui.citationToggle}
+        {citations.length} {citations.length === 1 ? ui.citationSingular : ui.citationPlural} · {ui.citationToggle}
         <ChevronDown className={cn('w-3 h-3 transition-transform', open && 'rotate-180')} />
       </button>
       {open && (
@@ -1836,8 +1836,8 @@ function CitationList({
                 <div className="flex items-center gap-1.5 type-micro text-text-secondary font-medium min-w-0">
                   <FileText className="w-3 h-3 shrink-0" />
                   <span className="truncate">{c.fileName}</span>
-                  <span className="text-text-muted">Β· {c.locator}</span>
-                  {c.heading && <span className="text-text-muted truncate">Β· {c.heading}</span>}
+                  <span className="text-text-muted">· {c.locator}</span>
+                  {c.heading && <span className="text-text-muted truncate">· {c.heading}</span>}
                 </div>
                 {onGoToSource && (
                   <GoToSourceButton lang={lang} onClick={() => onGoToSource(spanFromCitation(c))} />
@@ -1872,7 +1872,7 @@ function MessageBubble({
   onGoToSource?: (highlight: { fileId: string; charStart: number; charEnd: number }) => void;
   lang?: 'en' | 'el';
   ui: AgentUiCopy;
-  /** Session already shows offline strip β€” hide per-message offline chip. */
+  /** Session already shows offline strip — hide per-message offline chip. */
   suppressOfflineBadge?: boolean;
   onSuggestionChip?: (chip: { id: string; label: string; value: string }) => void;
   chipHint?: string;
@@ -1931,14 +1931,14 @@ function MessageBubble({
           {isUser ? (
             <div className="whitespace-pre-wrap">{message.content}</div>
           ) : (
-            <RichText text={message.content || (message.isStreaming ? 'β€¦' : '')} />
+            <RichText text={message.content || (message.isStreaming ? '…' : '')} />
           )}
           {message.isStreaming && message.content && (
             <span className="inline-block w-0.5 h-4 bg-brand-400 animate-pulse ml-0.5 align-middle" />
           )}
         </div>
 
-        {/* Wave E13 β€” one meta strip: offline (unless session strip) + faithfulness + verified */}
+        {/* Wave E13 — one meta strip: offline (unless session strip) + faithfulness + verified */}
         {showStatusStrip && (
           <div
             className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-border-subtle bg-surface-secondary/50 px-2.5 py-1.5"
@@ -2111,7 +2111,7 @@ function MessageBubble({
           </button>
         )}
 
-        {/* Source attribution labels β€” OPT-K16 quiet under Minimal; OPT-K74 phone wrap clear of composer */}
+        {/* Source attribution labels — OPT-K16 quiet under Minimal; OPT-K74 phone wrap clear of composer */}
         {!isUser && message.metadata && (
           <div className="agent-meta-badge-row mt-2 pt-2 border-t border-border-subtle flex items-center gap-1.5 flex-wrap pb-0.5">
             {message.metadata.sourceGrounded && (

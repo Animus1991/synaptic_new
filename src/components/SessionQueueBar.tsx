@@ -13,7 +13,7 @@ interface SessionQueueBarProps {
   onEndSession: () => void;
 }
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function SessionQueueBar({
   sessionType,
   currentIndex,
@@ -34,7 +34,7 @@ export function SessionQueueBar({
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-1">
             <p className="text-xs font-semibold text-text-secondary truncate">
-              {sessionLabel(sessionType)} Β· Task {currentIndex} of {total}
+              {sessionLabel(sessionType)} · Task {currentIndex} of {total}
             </p>
             <button
               onClick={onEndSession}
@@ -58,7 +58,7 @@ export function SessionQueueBar({
             </div>
           )}
           <p className="type-micro text-text-muted mb-1">{translate('sessionQueueAutoAdvance', lang)}</p>
-          {/* Wave P-2 C08 β€” session queue auto-advance progress uses --viz-bar-track. */}
+          {/* Wave P-2 C08 — session queue auto-advance progress uses --viz-bar-track. */}
           <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
             <div
               className="h-full bg-brand-500 transition-all duration-300"

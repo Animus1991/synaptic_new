@@ -19,7 +19,7 @@ type Props = {
   className?: string;
 };
 
-/** Semantic status pill β€” stale, weak, due, exam, etc. */
+/** Semantic status pill — stale, weak, due, exam, etc. */
 export function StatusChip({ children, variant = 'info', className }: Props) {
   return (
     <span

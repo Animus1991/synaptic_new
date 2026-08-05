@@ -1,5 +1,5 @@
 /**
- * Wave CH-2/4 UI Ξ²β‚¬β€ Assignment Canon revision tree, proposals, credits, export.
+ * Wave CH-2/4 UI — Assignment Canon revision tree, proposals, credits, export.
  */
 import { useEffect, useMemo, useState } from 'react';
 import { t, type Lang } from '../lib/i18n';
@@ -131,7 +131,7 @@ export function AssignmentCanonPanel({
             data-testid={`assignment-tree-node-${node.sectionId}`}
           >
             {node.title}
-            {node.pendingCount > 0 ? ` Ξ’Β· ${node.pendingCount}` : ''}
+            {node.pendingCount > 0 ? ` · ${node.pendingCount}` : ''}
             <span className="block type-micro text-text-muted">{node.status}</span>
           </button>
         ))}
@@ -198,7 +198,7 @@ export function AssignmentCanonPanel({
           {sectionPending.map((p) => (
             <div key={p.id} className="rounded-md border border-border-subtle/60 p-2 space-y-1" data-testid={`assignment-proposal-${p.id}`}>
               <p className="type-micro text-text-muted">
-                {p.authorName} Ξ’Β· {p.aiAssisted ? tr('collabAiAssistedBadge') : tr('collabHumanBadge')}
+                {p.authorName} · {p.aiAssisted ? tr('collabAiAssistedBadge') : tr('collabHumanBadge')}
               </p>
               <pre className="type-caption whitespace-pre-wrap max-h-28 overflow-auto">{p.proposedText}</pre>
               {isSteward && (
@@ -228,7 +228,7 @@ export function AssignmentCanonPanel({
           {credits.map((c) => (
             <li key={c.authorId} className="type-micro text-text-muted">
               {c.authorName}: {c.sharePercent}%
-              {c.acceptedProposals ? ` Ξ’Β· ${c.acceptedProposals} ${tr('collabMerged')}` : ''}
+              {c.acceptedProposals ? ` · ${c.acceptedProposals} ${tr('collabMerged')}` : ''}
             </li>
           ))}
         </ul>

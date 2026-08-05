@@ -57,11 +57,11 @@ interface Props {
   headerActions?: ReactNode;
   /** KPI strip between greeting and workspace (Wave J-D02 mockup order). */
   statsSlot?: ReactNode;
-  /** Flush to shell top β€” no side/top gap under demo banner. */
+  /** Flush to shell top — no side/top gap under demo banner. */
   flushTop?: boolean;
 }
 
-/* OPT-K98 β€” markup debt: decorative brand type -> ink */
+/* OPT-K98 — markup debt: decorative brand type -> ink */
 export function DashboardActionHub({
   reviewsDue,
   canWorkspace,
@@ -136,7 +136,7 @@ export function DashboardActionHub({
   };
 
   const onHero = Boolean(wallpaperDataUrl);
-  /* OPT-K72 β€” Minimal: flat overlay (no Aero/blur); other themes keep soft glass */
+  /* OPT-K72 — Minimal: flat overlay (no Aero/blur); other themes keep soft glass */
   const glassCard = onHero
     ? hubQuiet
       ? 'bg-surface-card/90 border-white/10'
@@ -181,7 +181,7 @@ export function DashboardActionHub({
       <div
         id="dashboard-action-hub"
         className={cn(
-          /* overflow-visible so Β«Ξ ΞµΟΞΉΟƒΟƒΟΟ„ΞµΟΞ±Β» menu is not clipped; raise stack when open */
+          /* overflow-visible so «Περισσότερα» menu is not clipped; raise stack when open */
           'relative overflow-visible border border-border-subtle bg-surface-secondary/35',
           hubQuiet && 'hub-quiet-surface',
           overflowOpen && 'z-40',
@@ -253,7 +253,7 @@ export function DashboardActionHub({
                 <div
                   className={cn(
                     'flex w-full flex-col gap-2.5 sm:gap-3',
-                    /* OPT-K18 β€” full-span row; Continue anchors to the trailing edge */
+                    /* OPT-K18 — full-span row; Continue anchors to the trailing edge */
                     hubQuiet
                       ? 'sm:flex-row sm:items-center sm:justify-between'
                       : 'sm:flex-row sm:items-center sm:justify-between sm:gap-4',
@@ -291,7 +291,7 @@ export function DashboardActionHub({
               </BlueprintSurface>
             )}
 
-            {/* OPT-K62 β€” 2Γ—2 on mobile (no mid-word chip ellipsis); 4-col from sm */}
+            {/* OPT-K62 — 2×2 on mobile (no mid-word chip ellipsis); 4-col from sm */}
             <div className="flex items-stretch gap-2 sm:gap-2.5">
               <div
                 className="grid min-w-0 flex-1 grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5"

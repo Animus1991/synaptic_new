@@ -29,7 +29,7 @@ interface Props {
   topic?: Topic;
 }
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function GroundedLessonContent({
   stepKey,
   stepLabel,
@@ -194,7 +194,7 @@ function PanelBlock({ block, onOpenAgent }: { block: WorkspacePanelBlock; onOpen
                 {card.title}
               </h4>
               <ul className="text-xs text-text-secondary space-y-1">
-                {card.bullets.map((b) => <li key={b}>β€Ά {b}</li>)}
+                {card.bullets.map((b) => <li key={b}>‶ {b}</li>)}
               </ul>
             </div>
           ))}

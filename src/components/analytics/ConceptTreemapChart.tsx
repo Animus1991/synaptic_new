@@ -26,7 +26,7 @@ type Props = {
   prereqLabel: string;
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function ConceptTreemapChart({
   blocks,
   totalWeight,
@@ -77,7 +77,7 @@ export function ConceptTreemapChart({
             >
               <div className="text-sm font-semibold text-text-primary line-clamp-2">{block.label}</div>
               <div className="mt-1 type-micro text-text-tertiary">
-                {masteryLabel} {block.mastery}% Β· {weightLabel} {Math.round(pct)}%
+                {masteryLabel} {block.mastery}% · {weightLabel} {Math.round(pct)}%
               </div>
               <div className="mt-2 ux-progress-track h-1">
                 <div
@@ -102,7 +102,7 @@ export function ConceptTreemapChart({
       {active && (
         <div className="mt-3 rounded-xl border border-border-subtle bg-surface-secondary/50 p-3 text-sm text-text-secondary">
           <span className="font-semibold text-text-primary">{active.label}</span>
-          {' β€” '}
+          {' — '}
           {weightLabel} {Math.round((active.value / totalWeight) * 100)}%, {masteryLabel.toLowerCase()} {active.mastery}%.
           <span className="block mt-1">{treemapAdvice(active.mastery, lang)}</span>
           {active.prereqs.length > 0 && (

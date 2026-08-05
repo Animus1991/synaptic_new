@@ -22,7 +22,7 @@ interface StudyWorkspaceOverlaysProps {
   model: StudyWorkspaceModel;
 }
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
   const [coViewBridge, setCoViewBridge] = useState<StudyRoomCoViewBridge | null>(null);
   const handleCoViewBridge = useCallback((bridge: StudyRoomCoViewBridge | null) => {
@@ -215,7 +215,7 @@ export function StudyWorkspaceOverlays({ model }: StudyWorkspaceOverlaysProps) {
               currentStep={currentStep}
               userSettings={userSettings}
               onFollowSharedTool={(tool) => openWorkspaceTool(tool as WorkspaceTool)}
-              /* Co-view must not force reader β€” that overrides the leader's shared tool. */
+              /* Co-view must not force reader — that overrides the leader's shared tool. */
               onFollowSharedStep={(stepIndex) => selectWorkspaceStep(stepIndex)}
               onFollowSharedConcept={(concept) => focusOnTerm(concept, activeTool)}
               onCoViewBridge={handleCoViewBridge}

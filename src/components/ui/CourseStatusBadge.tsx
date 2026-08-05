@@ -2,7 +2,7 @@ import { cn } from '../../utils/cn';
 import { useI18n } from '../../lib/i18n';
 import { asAllCapsLabel } from '../../lib/greekTypography';
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export type CourseStatusKind =
   | 'ready'
   | 'in_progress'

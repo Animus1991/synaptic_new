@@ -1,5 +1,5 @@
 /**
- * Wave CH-1 UI β€” Propose / review shared-note changes + attribution.
+ * Wave CH-1 UI — Propose / review shared-note changes + attribution.
  * Storage is device-local until collab review sync ships (see collabReviewSync).
  */
 import { useEffect, useMemo, useState } from 'react';
@@ -148,7 +148,7 @@ export function StudyRoomNoteProposalsPanel({
             <div key={p.id} className="rounded-md border border-border-subtle/60 p-2 space-y-1.5" data-testid={`collab-note-proposal-${p.id}`}>
               <p className="type-caption text-text-muted">
                 {p.authorName}
-                {p.aiAssisted ? ` Β· ${tr('collabAiAssistedBadge')}` : ` Β· ${tr('collabHumanBadge')}`}
+                {p.aiAssisted ? ` · ${tr('collabAiAssistedBadge')}` : ` · ${tr('collabHumanBadge')}`}
               </p>
               {p.summary ? <p className="type-caption text-text-secondary">{p.summary}</p> : null}
               <pre className="type-caption whitespace-pre-wrap text-text-primary max-h-24 overflow-auto">{p.proposedText}</pre>
@@ -186,7 +186,7 @@ export function StudyRoomNoteProposalsPanel({
             {credits.map((c) => (
               <li key={c.authorId} className="type-caption text-text-muted">
                 {c.authorName}: {c.sharePercent}%
-                {c.acceptedCount ? ` Β· ${c.acceptedCount} ${tr('collabMerged')}` : ''}
+                {c.acceptedCount ? ` · ${c.acceptedCount} ${tr('collabMerged')}` : ''}
               </li>
             ))}
           </ul>

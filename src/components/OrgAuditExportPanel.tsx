@@ -17,21 +17,21 @@ const COPY = {
     toggle: 'Show export options',
     csv: 'Download CSV',
     json: 'Download JSON',
-    exporting: 'Preparingβ€¦',
-    error: 'Export failed β€” verify org_admin role.',
+    exporting: 'Preparing…',
+    error: 'Export failed — verify org_admin role.',
   },
   el: {
-    title: 'Ξ£Ο…ΞΌΞΌΟΟΟ†Ο‰ΟƒΞ· & ΞµΞΎΞ±Ξ³Ο‰Ξ³Ξ® audit',
-    hint: 'Ξ Ξ±ΞΊΞ­Ο„ΞΏ audit SOC2/FERPA Ξ³ΞΉΞ± org administrators. Ξ ΞµΟΞΉΞ»Ξ±ΞΌΞ²Ξ¬Ξ½ΞµΞΉ ΞµΞ½Ξ­ΟΞ³ΞµΞΉΞµΟ‚, IP ΞΊΞ±ΞΉ Ο‡ΟΞΏΞ½ΞΉΞΊΞ­Ο‚ ΟƒΟ†ΟΞ±Ξ³Ξ―Ξ΄ΞµΟ‚.',
-    toggle: 'Ξ•ΞΌΟ†Ξ¬Ξ½ΞΉΟƒΞ· ΞµΟ€ΞΉΞ»ΞΏΞ³ΟΞ½ ΞµΞΎΞ±Ξ³Ο‰Ξ³Ξ®Ο‚',
-    csv: 'Ξ›Ξ®ΟΞ· CSV',
-    json: 'Ξ›Ξ®ΟΞ· JSON',
-    exporting: 'Ξ ΟΞΏΞµΟ„ΞΏΞΉΞΌΞ±ΟƒΞ―Ξ±β€¦',
-    error: 'Ξ— ΞµΞΎΞ±Ξ³Ο‰Ξ³Ξ® Ξ±Ο€Ξ­Ο„Ο…Ο‡Ξµ β€” ΞµΟ€ΞΉΞ²ΞµΞ²Ξ±ΞΉΟΟƒΟ„Ξµ ΟΟΞ»ΞΏ org_admin.',
+    title: 'Συμμόρφωση & εξαγωγή audit',
+    hint: 'Πακέτο audit SOC2/FERPA για org administrators. Περιλαμβάνει ενέργειες, IP και χρονικές σφραγίδες.',
+    toggle: 'Εμφάνιση επιλογών εξαγωγής',
+    csv: 'Λήψη CSV',
+    json: 'Λήψη JSON',
+    exporting: 'Προετοιμασία…',
+    error: 'Η εξαγωγή απέτυχε — επιβεβαιώστε ρόλο org_admin.',
   },
 } as const;
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function OrgAuditExportPanel({ orgId, settings, lang }: Props) {
   const ui = COPY[lang];
   const token = settings.authToken?.trim();

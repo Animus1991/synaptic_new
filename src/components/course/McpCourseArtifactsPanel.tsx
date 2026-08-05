@@ -36,10 +36,10 @@ export function McpCourseArtifactsPanel({ course, lang = 'en' }: Props) {
   const notes = course.mcpAnnotations ?? [];
   const empty = cards.length === 0 && notes.length === 0;
 
-  const title = lang === 'el' ? 'MCP Ξ±Ξ½Ο„ΞΉΞΊΞµΞ―ΞΌΞµΞ½Ξ±' : 'MCP artifacts';
+  const title = lang === 'el' ? 'MCP αντικείμενα' : 'MCP artifacts';
   const subtitle =
     lang === 'el'
-      ? 'Flashcards ΞΊΞ±ΞΉ ΟƒΞ·ΞΌΞµΞΉΟΟƒΞµΞΉΟ‚ Ο€ΞΏΟ… Ξ΄Ξ·ΞΌΞΉΞΏΟΟΞ³Ξ·ΟƒΞ±Ξ½ ΞµΞΎΟ‰Ο„ΞµΟΞΉΞΊΞΏΞ― MCP clients.'
+      ? 'Flashcards και σημειώσεις που δημιούργησαν εξωτερικοί MCP clients.'
       : 'Flashcards and notes created by external MCP clients.';
 
   return (
@@ -52,7 +52,7 @@ export function McpCourseArtifactsPanel({ course, lang = 'en' }: Props) {
       {empty ? (
         <p className="text-xs text-text-muted" data-testid="mcp-artifacts-empty">
           {lang === 'el'
-            ? 'Ξ”ΞµΞ½ Ο…Ο€Ξ¬ΟΟ‡ΞΏΟ…Ξ½ Ξ±ΞΊΟΞΌΞ± MCP flashcards Ξ® annotations Ξ³ΞΉΞ± Ξ±Ο…Ο„Ο Ο„ΞΏ ΞΌΞ¬ΞΈΞ·ΞΌΞ±.'
+            ? 'Δεν υπάρχουν ακόμα MCP flashcards ή annotations για αυτό το μάθημα.'
             : 'No MCP flashcards or annotations on this course yet.'}
         </p>
       ) : (

@@ -14,7 +14,7 @@ const KIND_BADGE: Record<DocumentStructureKind, string> = {
   flat: 'Plain text',
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function SourceIntelligenceCard({
   report,
   toolLabel,
@@ -37,7 +37,7 @@ export function SourceIntelligenceCard({
               Source Intelligence
             </span>
             <span className={`type-caption font-semibold ${bandColor}`}>
-              {report.score}/100 Β· {report.band}
+              {report.score}/100 · {report.band}
             </span>
             {structure && structure.sectionCount >= 2 && (
               <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 type-caption font-medium bg-white/[0.06] text-text-secondary">

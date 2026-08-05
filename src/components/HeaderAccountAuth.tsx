@@ -8,7 +8,7 @@ import { cn } from '../utils/cn';
 type Props = {
   settings: UserSettings;
   onPatchSettings: (partial: Partial<UserSettings>) => void;
-  /** OPT-K10 β€” under Minimal, never compete with Start session as a second solid CTA. */
+  /** OPT-K10 — under Minimal, never compete with Start session as a second solid CTA. */
   quiet?: boolean;
 };
 

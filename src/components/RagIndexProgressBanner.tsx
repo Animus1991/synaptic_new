@@ -26,7 +26,7 @@ export function RagIndexProgressBanner({
   const token = settings?.authToken?.trim();
   const [status, setStatus] = useState<RagStatusResponse | null>(null);
   const wasIndexingRef = useRef(false);
-  /** OPT-R11 β€” thin console pipeline strip under Minimal. */
+  /** OPT-R11 — thin console pipeline strip under Minimal. */
   const consoleStrip = useMinimalTheme();
 
   useEffect(() => {
@@ -63,14 +63,14 @@ export function RagIndexProgressBanner({
     if (wasIndexingRef.current && !active) {
       if (status.indexing.status === 'failed') {
         notifyError(
-          lang === 'el' ? 'Ξ‘Ο€ΞΏΟ„Ο…Ο‡Ξ―Ξ± ΞµΟ…ΟΞµΟ„Ξ·ΟΞ―ΞΏΟ… RAG' : 'RAG indexing failed',
+          lang === 'el' ? 'Αποτυχία ευρετηρίου RAG' : 'RAG indexing failed',
           status.indexing.error ?? undefined,
         );
       } else {
         notifySuccess(
-          lang === 'el' ? 'Ξ•Ο…ΟΞµΟ„Ξ®ΟΞΉΞΏ RAG Ξ­Ο„ΞΏΞΉΞΌΞΏ' : 'RAG index ready',
+          lang === 'el' ? 'Ευρετήριο RAG έτοιμο' : 'RAG index ready',
           lang === 'el'
-            ? `${status.indexedChunks} chunks Ξ΄ΞΉΞ±ΞΈΞ­ΟƒΞΉΞΌΞ± Ξ³ΞΉΞ± Ξ±Ξ½Ξ±Ξ¶Ξ®Ο„Ξ·ΟƒΞ·`
+            ? `${status.indexedChunks} chunks διαθέσιμα για αναζήτηση`
             : `${status.indexedChunks} chunks ready for search`,
         );
       }
@@ -95,8 +95,8 @@ export function RagIndexProgressBanner({
         data-testid="rag-index-idle"
       >
         {lang === 'el'
-          ? 'Ξ”ΞµΞ½ Ο…Ο€Ξ¬ΟΟ‡ΞΏΟ…Ξ½ Ξ±ΞΊΟΞΌΞ± ΞµΟ…ΟΞµΟ„Ξ·ΟΞΉΞ±ΟƒΞΌΞ­Ξ½Ξ± chunks β€” ΟƒΟ…Ξ³Ο‡ΟΟΞ½ΞΉΟƒΞµ Ο„Ξ· Ξ²ΞΉΞ²Ξ»ΞΉΞΏΞΈΞ®ΞΊΞ· ΟƒΞΏΟ… Ξ³ΞΉΞ± Ξ±Ξ½Ξ±Ξ¶Ξ®Ο„Ξ·ΟƒΞ· ΟƒΞµ ΟΞ»ΞµΟ‚ Ο„ΞΉΟ‚ ΟƒΟ…ΟƒΞΊΞµΟ…Ξ­Ο‚.'
-          : 'No RAG chunks indexed yet β€” sync your library to search across devices.'}
+          ? 'Δεν υπάρχουν ακόμα ευρετηριασμένα chunks — συγχρόνισε τη βιβλιοθήκη σου για αναζήτηση σε όλες τις συσκευές.'
+          : 'No RAG chunks indexed yet — sync your library to search across devices.'}
       </div>
     );
   }
@@ -113,7 +113,7 @@ export function RagIndexProgressBanner({
         <span className="inline-flex items-center gap-1.5 text-accent-teal font-medium">
           <Database className="w-3.5 h-3.5" />
           {lang === 'el'
-            ? `${indexedChunks} chunks Ξ­Ο„ΞΏΞΉΞΌΞ± Ξ³ΞΉΞ± Ξ±Ξ½Ξ±Ξ¶Ξ®Ο„Ξ·ΟƒΞ·`
+            ? `${indexedChunks} chunks έτοιμα για αναζήτηση`
             : `${indexedChunks} chunks ready for search`}
         </span>
       </div>
@@ -123,15 +123,15 @@ export function RagIndexProgressBanner({
   const label =
     indexing.status === 'queued'
       ? lang === 'el'
-        ? 'Ξ£ΞµΞΉΟΞ¬ Ξ±Ξ½Ξ±ΞΌΞΏΞ½Ξ®Ο‚ ΞµΟ…ΟΞµΟ„Ξ·ΟΞ―ΞΏΟ…β€¦'
-        : 'RAG index queuedβ€¦'
+        ? 'Σειρά αναμονής ευρετηρίου…'
+        : 'RAG index queued…'
       : failed
         ? lang === 'el'
-          ? 'Ξ‘Ο€ΞΏΟ„Ο…Ο‡Ξ―Ξ± ΞµΟ…ΟΞµΟ„Ξ·ΟΞ―ΞΏΟ…'
+          ? 'Αποτυχία ευρετηρίου'
           : 'RAG indexing failed'
         : lang === 'el'
-          ? 'Ξ•Ο…ΟΞµΟ„Ξ·ΟΞ―Ξ±ΟƒΞ· Ξ²ΞΉΞ²Ξ»ΞΉΞΏΞΈΞ®ΞΊΞ·Ο‚β€¦'
-          : 'Indexing library for searchβ€¦';
+          ? 'Ευρετηρίαση βιβλιοθήκης…'
+          : 'Indexing library for search…';
 
   return (
     <div

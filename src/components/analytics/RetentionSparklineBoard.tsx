@@ -14,7 +14,7 @@ type Props = {
   emptyHint: string;
 };
 
-/** Mini sparkline grid β€” retention decay boards (Option-B Wave E10). */
+/** Mini sparkline grid — retention decay boards (Option-B Wave E10). */
 export function RetentionSparklineBoard({ forecast, skills, ariaLabel, emptyHint }: Props) {
   const items = useMemo(
     () => buildRetentionSparklineItems(forecast, skills),

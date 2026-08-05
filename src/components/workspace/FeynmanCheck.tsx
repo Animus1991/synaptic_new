@@ -69,7 +69,7 @@ interface Props {
   gapTerms?: string[];
   /** Uploaded note excerpt for coach grounding (not the user's draft). */
   referenceNotes?: string;
-  /** Glossary terms from the source corpus β€” used to score accuracy fairly. */
+  /** Glossary terms from the source corpus — used to score accuracy fairly. */
   glossary?: Array<{ term: string; definition?: string }>;
   /** Additional course/topic terms that should count as keywords. */
   extraTerms?: string[];
@@ -92,7 +92,7 @@ interface Props {
   /** Open Quiz tool after rubric review (TOOL-FY-02). */
   onOpenQuiz?: () => void;
 }
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function FeynmanCheck({
   concept = 'Introduction',
   onFocusConcept,
@@ -196,10 +196,10 @@ export function FeynmanCheck({
   };
   const rubricDims: RubricDimension[] = ['accuracy', 'completeness', 'simplicity', 'structure'];
   const coachEngineLabel = coachUsedLlm
-    ? 'AI Coach Β· LLM'
+    ? 'AI Coach · LLM'
     : isLlmAvailable(settings)
-      ? 'AI Coach Β· offline rubric'
-      : 'AI Coach Β· offline (add API key in Settings)';
+      ? 'AI Coach · offline rubric'
+      : 'AI Coach · offline (add API key in Settings)';
 
   const exportRubric = (mode: 'download' | 'print') => {
     if (!rubric) return;
@@ -243,7 +243,7 @@ export function FeynmanCheck({
       <div className="flex-1 overflow-y-auto p-4">
         <h3 className="mb-1 text-sm font-semibold flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-text-primary" />
-          {t('feynmanCheck')} β€” {concept}
+          {t('feynmanCheck')} — {concept}
         </h3>
         <p className="mb-3 text-xs text-text-tertiary">{t('feynmanHint')}</p>
 
@@ -292,7 +292,7 @@ export function FeynmanCheck({
               <p className="mb-2 type-caption font-semibold text-text-muted">{t('outline')}</p>
               <ul className="space-y-1 type-caption text-text-secondary">
                 {outline.map((item) => (
-                  <li key={item}>β€Ά {item}</li>
+                  <li key={item}>‶ {item}</li>
                 ))}
               </ul>
             </div>
@@ -303,7 +303,7 @@ export function FeynmanCheck({
               placeholder={placeholder}
               className="w-full rounded-xl border border-border-subtle bg-surface-primary p-3 text-sm leading-6 outline-none placeholder:text-text-muted focus:border-brand-500/40"
             />
-            {/* Wave E7 β€” one primary CTA (Coach); Ask Agent secondary; Voice + exports in overflow */}
+            {/* Wave E7 — one primary CTA (Coach); Ask Agent secondary; Voice + exports in overflow */}
             <div className="flex flex-wrap items-center gap-2">
               <span className="type-caption text-text-tertiary mr-auto">{wordCount} {t('words')}</span>
               <button
@@ -384,13 +384,13 @@ export function FeynmanCheck({
                 <div>
                   <p className="type-caption font-semibold text-accent-emerald mb-1">Strengths</p>
                   <ul className="type-caption text-text-secondary space-y-0.5">
-                    {coachFeedback.strengths.map((s, i) => <li key={i}>β€Ά {s}</li>)}
+                    {coachFeedback.strengths.map((s, i) => <li key={i}>‶ {s}</li>)}
                   </ul>
                 </div>
                 <div>
                   <p className="type-caption font-semibold text-accent-amber mb-1">Improve</p>
                   <ul className="type-caption text-text-secondary space-y-0.5">
-                    {coachFeedback.improvements.map((s, i) => <li key={i}>β€Ά {s}</li>)}
+                    {coachFeedback.improvements.map((s, i) => <li key={i}>‶ {s}</li>)}
                   </ul>
                 </div>
                 {coachFeedback.rewrite && (
@@ -415,7 +415,7 @@ export function FeynmanCheck({
                           onClick={() => onOpenInReader(g.searchTerm)}
                           className="shrink-0 type-caption text-text-primary hover:text-text-primary"
                         >
-                          Reader β†’
+                          Reader →
                         </button>
                       )}
                     </li>

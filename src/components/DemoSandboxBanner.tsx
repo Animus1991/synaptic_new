@@ -10,7 +10,7 @@ import { useMinimalTheme } from '../lib/useMinimalTheme';
 
 /**
  * Compact status strip while demo sandbox content is active (B1 demo isolation).
- * OPT-K10 β€” under Minimal: quieter strip; secondary actions in overflow; Exit stays one-click.
+ * OPT-K10 — under Minimal: quieter strip; secondary actions in overflow; Exit stays one-click.
  */
 export function DemoSandboxBanner() {
   const { t } = useI18n();
@@ -61,7 +61,7 @@ export function DemoSandboxBanner() {
           </p>
           {!quiet && (
             <span className="hidden md:inline type-caption text-text-tertiary truncate">
-              β€” {t('demoSandboxBannerHint')}
+              — {t('demoSandboxBannerHint')}
             </span>
           )}
         </div>

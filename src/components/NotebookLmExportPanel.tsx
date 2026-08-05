@@ -18,12 +18,12 @@ type Props = {
 };
 
 const EXPORT_OPTIONS: { kind: NotebookLmExportKind; labelEn: string; labelEl: string }[] = [
-  { kind: 'study-guide', labelEn: 'Study guide + glossary', labelEl: 'ΞΞ΄Ξ·Ξ³ΟΟ‚ + Ξ³Ξ»Ο‰ΟƒΟƒΞ¬ΟΞΉ' },
-  { kind: 'review-pack', labelEn: 'Weak-area review pack', labelEl: 'Review pack Ξ±Ξ΄Ο…Ξ½Ξ±ΞΌΞΉΟΞ½' },
+  { kind: 'study-guide', labelEn: 'Study guide + glossary', labelEl: 'Οδηγός + γλωσσάρι' },
+  { kind: 'review-pack', labelEn: 'Weak-area review pack', labelEl: 'Review pack αδυναμιών' },
   { kind: 'fsrs-due', labelEn: 'FSRS due checklist', labelEl: 'FSRS due checklist' },
 ];
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function NotebookLmExportPanel({
   course,
   glossaryEntries = [],
@@ -48,11 +48,11 @@ export function NotebookLmExportPanel({
       setLastHint(
         copied
           ? el
-            ? 'Ξ‘Ξ½Ο„ΞΉΞ³ΟΞ¬Ο†Ξ·ΞΊΞµ ΟƒΟ„ΞΏ clipboard Β· Ξ¬Ξ½ΞΏΞΉΞΎΞµ NotebookLM ΞΊΞ±ΞΉ Ο€ΟΟΟƒΞΈΞµΟƒΞµ Ο€Ξ·Ξ³Ξ®.'
-            : 'Copied to clipboard Β· open NotebookLM and add as source.'
+            ? 'Αντιγράφηκε στο clipboard · άνοιξε NotebookLM και πρόσθεσε πηγή.'
+            : 'Copied to clipboard · open NotebookLM and add as source.'
           : el
-            ? 'Ξ›Ξ®Ο†ΞΈΞ·ΞΊΞµ .md Β· ΞµΟ€ΞΉΞΊΟΞ»Ξ»Ξ·ΟƒΞµ ΟƒΟ„ΞΏ NotebookLM.'
-            : 'Downloaded .md Β· paste into NotebookLM.',
+            ? 'Λήφθηκε .md · επικόλλησε στο NotebookLM.'
+            : 'Downloaded .md · paste into NotebookLM.',
       );
     } finally {
       setBusy(null);
@@ -65,11 +65,11 @@ export function NotebookLmExportPanel({
       data-testid="notebooklm-export-panel"
     >
       <p className="text-sm font-semibold text-text-primary mb-1">
-        {el ? 'Ξ•ΞΎΞ±Ξ³Ο‰Ξ³Ξ® β†’ NotebookLM' : 'Export β†’ NotebookLM'}
+        {el ? 'Εξαγωγή → NotebookLM' : 'Export → NotebookLM'}
       </p>
       <p className="type-micro text-text-secondary mb-3">
         {el
-          ? 'Ξ‘Ξ½Ο„ΞΉΞ³ΟΞ±Ο†Ξ® markdown + Ξ¬Ξ½ΞΏΞΉΞ³ΞΌΞ± NotebookLM Ξ³ΞΉΞ± paste Ο‰Ο‚ Ξ½Ξ­Ξ± Ο€Ξ·Ξ³Ξ®.'
+          ? 'Αντιγραφή markdown + άνοιγμα NotebookLM για paste ως νέα πηγή.'
           : 'Copy markdown + open NotebookLM to paste as a new source.'}
       </p>
       <div className="flex flex-wrap gap-2">

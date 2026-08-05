@@ -9,7 +9,7 @@ type Props = {
 
 export function PostExamNextStepsPanel({ examDate }: Props) {
   const { t } = useI18n();
-  /* OPT-K65 β€” only when post-exam phase has meaning (not always-on editorial) */
+  /* OPT-K65 — only when post-exam phase has meaning (not always-on editorial) */
   const show = isPostExamPhase(examDate);
   const links = filterPostExamLinks();
 
@@ -33,7 +33,7 @@ export function PostExamNextStepsPanel({ examDate }: Props) {
               className="block rounded-xl border border-border-subtle bg-surface-card/40 p-3 hover:border-brand-500/30 transition-colors h-full"
               data-testid={`next-step-${link.id}`}
             >
-              {/* OPT-K9b β€” arrow sits with title, not stretched across card */}
+              {/* OPT-K9b — arrow sits with title, not stretched across card */}
               <p className="proximity-row text-sm font-semibold text-text-primary">
                 <span className="proximity-row-label">{t(link.titleKey as never)}</span>
                 <ArrowRight className="w-3 h-3 text-text-muted shrink-0" />

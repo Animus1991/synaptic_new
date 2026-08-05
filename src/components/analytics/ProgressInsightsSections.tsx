@@ -16,7 +16,7 @@ function parseTrailingPct(value: string): number | undefined {
 export function ProgressKpiRow({ kpis }: { kpis: ProgressKpi[] }) {
   const isMinimal = useMinimalTheme();
 
-  // OPT-K5/K6 β€” Spending-like stacked rows under Minimal; Blueprint keeps KPI cards.
+  // OPT-K5/K6 — Spending-like stacked rows under Minimal; Blueprint keeps KPI cards.
   if (isMinimal) {
     return (
       <HubSection className="progress-kpi-stack" data-testid="progress-kpi-row">
@@ -76,7 +76,7 @@ export function ConfidenceBucketChart({ buckets, title }: { buckets: ConfidenceB
             className="min-w-0 rounded-lg border border-border-subtle/80 bg-surface-card/50 px-1 py-2 text-center"
           >
             <p className="text-sm font-bold tabular-nums text-text-primary sm:text-base">
-              {bucket.sampleCount === 0 ? 'β€”' : `${bucket.correctPct}%`}
+              {bucket.sampleCount === 0 ? '—' : `${bucket.correctPct}%`}
             </p>
             <p className="mt-0.5 type-micro text-text-muted tabular-nums truncate">{bucket.rangeLabel}</p>
             <p className="mt-0.5 type-micro text-text-tertiary tabular-nums">n={bucket.sampleCount}</p>

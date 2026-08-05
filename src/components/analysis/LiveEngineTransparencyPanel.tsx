@@ -14,7 +14,7 @@ type Props = {
   defaultQuery?: string;
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function LiveEngineTransparencyPanel({
   courseId,
   files,
@@ -64,7 +64,7 @@ export function LiveEngineTransparencyPanel({
           </button>
         </div>
         <p className="type-caption text-text-tertiary mt-2">
-          {data.wordCount.toLocaleString()} words indexed Β· {files.filter((f) => f.courseId === courseId).length} files
+          {data.wordCount.toLocaleString()} words indexed · {files.filter((f) => f.courseId === courseId).length} files
         </p>
       </div>
 
@@ -83,7 +83,7 @@ export function LiveEngineTransparencyPanel({
                 return (
                   <div key={hit.chunk.id} className="rounded-xl border border-border-subtle p-3 bg-surface-card/50">
                     <div className="flex items-center justify-between gap-3 mb-2">
-                      <span className="text-xs font-mono text-text-secondary">#{index + 1} Β· {hit.score.toFixed(2)}</span>
+                      <span className="text-xs font-mono text-text-secondary">#{index + 1} · {hit.score.toFixed(2)}</span>
                       <span className="type-caption text-text-tertiary truncate">{formatCitation(citation)}</span>
                     </div>
                     <p className="text-xs text-text-secondary leading-relaxed">{citation.snippet}</p>

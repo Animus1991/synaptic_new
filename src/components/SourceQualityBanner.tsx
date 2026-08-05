@@ -33,7 +33,7 @@ function dismiss(key: string): void {
   }
 }
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function SourceQualityBanner({
   score,
   lang,

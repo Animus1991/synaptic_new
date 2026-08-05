@@ -34,7 +34,7 @@ type Props = {
   lang?: 'en' | 'el';
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function GoogleIntegrationsPanel({
   settings,
   onUpdate,
@@ -113,7 +113,7 @@ export function GoogleIntegrationsPanel({
 
   const formatEventWhen = (ev: CalendarEventLite): string => {
     const raw = ev.start?.dateTime ?? ev.start?.date;
-    if (!raw) return 'β€”';
+    if (!raw) return '—';
     return formatDateTime(raw, lang);
   };
 

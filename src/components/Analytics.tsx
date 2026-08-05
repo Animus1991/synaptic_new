@@ -197,7 +197,7 @@ function buildMasteryGraph(
   return { nodes, edges, height };
 }
 
-/* OPT-K98 β€” markup debt: decorative brand type -> ink */
+/* OPT-K98 — markup debt: decorative brand type -> ink */
 export function Analytics({
   learnerModel,
   stats,
@@ -335,7 +335,7 @@ function OverviewTab({
         <ProgressKpiRow kpis={progressKpis} />
       </motion.div>
 
-      {/* L-A01: canvas flow banner β€” opens disclosure without removing chart body */}
+      {/* L-A01: canvas flow banner — opens disclosure without removing chart body */}
       <CollapsibleChromeSection
         title={t('chromeAnalyticsExtras')}
         data-testid="analytics-extras-chrome"
@@ -412,9 +412,9 @@ function OverviewTab({
               <p className="ux-kpi-value-sm">{fsrsSummary.trackedConcepts}</p>
             </div>
           </div>
-          {/* Wave P-C02 β€” forecast bars wrapped in soft track so the row reads as
+          {/* Wave P-C02 — forecast bars wrapped in soft track so the row reads as
               a chart even when data is sparse; bars use --viz-bar-fill (theme-aware
-              WCAG β‰¥3:1 vs surface-card in all 5 themes). */}
+              WCAG ≥3:1 vs surface-card in all 5 themes). */}
           <div
             className="flex items-end gap-1 h-20 rounded-lg p-1"
             style={{ backgroundColor: 'var(--viz-bar-track)' }}
@@ -449,7 +449,7 @@ function OverviewTab({
         </motion.div>
       )}
 
-      {/* Unified masonry β€” Weekly / Heatmap / Courses / Concepts / Calibration.
+      {/* Unified masonry — Weekly / Heatmap / Courses / Concepts / Calibration.
           Two separate column blocks left a full-width void under the short Weekly
           card (row height = Heatmap). One Settings-style pack fills that hole. */}
       <div
@@ -461,7 +461,7 @@ function OverviewTab({
           <div className="flex items-end gap-1.5 h-28" data-testid="analytics-weekly-trend">
             {weekly.map((val, i) => (
               <div key={i} className="analytics-weekly-col flex h-full flex-1 flex-col items-center justify-end gap-1 min-h-0">
-                {/* Wave P-C01 + OPT-K15 β€” % sits with day label (proximity); fills use viz tokens. */}
+                {/* Wave P-C01 + OPT-K15 — % sits with day label (proximity); fills use viz tokens. */}
                 <div
                   className="analytics-weekly-bar w-full rounded-t transition-all duration-500"
                   style={{
@@ -483,7 +483,7 @@ function OverviewTab({
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="platform-panel-md">
           <h3 className="text-sm font-semibold flex items-center gap-2 mb-2.5"><Calendar className="w-4 h-4 text-accent-teal" />{t('analyticsStudyHeatmap')}</h3>
-          {/* Wave P-C03 β€” heatmap driven by --color-heatmap-scale-{0..4} tokens.
+          {/* Wave P-C03 — heatmap driven by --color-heatmap-scale-{0..4} tokens.
               Retires ad-hoc bg-surface-hover / bg-brand-* classes that collapsed
               to invisible ~1.1:1 contrast on spectrum + warm-light cards. Sepia
               branch kept for backward compatibility with earlier K-T02 identity,
@@ -525,8 +525,8 @@ function OverviewTab({
               <div key={course.id} className="flex items-center gap-2">
                 <CourseIcon icon={course.icon} size="sm" colorClassName="text-text-secondary shrink-0" />
                 <span className="text-xs text-text-secondary flex-1 truncate">{course.title}</span>
-                {/* Wave P-2 C08 β€” Courses column progress track uses --viz-bar-track
-                    (theme-tuned β‰¥3:1 vs card) instead of bg-surface-hover which
+                {/* Wave P-2 C08 — Courses column progress track uses --viz-bar-track
+                    (theme-tuned ≥3:1 vs card) instead of bg-surface-hover which
                     collapsed to ~1.1:1 on spectrum + warm-light. */}
                 <div className="w-16 rounded-full h-1.5 shrink-0" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                   <div
@@ -550,7 +550,7 @@ function OverviewTab({
               .map((skill) => (
                 <div key={skill.concept} className="flex items-center gap-2">
                   <span className="text-xs text-text-secondary flex-1 truncate">{skill.concept}</span>
-                  {/* Wave P-2 C08 β€” Concepts column progress track uses --viz-bar-track. */}
+                  {/* Wave P-2 C08 — Concepts column progress track uses --viz-bar-track. */}
                   <div className="w-16 rounded-full h-1.5 shrink-0" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                     <div
                       className={cn(
@@ -578,8 +578,8 @@ function OverviewTab({
                 <div key={i} className="space-y-1">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs text-text-secondary truncate">{point.concept}</span>
-                    {/* Wave P-3 C15 β€” over/under labels use --color-calibration-*
-                        tokens (theme-tuned β‰¥4.5:1 on white cards). */}
+                    {/* Wave P-3 C15 — over/under labels use --color-calibration-*
+                        tokens (theme-tuned ≥4.5:1 on white cards). */}
                     <span
                       className={cn(
                         'type-micro font-medium inline-flex items-center gap-0.5 shrink-0',
@@ -618,7 +618,7 @@ function OverviewTab({
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
           <ConfidenceBucketChart
             buckets={confidenceBuckets}
-            title={lang === 'el' ? 'Calibration Ξ±Ξ½Ξ¬ ΞµΟ€Ξ―Ο€ΞµΞ΄ΞΏ ΞµΞΌΟ€ΞΉΟƒΟ„ΞΏΟƒΟΞ½Ξ·Ο‚' : 'Calibration by confidence level'}
+            title={lang === 'el' ? 'Calibration ανά επίπεδο εμπιστοσύνης' : 'Calibration by confidence level'}
           />
         </motion.div>
       )}
@@ -701,7 +701,7 @@ function OverviewTab({
         </div>
       </details>
 
-      {/* L-A03 + M-A05 β€” canvas-parity Visual Lab disclosure. Body is animated via
+      {/* L-A03 + M-A05 — canvas-parity Visual Lab disclosure. Body is animated via
           AnimatePresence so open/close matches the sticky footer chevron cadence. */}
       <details
         className="ux-disclosure"
@@ -737,7 +737,7 @@ function OverviewTab({
         </div>
       </details>
 
-      {/* L-A04: sticky Visual Lab footer (canvas) β€” keeps disclosure body intact */}
+      {/* L-A04: sticky Visual Lab footer (canvas) — keeps disclosure body intact */}
       <div
         className="analytics-visual-lab-footer sticky bottom-2 z-20 mt-3 rounded-xl border border-border-subtle bg-surface-card/95 shadow-sm backdrop-blur-sm"
         data-testid="analytics-visual-lab-footer"
@@ -919,8 +919,8 @@ function BehaviorTab({
     { labelKey: 'analyticsRetrievalPerformance', value: `${Math.round(learnerModel.retrievalPerformance * 100)}%`, barPct: Math.round(learnerModel.retrievalPerformance * 100) },
     { labelKey: 'analyticsTransferAbility', value: `${Math.round(learnerModel.transferAbility * 100)}%`, barPct: Math.round(learnerModel.transferAbility * 100) },
     { labelKey: 'analyticsCognitiveLoadPref', value: learnerModel.cognitiveLoadPreference },
-    { labelKey: 'analyticsBestStudyTime', value: learnerModel.bestTimeOfDay || 'β€”' },
-    { labelKey: 'analyticsLearningVelocity', value: `${learnerModel.learningVelocity}Γ—` },
+    { labelKey: 'analyticsBestStudyTime', value: learnerModel.bestTimeOfDay || '—' },
+    { labelKey: 'analyticsLearningVelocity', value: `${learnerModel.learningVelocity}×` },
     { labelKey: 'analyticsStreakDays', value: `${learnerModel.streakDays}` },
   ];
   const behaviorMetrics = [
@@ -955,7 +955,7 @@ function BehaviorTab({
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
         <LearningRadarChart
           dimensions={radarDimensions}
-          title={lang === 'el' ? 'Ξ ΟΞΏΟ†Ξ―Ξ» ΞΌΞ¬ΞΈΞ·ΟƒΞ·Ο‚' : 'Learning profile'}
+          title={lang === 'el' ? 'Προφίλ μάθησης' : 'Learning profile'}
         />
       </motion.div>
 
@@ -1037,7 +1037,7 @@ function InsightsTab({
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <LearnerInsightCards
             insights={profileInsights}
-            title={lang === 'el' ? 'Insights ΞΌΞ±ΞΈΞ·Ο„Ξ®' : 'Learner profile insights'}
+            title={lang === 'el' ? 'Insights μαθητή' : 'Learner profile insights'}
           />
         </motion.div>
       )}
@@ -1062,7 +1062,7 @@ function InsightsTab({
         <h3 className="text-sm font-semibold mb-3">{t('analyticsAdaptiveRecommendations')}</h3>
         <div className="space-y-2 text-sm text-text-secondary">
           {tips.length > 0 ? tips.map((tip, i) => (
-            <p key={i}>β€Ά {tip}</p>
+            <p key={i}>‶ {tip}</p>
           )) : (
             <p>{t('analyticsRecommendationsEmpty')}</p>
           )}
@@ -1096,13 +1096,13 @@ function ResearchTab({
     {
       icon: <Target className="w-5 h-5 text-text-tertiary" />,
       label: t('analyticsResearchBrier'),
-      value: metrics.brierScore != null ? metrics.brierScore.toFixed(3) : 'β€”',
+      value: metrics.brierScore != null ? metrics.brierScore.toFixed(3) : '—',
       sub: t('analyticsConfidenceHint').slice(0, 40),
     },
     {
       icon: <Eye className="w-5 h-5 text-text-tertiary" />,
       label: t('analyticsResearchEce'),
-      value: metrics.expectedCalibrationError != null ? metrics.expectedCalibrationError.toFixed(3) : 'β€”',
+      value: metrics.expectedCalibrationError != null ? metrics.expectedCalibrationError.toFixed(3) : '—',
       sub: t('analyticsCalibrated'),
     },
     {
@@ -1168,7 +1168,7 @@ function ResearchTab({
           </div>
         )}
         <p className="type-micro text-text-muted mt-3">
-          {t('analyticsResearchSample')}: {metrics.sampleActivities} activities Β· {metrics.sampleEvents} events
+          {t('analyticsResearchSample')}: {metrics.sampleActivities} activities · {metrics.sampleEvents} events
         </p>
       </motion.div>
 
@@ -1230,7 +1230,7 @@ function SkillBar({ concept, mastery, retention, count, color }: { concept: stri
         label={concept}
         value={`${mastery}%`}
         barPct={mastery}
-        hint={`${t('analyticsSkillRetention')}: ${Math.round(retention * 100)}% Β· ${t('analyticsSkillPracticed')} ${count}Γ—`}
+        hint={`${t('analyticsSkillRetention')}: ${Math.round(retention * 100)}% · ${t('analyticsSkillPracticed')} ${count}×`}
       />
     );
   }
@@ -1241,13 +1241,13 @@ function SkillBar({ concept, mastery, retention, count, color }: { concept: stri
         <span className="text-sm font-medium">{concept}</span>
         <span className={cn('text-xs font-medium', `text-accent-${color}`)}>{mastery}%</span>
       </div>
-      {/* Wave P-2 C08 β€” SkillBar (research view) track uses --viz-bar-track. */}
+      {/* Wave P-2 C08 — SkillBar (research view) track uses --viz-bar-track. */}
       <div className="w-full rounded-full h-2" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
         <div className={cn('h-2 rounded-full transition-all', barColor)} style={{ width: `${Math.max(mastery, 3)}%` }} />
       </div>
       <div className="flex gap-3 mt-1 type-micro text-text-muted">
         <span>{t('analyticsSkillRetention')}: {Math.round(retention * 100)}%</span>
-        <span>{t('analyticsSkillPracticed')} {count}Γ—</span>
+        <span>{t('analyticsSkillPracticed')} {count}×</span>
       </div>
     </div>
   );

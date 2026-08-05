@@ -25,7 +25,7 @@ const statusToneClass: Record<ReturnType<typeof assignmentStatusTone>, string> =
   negative: 'bg-accent-rose/15 text-accent-rose',
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
   const { t } = useI18n();
   const [open, setOpen] = useState(true);

@@ -71,7 +71,7 @@ function courseStatusKind(course: Course): CourseStatusKind {
   return 'ready';
 }
 
-/** Open upload modal β€” omit for new course; pass extend + course id to add material. */
+/** Open upload modal — omit for new course; pass extend + course id to add material. */
 export type LibraryUploadIntent = { mode: 'new' | 'extend'; targetCourseId?: string };
 
 interface LibraryProps {
@@ -93,9 +93,9 @@ interface LibraryProps {
   onAddNotebookLmToFsrs?: (result: NotebookLmImportResult) => void;
   onOpenNotebookShell?: (courseId: string) => void;
   onOpenConcept?: (concept: string) => void;
-  /** OPT-AI-C β€” Ask Agent about an analyzed library source (pins file). */
+  /** OPT-AI-C — Ask Agent about an analyzed library source (pins file). */
   onAskSource?: (file: UploadedFile, course?: Course) => void;
-  /** OPT-L5 β€” signed-in pull conflict (remote already applied). */
+  /** OPT-L5 — signed-in pull conflict (remote already applied). */
   syncConflicts?: LibrarySyncConflictItem[];
   onKeepRemoteLibrary?: () => void;
   onRestoreLocalLibrary?: () => void;
@@ -113,7 +113,7 @@ const fileTypeIcons: Record<string, typeof FileText> = {
   code: Code,
 };
 
-/* OPT-K98 β€” markup debt: decorative brand type -> ink */
+/* OPT-K98 — markup debt: decorative brand type -> ink */
 export function Library({
   courses,
   uploadedFiles,
@@ -141,7 +141,7 @@ export function Library({
 }: LibraryProps) {
   const userLanguage = userSettings?.language === 'el' ? 'el' : 'en';
   const warmSandPage = useWarmSandPageScope();
-  /** OPT-C5 β€” soft chrome under Minimal; list-first when no saved prefs. */
+  /** OPT-C5 — soft chrome under Minimal; list-first when no saved prefs. */
   const isMinimal = useMinimalTheme();
   const postUploadCourse = postUploadCourseId
     ? courses.find((c) => c.id === postUploadCourseId) ?? null
@@ -238,7 +238,7 @@ export function Library({
   }, [courses]);
 
   const libraryInfo = useMemo(() => {
-    /** OPT-K14 / L2 β€” full lists densified via +N; resolve opaque t1/t2 ids β†’ titles. */
+    /** OPT-K14 / L2 — full lists densified via +N; resolve opaque t1/t2 ids → titles. */
     const topics: string[] = [];
     const prereqSet = new Set<string>();
     for (const course of filteredCourses) {
@@ -323,7 +323,7 @@ export function Library({
         variant="banner"
       />
 
-      {/* L-L01: canvas order β€” RAG β†’ success β†’ NotebookLM β†’ combined β†’ tip.
+      {/* L-L01: canvas order — RAG → success → NotebookLM → combined → tip.
           Tight stack avoids stacking Page space-y with per-child mb-*. */}
       <div className="space-y-1.5">
         {userSettings && shouldShowDemo(userSettings) && (
@@ -413,7 +413,7 @@ export function Library({
         )}
       </div>
 
-      {/* Counts live on tab badges β€” no separate stats strip (was a duplicate row). */}
+      {/* Counts live on tab badges — no separate stats strip (was a duplicate row). */}
       <DescriptiveStickyTabBar
         items={libraryTabs}
         activeId={tab}
@@ -619,7 +619,7 @@ export function Library({
                         secondary={libraryInfo.prerequisites}
                         secondaryLabel={t('libraryInfoStackPrereqLabel', userLanguage)}
                         onItemClick={(topicTitle) => {
-                          // OPT-L1 β€” open study workspace on the topic (demo + prod); fallback to course.
+                          // OPT-L1 — open study workspace on the topic (demo + prod); fallback to course.
                           if (onOpenConcept) {
                             onOpenConcept(topicTitle);
                             return;
@@ -739,7 +739,7 @@ function CourseCard({
   onRemoveCourse?: (courseId: string) => boolean;
   onOpenNotebookShell?: (courseId: string) => void;
   onUpload?: () => void;
-  /** OPT-L1 β€” topic chip β†’ study workspace for that topic. */
+  /** OPT-L1 — topic chip → study workspace for that topic. */
   onOpenTopic?: (topicTitle: string) => void;
   uploadedFiles: UploadedFile[];
   tasks?: Task[];
@@ -774,11 +774,11 @@ function CourseCard({
   return (
     <BlueprintSurface
       as={motion.div}
-      // Skip fade-in β€” opacity wash fails WCAG contrast mid-animation (a11y CI).
+      // Skip fade-in — opacity wash fails WCAG contrast mid-animation (a11y CI).
       initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      // Wave E14 β€” no role=button on card (nested Open/Notebook/Delete buttons).
+      // Wave E14 — no role=button on card (nested Open/Notebook/Delete buttons).
       onClick={isGenerating ? undefined : openCourse}
       data-testid="library-course-card"
       {...(isGenerating ? {} : workspaceEntryPrefetchHandlers())}
@@ -851,7 +851,7 @@ function CourseCard({
         <p className="type-micro text-text-muted mb-2">
           {t('recognitionReportTitle', userLanguage)}:{' '}
           {course.recognitionSummary.conceptCount} {t('libConcepts', userLanguage)}
-          {' Β· '}
+          {' · '}
           {course.recognitionSummary.sectionCount} {t('recognitionMetricSections', userLanguage).toLowerCase()}
         </p>
       )}
@@ -903,7 +903,7 @@ function CourseCard({
       )}
 
       {isGenerating && (
-        /* Wave P-2 C08 β€” course generation shimmer track uses --viz-bar-track. */
+        /* Wave P-2 C08 — course generation shimmer track uses --viz-bar-track. */
         <div className="w-full rounded-full h-1 overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
           <div className="h-1 bg-accent-amber shimmer" style={{ width: '60%' }} />
         </div>
@@ -1067,7 +1067,7 @@ function CourseListItem({
       initial={false}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03 }}
-      // Wave E14 β€” primary open control; actions stay siblings (no nested-interactive).
+      // Wave E14 — primary open control; actions stay siblings (no nested-interactive).
       data-testid="library-course-card"
       className={cn(
         'flex items-center gap-2 p-4 hover:border-brand-500/35 transition-all group',
@@ -1102,7 +1102,7 @@ function CourseListItem({
               </span>
             )}
           </div>
-          <p className="mt-0.5 text-xs font-medium text-text-primary">{course.subject} Β· {course.totalLessons} {t('libLessons', userLanguage)} Β· {course.estimatedHours}h{pendingTasks > 0 ? ` Β· ${pendingTasks} ${t('libCardTasks', userLanguage)}` : ''}{dueReviews > 0 ? ` Β· ${dueReviews} ${t('libCardReviews', userLanguage)}` : ''}</p>
+          <p className="mt-0.5 text-xs font-medium text-text-primary">{course.subject} · {course.totalLessons} {t('libLessons', userLanguage)} · {course.estimatedHours}h{pendingTasks > 0 ? ` · ${pendingTasks} ${t('libCardTasks', userLanguage)}` : ''}{dueReviews > 0 ? ` · ${dueReviews} ${t('libCardReviews', userLanguage)}` : ''}</p>
           {quality && (
             <p className={cn(
               'type-caption mt-1 truncate',
@@ -1118,7 +1118,7 @@ function CourseListItem({
         </div>
         <div className="hidden sm:flex items-center gap-4">
           <div className="w-24">
-            {/* Wave P-2 C08 β€” library list-view mastery track uses --viz-bar-track. */}
+            {/* Wave P-2 C08 — library list-view mastery track uses --viz-bar-track. */}
             <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
               <div
                 className="h-1.5 rounded-full transition-all"
@@ -1258,7 +1258,7 @@ function FileItem({
     file.type.toUpperCase(),
     outlinePreview ? `${outlinePreview.outline.topics.length} ${t('libModules', userLanguage)}` : null,
     recognitionSnapshot ? `${recognitionSnapshot.quality.conceptCount} ${t('libConcepts', userLanguage)}` : null,
-  ].filter(Boolean).join(' Β· ');
+  ].filter(Boolean).join(' · ');
 
   return (
     <>
@@ -1282,13 +1282,13 @@ function FileItem({
               ? pathMeta
               : (
                 <>
-                  {(file.size / 1024).toFixed(1)} KB Β· {file.type.toUpperCase()}
-                  {course && <> Β· {course.title}</>}
+                  {(file.size / 1024).toFixed(1)} KB · {file.type.toUpperCase()}
+                  {course && <> · {course.title}</>}
                   {outlinePreview && (
-                    <> Β· {outlinePreview.outline.topics.length} {t('libModules', userLanguage)}</>
+                    <> · {outlinePreview.outline.topics.length} {t('libModules', userLanguage)}</>
                   )}
                   {recognitionSnapshot && (
-                    <> Β· {recognitionSnapshot.quality.conceptCount} {t('libConcepts', userLanguage)}</>
+                    <> · {recognitionSnapshot.quality.conceptCount} {t('libConcepts', userLanguage)}</>
                   )}
                 </>
               )}
@@ -1300,7 +1300,7 @@ function FileItem({
         <div className="shrink-0 flex items-center gap-2">
           {file.status === 'uploading' && (
             <div className="flex items-center gap-2">
-              {/* Wave P-2 C08 β€” file upload progress track uses --viz-bar-track. */}
+              {/* Wave P-2 C08 — file upload progress track uses --viz-bar-track. */}
               <div className="w-16 rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                 <div className="h-1.5 rounded-full bg-brand-500 transition-all" style={{ width: `${file.progress}%` }} />
               </div>

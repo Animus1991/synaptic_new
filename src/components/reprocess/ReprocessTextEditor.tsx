@@ -308,7 +308,7 @@ export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 
                 <p className="type-micro text-text-muted">
                   {countWords(active.editedText)} {t('words')}
                   {sectionHasManualEdits(active) && (
-                    <span className="ml-1 text-text-primary">Ξ’Β· {t('reprocessModified')}</span>
+                    <span className="ml-1 text-text-primary">· {t('reprocessModified')}</span>
                   )}
                 </p>
                 <div className="ml-auto flex flex-wrap gap-1">

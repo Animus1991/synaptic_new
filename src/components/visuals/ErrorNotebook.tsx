@@ -7,7 +7,7 @@ interface Props {
   onResolve?: (id: string) => void;
 }
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function ErrorNotebook({ mistakes, onResolve }: Props) {
   if (mistakes.length === 0) return null;
 
@@ -15,7 +15,7 @@ export function ErrorNotebook({ mistakes, onResolve }: Props) {
     <BlueprintSurface className="p-5 platform-banner-danger">
       <h3 className="text-sm font-semibold flex items-center gap-2 mb-4 platform-banner-title">
         <BookX className="w-4 h-4 shrink-0" />
-        Error notebook β€” {mistakes.length} open mistake{mistakes.length !== 1 ? 's' : ''}
+        Error notebook — {mistakes.length} open mistake{mistakes.length !== 1 ? 's' : ''}
       </h3>
       <div className="space-y-3">
         {mistakes.slice(0, 5).map((m) => (

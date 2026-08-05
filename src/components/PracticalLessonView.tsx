@@ -29,7 +29,7 @@ interface PracticalLessonViewProps {
   onUpload?: () => void;
 }
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function PracticalLessonView({
   onClose,
   onOpenAgent,
@@ -143,7 +143,7 @@ export function PracticalLessonView({
     }
     const passed = exercise.validate(code);
     setTestsPassed(passed);
-    setOutput(passed ? `β“ ${t('allTestsPassed')}` : `β— ${t('testsFailed')}`);
+    setOutput(passed ? `✓ ${t('allTestsPassed')}` : `✗ ${t('testsFailed')}`);
     if (passed) {
       onPracticeAttempt?.(quizConcept, true);
       setPassedExerciseIds((prev) => new Set(prev).add(exerciseIdx));
@@ -161,7 +161,7 @@ export function PracticalLessonView({
   };
 
   const lessonTitle = taskTitle ?? t('practiceTitleColon').replace('{concept}', quizConcept);
-  const lessonCourse = courseName ? `${courseName} Β· Practice` : 'Practice';
+  const lessonCourse = courseName ? `${courseName} · Practice` : 'Practice';
   const allDone = exercises.length > 0 && passedCount >= exercises.length;
 
   if (!hasNoteSource && onUpload) {
@@ -233,7 +233,7 @@ export function PracticalLessonView({
                 <p className="type-micro text-text-secondary mt-0.5">
                   {pyodideStatus === 'loading' && t('loadingPyodide')}
                   {pyodideStatus === 'ready' && t('pyodideReady')}
-                  {pyodideStatus === 'error' && 'Pyodide unavailable β€” using regex fallback'}
+                  {pyodideStatus === 'error' && 'Pyodide unavailable — using regex fallback'}
                 </p>
               )}
             </div>
@@ -249,7 +249,7 @@ export function PracticalLessonView({
                     i === exerciseIdx ? 'border-brand-500 bg-surface-secondary text-text-primary border border-border-subtle' : passedExerciseIds.has(i) ? 'border-accent-emerald/40 text-accent-emerald' : 'border-border-subtle text-text-muted',
                   )}
                 >
-                  {passedExerciseIds.has(i) ? 'β“' : i + 1}
+                  {passedExerciseIds.has(i) ? '✓' : i + 1}
                 </button>
               ))}
             </div>

@@ -34,8 +34,8 @@ type StudioTile = {
   testId?: string;
 };
 
-/** L13-6 β€” NotebookLM-inspired 3-column shell (Synapse-native). */
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/** L13-6 — NotebookLM-inspired 3-column shell (Synapse-native). */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function NotebookShellView({
   course,
   sources,
@@ -53,7 +53,7 @@ export function NotebookShellView({
   const [exportBusy, setExportBusy] = useState<NotebookLmExportKind | null>(null);
   const primarySource = sources[0];
   const excerpt = primarySource?.extractedText?.trim().slice(0, 1200) ?? '';
-  const topicLine = course.topics.slice(0, 4).map((t) => t.title).join(' Β· ');
+  const topicLine = course.topics.slice(0, 4).map((t) => t.title).join(' · ');
   const quizCardCount = useMemo(() => {
     if (quizCardCountProp != null) return quizCardCountProp;
     if (!primarySource?.extractedText?.trim()) return 0;
@@ -93,15 +93,15 @@ export function NotebookShellView({
     {
       id: 'workspace',
       label: el ? 'Study Workspace' : 'Study Workspace',
-      hint: el ? 'FSRS Β· ΞµΟΞ³Ξ±Ξ»ΞµΞ―Ξ± Β· Ξ²Ξ®ΞΌΞ±Ο„Ξ± ΞΌΞ±ΞΈΞ®ΞΌΞ±Ο„ΞΏΟ‚' : 'FSRS tools Β· lesson steps',
+      hint: el ? 'FSRS · εργαλεία · βήματα μαθήματος' : 'FSRS tools · lesson steps',
       icon: Layers,
       onClick: onOpenWorkspace,
       testId: 'notebook-shell-open-workspace',
     },
     {
       id: 'nlm',
-      label: el ? 'Ξ΅ΟΟ„Ξ± ΟƒΟ„ΞΏ NotebookLM' : 'Ask in NotebookLM',
-      hint: el ? 'Grounded Q&A ΟƒΟ„ΞΏ Google' : 'Grounded Q&A on Google',
+      label: el ? 'εώτα στο NotebookLM' : 'Ask in NotebookLM',
+      hint: el ? 'Grounded Q&A στο Google' : 'Grounded Q&A on Google',
       icon: ExternalLink,
       onClick: () => void openNotebookLm({
         sourceTitle: primarySource ? notebookLmSourceLabel(primarySource.name, primarySource.ingestMethod) : course.title,
@@ -111,7 +111,7 @@ export function NotebookShellView({
     },
     {
       id: 'import',
-      label: el ? 'Ξ•ΞΉΟƒΞ±Ξ³Ο‰Ξ³Ξ® Ξ±Ο€Ο NLM' : 'Import from NLM',
+      label: el ? 'Εισαγωγή από NLM' : 'Import from NLM',
       hint: el ? 'Paste study guide / quiz' : 'Paste study guide / quiz',
       icon: BookOpen,
       onClick: () => onOpenLibraryImport?.(),
@@ -120,14 +120,14 @@ export function NotebookShellView({
     {
       id: 'retention',
       label: el ? 'Retention (FSRS)' : 'Retention (FSRS)',
-      hint: el ? 'Leitner Β· Anki Β· due queue ΟƒΟ„ΞΏ workspace' : 'Leitner Β· Anki Β· due queue in workspace',
+      hint: el ? 'Leitner · Anki · due queue στο workspace' : 'Leitner · Anki · due queue in workspace',
       icon: Brain,
       onClick: onOpenWorkspace,
     },
     {
       id: 'export-review',
       label: el ? 'Export review pack' : 'Export review pack',
-      hint: el ? 'Synapse β†’ NotebookLM markdown' : 'Synapse β†’ NotebookLM markdown',
+      hint: el ? 'Synapse → NotebookLM markdown' : 'Synapse → NotebookLM markdown',
       icon: Upload,
       onClick: () => void handleExport('review-pack'),
       testId: 'notebook-shell-export-review',
@@ -135,7 +135,7 @@ export function NotebookShellView({
     {
       id: 'export-guide',
       label: el ? 'Export study guide' : 'Export study guide',
-      hint: el ? 'ΞΞ΄Ξ·Ξ³ΟΟ‚ + Ξ³Ξ»Ο‰ΟƒΟƒΞ¬ΟΞΉ Ξ³ΞΉΞ± NLM' : 'Study guide + glossary for NLM',
+      hint: el ? 'Οδηγός + γλωσσάρι για NLM' : 'Study guide + glossary for NLM',
       icon: Upload,
       onClick: () => void handleExport('study-guide'),
       testId: 'notebook-shell-export-guide',
@@ -157,7 +157,7 @@ export function NotebookShellView({
         <button
           type="button"
           onClick={onClose}
-          aria-label={el ? 'ΞΞ»ΞµΞ―ΟƒΞΉΞΌΞΏ' : 'Close'}
+          aria-label={el ? 'Κλείσιμο' : 'Close'}
           className="p-2 rounded-lg hover:bg-surface-hover text-text-secondary"
         >
           <X className="w-4 h-4" />
@@ -172,13 +172,13 @@ export function NotebookShellView({
         >
           <div className="px-3 py-2 border-b border-border-subtle/60">
             <p className="type-micro font-semibold uppercase tracking-wide text-text-muted">
-              <AllCapsLabel>{el ? 'Ξ Ξ·Ξ³Ξ­Ο‚' : 'Sources'}</AllCapsLabel>
+              <AllCapsLabel>{el ? 'Πηγές' : 'Sources'}</AllCapsLabel>
             </p>
           </div>
           <ul className="p-2 space-y-1">
             {sources.length === 0 ? (
               <li className="px-2 py-3 text-xs text-text-muted">
-                {el ? 'Ξ§Ο‰ΟΞ―Ο‚ ΟƒΟ…Ξ½Ξ΄ΞµΞ΄ΞµΞΌΞ­Ξ½Ξ± Ξ±ΟΟ‡ΞµΞ―Ξ±.' : 'No linked files yet.'}
+                {el ? 'Χωρίς συνδεδεμένα αρχεία.' : 'No linked files yet.'}
               </li>
             ) : sources.map((file) => (
               <li key={file.id}>
@@ -203,12 +203,12 @@ export function NotebookShellView({
           </ul>
         </aside>
 
-        {/* Center β€” study focus */}
+        {/* Center — study focus */}
         <main className="flex-1 min-w-0 overflow-y-auto p-4 lg:p-6" data-testid="notebook-shell-center">
           <div className="max-w-2xl mx-auto space-y-4">
             <div className="rounded-2xl border border-border-subtle bg-surface-card p-4">
               <p className="text-xs text-text-secondary mb-2">
-                {el ? 'ΞΞ­Ξ½Ο„ΟΞΏ ΞΌΞµΞ»Ξ­Ο„Ξ·Ο‚ β€” Synapse native' : 'Study center β€” Synapse native'}
+                {el ? 'Κέντρο μελέτης — Synapse native' : 'Study center — Synapse native'}
               </p>
               {topicLine && (
                 <p className="text-sm font-medium text-text-primary mb-3">{topicLine}</p>
@@ -217,7 +217,7 @@ export function NotebookShellView({
                 <p className="text-xs text-text-secondary whitespace-pre-wrap line-clamp-[12]">{excerpt}</p>
               ) : (
                 <p className="text-xs text-text-muted">
-                  {el ? 'Ξ†Ξ½ΞΏΞΉΞΎΞµ Ο„ΞΏ Workspace Ξ³ΞΉΞ± Ο€Ξ»Ξ®ΟΞµΟ‚ Ο…Ξ»ΞΉΞΊΟ.' : 'Open Workspace for full material.'}
+                  {el ? 'Άνοιξε το Workspace για πλήρες υλικό.' : 'Open Workspace for full material.'}
                 </p>
               )}
             </div>
@@ -229,7 +229,7 @@ export function NotebookShellView({
                 data-testid="notebook-shell-continue-workspace"
               >
                 <Sparkles className="w-4 h-4" />
-                {el ? 'Ξ£Ο…Ξ½Ξ­Ο‡ΞµΞΉΞ± ΟƒΟ„ΞΏ Workspace' : 'Continue in Workspace'}
+                {el ? 'Συνέχεια στο Workspace' : 'Continue in Workspace'}
               </button>
               {quizCardCount > 0 && onAddQuizToFsrs && (
                 <button
@@ -251,8 +251,8 @@ export function NotebookShellView({
                 >
                   <Brain className="w-4 h-4" />
                   {el
-                    ? `Audio β†’ FSRS (${audioChapterCount})`
-                    : `Audio β†’ FSRS (${audioChapterCount})`}
+                    ? `Audio → FSRS (${audioChapterCount})`
+                    : `Audio → FSRS (${audioChapterCount})`}
                 </button>
               )}
               <button

@@ -22,7 +22,7 @@ type Props = {
   compact?: boolean;
 };
 
-/* OPT-K101 β€” residual markup debt: decorative brand type -> ink */
+/* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function SyllabusCoverageWidget({
   courses,
   settingsExamDate,
@@ -67,19 +67,19 @@ export function SyllabusCoverageWidget({
             {snapshot.completedTopics}/{snapshot.totalTopics}
           </span>
         </div>
-        {/* Wave P-2 C08 β€” coverage compact progress track uses --viz-bar-track
-            for β‰¥3:1 contrast vs card surface in every theme. */}
+        {/* Wave P-2 C08 — coverage compact progress track uses --viz-bar-track
+            for ≥3:1 contrast vs card surface in every theme. */}
         <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
           <div className="h-1.5 rounded-full bg-brand-600 transition-all" style={{ width: `${pct}%` }} />
         </div>
         <ul className="space-y-1 max-h-28 overflow-y-auto">
           {snapshot.topics.slice(0, 6).map((topic) => (
-            /* OPT-K9b β€” Practice sits beside title (proximity), not far-right justify */
+            /* OPT-K9b — Practice sits beside title (proximity), not far-right justify */
             <li key={topic.topicId} className="coverage-topic-row flex items-center gap-1.5 type-micro">
               {topic.isComplete ? (
                 <CheckCircle2 className="w-3 h-3 text-accent-emerald shrink-0" aria-hidden />
               ) : (
-                /* Wave P-2 C10 β€” pending-topic bullet now filled with --viz-bar-track
+                /* Wave P-2 C10 — pending-topic bullet now filled with --viz-bar-track
                     so it stays visible in warm-light / spectrum where the raw
                     border-subtle stroke collapsed to invisible on tinted cards. */
                 <span
@@ -146,7 +146,7 @@ export function SyllabusCoverageWidget({
           />
         </div>
 
-        {/* Wave P-2 C08 β€” full-panel coverage progress track uses --viz-bar-track. */}
+        {/* Wave P-2 C08 — full-panel coverage progress track uses --viz-bar-track. */}
         <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
           <div
             className="h-full bg-brand-600 transition-all"
