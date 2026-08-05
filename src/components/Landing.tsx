@@ -128,18 +128,11 @@ export function Landing({ onGetStarted, onSeeDemo, onLanguageChange }: LandingPr
             {content.heroSubtitle}
           </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.26 }}
-          >
-            <LandingIntentChips className="mb-6" />
-          </motion.div>
-
+          {/* Wave H1 — hero budget: brand · title · subtitle · CTA first; intents secondary */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            transition={{ duration: 0.6, delay: 0.26 }}
             className="flex flex-wrap gap-4"
           >
             <button
@@ -169,7 +162,7 @@ export function Landing({ onGetStarted, onSeeDemo, onLanguageChange }: LandingPr
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.38 }}
+            transition={{ duration: 0.6, delay: 0.32 }}
             id="landing-demo-sandbox-hint"
             className="landing-cta-microcopy"
             style={mono}
@@ -182,6 +175,14 @@ export function Landing({ onGetStarted, onSeeDemo, onLanguageChange }: LandingPr
               </>
             ) : null}
           </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.38 }}
+          >
+            <LandingIntentChips className="mt-6 mb-2" />
+          </motion.div>
 
           {/* Trust indicators */}
           <motion.div

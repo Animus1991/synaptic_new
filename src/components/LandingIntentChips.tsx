@@ -8,7 +8,7 @@ const CHIPS: { key: I18nKey; icon: typeof GraduationCap }[] = [
   { key: 'landingIntentPractice', icon: Target },
 ];
 
-/** Decorative learning-intent chips — Replit category row (Wave R6). */
+/** Decorative learning-intent chips — secondary to hero CTAs (Wave H1). */
 export function LandingIntentChips({ className }: { className?: string }) {
   const { t } = useI18n();
 
@@ -19,7 +19,7 @@ export function LandingIntentChips({ className }: { className?: string }) {
       aria-hidden
     >
       {CHIPS.map(({ key, icon: Icon }) => (
-        <span key={key} className="landing-intent-chip">
+        <span key={key} className="landing-intent-chip landing-intent-chip--inline">
           <Icon className="landing-intent-chip-icon" aria-hidden />
           <span>{t(key)}</span>
         </span>

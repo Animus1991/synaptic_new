@@ -15,7 +15,7 @@ export function SimulatorTimerPresetSyncStrip({ report, lang: _lang }: Props) {
   return (
     <div
       className={cn(
-        'ws-status-strip mb-3 flex items-center gap-2',
+        'ws-status-strip flex items-center gap-2',
         report.ok ? 'ws-status-ok' : 'ws-status-warn',
       )}
       data-testid="simulator-timer-preset-sync-strip"

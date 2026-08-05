@@ -63,14 +63,19 @@ export function SimulatorPanel({
   }, [initialMainTab]);
 
   const tabBar = (
-    <div className="shrink-0 flex gap-1 border-b border-border-subtle px-4 py-2" data-testid="simulator-main-tabs">
+    <div
+      className="flex shrink-0 gap-1 border-b border-border-subtle px-3 py-1.5"
+      data-testid="simulator-main-tabs"
+    >
       <button
         type="button"
         data-testid="simulator-tab-simulator"
         onClick={() => setMainTab('simulator')}
         className={cn(
-          'rounded-lg px-3 py-1.5 type-caption font-medium',
-          mainTab === 'simulator' ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-secondary hover:bg-surface-hover',
+          'ws-touch-floor min-h-9 rounded-lg px-3 py-1.5 type-caption font-medium',
+          mainTab === 'simulator'
+            ? 'border border-border-subtle bg-surface-secondary text-text-primary'
+            : 'text-text-secondary hover:bg-surface-hover',
         )}
       >
         {t('toolSimulator')}
@@ -80,8 +85,10 @@ export function SimulatorPanel({
         data-testid="simulator-tab-exam-prep"
         onClick={() => setMainTab('exam-prep')}
         className={cn(
-          'rounded-lg px-3 py-1.5 type-caption font-medium',
-          mainTab === 'exam-prep' ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-secondary hover:bg-surface-hover',
+          'ws-touch-floor min-h-9 rounded-lg px-3 py-1.5 type-caption font-medium',
+          mainTab === 'exam-prep'
+            ? 'border border-border-subtle bg-surface-secondary text-text-primary'
+            : 'text-text-secondary hover:bg-surface-hover',
         )}
       >
         {t('examPrepPanelTitle')}
@@ -151,15 +158,12 @@ export function SimulatorPanel({
   return (
     <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel">
       {tabBar}
-      <div className="flex-1 flex flex-col overflow-hidden min-h-0">
-      <div className="shrink-0 border-b border-border-subtle px-4 py-3">
-        {session.sectionLabel && (
-          <p className="mb-2 type-caption text-text-muted" data-testid="simulator-section-label">
-            {t('wsSectionColon')}{' '}
-            <span className="text-text-secondary">{session.sectionLabel}</span>
-          </p>
-        )}
-
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      {/* Wave G5 — exam/meta densify: one strip; timer sync only when warn */}
+      <div
+        className="shrink-0 space-y-1.5 border-b border-border-subtle px-3 py-2"
+        data-testid="simulator-exam-chrome"
+      >
         {artifactStale && onAcknowledgeStale && (
           <ArtifactStaleBanner lang={lang} tool="simulator" onDismiss={onAcknowledgeStale} />
         )}
@@ -172,38 +176,51 @@ export function SimulatorPanel({
           </WorkspacePanelWarnStrip>
         )}
 
-        <SimulatorTimerPresetSyncStrip report={syncReport} lang={lang} />
+        {!syncReport.ok && (
+          <SimulatorTimerPresetSyncStrip report={syncReport} lang={lang} />
+        )}
 
-        {/* Wave F4 — one meta strip: search + summary · actions (less badge wall) */}
         <div
-          className="flex flex-wrap items-center gap-2"
+          className="flex flex-wrap items-center gap-1.5"
           data-testid="simulator-meta-strip"
         >
+          {session.sectionLabel && (
+            <p
+              className="type-caption max-w-[11rem] truncate text-text-secondary sm:max-w-[16rem]"
+              data-testid="simulator-section-label"
+              title={session.sectionLabel}
+            >
+              <span className="text-text-secondary">{session.sectionLabel}</span>
+            </p>
+          )}
           {session.numericCues.length > 0 && (
-            <div className="relative min-w-[140px] max-w-xs flex-1">
-              <Search className="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-text-muted" />
+            <div className="relative min-w-[8rem] max-w-[14rem] flex-1">
+              <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-secondary" aria-hidden />
               <input
                 type="search"
                 value={filterQuery}
                 onChange={(e) => setFilterQuery(e.target.value)}
                 placeholder={t('panelSearchParameters')}
-                className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 type-caption text-text-secondary placeholder:text-text-muted focus:border-border-default focus:outline-none"
+                className="w-full min-h-9 rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 type-caption text-text-secondary placeholder:text-text-muted focus:border-border-default focus:outline-none"
                 data-testid="simulator-filter"
               />
             </div>
           )}
-          <span className="type-caption font-medium text-text-secondary">
+          <span className="type-caption text-text-secondary">
             {session.numericCues.length} {t('panelParameters')}
             {session.economicsMode ? ` · ${t('panelEconMode')}` : ''}
+            {syncReport.ok && session.suggestedExamPractice
+              ? ` · ${examPracticeLabel(session.suggestedExamPractice, lang)}`
+              : ''}
           </span>
-          <span className="flex-1" />
+          <span className="min-w-[0.25rem] flex-1" />
           {onStartTimedPractice && (
             <button
               type="button"
               data-testid="simulator-start-timed-practice"
               onClick={() => onStartTimedPractice(session.suggestedExamPractice)}
               title={`${t('panelTimedBlock')}: ${examPracticeLabel(session.suggestedExamPractice, lang)}`}
-              className="ws-touch-floor inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-accent-amber/35 bg-accent-amber/10 px-2.5 py-1 type-caption font-medium text-text-primary hover:bg-accent-amber/15"
+              className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center gap-1.5 rounded-lg border border-accent-amber/35 bg-accent-amber/10 px-2 type-caption font-medium text-text-primary hover:bg-accent-amber/15 sm:min-w-0 sm:px-2.5"
             >
               <Timer className="h-3.5 w-3.5 text-accent-amber" aria-hidden />
               <span className="hidden sm:inline">{t('panelTimedBlock')}</span>
@@ -213,23 +230,24 @@ export function SimulatorPanel({
             <button
               type="button"
               onClick={() => onOpenInReader(concept)}
-              className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
+              className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center gap-1 rounded-lg border border-border-subtle px-2 type-caption text-text-secondary hover:border-border-default hover:text-text-primary sm:min-w-0 sm:px-2.5"
               data-testid="simulator-open-reader"
+              aria-label="Reader"
             >
-              <BookOpen className="h-3 w-3" />
+              <BookOpen className="h-3.5 w-3.5" aria-hidden />
               <span className="hidden sm:inline">Reader</span>
             </button>
           )}
         </div>
 
         {filterQuery.trim() && filterMatches.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1.5" data-testid="simulator-filter-matches">
+          <div className="flex flex-wrap gap-1.5" data-testid="simulator-filter-matches">
             {filterMatches.slice(0, 6).map((cue) => (
               <button
                 key={cue.id}
                 type="button"
                 onClick={() => onOpenInReader?.(cue.context.slice(0, 80) || cue.label)}
-                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 type-caption text-text-primary hover:opacity-90"
+                className="ws-touch-floor rounded-lg border border-border-subtle bg-surface-secondary px-2 py-1 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
               >
                 {cue.label.slice(0, 48)}{cue.label.length > 48 ? '…' : ''}
               </button>

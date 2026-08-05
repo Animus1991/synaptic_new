@@ -329,29 +329,31 @@ export function InteractiveSimulator({
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <div className="flex items-center justify-between border-b border-border-subtle bg-surface-card px-4 py-2.5 shrink-0">
-        <span className="flex items-center gap-2 text-sm font-semibold">
-          <SlidersHorizontal className="w-4 h-4 text-text-primary" />
-          {t('parametricSandbox')}
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border-subtle bg-surface-card px-3 py-1.5">
+        <span className="flex min-w-0 items-center gap-2 text-sm font-semibold text-text-primary">
+          <SlidersHorizontal className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
+          <span className="truncate">{t('parametricSandbox')}</span>
         </span>
-        <span className="rounded border border-accent-teal/35 bg-accent-teal/15 px-2.5 py-1 text-xs text-accent-teal">
+        <span className="shrink-0 rounded-lg border border-border-subtle bg-surface-secondary px-2 py-0.5 type-caption font-medium text-text-secondary">
           {t('liveEquilibrium')}
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col items-center overflow-y-auto p-4">
-        <div className="mb-3 w-full max-w-sm">
-          <div className="mb-1.5 flex items-center justify-between gap-2">
-            <p className="text-xs font-medium text-text-tertiary">{t('presets')}</p>
+      <div className="flex flex-1 flex-col items-center overflow-y-auto p-3 sm:p-4">
+        <div className="mb-2 w-full max-w-sm">
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <p className="type-caption font-medium text-text-secondary">{t('presets')}</p>
             {onSendToWhiteboard && (
               <button
                 type="button"
                 data-testid="simulator-send-whiteboard"
                 onClick={sendGraphToWhiteboard}
-                className="inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary text-text-primary hover:bg-brand-600/15"
+                className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2 type-caption text-text-primary hover:border-border-default"
+                aria-label={t('scratchOpenWhiteboard')}
+                title={t('scratchOpenWhiteboard')}
               >
-                <PenLine className="w-3 h-3" />
-                {t('scratchOpenWhiteboard')}
+                <PenLine className="h-3.5 w-3.5" aria-hidden />
+                <span className="hidden sm:inline">{t('scratchOpenWhiteboard')}</span>
               </button>
             )}
           </div>
