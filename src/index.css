@@ -6749,6 +6749,39 @@ body { letter-spacing: -0.005em; }
   }
 }
 
+/* ========== Wave F5 — radius enforcement (Tailwind rounded-* → optical scale) ========== */
+[data-testid="study-workspace"] .rounded-lg {
+  border-radius: var(--radius-md) !important;
+}
+[data-testid="study-workspace"] .rounded-xl {
+  border-radius: var(--radius-lg) !important;
+}
+[data-testid="study-workspace"] .rounded-2xl {
+  border-radius: var(--radius-panel) !important;
+}
+/* Keep true circles (swatches / readiness dots); pill chips use radius-sm */
+[data-testid="study-workspace"] .overflow-chip,
+[data-testid="study-workspace"] .overflow-chip-more,
+[data-testid="study-workspace"] [data-testid="simulator-course-presets"] button {
+  border-radius: var(--radius-sm) !important;
+}
+
+/* ========== Wave F6 / E13 — tablet touch floor (≤1023px) ========== */
+@media (max-width: 1023px) {
+  [data-testid="study-workspace"] .ws-touch-floor,
+  [data-testid="study-workspace"] [data-testid="agent-composer-tools"] button,
+  [data-testid="study-workspace"] [data-testid="simulator-course-presets"] button,
+  [data-testid="study-workspace"] [data-testid="notebook-pdf-page-strip"] button,
+  [data-testid="study-workspace"] [data-testid="whiteboard-draw-toolbar"] button {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+  [data-testid="study-workspace"] [data-testid="simulator-course-presets"] button {
+    min-width: auto;
+    padding-inline: 0.75rem;
+  }
+}
+
 :is([data-theme="minimal"], [data-theme="light"]) [data-testid="study-workspace"] {
   --color-text-muted: #5c6570;
   --color-text-secondary: #3d4450;

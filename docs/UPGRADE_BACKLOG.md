@@ -94,8 +94,9 @@ Perf root causes fixed (E0): per-tool intel gates; noteBundle pipeline decoupled
 | E10 | Simulator + Timer | **done** — S/D graph theme tokens + stronger surplus fills; exam-block clear persists |
 | E11 | Annotations | **done** — `.ws-panel-toolbar` global (was light/warm-only → run-together labels on minimal); named swatches |
 | E12 | Progress | **done** — KPI row + AA weak chip; ReadinessRing band AA; single next-action card; This-week bars use secondary ink + empty `noActivity` copy |
-| E13 | Tutor column + files rail | **partial** — offline banner AA done; Files meta/reprocess/quality pill lifted to caption + secondary ink; remaining: composer touch ≤1023, Listen caption |
-| F | Wave F eye-harmony follow-up | **in progress** — audit canvas `workspace-panel-visual-audit.canvas.tsx`; F1 Progress This-week always+heatmap; F2 close titles removed; F3 Files ink; next F4–F8 |
+| E13 | Tutor column + files rail | **done** — Files meta/quality caption; Listen → type-caption secondary; composer + page/preset touch floors ≤1023 |
+| F | Wave F eye-harmony follow-up | **done** — F1 Progress week; F2 close titles; F3 Files ink; F4 WB icon toolbar + Sim meta strip; F5 radius map; F6 tablet touch; F7 tool OverflowChipRow + Feynman term dedupe; F8 `themeContrastContract.test.ts` |
+| F0 | Hard-refresh visual QA (manual) | **open** — after pull: hard-refresh workspace on phone/tablet/desktop × Minimal + Blueprint; spot-check WB/Sim density, Progress chips overflow, Listen caption, no native close tooltip |
 | E14 | Exit gate | **done** — diagnostics removed; `test:a11y` + `test:e2e:perf` + contrast unit tests green; LHCI a11y ≥0.95 asserted (`npm run test:lhci`, landing/dashboard/demo). Fixes: ReadinessRing band AA ink; Shell Tasks/Search accessible names; Dashboard layout toggle labels |)
 
 ## Explicitly out of scope

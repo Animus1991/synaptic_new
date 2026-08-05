@@ -271,16 +271,17 @@ export function FeynmanCheck({
 
         {keyTerms.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-1.5" data-testid="feynman-key-terms">
-            <span className="type-caption text-text-muted w-full">
+            <span className="type-caption text-text-secondary w-full">
               {t('feynmanTermsFromMaterial')}
             </span>
-            {keyTerms.map((kt) => (
+            {/* Wave F7 — dedupe duplicate term pills from extraction noise */}
+            {[...new Map(keyTerms.map((kt) => [kt.term.trim().toLowerCase(), kt])).values()].map((kt) => (
               <button
                 key={kt.term}
                 type="button"
                 title={kt.definition}
                 onClick={() => onOpenInReader?.(kt.term)}
-                className="rounded-full border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption text-text-secondary hover:border-brand-600/45 hover:text-text-primary"
+                className="rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
               >
                 {kt.term}
               </button>

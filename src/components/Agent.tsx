@@ -2102,11 +2102,12 @@ function MessageBubble({
             aria-pressed={Boolean(isSpeaking)}
             onClick={onToggleSpeak}
             className={cn(
-              'mt-2 inline-flex items-center gap-1 type-micro transition-colors',
-              isSpeaking ? 'text-accent-rose' : 'text-text-tertiary hover:text-text-secondary',
+              /* Wave F / E13 — Listen at caption + secondary ink (was micro/tertiary) */
+              'mt-2 inline-flex min-h-9 items-center gap-1.5 type-caption font-medium transition-colors',
+              isSpeaking ? 'text-accent-rose' : 'text-text-secondary hover:text-text-primary',
             )}
           >
-            {isSpeaking ? <VolumeX className="w-3 h-3" aria-hidden /> : <Volume2 className="w-3 h-3" aria-hidden />}
+            {isSpeaking ? <VolumeX className="w-3.5 h-3.5" aria-hidden /> : <Volume2 className="w-3.5 h-3.5" aria-hidden />}
             {isSpeaking ? stopSpeakLabel : speakLabel}
           </button>
         )}

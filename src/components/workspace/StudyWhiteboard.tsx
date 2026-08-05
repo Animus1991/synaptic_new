@@ -105,7 +105,8 @@ export function StudyWhiteboard({
   const [redoStack, setRedoStack] = useState<LayeredStroke[]>([]);
   const [draft, setDraft] = useState<LayeredStroke | null>(null);
   const [savedMsg, setSavedMsg] = useState(false);
-  const [showLayers, setShowLayers] = useState(true);
+  /* Wave F4 — layers chrome collapsed by default (canvas-first density) */
+  const [showLayers, setShowLayers] = useState(false);
   const [showStamps, setShowStamps] = useState(false);
   const [liveAnnouncement, setLiveAnnouncement] = useState('');
   const drawing = useRef(false);
@@ -632,8 +633,11 @@ export function StudyWhiteboard({
         </p>
       </div>
 
-      {/* Wave E3 — single grouped toolbar; secondary actions in overflow */}
-      <div className="flex shrink-0 flex-wrap items-center gap-1.5 border-b border-border-subtle px-3 py-2">
+      {/* Wave F4 — icon-only primary tools; labels via title/aria (less chrome density) */}
+      <div
+        className="ws-wb-toolbar flex shrink-0 flex-wrap items-center gap-1 border-b border-border-subtle px-2 py-1.5 sm:gap-1.5 sm:px-3 sm:py-2"
+        data-testid="whiteboard-draw-toolbar"
+      >
         {DRAW_TOOLS.map(({ id, icon: Icon, label }) => (
           <button
             key={id}
@@ -644,13 +648,12 @@ export function StudyWhiteboard({
             disabled={activeLayerLocked}
             onClick={() => setTool(id)}
             className={cn(
-              'inline-flex min-h-9 items-center gap-1 rounded-lg px-2 py-1.5 type-caption font-medium transition-colors',
+              'ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg transition-colors',
               tool === id ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-muted hover:bg-surface-hover',
               activeLayerLocked && 'opacity-40 cursor-not-allowed',
             )}
           >
             <Icon className="w-3.5 h-3.5" aria-hidden />
-            <span>{label}</span>
           </button>
         ))}
         <div className="mx-0.5 h-5 w-px bg-border-subtle" aria-hidden />
@@ -664,13 +667,12 @@ export function StudyWhiteboard({
             disabled={activeLayerLocked}
             onClick={() => setTool(id)}
             className={cn(
-              'inline-flex min-h-9 items-center gap-1 rounded-lg px-2 py-1.5 type-caption font-medium transition-colors',
+              'ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg transition-colors',
               tool === id ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-muted hover:bg-surface-hover',
               activeLayerLocked && 'opacity-40 cursor-not-allowed',
             )}
           >
             <Icon className="w-3.5 h-3.5" aria-hidden />
-            <span>{label}</span>
           </button>
         ))}
         <div className="mx-0.5 h-5 w-px bg-border-subtle" aria-hidden />
@@ -680,7 +682,7 @@ export function StudyWhiteboard({
           title={t('wbUndo')}
           onClick={undo}
           disabled={doc.strokes.length === 0}
-          className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
+          className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Undo2 className="w-3.5 h-3.5" aria-hidden />
         </button>
@@ -690,7 +692,7 @@ export function StudyWhiteboard({
           title={t('wbRedo')}
           onClick={redo}
           disabled={redoStack.length === 0}
-          className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
+          className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Redo2 className="w-3.5 h-3.5" aria-hidden />
         </button>
@@ -702,10 +704,9 @@ export function StudyWhiteboard({
             title={t('wbExplainDiagram')}
             disabled={doc.strokes.length === 0}
             onClick={handleExplainDiagram}
-            className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-accent-cyan/30 px-2 py-1 type-caption font-medium text-text-primary hover:bg-accent-cyan/10 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border border-border-subtle text-text-primary hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <Bot className="w-3 h-3" aria-hidden />
-            <span>{t('wbExplainDiagram')}</span>
+            <Bot className="w-3.5 h-3.5" aria-hidden />
           </button>
         )}
         <PanelOverflowMenu

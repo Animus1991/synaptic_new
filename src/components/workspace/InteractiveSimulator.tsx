@@ -215,10 +215,10 @@ export function InteractiveSimulator({
                       data-testid={`simulator-parametric-preset-${p.id}`}
                       onClick={() => applyParametricPreset(p.id)}
                       className={cn(
-                        'rounded-full border px-2.5 py-1 text-xs transition-all',
+                        'ws-touch-floor min-h-9 rounded-lg border px-2.5 py-1.5 type-caption transition-all',
                         activeParametricPreset === p.id
-                          ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle'
-                          : 'border-border-subtle bg-surface-primary/50 hover:border-brand-500/40',
+                          ? 'border-border-default bg-surface-secondary font-medium text-text-primary'
+                          : 'border-border-subtle bg-surface-primary/50 text-text-secondary hover:border-border-default hover:text-text-primary',
                       )}
                     >
                       {lang === 'el' ? p.labelEl : p.labelEn}
@@ -363,10 +363,10 @@ export function InteractiveSimulator({
                 data-testid={`simulator-scenario-${p.id}`}
                 onClick={() => applyScenario(p.id)}
                 className={cn(
-                  'rounded-full border px-2.5 py-1 text-xs transition-all',
+                  'ws-touch-floor min-h-9 rounded-lg border px-2.5 py-1.5 type-caption transition-all',
                   activeEconScenario === p.id
-                    ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle'
-                    : 'border-border-subtle bg-surface-primary/50 hover:border-brand-500/40',
+                    ? 'border-border-default bg-surface-secondary font-medium text-text-primary'
+                    : 'border-border-subtle bg-surface-primary/50 text-text-secondary hover:border-border-default hover:text-text-primary',
                 )}
               >
                 {t(p.i18nKey)}

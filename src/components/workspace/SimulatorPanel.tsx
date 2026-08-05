@@ -174,46 +174,50 @@ export function SimulatorPanel({
 
         <SimulatorTimerPresetSyncStrip report={syncReport} lang={lang} />
 
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Wave F4 — one meta strip: search + summary · actions (less badge wall) */}
+        <div
+          className="flex flex-wrap items-center gap-2"
+          data-testid="simulator-meta-strip"
+        >
           {session.numericCues.length > 0 && (
-            <div className="relative flex-1 min-w-[140px] max-w-xs">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-text-muted" />
+            <div className="relative min-w-[140px] max-w-xs flex-1">
+              <Search className="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-text-muted" />
               <input
                 type="search"
                 value={filterQuery}
                 onChange={(e) => setFilterQuery(e.target.value)}
                 placeholder={t('panelSearchParameters')}
-                className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 type-caption text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
+                className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 type-caption text-text-secondary placeholder:text-text-muted focus:border-border-default focus:outline-none"
                 data-testid="simulator-filter"
               />
             </div>
           )}
-          <span className="type-caption text-text-muted">
+          <span className="type-caption font-medium text-text-secondary">
             {session.numericCues.length} {t('panelParameters')}
-            {session.economicsMode && (
-              <> · {t('panelEconMode')}</>
-            )}
+            {session.economicsMode ? ` · ${t('panelEconMode')}` : ''}
           </span>
+          <span className="flex-1" />
           {onStartTimedPractice && (
             <button
               type="button"
               data-testid="simulator-start-timed-practice"
               onClick={() => onStartTimedPractice(session.suggestedExamPractice)}
-              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-accent-amber/35 bg-accent-amber/10 px-2.5 py-1 type-caption font-medium text-accent-amber hover:bg-accent-amber/15"
+              title={`${t('panelTimedBlock')}: ${examPracticeLabel(session.suggestedExamPractice, lang)}`}
+              className="ws-touch-floor inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-accent-amber/35 bg-accent-amber/10 px-2.5 py-1 type-caption font-medium text-text-primary hover:bg-accent-amber/15"
             >
-              <Timer className="w-3.5 h-3.5" aria-hidden />
-              {t('panelTimedBlock')}: {examPracticeLabel(session.suggestedExamPractice, lang)}
+              <Timer className="h-3.5 w-3.5 text-accent-amber" aria-hidden />
+              <span className="hidden sm:inline">{t('panelTimedBlock')}</span>
             </button>
           )}
           {onOpenInReader && (
             <button
               type="button"
               onClick={() => onOpenInReader(concept)}
-              className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1.5 type-caption text-text-secondary hover:border-brand-600/45 hover:text-text-primary"
+              className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
               data-testid="simulator-open-reader"
             >
-              <BookOpen className="w-3 h-3" />
-              Reader
+              <BookOpen className="h-3 w-3" />
+              <span className="hidden sm:inline">Reader</span>
             </button>
           )}
         </div>

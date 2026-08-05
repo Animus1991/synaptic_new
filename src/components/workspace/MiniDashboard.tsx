@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { emphasizedTransition } from '../../lib/motion';
 import { ChevronUp, ChevronDown, Brain, AlertTriangle, Target, Zap, RotateCcw, BookOpen, Clock, BarChart3, Play } from '@/lib/lucide-shim';
@@ -10,6 +10,7 @@ import type { ToolActivityCount } from '../../lib/conceptBusPanelModel';
 import { formatToolTimeMinutes } from '../../lib/toolTimeTracker';
 import type { ConceptRemediationId } from '../../lib/conceptBusRemediation';
 import type { DashboardWeakSpot } from '../../lib/dashboardWeakSpotsModel';
+import { OverflowChipRow } from '../ui/OverflowChipRow';
 
 interface WeakSpot { concept: string; mastery: number; course: string }
 interface NextAction { label: string; type: string; minutes: number; xp?: number; taskId?: string }
@@ -69,6 +70,21 @@ export function MiniDashboard({
   const [activeTab, setActiveTab] = useState<'overview' | 'weak' | 'next'>('overview');
   const band = BAND(readiness, t);
   const weakList = weakSpotsDetail ?? weakSpots;
+  const toolChipItems = useMemo(
+    () =>
+      toolActivity.slice(0, 12).map(({ tool, count, ms }) => {
+        const label = `${workspaceToolLabel(tool as WorkspaceToolId, lang)} ×${count}${
+          ms != null && ms > 0 ? ` · ${formatToolTimeMinutes(ms)}` : ''
+        }`;
+        return {
+          key: tool,
+          label,
+          title: label,
+          onClick: onOpenToolActivity ? () => onOpenToolActivity(tool as WorkspaceToolId) : undefined,
+        };
+      }),
+    [toolActivity, lang, onOpenToolActivity],
+  );
 
   // Readiness ring mini
   const size = 68, sw = 6, r = (size - sw) / 2;
@@ -189,49 +205,21 @@ export function MiniDashboard({
                   )}
                 </div>
 
-                {toolActivity.length > 0 && (
+                {toolChipItems.length > 0 && (
                   <div
                     className="rounded-lg border border-border-subtle bg-surface-primary/40 p-2"
                     data-testid="progress-tool-activity"
                   >
-                    <p className="type-caption text-text-muted mb-1.5">
+                    <p className="type-caption text-text-secondary mb-1.5">
                       {t('exportSessionTools')}
                     </p>
-                    <div className="flex flex-wrap gap-1">
-                      {toolActivity.slice(0, 8).map(({ tool, count, ms }) => {
-                        const chip = (
-                          <>
-                            {workspaceToolLabel(tool as WorkspaceToolId, lang)}
-                            <span className="text-text-muted">
-                              ×{count}
-                              {ms != null && ms > 0 ? ` · ${formatToolTimeMinutes(ms)}` : ''}
-                            </span>
-                          </>
-                        );
-                        if (onOpenToolActivity) {
-                          return (
-                            <button
-                              key={tool}
-                              type="button"
-                              onClick={() => onOpenToolActivity(tool as WorkspaceToolId)}
-                              className="inline-flex items-center gap-0.5 rounded-full border border-border-subtle bg-surface-card/60 px-1.5 py-0.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
-                              data-testid={`progress-tool-${tool}`}
-                            >
-                              {chip}
-                            </button>
-                          );
-                        }
-                        return (
-                          <span
-                            key={tool}
-                            className="inline-flex items-center gap-0.5 rounded-full border border-border-subtle bg-surface-card/60 px-1.5 py-0.5 type-caption text-text-secondary"
-                            data-testid={`progress-tool-${tool}`}
-                          >
-                            {chip}
-                          </span>
-                        );
-                      })}
-                    </div>
+                    <OverflowChipRow
+                      items={toolChipItems}
+                      maxVisible={4}
+                      testId="progress-tool-chips"
+                      chipClassName="type-caption max-w-[9rem]"
+                      moreAriaLabel={(n) => `+${n} ${t('exportSessionTools')}`}
+                    />
                   </div>
                 )}
               </div>
