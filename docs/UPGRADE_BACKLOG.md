@@ -96,7 +96,7 @@ Perf root causes fixed (E0): per-tool intel gates; noteBundle pipeline decoupled
 | E12 | Progress | **done** — KPI row + AA weak chip; ReadinessRing band AA; single next-action card; This-week bars use secondary ink + empty `noActivity` copy |
 | E13 | Tutor column + files rail | **done** — Files meta/quality caption; Listen → type-caption secondary; composer + page/preset touch floors ≤1023 |
 | F | Wave F eye-harmony follow-up | **done** — F1 Progress week; F2 close titles; F3 Files ink; F4 WB icon toolbar + Sim meta strip; F5 radius map; F6 tablet touch; F7 tool OverflowChipRow + Feynman term dedupe; F8 `themeContrastContract.test.ts` |
-| F0 | Hard-refresh visual QA (manual) | **open** — after pull: hard-refresh workspace on phone/tablet/desktop × Minimal + Blueprint; spot-check WB/Sim density, Progress chips overflow, Listen caption, no native close tooltip |
+| F0 | Hard-refresh visual QA | **partial** — 13-shot audit: most fails are **stale pre-ed13498** (labeled WB, 6 Progress chips). Follow-up: GUIDE no `title`, header overflow clip, Progress maxVisible=3 + chip testIds, Quiz singular `panelQuestion`. Re-capture after Ctrl+Shift+R → canvas `workspace-sota-uiux-audit.canvas.tsx` |
 | E14 | Exit gate | **done** — diagnostics removed; `test:a11y` + `test:e2e:perf` + contrast unit tests green; LHCI a11y ≥0.95 asserted (`npm run test:lhci`, landing/dashboard/demo). Fixes: ReadinessRing band AA ink; Shell Tasks/Search accessible names; Dashboard layout toggle labels |)
 
 ## Explicitly out of scope

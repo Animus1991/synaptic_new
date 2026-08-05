@@ -6,6 +6,8 @@ export type OverflowChipItem = {
   label: string;
   title?: string;
   onClick?: () => void;
+  /** Optional per-chip test id (e.g. progress-tool-reader). */
+  testId?: string;
 };
 
 type Props = {
@@ -82,6 +84,7 @@ export function OverflowChipRow({
             <button
               key={item.key}
               type="button"
+              data-testid={item.testId}
               onClick={(e) => {
                 e.stopPropagation();
                 item.onClick?.();
@@ -94,7 +97,7 @@ export function OverflowChipRow({
           );
         }
         return (
-          <span key={item.key} className={shared} title={item.title ?? item.label}>
+          <span key={item.key} className={shared} title={item.title ?? item.label} data-testid={item.testId}>
             {item.label}
           </span>
         );

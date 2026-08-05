@@ -183,8 +183,9 @@ export function QuizPanel({
             data-testid="quiz-filter"
           />
         </div>
-        <span className="type-caption text-text-muted">
-          {session.items.length} {t('panelQuestions')}
+        <span className="type-caption text-text-secondary">
+          {session.items.length}{' '}
+          {session.items.length === 1 ? t('panelQuestion') : t('panelQuestions')}
         </span>
         {onOpenInReader && (
           <button

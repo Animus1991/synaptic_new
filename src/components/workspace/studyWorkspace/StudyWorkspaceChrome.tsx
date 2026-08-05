@@ -125,11 +125,13 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                 >
                   <div className={cn('flex items-center justify-between', !notebookMode && 'mb-3')}>
                     <button
+                      type="button"
                       onClick={onClose}
-                      aria-label={t('close')}
+                      aria-label={t('wsCloseWorkspace')}
+                      data-testid="workspace-chrome-close"
                       className="p-2 -ml-2 rounded-full hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
                     >
-                      <X className="w-5 h-5" />
+                      <X className="w-5 h-5" aria-hidden />
                     </button>
                     {/* OPT-K74 — notebook phone: title inline (panels own section chrome) */}
                     {notebookMode ? (
@@ -303,11 +305,13 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <button
+                    type="button"
                     onClick={onClose}
                     aria-label={t('wsCloseWorkspace')}
+                    data-testid="workspace-chrome-close"
                     className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-4 h-4" aria-hidden />
                   </button>
                   <h1
                     className="text-sm font-semibold truncate text-text-primary"
@@ -364,8 +368,14 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
             {!chromeHidden && !isMobile && !notebookMode && (
               <div className="relative z-10 flex items-center justify-between gap-2 px-3 py-2 border-b border-border-subtle bg-surface-secondary/85 backdrop-blur-xl shrink-0">
                 <div className="flex items-center gap-3 min-w-0">
-                  <button onClick={onClose} aria-label={t('wsCloseWorkspace')} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0">
-                    <X className="w-4 h-4" />
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    aria-label={t('wsCloseWorkspace')}
+                    data-testid="workspace-chrome-close"
+                    className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0"
+                  >
+                    <X className="w-4 h-4" aria-hidden />
                   </button>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">

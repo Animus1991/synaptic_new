@@ -77,7 +77,7 @@ export function WorkspaceToolHeader({
       data-tool={activeTool}
     >
       {/* Always-visible title row — compact density (WS-4) · OPT-K96 ink chrome */}
-      <div className="ws-tool-header-row flex items-start gap-2 sm:gap-2.5">
+      <div className="ws-tool-header-row relative flex items-start gap-2 overflow-hidden sm:gap-2.5">
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-surface-secondary sm:h-8 sm:w-8">
           <Icon className="h-3.5 w-3.5 text-text-secondary" aria-hidden />
         </span>
@@ -105,10 +105,10 @@ export function WorkspaceToolHeader({
           data-testid="workspace-tool-header-toggle"
           aria-expanded={!collapsed}
           aria-label={t('toolGuideAria')}
-          title={t('toolGuide')}
+          /* No title= — native yellow tips near GUIDE were mistaken for a Close chip (F0). */
           className={cn(
             /* Wave E2 — quiet ghost control (not a filled GUIDE chip) */
-            'ws-tool-guide-btn inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-0.5 rounded-md type-caption text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary sm:min-w-0 sm:gap-1 sm:px-2 sm:py-1.5',
+            'ws-tool-guide-btn relative z-10 inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-0.5 rounded-md type-caption text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary sm:min-w-0 sm:gap-1 sm:px-2 sm:py-1.5',
             !collapsed && 'bg-surface-secondary text-text-primary',
           )}
         >

@@ -80,6 +80,7 @@ export function MiniDashboard({
           key: tool,
           label,
           title: label,
+          testId: `progress-tool-${tool}`,
           onClick: onOpenToolActivity ? () => onOpenToolActivity(tool as WorkspaceToolId) : undefined,
         };
       }),
@@ -215,9 +216,9 @@ export function MiniDashboard({
                     </p>
                     <OverflowChipRow
                       items={toolChipItems}
-                      maxVisible={4}
+                      maxVisible={3}
                       testId="progress-tool-chips"
-                      chipClassName="type-caption max-w-[9rem]"
+                      chipClassName="type-caption max-w-[9rem] text-text-secondary"
                       moreAriaLabel={(n) => `+${n} ${t('exportSessionTools')}`}
                     />
                   </div>
