@@ -96,7 +96,7 @@ export function PageHeader({
           <div
             className={cn(
               'ux-page-subtitle mt-0.5 text-text-secondary',
-              isMinimal ? 'text-[13px] leading-snug' : 'text-xs sm:text-sm',
+              isMinimal ? 'type-meta leading-snug' : 'text-xs sm:text-sm',
             )}
           >
             {subtitle}

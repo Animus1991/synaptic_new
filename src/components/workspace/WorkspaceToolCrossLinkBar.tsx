@@ -111,7 +111,7 @@ export function WorkspaceToolCrossLinkBar({
                 data-testid={`crosslink-jump-${link.tool}`}
                 onClick={() => onJumpTool(link.tool)}
                 aria-label={t('crossLinkJumpTo').replace('{label}', lang === 'el' ? link.labelEl : link.labelEn)}
-                className="group inline-flex w-full sm:w-auto items-center justify-between gap-2 rounded-md border border-border-subtle bg-surface-card/80 px-3 py-2 text-[12px] text-text-secondary hover:border-brand-500/40 hover:bg-brand-500/8 hover:text-text-primary focus-visible:border-brand-400/60 focus-visible:text-text-primary transition-colors min-h-[40px]"
+                className="group inline-flex w-full sm:w-auto items-center justify-between gap-2 rounded-md border border-border-subtle bg-surface-card/80 px-3 py-2 type-caption text-text-secondary hover:border-brand-500/40 hover:bg-brand-500/8 hover:text-text-primary focus-visible:border-brand-400/60 focus-visible:text-text-primary transition-colors min-h-[40px]"
               >
                 <span className="truncate font-medium">
                   {lang === 'el' ? link.labelEl : link.labelEn}

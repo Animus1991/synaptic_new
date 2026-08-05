@@ -657,7 +657,7 @@ export function Tasks({
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); onStartTask?.(task.id); }}
-                        className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-lg bg-surface-secondary text-text-secondary text-[13px] font-semibold hover:bg-brand-600/20 hover:text-text-primary"
+                        className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-lg bg-surface-secondary text-text-secondary type-metafont-semibold hover:bg-brand-600/20 hover:text-text-primary"
                       >
                         <Play className="w-3.5 h-3.5" /> {startButtonLabel(task, lang)}
                       </button>
@@ -696,7 +696,7 @@ export function Tasks({
                                     key={rating}
                                     type="button"
                                     onClick={() => onReviewRating(task.id, rating)}
-                                    className={cn('tasks-fsrs-rating min-h-8 px-2.5 py-1.5 rounded-lg text-[12px] font-medium border', color)}
+                                    className={cn('tasks-fsrs-rating min-h-8 px-2.5 py-1.5 rounded-lg type-caption font-medium border', color)}
                                   >
                                     {label}
                                   </button>
@@ -757,11 +757,11 @@ export function Tasks({
                     <div className="h-full rounded-full bg-accent-rose/80" style={{ width: `${area.mastery}%` }} />
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <button type="button" onClick={() => onFocusWeakArea?.(area.concept)} className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl bg-surface-secondary text-text-secondary text-[13px] font-semibold hover:bg-brand-600/20 hover:text-text-primary">
+                    <button type="button" onClick={() => onFocusWeakArea?.(area.concept)} className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl bg-surface-secondary text-text-secondary type-metafont-semibold hover:bg-brand-600/20 hover:text-text-primary">
                       <Brain className="w-3.5 h-3.5" /> {c.studyNow}
                     </button>
                     {onOpenAgent && (
-                      <button type="button" onClick={() => onOpenAgent(area.concept)} className="flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl border border-border-subtle text-[13px] font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover">
+                      <button type="button" onClick={() => onOpenAgent(area.concept)} className="flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl border border-border-subtle type-metafont-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover">
                         <HelpCircle className="w-3.5 h-3.5" /> {c.askAi}
                       </button>
                     )}
@@ -814,7 +814,7 @@ export function Tasks({
               <button
                 type="button"
                 onClick={() => onStartTask?.(task.id)}
-                className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl bg-surface-secondary text-text-secondary text-[13px] font-semibold shrink-0 hover:bg-brand-600/20 hover:text-text-primary"
+                className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl bg-surface-secondary text-text-secondary type-metafont-semibold shrink-0 hover:bg-brand-600/20 hover:text-text-primary"
               >
                 <Play className="w-3.5 h-3.5" /> {c.startReview}
               </button>
@@ -873,16 +873,16 @@ export function Tasks({
                     <button
                       type="button"
                       onClick={() => onFocusWeakArea?.(mistake.concept)}
-                      className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl bg-surface-secondary text-text-secondary text-[13px] font-semibold hover:bg-brand-600/20 hover:text-text-primary"
+                      className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl bg-surface-secondary text-text-secondary type-metafont-semibold hover:bg-brand-600/20 hover:text-text-primary"
                     >
                       <RefreshCw className="w-3.5 h-3.5" /> {c.similarPractice}
                     </button>
                     {onOpenAgent && (
-                      <button type="button" onClick={() => onOpenAgent(mistake.concept)} className="flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl border border-border-subtle text-[13px] font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover">
+                      <button type="button" onClick={() => onOpenAgent(mistake.concept)} className="flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl border border-border-subtle type-metafont-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover">
                         <Brain className="w-3.5 h-3.5" /> {c.deepExplanation}
                       </button>
                     )}
-                    <button type="button" onClick={() => onResolveMistake?.(mistake.id)} className="flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl border border-border-subtle text-[13px] font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover">
+                    <button type="button" onClick={() => onResolveMistake?.(mistake.id)} className="flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl border border-border-subtle type-metafont-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover">
                       <CheckCircle2 className="w-3.5 h-3.5" /> {c.markResolved}
                     </button>
                   </div>

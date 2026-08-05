@@ -201,7 +201,12 @@ export function DashboardActionHub({
             : undefined
         }
       >
-        <div className={cn('p-3.5 sm:p-4 space-y-3 sm:space-y-4', heroText)}>
+        {/* UIUX-AUDIT-2026-08 H2 — outer rhythm tightened sm:space-y-4 -> sm:space-y-3
+            (16px -> 12px) so the desktop hero doesn't carry more air between the
+            greeting row and the KPI/study-center stack than the already-dense
+            Wave E/F workspace panels do. Mobile untouched (was already space-y-3).
+            Rollback: restore 'sm:space-y-4'. */}
+        <div className={cn('p-3.5 sm:p-4 space-y-3', heroText)}>
           {(greetingTitle || headerActions) && (
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0" id="dashboard-hero-greeting">
@@ -247,7 +252,12 @@ export function DashboardActionHub({
             ) : (
               <BlueprintSurface
                 nest
-                className={cn('p-3.5 sm:p-4', glassCard)}
+                /* UIUX-AUDIT-2026-08 H2 — dropped the sm:p-4 desktop padding bump
+                   (kept flat at p-3.5/14px on all breakpoints) so the empty-state
+                   study-center card doesn't sit visibly taller than the equivalent
+                   workspaceLive DashboardLivePreview card next to it, which has no
+                   extra desktop padding. Rollback: restore 'p-3.5 sm:p-4'. */
+                className={cn('p-3.5', glassCard)}
                 data-testid="dashboard-hero-study-center"
               >
                 <div

@@ -56,7 +56,7 @@ export function CohortNotebookLmHeatmap({ analytics, lang }: Props) {
                   )}
                   data-testid={`nlm-cohort-cell-${student.enrollmentId}`}
                 >
-                  <p className="text-[7px] text-text-primary truncate leading-tight">
+                  <p className="type-micro text-text-primary truncate leading-tight">
                     {student.studentLabel}
                   </p>
                   <p className="type-micro font-bold text-text-primary text-center">

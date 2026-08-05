@@ -257,7 +257,7 @@ export function StudentOrgView({
                 value={orgFilter}
                 onChange={(e) => setOrgFilter(e.target.value)}
                 data-testid="student-org-filter"
-                className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 text-sm text-text-primary"
+                className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 text-sm text-text-secondary"
               >
                 <option value="all">{ui.filterAllOrgs}</option>
                 {orgs.map(({ org }) => (

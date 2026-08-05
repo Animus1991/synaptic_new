@@ -1102,7 +1102,7 @@ function CourseListItem({
               </span>
             )}
           </div>
-          <p className="mt-0.5 text-xs font-medium text-text-primary">{course.subject} · {course.totalLessons} {t('libLessons', userLanguage)} · {course.estimatedHours}h{pendingTasks > 0 ? ` · ${pendingTasks} ${t('libCardTasks', userLanguage)}` : ''}{dueReviews > 0 ? ` · ${dueReviews} ${t('libCardReviews', userLanguage)}` : ''}</p>
+          <p className="mt-0.5 text-xs font-medium text-text-secondary">{course.subject} · {course.totalLessons} {t('libLessons', userLanguage)} · {course.estimatedHours}h{pendingTasks > 0 ? ` · ${pendingTasks} ${t('libCardTasks', userLanguage)}` : ''}{dueReviews > 0 ? ` · ${dueReviews} ${t('libCardReviews', userLanguage)}` : ''}</p>
           {quality && (
             <p className={cn(
               'type-caption mt-1 truncate',

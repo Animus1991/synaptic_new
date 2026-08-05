@@ -296,7 +296,7 @@ export function CourseView({
         }
       />
 
-      <UxCallout variant="info" title={t('courseSectionTitle')} icon={<MapPin className="text-text-primary0" />} testId="course-entry-hint">
+      <UxCallout variant="info" title={t('courseSectionTitle')} icon={<MapPin className="text-text-secondary" />} testId="course-entry-hint">
         {t('courseEntryHint')}
       </UxCallout>
 
@@ -980,7 +980,7 @@ function SourceFiles({
                 )}
                 {file.id && (
                   <p className="mt-2 text-xs text-text-secondary leading-relaxed">
-                    <span className="font-medium text-text-primary">{t('courseSourcePreviewLabel')}: </span>
+                    <span className="font-medium">{t('courseSourcePreviewLabel')}: </span>
                     {preview ?? t('courseSourcePreviewEmpty')}
                   </p>
                 )}

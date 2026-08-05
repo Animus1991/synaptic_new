@@ -292,9 +292,14 @@ export function FeynmanCheck({
         <div className="grid gap-3 xl:grid-cols-[1fr_0.85fr]">          <div className="space-y-3">
             <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3">
               <p className="mb-2 type-caption font-semibold text-text-muted">{t('outline')}</p>
+              {/* UIUX-AUDIT-2026-08 F2 — the outline previously used U+2036 (‶ REVERSED
+                  DOUBLE PRIME) as a bullet glyph; it renders as a stray quotation mark,
+                  not a bullet, and was visually confirmed as a bug from live screenshots.
+                  Swapped for the app's existing "•" separator glyph (see
+                  MiniDashboard.tsx / DraggableConceptMap.tsx). Rollback: restore ‶. */}
               <ul className="space-y-1 type-caption text-text-secondary">
                 {outline.map((item) => (
-                  <li key={item}>‶ {item}</li>
+                  <li key={item}>• {item}</li>
                 ))}
               </ul>
             </div>
@@ -381,14 +386,17 @@ export function FeynmanCheck({
                 <p className="type-caption text-text-muted">{coachEngineLabel}</p>
                 <div>
                   <p className="type-caption font-semibold text-accent-emerald mb-1">Strengths</p>
+                  {/* UIUX-AUDIT-2026-08 F2 — same ‶ (U+2036) stray-glyph bug as the
+                      outline list above, found by repo-wide grep after the first fix.
+                      Rollback: restore ‶. */}
                   <ul className="type-caption text-text-secondary space-y-0.5">
-                    {coachFeedback.strengths.map((s, i) => <li key={i}>‶ {s}</li>)}
+                    {coachFeedback.strengths.map((s, i) => <li key={i}>• {s}</li>)}
                   </ul>
                 </div>
                 <div>
                   <p className="type-caption font-semibold text-accent-amber mb-1">Improve</p>
                   <ul className="type-caption text-text-secondary space-y-0.5">
-                    {coachFeedback.improvements.map((s, i) => <li key={i}>‶ {s}</li>)}
+                    {coachFeedback.improvements.map((s, i) => <li key={i}>• {s}</li>)}
                   </ul>
                 </div>
                 {coachFeedback.rewrite && (

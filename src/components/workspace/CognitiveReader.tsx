@@ -862,7 +862,7 @@ export function CognitiveReader({
                     {title}
                   </p>
                 )}
-                <table id={`reader-para-body-${idx}`} className="min-w-full text-left text-[13px]">
+                <table id={`reader-para-body-${idx}`} className="min-w-full text-left type-meta">
                   <thead>
                     <tr className="border-b border-border-subtle/60 bg-surface-secondary/50">
                       {headers.map((h, hi) => (

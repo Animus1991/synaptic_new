@@ -715,6 +715,28 @@
   color: var(--color-on-brand) !important;
 }
 
+/*
+ * UIUX-AUDIT-2026-08 — defense-in-depth hardening (non-functional / additive only).
+ * Raw --color-brand-600/700/800 in minimal-dark are pastel cyans (#67e8f9 family)
+ * designed as TEXT ink, not fill colors: measured contrast of #ffffff on
+ * --color-brand-600 is ~1.45:1 (WCAG fail, needs >=4.5:1 for body text / >=3:1 for
+ * large text or UI components). The button/a/[role="button"] remap above already
+ * covers every current call site (audited 2026-08-05: ui/primitives.tsx PrimaryCTA,
+ * ui/platformChrome.tsx, ui/StatusChip.tsx, ui/CourseStatusBadge.tsx,
+ * ui/QualityScoreBadge.tsx — no live non-button offender found), so this rule does
+ * not change any current rendering. It only catches a FUTURE non-button element
+ * (badge/pill/span) that solid-fills with raw bg-brand-600/700/800 and white text,
+ * which would otherwise silently reintroduce the 1.45:1 failure.
+ * Equal specificity to the button rule above + same source-order-later value, so it
+ * cannot change existing button rendering (identical target colors either way).
+ * Rollback: delete this rule block; zero behavior change today if reverted.
+ */
+[data-theme="minimal-dark"] :is(.bg-brand-600, .bg-brand-700, .bg-brand-800).text-white,
+[data-theme="minimal-dark"] :is(.bg-brand-600, .bg-brand-700, .bg-brand-800) .text-white {
+  background-color: var(--color-brand-cta) !important;
+  color: var(--color-on-brand) !important;
+}
+
 /* Gradient brand CTAs (empty-dashboard upload) — same dark fill */
 [data-theme="minimal-dark"] :is(button, a).from-brand-500,
 [data-theme="minimal-dark"] :is(button, a).from-brand-600,

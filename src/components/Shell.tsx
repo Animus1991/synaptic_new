@@ -896,7 +896,7 @@ export function Shell({
                             setChromeMoreOpen(false);
                             onOpenWorkspace();
                           }}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-text-primary hover:bg-surface-hover"
+                          className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption text-text-primary hover:bg-surface-hover"
                         >
                           <Layout className="w-3.5 h-3.5 text-text-tertiary shrink-0" aria-hidden />
                           {t('navStudyWorkspace')}

@@ -25,7 +25,7 @@ export function FrontMatterCard({
         <BookOpen className="w-4 h-4 text-text-primary shrink-0" />
         <h3 className="text-sm font-semibold text-text-primary">{heading}</h3>
       </div>
-      <ol className={cn('list-decimal space-y-2 pl-5 text-[14px] text-text-primary')}>
+      <ol className={cn('list-decimal space-y-2 pl-5 text-sm text-text-primary')}>
         {items.map((item, i) => (
           <li key={i} className="whitespace-pre-line leading-relaxed">
             {item}

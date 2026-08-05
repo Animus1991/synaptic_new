@@ -1,0 +1,22 @@
+{
+  "java.import.exclusions": [
+    "**/node_modules/**",
+    "**/.metadata/**",
+    "**/archetype-resources/**",
+    "**/META-INF/maven/**"
+  ],
+  "java.project.resourceFilters": [
+    "node_modules",
+    "\\.git"
+  ],
+  "java.import.gradle.wrapper.enabled": true,
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "files.watcherExclude": {
+    "**/node_modules/**": true
+  },
+  "files.exclude": {
+    "**/node_modules/@capacitor/android/capacitor/.project": true,
+    "**/node_modules/@capacitor/android/capacitor/.classpath": true,
+    "**/node_modules/@capacitor/android/capacitor/.settings": true
+  }
+}

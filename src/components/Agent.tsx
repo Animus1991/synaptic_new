@@ -1899,7 +1899,7 @@ function MessageBubble({
     return (
       <div className="text-center">
         <span
-          className="agent-system-status text-xs px-3 py-1.5 rounded-full inline-block max-w-full border border-border-default bg-surface-tertiary text-text-primary font-medium"
+          className="agent-system-status text-xs px-3 py-1.5 rounded-full inline-block max-w-full border border-border-default bg-surface-tertiary text-text-secondary font-medium"
           data-testid="agent-system-status"
         >
           {message.content}
@@ -2116,25 +2116,25 @@ function MessageBubble({
         {!isUser && message.metadata && (
           <div className="agent-meta-badge-row mt-2 pt-2 border-t border-border-subtle flex items-center gap-1.5 flex-wrap pb-0.5">
             {message.metadata.sourceGrounded && (
-              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded border border-accent-emerald/45 bg-surface-secondary text-text-primary font-medium">{ui.badgeSourceGrounded}</span>
+              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded border border-accent-emerald/45 bg-surface-secondary text-text-secondary font-medium">{ui.badgeSourceGrounded}</span>
             )}
             {message.metadata.inferenceUsed && (
-              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded bg-surface-secondary text-text-primary border border-border-subtle font-medium">{ui.badgeAiInference}</span>
+              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded bg-surface-secondary text-text-secondary border border-border-subtle font-medium">{ui.badgeAiInference}</span>
             )}
             {message.metadata.enrichmentUsed && (
-              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded border border-accent-amber/45 bg-surface-secondary text-text-primary font-medium">{ui.badgeEnrichment}</span>
+              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded border border-accent-amber/45 bg-surface-secondary text-text-secondary font-medium">{ui.badgeEnrichment}</span>
             )}
             {message.metadata.globalRag && (
-              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded border border-accent-cyan/45 bg-surface-secondary text-text-primary font-medium">{ui.badgeGlobalRag}</span>
+              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded border border-accent-cyan/45 bg-surface-secondary text-text-secondary font-medium">{ui.badgeGlobalRag}</span>
             )}
             {message.metadata.graphRag && (
-              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded bg-surface-secondary text-text-primary border border-border-subtle font-medium">{ui.badgeGraphRag}</span>
+              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded bg-surface-secondary text-text-secondary border border-border-subtle font-medium">{ui.badgeGraphRag}</span>
             )}
             {message.metadata.globalRag === false && message.metadata.sourceGrounded && (
-              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded bg-surface-secondary text-text-primary border border-border-subtle font-medium">{ui.badgeLocalRag}</span>
+              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded bg-surface-secondary text-text-secondary border border-border-subtle font-medium">{ui.badgeLocalRag}</span>
             )}
             {message.metadata.lowRetrieval && (
-              <span className="agent-meta-badge agent-meta-badge--warn type-caption px-1.5 py-0.5 rounded border border-accent-rose/45 bg-surface-secondary text-text-primary font-medium">{ui.badgeLowRetrieval}</span>
+              <span className="agent-meta-badge agent-meta-badge--warn type-caption px-1.5 py-0.5 rounded border border-accent-rose/45 bg-surface-secondary text-text-secondary font-medium">{ui.badgeLowRetrieval}</span>
             )}
           </div>
         )}

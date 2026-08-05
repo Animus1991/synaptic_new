@@ -41,7 +41,7 @@ export function CohortTopicMasteryHeatmap({ analytics, lang }: Props) {
                     masteryColor(topic.masteryLevel),
                   )}
                 >
-                  <p className="text-[7px] text-text-primary truncate leading-tight">{topic.topicLabel}</p>
+                  <p className="type-micro text-text-primary truncate leading-tight">{topic.topicLabel}</p>
                   <p className="type-micro font-bold text-text-primary text-center">
                     {topic.avgScore != null ? `${Math.round(topic.avgScore)}%` : '—'}
                   </p>

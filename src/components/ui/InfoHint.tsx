@@ -141,7 +141,7 @@ export function InfoHint({
                 maxWidth,
                 zIndex: 1000,
               }}
-              className="pointer-events-none rounded-lg border border-border-subtle bg-surface-card px-2.5 py-1.5 text-[12px] leading-snug text-text-secondary shadow-lg"
+              className="pointer-events-none rounded-lg border border-border-subtle bg-surface-card px-2.5 py-1.5 type-caption leading-snug text-text-secondary shadow-lg"
             >
               {label}
             </div>,

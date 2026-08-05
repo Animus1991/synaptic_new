@@ -199,8 +199,16 @@ export function MiniDashboard({
                     </div>
                   ) : (
                     <p className="type-caption text-text-secondary" data-testid="progress-study-week-empty">
+                      {/* UIUX-AUDIT-2026-08 F3 — this branch fires whenever the daily
+                          bar-chart array (recentStudyDays) is empty/all-zero, which can
+                          happen even when studyTimeWeek > 0 (e.g. demo/offline data).
+                          The old copy concatenated the total with t('noActivity'),
+                          producing a self-contradictory "210m · No recent activity"
+                          message, confirmed from a live screenshot. Now: show the total
+                          with "this week" when it's > 0, and only claim no activity when
+                          it's genuinely 0. Rollback: restore the noActivity concatenation. */}
                       {studyTimeWeek > 0
-                        ? `${studyTimeWeek}m · ${t('noActivity')}`
+                        ? `${studyTimeWeek}m ${t('dashThisWeek')}`
                         : t('noActivity')}
                     </p>
                   )}
@@ -329,7 +337,7 @@ function StatPill({ icon, label, value }: { icon: ReactNode; label: string; valu
     <div className="flex flex-col items-center py-1.5 rounded-lg bg-surface-primary/50">
       {icon}
       <span className="type-caption font-bold mt-0.5">{value}</span>
-      <span className="text-[7px] text-text-muted">{label}</span>
+      <span className="type-micro text-text-muted">{label}</span>
     </div>
   );
 }

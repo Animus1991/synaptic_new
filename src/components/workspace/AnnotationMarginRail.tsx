@@ -157,7 +157,7 @@ export function AnnotationMarginRail({
                   </p>
 
                   {ann.id.startsWith('shared-') && (
-                    <span className="text-[7px] text-accent-amber">{t('annoTeacherFull')}</span>
+                    <span className="type-micro text-accent-amber">{t('annoTeacherFull')}</span>
                   )}
 
                   <div className="mt-0.5 flex flex-wrap gap-0.5">
@@ -184,7 +184,7 @@ export function AnnotationMarginRail({
                       </span>
                     )}
                     {ann.anchorStatus && ann.anchorStatus !== 'ok' && (
-                      <span className="rounded bg-accent-amber/15 px-1 py-px text-[7px] text-accent-amber">
+                      <span className="rounded bg-accent-amber/15 px-1 py-px type-micro text-accent-amber">
                         {ann.anchorStatus === 'legacy'
                           ? t('annoLegacy')
                           : t('annoReview')}

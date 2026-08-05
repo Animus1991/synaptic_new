@@ -546,7 +546,7 @@ export function ExamPrepView({
             <div className="text-center ux-card">
               <CheckCircle2 className="w-12 h-12 text-accent-emerald mx-auto mb-3" />
               <h2 className="text-xl font-bold">{t('examPrepSubmitted')}</h2>
-              <p className="text-2xl font-bold text-text-secondary mt-2 tabular-nums">
+              <p className="text-2xl font-bold text-text-primary mt-2 tabular-nums">
                 {t('examPrepCorrectCount').replace('{score}', String(score)).replace('{total}', String(examQuestions.length))}
               </p>
               <p className="text-sm text-text-secondary mt-1">

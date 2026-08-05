@@ -197,6 +197,23 @@ export function Settings({
     return () => observer.disconnect();
   }, [isMinimal, settingsSections]);
 
+  // UIUX-AUDIT-2026-08 H3 — keep the active nav item in view as the content
+  // scroll drives activeSection (effect above). With 12 sections the active pill
+  // can otherwise end up off-screen: scrolled out of the horizontal mobile row,
+  // or below the fold of the sticky vertical desktop rail — leaving no visible
+  // indicator of which section is active. 'nearest'/'nearest' only moves the
+  // nav's own scroll container, and only just enough to reveal the item — it
+  // never scrolls the page itself, and is a no-op when the item is already
+  // visible (including the redundant call this fires on direct nav clicks).
+  // Rollback: delete this effect.
+  useEffect(() => {
+    if (!isMinimal) return;
+    const active = document.querySelector(
+      `[data-testid="settings-section-nav"] a[href="#${activeSection}"]`,
+    );
+    active?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+  }, [isMinimal, activeSection]);
+
   return (
     <Page className={cn('ux-flow-shell', isMinimal && 'enterprise-calm settings-ide')}>
       <PageHeader
@@ -548,7 +565,7 @@ export function Settings({
             value={settings.authProxyBase ?? settings.llmProxyUrl?.replace(/\/v1\/?$/, '') ?? ''}
             onChange={(e) => onUpdate({ authProxyBase: e.target.value || undefined })}
             placeholder={c.placeholderProxyBaseUrl}
-            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm"
+            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary"
           />
         </div>
         <div className="grid sm:grid-cols-2 gap-3">

@@ -24,7 +24,7 @@ export function BibliographyBlock({
         <Library className="h-4 w-4 shrink-0 text-accent-violet" />
         <h3 className="text-sm font-semibold text-text-primary">{heading}</h3>
       </div>
-      <ol className={cn('list-decimal space-y-2 pl-5 text-[13px] leading-relaxed text-text-secondary')}>
+      <ol className={cn('list-decimal space-y-2 pl-5 type-meta leading-relaxed text-text-secondary')}>
         {items.map((item, i) => (
           <li key={i} className="whitespace-pre-line">
             {item.replace(/^\[\d{1,3}\]\s*/, '').replace(/^\(\d{1,3}\)\s*/, '')}

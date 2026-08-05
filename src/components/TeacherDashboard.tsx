@@ -1079,7 +1079,7 @@ export function TeacherDashboard({
                   <tbody>
                     {data.courses.map((course) => (
                       <tr key={course.id} className="border-b border-border-subtle/50 last:border-0">
-                        <td className="py-2.5 pr-3 font-medium text-text-primary max-w-[180px] truncate">{course.title}</td>
+                        <td className="py-2.5 pr-3 font-medium text-text-secondary max-w-[180px] truncate">{course.title}</td>
                         <td className="py-2.5 pr-3 text-text-secondary">{course.topicCount}</td>
                         <td className="py-2.5 pr-3 text-text-secondary">{course.fileCount}</td>
                         <td className="py-2.5 pr-3 text-text-secondary">
@@ -1197,7 +1197,7 @@ export function TeacherDashboard({
           <ul className="space-y-2 text-xs text-text-secondary">
             {recentEvents.map((e) => (
               <li key={e.id} className="flex justify-between gap-2 border-b border-border-subtle/50 pb-1">
-                <span className="font-medium text-text-primary">{e.type}</span>
+                <span className="font-medium text-text-secondary">{e.type}</span>
                 <span className="text-text-muted shrink-0">{formatDateTime(e.timestamp, lang)}</span>
               </li>
             ))}

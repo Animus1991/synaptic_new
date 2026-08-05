@@ -70,7 +70,7 @@ export function WorkspaceMobileToolDrawer({
             <div className="flex items-center justify-between border-b border-border-subtle px-4 pb-3 pt-1">
               <div className="min-w-0">
                 <p className="ws-eyebrow text-text-muted"><AllCapsLabel>{t('wsStudyToolsAria', lang)}</AllCapsLabel></p>
-                <p className="mt-0.5 truncate text-[12px] text-text-secondary">
+                <p className="mt-0.5 truncate type-caption text-text-secondary">
                   {t('wsCurrentColon', lang)}{' '}
                   <span className="text-text-primary font-medium">{workspaceToolLabel(activeTool, lang)}</span>
                 </p>
@@ -114,7 +114,7 @@ export function WorkspaceMobileToolDrawer({
                           >
                             <Icon className={cn('h-4 w-4 shrink-0 mt-0.5', active ? 'text-text-primary' : 'text-text-muted')} aria-hidden />
                             <span className="min-w-0 flex-1">
-                              <span className="block text-[13px] font-semibold leading-tight truncate">
+                              <span className="block type-meta font-semibold leading-tight truncate">
                                 {lang === 'el' ? meta.labelEl : meta.label}
                               </span>
                               <span className="mt-0.5 block type-caption leading-snug text-text-muted line-clamp-2">

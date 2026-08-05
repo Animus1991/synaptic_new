@@ -227,7 +227,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 type="button"
                 onClick={onExploreDemo}
                 data-tour="dashboard-explore-demo"
-                className="flex items-center justify-center gap-2 px-8 py-3.5 border border-brand-500/40 bg-brand-500/5 hover:bg-surface-secondary text-text-primary border border-border-subtle rounded-xl font-semibold text-sm transition-all"
+                className="flex items-center justify-center gap-2 px-8 py-3.5 bg-brand-500/5 hover:bg-surface-secondary text-text-primary border border-border-subtle rounded-xl font-semibold text-sm transition-all"
               >
                 <Sparkles className="w-4 h-4" />
                 {t('exploreDemo')}
@@ -743,7 +743,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {/* Priority tasks */}
           <BlueprintSurface className="p-3.5" data-dashboard-col="b">
             <div className="flex items-center justify-between mb-2.5">
-              <h2 className="dashboard-panel-title text-lg font-semibold ws-serif font-medium flex items-center gap-2">
+              <h2 className="dashboard-panel-title text-lg ws-serif font-medium flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-text-secondary" /> {t('dashPriorityTasks')}
               </h2>
               <button onClick={() => onNavigate('tasks')} className="dashboard-panel-action text-sm text-text-secondary hover:text-text-primary flex items-center gap-1">{t('dashViewAll')} <ChevronRight className="w-4 h-4" /></button>
@@ -810,7 +810,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {/* Active Courses */}
           <BlueprintSurface className="p-3.5">
             <div className="flex items-center justify-between mb-2.5">
-              <h2 className="dashboard-panel-title text-lg font-semibold ws-serif font-medium flex items-center gap-2"><BookOpen className="w-5 h-5 text-text-secondary" />{t('dashActiveCourses')}</h2>
+              <h2 className="dashboard-panel-title text-lg ws-serif font-medium flex items-center gap-2"><BookOpen className="w-5 h-5 text-text-secondary" />{t('dashActiveCourses')}</h2>
               <button onClick={() => onNavigate('library')} className="dashboard-panel-action text-sm text-text-secondary hover:text-text-primary flex items-center gap-1">{t('dashLibrary')} <ChevronRight className="w-4 h-4" /></button>
             </div>
             {activeCourses.length > 0 ? (
