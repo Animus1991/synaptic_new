@@ -123,31 +123,31 @@ export function DebatePanel({
           </div>
         )}
 
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative flex-1 min-w-[140px] max-w-xs">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted" aria-hidden />
+        <div className="flex flex-wrap items-center gap-2" data-testid="debate-panel-toolbar">
+          <div className="relative min-w-[140px] max-w-xs flex-1">
+            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted" aria-hidden />
             <input
               type="search"
               value={filterQuery}
               onChange={(e) => setFilterQuery(e.target.value)}
               placeholder={t('panelSearchClaims')}
               aria-label={t('panelSearchClaimsAria')}
-              className="w-full rounded-md border border-border-subtle bg-surface-card py-1.5 pl-8 pr-2 text-[12px] text-text-secondary placeholder:text-text-muted focus:border-brand-400/60 focus:outline-none focus:ring-1 focus:ring-brand-400/30"
+              className="w-full min-h-9 rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-8 pr-2 type-caption text-text-secondary placeholder:text-text-muted focus:border-border-default focus:outline-none"
               data-testid="debate-filter"
             />
           </div>
-          <span className="ws-eyebrow text-text-muted">
-            <span className="ws-num">{session.nodeCount}</span> <AllCapsLabel>{t('panelNodes')}</AllCapsLabel>
+          <span className="type-caption text-text-secondary">
+            <span className="font-semibold text-text-primary">{session.nodeCount}</span> {t('panelNodes')}
           </span>
           {onOpenInReader && (
             <button
               type="button"
               onClick={() => onOpenInReader(concept)}
-              className="ws-eyebrow inline-flex items-center gap-1.5 rounded-md border border-border-subtle px-2 py-1 text-text-secondary hover:border-brand-400/40 hover:text-text-primary transition-colors"
+              className="ws-touch-floor inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border-subtle px-2.5 py-1 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
               data-testid="debate-open-reader"
             >
-              <BookOpen className="w-3 h-3" aria-hidden />
-              <AllCapsLabel>{t('panelReaderSource')}</AllCapsLabel>
+              <BookOpen className="h-3.5 w-3.5" aria-hidden />
+              {t('panelReaderSource')}
             </button>
           )}
         </div>

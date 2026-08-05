@@ -14,6 +14,8 @@ import {
 } from '../../lib/debateTreePersist';
 import { DebateRebuttalPersistStrip } from './DebateRebuttalPersistStrip';
 import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
+import { CollapsibleChromeSection } from './CollapsibleChromeSection';
+import { InfoHint } from '../ui/InfoHint';
 
 /* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export type ArgNodeType = 'claim' | 'premise' | 'support' | 'refutation';
@@ -357,46 +359,54 @@ export function ArgumentMap({
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <div className="flex shrink-0 items-center justify-between border-b border-border-subtle bg-surface-card px-4 py-2.5">
-        <span className="flex items-center gap-2 text-sm font-semibold">
-          <GitCommit className="w-4 h-4 text-text-primary" />
-          Debate Tree{concept ? ` — ${concept}` : ''}
-        </span>
-        <div className="flex items-center gap-2">
-          {onAskAgent && (
-            <button
-              type="button"
-              data-testid="debate-ask-agent"
-              onClick={() => onAskAgent(root.text)}
-              className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 type-caption font-medium hover:opacity-90"
-            >
-              <Sparkles className="w-3 h-3" />
-              {t('askAgentShort')}
-            </button>
-          )}
-          <span className="type-caption text-text-muted inline-flex items-center gap-2">
-            {t('debateEditSupport')}
-            <Shield className="w-3 h-3 inline" />
-            {t('debateCounterLabel')}
+      {/* Wave G2 — title + Ask Agent; edit legend via InfoHint; counters collapsed */}
+      <div
+        className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border-subtle bg-surface-card px-3 py-2"
+        data-testid="debate-tree-toolbar"
+      >
+        <span className="flex min-w-0 flex-1 items-center gap-2 text-sm font-semibold text-text-primary">
+          <GitCommit className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
+          <span className="truncate">
+            {t('debateTree')}
+            {concept ? ` — ${concept}` : ''}
           </span>
-        </div>
+        </span>
+        <InfoHint
+          triggerAriaLabel={t('debateEditSupport')}
+          label={`${t('debateEditSupport')} · ${t('debateCounterLabel')}`}
+        />
+        {onAskAgent && (
+          <button
+            type="button"
+            data-testid="debate-ask-agent"
+            onClick={() => onAskAgent(root.text)}
+            className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary"
+          >
+            <Sparkles className="h-3.5 w-3.5" aria-hidden />
+            <span className="hidden sm:inline">{t('askAgentShort')}</span>
+          </button>
+        )}
       </div>
       {counterSuggestions.length > 0 && (
-        <div className="shrink-0 border-b border-border-subtle bg-accent-rose/8 px-4 py-2 type-caption text-text-primary">
-          <span className="font-semibold text-text-primary">{t('debateSuggestedCounters')}</span>
-          {' '}
-          {counterSuggestions.map((s, i) => (
-            <button
-              key={i}
-              type="button"
-              className="ml-1 underline text-text-secondary decoration-accent-rose/50 hover:text-text-primary"
-              onClick={() => addNode(root.id, 'refutation', s.text)}
-              title={s.source}
-            >
-              {s.text.slice(0, 72)}{s.text.length > 72 ? '…' : ''}
-            </button>
-          ))}
-        </div>
+        <CollapsibleChromeSection
+          title={t('debateSuggestedCounters')}
+          alwaysCollapse
+          data-testid="debate-suggested-counters-chrome"
+        >
+          <div className="flex flex-wrap gap-1.5 px-3 py-2 type-caption text-text-primary">
+            {counterSuggestions.map((s, i) => (
+              <button
+                key={i}
+                type="button"
+                className="ws-touch-floor max-w-full rounded-lg border border-accent-rose/35 bg-accent-rose/10 px-2.5 py-1 text-left text-text-secondary hover:text-text-primary"
+                onClick={() => addNode(root.id, 'refutation', s.text)}
+                title={s.source}
+              >
+                {s.text.slice(0, 72)}{s.text.length > 72 ? '…' : ''}
+              </button>
+            ))}
+          </div>
+        </CollapsibleChromeSection>
       )}
       <DebateRebuttalPersistStrip report={persistReport} lang={lang} />
       <div

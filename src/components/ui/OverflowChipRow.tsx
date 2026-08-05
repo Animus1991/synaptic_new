@@ -8,6 +8,8 @@ export type OverflowChipItem = {
   onClick?: () => void;
   /** Optional per-chip test id (e.g. progress-tool-reader). */
   testId?: string;
+  /** Selected / filter-active appearance. */
+  active?: boolean;
 };
 
 type Props = {
@@ -77,6 +79,7 @@ export function OverflowChipRow({
       {visible.map((item) => {
         const shared = cn(
           'overflow-chip max-w-[7.5rem] truncate rounded-md border border-border-subtle bg-surface-secondary/50 px-1.5 py-0.5 type-micro text-text-secondary',
+          item.active && 'border-brand-500/40 bg-brand-500/10 font-medium text-text-primary',
           chipClassName,
         );
         if (item.onClick) {

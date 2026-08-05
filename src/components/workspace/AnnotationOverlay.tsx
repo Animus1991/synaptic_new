@@ -45,7 +45,7 @@ import {
   auditAnnotationRemapEdgeCases,
   formatRemapEdgeCaseBanner,
 } from '../../lib/annotationRemapEdgeCasesQA';
-import { UiIcon } from '../ui/UiIcon';
+import { OverflowChipRow, type OverflowChipItem } from '../ui/OverflowChipRow';
 import type { AnnotationConflict } from '../../lib/annotationRealtimeSync';
 
 function categoryLabel(cat: AnnotationCategory, translate: (key: I18nKey) => string): string {
@@ -547,50 +547,52 @@ export function AnnotationOverlay({
       )}
 
       {(focusTerm || taggedTerms.length > 0 || annotations.some((a) => a.category && a.category !== 'general')) && (
-        <div className="ws-filter-strip ws-ribbon shrink-0">
-          <Tag className="h-3 w-3 shrink-0 text-text-muted" aria-hidden />
+        <div
+          className="ws-filter-strip ws-ribbon flex shrink-0 flex-wrap items-center gap-1.5 px-2 py-1.5"
+          data-testid="annotation-filter-strip"
+        >
+          <Tag className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
           <button
             type="button"
-            onClick={() => setFilterTerm(null)}
+            onClick={() => { setFilterTerm(null); setFilterCategory(null); }}
             className={cn(
-              'shrink-0 rounded px-1.5 py-0.5 type-caption font-medium',
-              !filterTerm ? 'ws-chip-brand' : 'text-text-muted',
+              'ws-touch-floor shrink-0 rounded-lg px-2 py-1 type-caption font-medium',
+              !filterTerm && !filterCategory ? 'ws-chip-brand text-text-primary' : 'text-text-secondary',
             )}
+            data-testid="annotation-filter-all"
           >
             {t('annoFilterAll')}
           </button>
-          {taggedTerms.map((term) => (
-            <button
-              key={term}
-              type="button"
-              onClick={() => setFilterTerm(filterTerm === term ? null : term)}
-              className={cn(
-                'shrink-0 rounded border px-1.5 py-0.5 type-caption font-medium',
-                filterTerm === term ? 'ws-chip-brand' : 'border-border-subtle text-text-muted',
-              )}
-            >
-              {term}
-            </button>
-          ))}
-          {SEMANTIC_CATEGORIES.map(({ cat, iconId, labelKey }) => (
-            <button
-              key={`filter-${cat}`}
-              type="button"
-              onClick={() => setFilterCategory(filterCategory === cat ? null : cat)}
-              className={cn(
-                'inline-flex shrink-0 items-center gap-0.5 rounded border px-1.5 py-0.5 type-caption font-medium',
-                filterCategory === cat ? 'ws-chip-brand' : 'border-border-subtle text-text-muted',
-              )}
-            >
-              <UiIcon id={iconId} size="xs" />
-              {t(labelKey)}
-            </button>
-          ))}
+          <OverflowChipRow
+            testId="annotation-filter-chips"
+            maxVisible={4}
+            chipClassName="type-caption max-w-[8rem]"
+            moreAriaLabel={(n) => `+${n} ${t('annoFilterAll')}`}
+            items={[
+              ...taggedTerms.map((term): OverflowChipItem => ({
+                key: `term-${term}`,
+                label: term,
+                title: term,
+                testId: `annotation-filter-term-${term}`,
+                active: filterTerm === term,
+                onClick: () => setFilterTerm(filterTerm === term ? null : term),
+              })),
+              ...SEMANTIC_CATEGORIES.map(({ cat, labelKey }): OverflowChipItem => ({
+                key: `cat-${cat}`,
+                label: t(labelKey),
+                title: t(labelKey),
+                testId: `annotation-filter-cat-${cat}`,
+                active: filterCategory === cat,
+                onClick: () => setFilterCategory(filterCategory === cat ? null : cat),
+              })),
+            ]}
+          />
           <input
             value={tagDraft}
             onChange={(e) => setTagDraft(e.target.value)}
             placeholder={t('annoTagPlaceholder')}
-            className="ml-auto w-16 shrink-0 rounded border border-border-subtle bg-surface-input px-1 py-0.5 type-caption sm:w-20"
+            className="ml-auto w-16 min-h-9 shrink-0 rounded-lg border border-border-subtle bg-surface-input px-2 py-1 type-caption sm:w-24"
+            data-testid="annotation-tag-draft"
           />
         </div>
       )}

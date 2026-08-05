@@ -6766,17 +6766,23 @@ body { letter-spacing: -0.005em; }
   border-radius: var(--radius-sm) !important;
 }
 
-/* ========== Wave F6 / E13 — tablet touch floor (≤1023px) ========== */
+/* ========== Wave F6 / G4 — tablet touch floor (≤1023px) ========== */
 @media (max-width: 1023px) {
   [data-testid="study-workspace"] .ws-touch-floor,
   [data-testid="study-workspace"] [data-testid="agent-composer-tools"] button,
   [data-testid="study-workspace"] [data-testid="simulator-course-presets"] button,
   [data-testid="study-workspace"] [data-testid="notebook-pdf-page-strip"] button,
-  [data-testid="study-workspace"] [data-testid="whiteboard-draw-toolbar"] button {
+  [data-testid="study-workspace"] [data-testid="whiteboard-draw-toolbar"] button,
+  [data-testid="study-workspace"] [data-testid="concept-map-toolbar"] button,
+  [data-testid="study-workspace"] [data-testid="debate-panel-toolbar"] button,
+  [data-testid="study-workspace"] [data-testid="debate-tree-toolbar"] button,
+  [data-testid="study-workspace"] [data-testid="annotation-filter-strip"] button {
     min-height: 2.75rem;
     min-width: 2.75rem;
   }
-  [data-testid="study-workspace"] [data-testid="simulator-course-presets"] button {
+  [data-testid="study-workspace"] [data-testid="simulator-course-presets"] button,
+  [data-testid="study-workspace"] [data-testid="annotation-filter-strip"] button.overflow-chip,
+  [data-testid="study-workspace"] [data-testid="annotation-filter-strip"] button.overflow-chip-more {
     min-width: auto;
     padding-inline: 0.75rem;
   }

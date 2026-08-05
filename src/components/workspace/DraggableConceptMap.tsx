@@ -20,7 +20,7 @@ import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import type { WorkspaceSelectionActionId, WorkspaceSelectionContext } from '../../lib/workspaceSelectionActions';
 import { ConceptTypeIcon } from '../ui/ConceptTypeIcon';
 import { conceptTypeGlyph } from '../../lib/conceptTypeIcons';
-import { Map, BookOpen, Pencil, FileText, X, Plus, Trash2, Link2, Undo2, Redo2 } from '@/lib/lucide-shim';
+import { BookOpen, Pencil, FileText, X, Plus, Trash2, Link2 } from '@/lib/lucide-shim';
 import { BlueprintSurface } from '../ui/BlueprintSurface';
 import { InfoHint } from '../ui/InfoHint';
 import { CollapsibleChromeSection } from './CollapsibleChromeSection';
@@ -586,30 +586,30 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
 
   return (
     <BlueprintSurface className="relative overflow-hidden flex flex-col h-full">
-      {/* Wave E4 — single toolbar; layout/export in overflow; layers collapsible */}
-      <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b border-border-subtle bg-surface-secondary/40 shrink-0">
-        <span className="type-caption font-semibold text-text-secondary inline-flex items-center gap-1.5 shrink-0">
-          <Map className="w-3.5 h-3.5 text-text-secondary" aria-hidden />
-          {t('conceptMap')}
-        </span>
+      {/* Wave G1 — primary: filter + add/connect; view/layout/export in overflow */}
+      <div
+        className="flex flex-wrap items-center gap-1.5 px-3 py-2 border-b border-border-subtle bg-surface-secondary/40 shrink-0"
+        data-testid="concept-map-toolbar"
+      >
         <input
           type="search"
           value={filterQuery}
           onChange={(e) => setFilterQuery(e.target.value)}
           placeholder={t('conceptMapFilterPlaceholder')}
-          className="w-36 min-h-9 rounded-lg border border-border-subtle bg-surface-card px-2 py-1 type-caption text-text-secondary placeholder:text-text-muted focus:border-border-default focus:outline-none"
+          className="w-28 min-h-9 flex-1 min-w-[7rem] max-w-[12rem] rounded-lg border border-border-subtle bg-surface-card px-2 py-1 type-caption text-text-secondary placeholder:text-text-muted focus:border-border-default focus:outline-none sm:w-36"
           data-testid="concept-map-filter"
         />
-        <div className="flex flex-wrap items-center gap-1 ml-auto">
+        <div className="ml-auto flex flex-wrap items-center gap-1">
           <button
             type="button"
             data-testid="concept-map-add-node"
             onClick={addNode}
-            className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption font-medium text-text-primary hover:border-border-default"
+            className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2 type-caption font-medium text-text-primary hover:border-border-default sm:min-w-0 sm:px-2.5"
+            aria-label={t('conceptMapAddNode')}
             title={t('conceptMapAddNode')}
           >
             <Plus className="w-3.5 h-3.5" aria-hidden />
-            {t('conceptMapAddNode')}
+            <span className="hidden sm:inline">{t('conceptMapAddNode')}</span>
           </button>
           <button
             type="button"
@@ -620,60 +620,58 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             }}
             disabled={!selected && !connectFrom}
             className={cn(
-              'inline-flex min-h-9 items-center gap-1 rounded-lg border px-2.5 py-1 type-caption font-medium',
+              'ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center gap-1 rounded-lg border px-2 type-caption font-medium sm:min-w-0 sm:px-2.5',
               connectFrom
                 ? 'border-brand-500/40 bg-brand-500/10 text-text-primary'
                 : 'border-border-subtle text-text-muted hover:text-text-secondary',
             )}
+            aria-label={t('conceptMapConnect')}
             title={t('conceptMapConnectHint')}
           >
             <Link2 className="w-3.5 h-3.5" aria-hidden />
-            {t('conceptMapConnect')}
-          </button>
-          <button
-            type="button"
-            data-testid="concept-map-undo"
-            disabled={!canUndo}
-            onClick={undo}
-            className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border border-border-subtle text-text-muted hover:text-text-secondary disabled:opacity-40"
-            title={t('conceptMapUndo')}
-            aria-label={t('conceptMapUndo')}
-          >
-            <Undo2 className="w-3.5 h-3.5" aria-hidden />
-          </button>
-          <button
-            type="button"
-            data-testid="concept-map-redo"
-            disabled={!canRedo}
-            onClick={redo}
-            className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border border-border-subtle text-text-muted hover:text-text-secondary disabled:opacity-40"
-            title={t('conceptMapRedo')}
-            aria-label={t('conceptMapRedo')}
-          >
-            <Redo2 className="w-3.5 h-3.5" aria-hidden />
-          </button>
-          <button
-            type="button"
-            aria-label={t('conceptMapZoomOut')}
-            onClick={() => setZoom((z) => Math.max(0.3, z - 0.2))}
-            className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg bg-surface-hover type-caption text-text-secondary hover:bg-surface-active"
-          >
-            −
-          </button>
-          <span className="type-caption text-text-muted w-10 text-center" aria-live="polite">{Math.round(zoom * 100)}%</span>
-          <button
-            type="button"
-            aria-label={t('conceptMapZoomIn')}
-            onClick={() => setZoom((z) => Math.min(2.5, z + 0.2))}
-            className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg bg-surface-hover type-caption text-text-secondary hover:bg-surface-active"
-          >
-            +
+            <span className="hidden sm:inline">{t('conceptMapConnect')}</span>
           </button>
           <InfoHint
             triggerAriaLabel={t('conceptMapLayoutHelpAria')}
             label={`${t('dragHint')}. ${t('conceptMapLayoutHint')}`}
           />
           <PanelOverflowMenu ariaLabel={t('wsMore')} triggerTestId="concept-map-more-menu">
+            <button
+              type="button"
+              data-testid="concept-map-undo"
+              disabled={!canUndo}
+              onClick={undo}
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted disabled:opacity-40"
+            >
+              {t('conceptMapUndo')}
+            </button>
+            <button
+              type="button"
+              data-testid="concept-map-redo"
+              disabled={!canRedo}
+              onClick={redo}
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted disabled:opacity-40"
+            >
+              {t('conceptMapRedo')}
+            </button>
+            <button
+              type="button"
+              data-testid="concept-map-zoom-out"
+              aria-label={t('conceptMapZoomOut')}
+              onClick={() => setZoom((z) => Math.max(0.3, z - 0.2))}
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+            >
+              {t('conceptMapZoomOut')} ({Math.round(zoom * 100)}%)
+            </button>
+            <button
+              type="button"
+              data-testid="concept-map-zoom-in"
+              aria-label={t('conceptMapZoomIn')}
+              onClick={() => setZoom((z) => Math.min(2.5, z + 0.2))}
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+            >
+              {t('conceptMapZoomIn')}
+            </button>
             <button
               type="button"
               data-testid="concept-map-hierarchy-layout"
@@ -713,6 +711,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             </button>
             <button
               type="button"
+              data-testid="concept-map-reset-view"
               aria-label={t('conceptMapResetView')}
               onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
               className="block w-full px-3 py-2 text-left type-caption text-text-secondary hover:bg-surface-muted hover:text-text-primary"
@@ -725,8 +724,8 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
               className={cn(
                 'rounded-lg px-2 py-1 type-caption font-semibold border',
                 crdt.synced
-                  ? 'border-accent-emerald/40 bg-accent-emerald/10 text-accent-emerald'
-                  : 'border-border-subtle bg-surface-hover text-text-muted',
+                  ? 'border-accent-emerald/40 bg-accent-emerald/10 text-text-primary'
+                  : 'border-border-subtle bg-surface-hover text-text-secondary',
               )}
               data-testid="concept-map-crdt-status"
             >
