@@ -1,5 +1,6 @@
 import { useMemo, useState, useCallback } from 'react';
-import { ArrowRight, BookOpen, Download, Lightbulb, MoreHorizontal, Printer, Search, Target } from '@/lib/lucide-shim';
+import { ArrowRight, BookOpen, Download, Lightbulb, Printer, Search, Target } from '@/lib/lucide-shim';
+import { PanelOverflowMenu } from './PanelOverflowMenu';
 import type { DashboardSessionContent } from '../../lib/dashboardSessionModel';
 import {
   filterDashboardToolActivity,
@@ -260,43 +261,40 @@ export function DashboardPanel({
               Reader
             </button>
           )}
-          <details className="relative ml-auto" data-testid="dashboard-export-actions">
-            <summary
-              className="flex min-h-9 cursor-pointer list-none items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary [&::-webkit-details-marker]:hidden"
-              aria-label={t('dashExportMenu')}
+          <PanelOverflowMenu
+            className="ml-auto"
+            data-testid="dashboard-export-actions"
+            ariaLabel={t('dashExportMenu')}
+            summaryLabel={<span className="type-caption font-medium">{t('dashExportMenu')}</span>}
+            summaryClassName="min-h-9 px-2.5 py-1 type-caption font-medium"
+          >
+            <button
+              type="button"
+              onClick={handleExportHtml}
+              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+              data-testid="dashboard-export-html"
             >
-              <MoreHorizontal className="h-3.5 w-3.5" aria-hidden />
-              {t('dashExportMenu')}
-            </summary>
-            <div className="absolute right-0 top-full z-20 mt-1 min-w-[10.5rem] rounded-lg border border-border-subtle bg-surface-elevated py-1 shadow-lg">
-              <button
-                type="button"
-                onClick={handleExportHtml}
-                className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
-                data-testid="dashboard-export-html"
-              >
-                <Download className="w-3 h-3" />
-                HTML
-              </button>
-              <button
-                type="button"
-                onClick={handlePrintPdf}
-                className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
-                data-testid="dashboard-export-pdf"
-              >
-                <Printer className="w-3 h-3" />
-                PDF
-              </button>
-              <button
-                type="button"
-                onClick={handleExportJson}
-                className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
-                data-testid="dashboard-export-json"
-              >
-                JSON
-              </button>
-            </div>
-          </details>
+              <Download className="w-3 h-3" />
+              HTML
+            </button>
+            <button
+              type="button"
+              onClick={handlePrintPdf}
+              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+              data-testid="dashboard-export-pdf"
+            >
+              <Printer className="w-3 h-3" />
+              PDF
+            </button>
+            <button
+              type="button"
+              onClick={handleExportJson}
+              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+              data-testid="dashboard-export-json"
+            >
+              JSON
+            </button>
+          </PanelOverflowMenu>
         </div>
 
         {(session.weakSpotCount > 0 || (miniProps.toolActivity?.length ?? 0) > 0) && (

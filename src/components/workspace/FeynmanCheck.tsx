@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { Sparkles, Bot, Loader2, Download, Printer, Mic, MicOff, BookOpen, MoreHorizontal } from '@/lib/lucide-shim';
+import { Sparkles, Bot, Loader2, Download, Printer, Mic, MicOff, BookOpen } from '@/lib/lucide-shim';
+import { PanelOverflowMenu } from './PanelOverflowMenu';
 import { computeRubric, weakestDimensions, type RubricDimension } from '../../lib/feynmanRubric';
 import { detectFeynmanGaps } from '../../lib/feynmanGapDetect';
 import { startFeynmanVoiceInput } from '../../lib/feynmanVoice';
@@ -342,37 +343,33 @@ export function FeynmanCheck({
                   {t('askAgentShort')}
                 </button>
               )}
-              <details className="relative">
-                <summary
-                  className="flex min-h-11 min-w-11 cursor-pointer list-none items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover hover:text-text-primary [&::-webkit-details-marker]:hidden"
-                  aria-label={t('feynmanExportReport')}
-                  data-testid="feynman-export-menu"
+              <PanelOverflowMenu
+                ariaLabel={t('feynmanExportReport')}
+                triggerTestId="feynman-export-menu"
+                summaryClassName="min-h-11 min-w-11"
+                menuClassName="min-w-[11rem]"
+              >
+                <button
+                  type="button"
+                  data-testid="feynman-export-rubric"
+                  disabled={!rubric}
+                  onClick={() => exportRubric('download')}
+                  className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted disabled:opacity-40"
                 >
-                  <MoreHorizontal className="h-4 w-4" aria-hidden />
-                </summary>
-                <div className="absolute right-0 top-full z-20 mt-1 min-w-[11rem] rounded-lg border border-border-subtle bg-surface-elevated py-1 shadow-lg">
-                  <button
-                    type="button"
-                    data-testid="feynman-export-rubric"
-                    disabled={!rubric}
-                    onClick={() => exportRubric('download')}
-                    className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted disabled:opacity-40"
-                  >
-                    <Download className="h-3.5 w-3.5" aria-hidden />
-                    {t('feynmanExportReport')}
-                  </button>
-                  <button
-                    type="button"
-                    data-testid="feynman-print-rubric"
-                    disabled={!rubric}
-                    onClick={() => exportRubric('print')}
-                    className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary disabled:opacity-40"
-                  >
-                    <Printer className="h-3.5 w-3.5" aria-hidden />
-                    PDF
-                  </button>
-                </div>
-              </details>
+                  <Download className="h-3.5 w-3.5" aria-hidden />
+                  {t('feynmanExportReport')}
+                </button>
+                <button
+                  type="button"
+                  data-testid="feynman-print-rubric"
+                  disabled={!rubric}
+                  onClick={() => exportRubric('print')}
+                  className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary disabled:opacity-40"
+                >
+                  <Printer className="h-3.5 w-3.5" aria-hidden />
+                  PDF
+                </button>
+              </PanelOverflowMenu>
             </div>
           </div>
 

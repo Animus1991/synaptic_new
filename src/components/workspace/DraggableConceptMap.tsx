@@ -20,10 +20,11 @@ import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import type { WorkspaceSelectionActionId, WorkspaceSelectionContext } from '../../lib/workspaceSelectionActions';
 import { ConceptTypeIcon } from '../ui/ConceptTypeIcon';
 import { conceptTypeGlyph } from '../../lib/conceptTypeIcons';
-import { Map, BookOpen, Pencil, FileText, X, Plus, Trash2, Link2, Undo2, Redo2, MoreHorizontal } from '@/lib/lucide-shim';
+import { Map, BookOpen, Pencil, FileText, X, Plus, Trash2, Link2, Undo2, Redo2 } from '@/lib/lucide-shim';
 import { BlueprintSurface } from '../ui/BlueprintSurface';
 import { InfoHint } from '../ui/InfoHint';
 import { CollapsibleChromeSection } from './CollapsibleChromeSection';
+import { PanelOverflowMenu } from './PanelOverflowMenu';
 import { cn } from '../../utils/cn';
 import { bandColorVar, masteryColorForValue, accentHighlightVar } from '../../lib/masteryPalette';
 import { edgeKey, newCustomNodeId } from '../../lib/conceptMapGraph';
@@ -672,62 +673,53 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             triggerAriaLabel={t('conceptMapLayoutHelpAria')}
             label={`${t('dragHint')}. ${t('conceptMapLayoutHint')}`}
           />
-          <details className="relative">
-            <summary
-              className="flex min-h-9 min-w-9 cursor-pointer list-none items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover hover:text-text-primary [&::-webkit-details-marker]:hidden"
-              aria-label={t('wsMore')}
-              data-testid="concept-map-more-menu"
+          <PanelOverflowMenu ariaLabel={t('wsMore')} triggerTestId="concept-map-more-menu">
+            <button
+              type="button"
+              data-testid="concept-map-hierarchy-layout"
+              disabled={layoutRunning || nodes.length < 2}
+              onClick={runHierarchyLayout}
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted disabled:opacity-40"
             >
-              <MoreHorizontal className="h-4 w-4" aria-hidden />
-            </summary>
-            <div className="absolute right-0 top-full z-20 mt-1 min-w-[10.5rem] rounded-lg border border-border-subtle bg-surface-elevated py-1 shadow-lg">
-              <button
-                type="button"
-                data-testid="concept-map-hierarchy-layout"
-                disabled={layoutRunning || nodes.length < 2}
-                onClick={runHierarchyLayout}
-                className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted disabled:opacity-40"
-              >
-                {layoutRunning && hierarchyMode ? '…' : t('conceptMapHierarchy')}
-              </button>
-              <button
-                type="button"
-                data-testid="concept-map-force-layout"
-                disabled={layoutRunning || nodes.length < 2}
-                onClick={runForceLayout}
-                className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted disabled:opacity-40"
-              >
-                {layoutRunning ? '…' : t('conceptMapForce')}
-              </button>
-              <button
-                type="button"
-                data-testid="concept-map-export-png"
-                disabled={exporting || nodes.length === 0}
-                onClick={() => {
-                  void (async () => {
-                    if (!svgRef.current) return;
-                    setExporting(true);
-                    try {
-                      await exportConceptMapPng(svgRef.current, nodes, edges, 'concept-map');
-                    } finally {
-                      setExporting(false);
-                    }
-                  })();
-                }}
-                className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted disabled:opacity-40"
-              >
-                {exporting ? '…' : 'PNG'}
-              </button>
-              <button
-                type="button"
-                aria-label={t('conceptMapResetView')}
-                onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
-                className="block w-full px-3 py-2 text-left type-caption text-text-secondary hover:bg-surface-muted hover:text-text-primary"
-              >
-                {t('reset')}
-              </button>
-            </div>
-          </details>
+              {layoutRunning && hierarchyMode ? '…' : t('conceptMapHierarchy')}
+            </button>
+            <button
+              type="button"
+              data-testid="concept-map-force-layout"
+              disabled={layoutRunning || nodes.length < 2}
+              onClick={runForceLayout}
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted disabled:opacity-40"
+            >
+              {layoutRunning ? '…' : t('conceptMapForce')}
+            </button>
+            <button
+              type="button"
+              data-testid="concept-map-export-png"
+              disabled={exporting || nodes.length === 0}
+              onClick={() => {
+                void (async () => {
+                  if (!svgRef.current) return;
+                  setExporting(true);
+                  try {
+                    await exportConceptMapPng(svgRef.current, nodes, edges, 'concept-map');
+                  } finally {
+                    setExporting(false);
+                  }
+                })();
+              }}
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted disabled:opacity-40"
+            >
+              {exporting ? '…' : 'PNG'}
+            </button>
+            <button
+              type="button"
+              aria-label={t('conceptMapResetView')}
+              onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
+              className="block w-full px-3 py-2 text-left type-caption text-text-secondary hover:bg-surface-muted hover:text-text-primary"
+            >
+              {t('reset')}
+            </button>
+          </PanelOverflowMenu>
           {crdt && (
             <span
               className={cn(

@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type MutableRefObject } from 'react';
 import {
-  ArrowRight, Bot, Calculator, Circle, Eraser, Eye, EyeOff, Highlighter, Lock, Minus, MoreHorizontal, Pen,
+  ArrowRight, Bot, Calculator, Circle, Eraser, Eye, EyeOff, Highlighter, Lock, Minus, Pen,
   Plus, Redo2, Ruler, Square, Type, Undo2, BookOpen, X, Unlock,
 } from '@/lib/lucide-shim';
 import { buildWhiteboardSvg, downloadWhiteboardPng, downloadWhiteboardSvg } from '../../lib/whiteboardExport';
 import { cn } from '../../utils/cn';
+import { PanelOverflowMenu } from './PanelOverflowMenu';
 import type { ExtractedFormula } from '../../lib/noteContentExtractors';
 import type { ScratchpadExport } from '../../lib/workspaceScratchpadBridge';
 import { loadWhiteboardStrokes, saveWhiteboardStrokes } from '../../lib/workspacePersistence';
@@ -707,65 +708,61 @@ export function StudyWhiteboard({
             <span>{t('wbExplainDiagram')}</span>
           </button>
         )}
-        <details className="relative ml-auto">
-          <summary
-            className="flex min-h-9 min-w-9 cursor-pointer list-none items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover hover:text-text-primary [&::-webkit-details-marker]:hidden"
-            aria-label={t('wbMoreTools')}
-            data-testid="whiteboard-more-menu"
+        <PanelOverflowMenu
+          className="ml-auto"
+          ariaLabel={t('wbMoreTools')}
+          triggerTestId="whiteboard-more-menu"
+          menuClassName="min-w-[11rem]"
+        >
+          <button
+            type="button"
+            data-testid="whiteboard-layers-toggle"
+            aria-pressed={showLayers}
+            onClick={() => setShowLayers((v) => !v)}
+            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
           >
-            <MoreHorizontal className="h-4 w-4" aria-hidden />
-          </summary>
-          <div className="absolute right-0 top-full z-20 mt-1 min-w-[11rem] rounded-lg border border-border-subtle bg-surface-elevated py-1 shadow-lg">
-            <button
-              type="button"
-              data-testid="whiteboard-layers-toggle"
-              aria-pressed={showLayers}
-              onClick={() => setShowLayers((v) => !v)}
-              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
-            >
-              {t('wbToggleLayersPanel')}
-            </button>
-            <button
-              type="button"
-              data-testid="whiteboard-latex-stamps"
-              aria-pressed={showStamps}
-              onClick={() => setShowStamps((v) => !v)}
-              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
-            >
-              LaTeX
-            </button>
-            <button
-              type="button"
-              onClick={clearActiveLayer}
-              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
-            >
-              {t('wbClearActiveLayer')}
-            </button>
-            <button
-              type="button"
-              onClick={save}
-              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
-            >
-              {t('wbSaveBoard')}
-            </button>
-            <button
-              type="button"
-              data-testid="whiteboard-export-png"
-              onClick={exportPng}
-              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
-            >
-              {t('wbExportPng')}
-            </button>
-            <button
-              type="button"
-              data-testid="whiteboard-export-svg"
-              onClick={exportSvg}
-              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
-            >
-              {t('wbExportSvg')}
-            </button>
-          </div>
-        </details>
+            {t('wbToggleLayersPanel')}
+          </button>
+          <button
+            type="button"
+            data-testid="whiteboard-latex-stamps"
+            aria-pressed={showStamps}
+            onClick={() => setShowStamps((v) => !v)}
+            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+          >
+            LaTeX
+          </button>
+          <button
+            type="button"
+            onClick={clearActiveLayer}
+            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+          >
+            {t('wbClearActiveLayer')}
+          </button>
+          <button
+            type="button"
+            onClick={save}
+            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+          >
+            {t('wbSaveBoard')}
+          </button>
+          <button
+            type="button"
+            data-testid="whiteboard-export-png"
+            onClick={exportPng}
+            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+          >
+            {t('wbExportPng')}
+          </button>
+          <button
+            type="button"
+            data-testid="whiteboard-export-svg"
+            onClick={exportSvg}
+            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+          >
+            {t('wbExportSvg')}
+          </button>
+        </PanelOverflowMenu>
         {savedMsg && <span className="type-caption text-accent-emerald">{t('wbSaved')}</span>}
         {activeLayerLocked && (
           <span className="type-caption text-accent-amber">{t('wbLayerLocked')}</span>

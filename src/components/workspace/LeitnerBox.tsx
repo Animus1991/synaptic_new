@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Layers, RotateCcw, Download, Upload, MoreHorizontal } from '@/lib/lucide-shim';
+import { Layers, RotateCcw, Download, Upload } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
+import { PanelOverflowMenu } from './PanelOverflowMenu';
 import type { FsrsRating } from '../../lib/pedagogy';
 import type { SpacingData } from '../../types';
 import { useI18n } from '../../lib/i18n';
@@ -243,53 +244,49 @@ export function LeitnerBox({
             e.target.value = '';
           }}
         />
-        <details className="relative shrink-0">
-          <summary
-            className="flex min-h-9 min-w-9 cursor-pointer list-none items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover hover:text-text-primary [&::-webkit-details-marker]:hidden"
-            aria-label={t('leitnerDeckMenuAria')}
-            data-testid="leitner-deck-menu"
+        <PanelOverflowMenu
+          className="shrink-0"
+          ariaLabel={t('leitnerDeckMenuAria')}
+          triggerTestId="leitner-deck-menu"
+          menuClassName="min-w-[11rem]"
+        >
+          {onOpenQuiz && (
+            <button
+              type="button"
+              data-testid="leitner-open-quiz"
+              onClick={onOpenQuiz}
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+            >
+              {t('quiz')}
+            </button>
+          )}
+          <button
+            type="button"
+            data-testid="leitner-import-anki"
+            onClick={() => importRef.current?.click()}
+            className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary"
           >
-            <MoreHorizontal className="h-4 w-4" aria-hidden />
-          </summary>
-          <div className="absolute right-0 top-full z-20 mt-1 min-w-[11rem] rounded-lg border border-border-subtle bg-surface-elevated py-1 shadow-lg">
-            {onOpenQuiz && (
-              <button
-                type="button"
-                data-testid="leitner-open-quiz"
-                onClick={onOpenQuiz}
-                className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
-              >
-                {t('quiz')}
-              </button>
-            )}
-            <button
-              type="button"
-              data-testid="leitner-import-anki"
-              onClick={() => importRef.current?.click()}
-              className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary"
-            >
-              <Upload className="h-3.5 w-3.5" aria-hidden />
-              {t('leitnerImportAnki')}
-            </button>
-            <button
-              type="button"
-              data-testid="leitner-export-anki"
-              onClick={() => void handleAnkiExportApkg()}
-              className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary"
-            >
-              <Download className="h-3.5 w-3.5" aria-hidden />
-              {t('leitnerExportAnkiApkg')}
-            </button>
-            <button
-              type="button"
-              data-testid="leitner-export-anki-tsv"
-              onClick={() => void handleAnkiExportTsv()}
-              className="block w-full px-3 py-1.5 text-left type-caption text-text-muted hover:bg-surface-muted hover:text-text-primary"
-            >
-              {t('leitnerExportAnkiTsv')}
-            </button>
-          </div>
-        </details>
+            <Upload className="h-3.5 w-3.5" aria-hidden />
+            {t('leitnerImportAnki')}
+          </button>
+          <button
+            type="button"
+            data-testid="leitner-export-anki"
+            onClick={() => void handleAnkiExportApkg()}
+            className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary"
+          >
+            <Download className="h-3.5 w-3.5" aria-hidden />
+            {t('leitnerExportAnkiApkg')}
+          </button>
+          <button
+            type="button"
+            data-testid="leitner-export-anki-tsv"
+            onClick={() => void handleAnkiExportTsv()}
+            className="block w-full px-3 py-1.5 text-left type-caption text-text-muted hover:bg-surface-muted hover:text-text-primary"
+          >
+            {t('leitnerExportAnkiTsv')}
+          </button>
+        </PanelOverflowMenu>
       </div>
       {importError && (
         <p className="mb-2 type-caption text-accent-rose" title={importError} data-testid="leitner-import-error">
@@ -299,13 +296,14 @@ export function LeitnerBox({
 
       {/* Card stage first — queues demoted below / collapsible */}
       <div className="flex flex-1 min-h-0 flex-col gap-3">
-        <div className="leitner-box-main flex min-h-0 flex-1 flex-col">
-          <div className="leitner-flip-stage flex min-h-0 flex-1 flex-col">
+        <div className="leitner-box-main flex min-h-0 flex-col">
+          {/* Content-sized stage — avoid flex-1 dead height on short cards */}
+          <div className="leitner-flip-stage flex min-h-0 flex-col">
             <button
               type="button"
               onClick={() => setFlipped(!flipped)}
               className={cn(
-                'leitner-flip-card flex-1 min-h-[160px] p-5 text-left transition-all',
+                'leitner-flip-card w-full min-h-[7rem] max-h-[min(36vh,18rem)] overflow-y-auto p-4 text-left transition-all',
                 flipped && 'leitner-flip-card--flipped',
               )}
             >

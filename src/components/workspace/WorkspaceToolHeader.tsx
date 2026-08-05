@@ -8,8 +8,6 @@ import { getToolCrossLinkDef } from '../../lib/workspaceToolCrossLinks';
 import { loadJson, saveJson } from '../../lib/persistence';
 import { cn } from '../../utils/cn';
 import { useI18n } from '../../lib/i18n';
-import { AllCapsLabel } from '../ui/AllCapsLabel';
-
 type Props = {
   activeTool: WorkspaceToolId;
   lang: 'en' | 'el';
@@ -90,7 +88,7 @@ export function WorkspaceToolHeader({
             </h2>
             {s20.readiness !== 'launch-ready' && (
               <span className="ws-eyebrow ws-chip-warn rounded-md px-1.5 py-0.5 type-caption">
-                <AllCapsLabel>{t('toolPolishing')}</AllCapsLabel>
+                {t('toolPolishing')}
               </span>
             )}
           </div>
@@ -107,16 +105,20 @@ export function WorkspaceToolHeader({
           data-testid="workspace-tool-header-toggle"
           aria-expanded={!collapsed}
           aria-label={t('toolGuideAria')}
+          title={t('toolGuide')}
           className={cn(
-            'inline-flex shrink-0 items-center gap-0.5 rounded-md border px-2 py-1.5 type-caption transition-colors ws-eyebrow min-h-11 sm:gap-1 sm:px-2.5',
-            collapsed
-              ? 'ws-chip-neutral hover:opacity-90'
-              : 'ws-chip-brand',
+            /* Wave E2 — quiet ghost control (not a filled GUIDE chip) */
+            'ws-tool-guide-btn inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-0.5 rounded-md type-caption text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary sm:min-w-0 sm:gap-1 sm:px-2 sm:py-1.5',
+            !collapsed && 'bg-surface-secondary text-text-primary',
           )}
         >
-          <HelpCircle className="h-3 w-3" aria-hidden />
-          <span className="hidden sm:inline"><AllCapsLabel>{t('toolGuide')}</AllCapsLabel></span>
-          {collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+          <HelpCircle className="h-3.5 w-3.5" aria-hidden />
+          <span className="hidden type-caption text-text-secondary sm:inline">{t('toolGuide')}</span>
+          {collapsed ? (
+            <ChevronRight className="hidden h-3 w-3 sm:block" aria-hidden />
+          ) : (
+            <ChevronDown className="hidden h-3 w-3 sm:block" aria-hidden />
+          )}
         </button>
       </div>
 
@@ -186,9 +188,7 @@ export function WorkspaceToolHeader({
 
           {/* Connected tools + source/agent shortcuts */}
           <div className="flex flex-wrap items-center gap-1 border-t border-border-subtle/60 pt-2">
-            <span className="ws-eyebrow shrink-0 text-text-muted">
-              <AllCapsLabel>{t('connectsTo')}</AllCapsLabel>
-            </span>
+            <span className="ws-eyebrow shrink-0 text-text-muted">{t('connectsTo')}</span>
             {relatedTools.map((link, i) => (
               <button
                 key={link.tool}

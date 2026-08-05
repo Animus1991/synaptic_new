@@ -154,20 +154,37 @@ export function MiniDashboard({
                   <StatPill icon={<Clock className="w-3 h-3 text-text-primary" />} label={t('studyThisWeek')} value={`${studyTimeWeek}m`} />
                 </div>
 
-                {recentStudyDays.length > 0 && (
-                  <div className="rounded-lg border border-border-subtle bg-surface-primary/40 p-2">
-                    <p className="type-caption text-text-muted mb-1.5">{t('studyThisWeek')}</p>
-                    <div className="flex items-end gap-1 h-8">
-                      {recentStudyDays.map((mins, i) => (
-                        <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
-                          <div
-                            className="w-full rounded-t bg-brand-500/70"
-                            style={{ height: `${Math.max(8, Math.min(100, mins * 2))}%` }}
-                            title={`${mins}m`}
-                          />
-                        </div>
-                      ))}
-                    </div>
+                {(recentStudyDays.length > 0 || studyTimeWeek === 0) && (
+                  <div
+                    className="rounded-lg border border-border-subtle bg-surface-primary/40 p-2"
+                    data-testid="progress-study-week-chart"
+                  >
+                    <p className="type-caption text-text-secondary mb-1.5">{t('studyThisWeek')}</p>
+                    {recentStudyDays.length === 0 || recentStudyDays.every((m) => m <= 0) ? (
+                      <p className="type-caption text-text-secondary" data-testid="progress-study-week-empty">
+                        {t('noActivity')}
+                      </p>
+                    ) : (
+                      <div className="flex h-10 items-end gap-1">
+                        {(() => {
+                          const maxMins = Math.max(...recentStudyDays, 1);
+                          return recentStudyDays.map((mins, i) => (
+                            <div key={i} className="flex h-full flex-1 flex-col items-center justify-end">
+                              <div
+                                className="w-full rounded-t bg-[var(--color-text-secondary)]"
+                                style={{
+                                  height: mins <= 0
+                                    ? '2px'
+                                    : `${Math.max(18, Math.round((mins / maxMins) * 100))}%`,
+                                  opacity: mins <= 0 ? 0.35 : 1,
+                                }}
+                                title={`${mins}m`}
+                              />
+                            </div>
+                          ));
+                        })()}
+                      </div>
+                    )}
                   </div>
                 )}
 

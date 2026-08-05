@@ -6703,6 +6703,14 @@ body { letter-spacing: -0.005em; }
   }
 }
 
+/* Wave E2 — tool header density (all themes; warm theme vars still win when set) */
+[data-testid="study-workspace"] .ws-tool-header .ws-tool-header-row {
+  padding: 0.5rem 0.75rem;
+}
+[data-testid="study-workspace"] .ws-tool-header .ws-tool-header-guide {
+  padding: 0 0.75rem 0.625rem;
+}
+
 @media (max-width: 767px) {
   [data-testid="study-workspace"] {
     --type-micro: 0.8125rem;
@@ -6713,6 +6721,26 @@ body { letter-spacing: -0.005em; }
   [data-testid="study-workspace"] .ws-chrome-btn,
   [data-testid="study-workspace"] button.rounded-full,
   [data-testid="study-workspace"] [data-testid="workspace-study-room-open"] {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+  /* Denser tool headers on phone — title + quiet guide; purpose line hidden */
+  [data-testid="study-workspace"] .ws-tool-header .ws-tool-header-row {
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.625rem;
+  }
+  [data-testid="study-workspace"] .ws-tool-header .ws-tool-header-row > span:first-child {
+    height: 1.75rem;
+    width: 1.75rem;
+  }
+  [data-testid="study-workspace"] .ws-tool-header .ws-purpose-line {
+    display: none;
+  }
+  [data-testid="study-workspace"] .ws-tool-header .ws-tool-header-guide {
+    padding: 0 0.625rem 0.5rem;
+  }
+  [data-testid="study-workspace"] .ws-tool-guide-btn {
     min-height: 2.75rem;
     min-width: 2.75rem;
   }
