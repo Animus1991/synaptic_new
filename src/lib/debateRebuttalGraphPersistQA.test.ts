@@ -155,7 +155,7 @@ describe('debateRebuttalGraphPersistQA', () => {
   });
 
   it('labels edge kinds in both locales', () => {
-    expect(debatePersistEdgeLabel('graph-sync-ok', 'en')).toBe('Argument map looks consistent');
+    expect(debatePersistEdgeLabel('graph-sync-ok', 'en')).toBe('Links look solid');
     expect(debatePersistEdgeLabel('orphan-reattach', 'el')).toBe('Αντεπιχείρημα κάτω από τον κύριο ισχυρισμό');
   });
 });

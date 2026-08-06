@@ -54,7 +54,7 @@ describe('WorkspaceToolEmptyState — §2.7 high-traffic tools', () => {
     expect(screen.getByText(/Nothing to show in this tool yet/i)).toBeTruthy();
   });
 
-  it('merges legacy secondary with context reprocess actions', () => {
+  it('scratchpad empty promotes custom formula over reprocess', () => {
     renderWithActions(
       <WorkspaceToolEmptyState
         tool="scratchpad"
@@ -64,7 +64,11 @@ describe('WorkspaceToolEmptyState — §2.7 high-traffic tools', () => {
         onSecondary={vi.fn()}
       />,
     );
+    expect(screen.getByTestId('workspace-empty-add-custom')).toBeTruthy();
     expect(screen.getByTestId('workspace-empty-reprocess')).toBeTruthy();
     expect(screen.getByText('Add custom formula')).toBeTruthy();
+    const add = screen.getByTestId('workspace-empty-add-custom');
+    const reprocess = screen.getByTestId('workspace-empty-reprocess');
+    expect(add.compareDocumentPosition(reprocess) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

@@ -29,22 +29,22 @@ export function QuizIrtBadge({ irt, lang, responseCount = 0 }: Props) {
   const copy = formatQuizIrtForLearner(irt, lang, responseCount);
   const band = buildQuizIrtConfidenceBand(irt, responseCount, lang);
 
-  const readiness = stripPrefix(copy.readinessLabel, ['Readiness:', 'Ετοιμότητα:']);
+  const readiness = stripPrefix(copy.readinessLabel, ['Readiness:', 'Ετοιμότητα:', 'Level:', 'Επίπεδο:']);
   const difficulty = stripPrefix(copy.difficultyLabel, ['Difficulty:', 'Δυσκολία:']);
-  const calibrating = band.tier === 'unknown';
-  const metaLine = calibrating
+  const settling = band.tier === 'unknown';
+  const metaLine = settling
     ? (lang === 'el'
-      ? `Βαθμονόμηση · ${difficulty} · ${band.rangeLabel}`
-      : `Calibrating · ${difficulty} · ${band.rangeLabel}`)
+      ? `Μαθαίνουμε το επίπεδό σου · ${difficulty} · ${band.rangeLabel}`
+      : `Getting to know your level · ${difficulty} · ${band.rangeLabel}`)
     : `${readiness} · ${difficulty} · ${band.rangeLabel}`;
 
   return (
     <div
-      className="rounded-lg border border-border-subtle bg-surface-secondary/40 px-2.5 py-2 space-y-1.5"
+      className="rounded-xl border border-border-subtle bg-surface-secondary/30 px-3 py-2 space-y-1.5"
       data-testid="quiz-irt-badge"
       role="status"
     >
-      <p className="type-caption font-medium text-text-secondary" data-testid="quiz-irt-meta-line">
+      <p className="type-caption font-medium leading-snug text-text-secondary" data-testid="quiz-irt-meta-line">
         {metaLine}
       </p>
       <QuizIrtConfidenceBand band={band} hideLabels />

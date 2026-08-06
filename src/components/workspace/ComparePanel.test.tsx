@@ -39,8 +39,8 @@ describe('ComparePanel — selection parity §13.5 (Wave 6.8i)', () => {
     }));
   });
 
-  it('shows §13.5 parity strip', () => {
-    render(
+  it('hides parity strip when selection is wired; shows when missing', () => {
+    const { unmount } = render(
       <ComparePanel
         session={session}
         concept="Elasticity"
@@ -48,7 +48,39 @@ describe('ComparePanel — selection parity §13.5 (Wave 6.8i)', () => {
         onSelectionAction={vi.fn()}
       />,
     );
+    expect(screen.queryByTestId('compare-selection-parity-strip')).toBeNull();
+    unmount();
+
+    render(
+      <ComparePanel
+        session={session}
+        concept="Elasticity"
+        lang="en"
+      />,
+    );
     expect(screen.getByTestId('compare-selection-parity-strip')).toBeTruthy();
-    expect(screen.getByTestId('compare-selection-parity-strip').textContent).toMatch(/Text selection|Reader parity/i);
+  });
+});
+
+describe('ComparePanel — Wave CMP densify', () => {
+  it('is full-bleed with highlight-differences primary and nested filter', () => {
+    render(
+      <ComparePanel
+        session={session}
+        concept="Game Theory Basics"
+        lang="en"
+        onSelectionAction={vi.fn()}
+        onAskAgent={vi.fn()}
+      />,
+    );
+    expect(screen.getByTestId('compare-panel').getAttribute('data-bleed')).toBe('full');
+    expect(screen.getByTestId('comparison-table').getAttribute('data-bleed')).toBe('full');
+    expect(screen.getByTestId('compare-diff-toggle').textContent).toMatch(/Highlight differences/);
+    expect(screen.queryByText(/^Agent$/)).toBeNull();
+    expect(screen.getByTestId('compare-more-menu')).toBeTruthy();
+    expect(screen.getByTestId('compare-filter-chrome')).toBeTruthy();
+    expect(screen.queryByTestId('compare-filter')).toBeNull();
+    fireEvent.click(screen.getByTestId('compare-filter-chrome-toggle'));
+    expect(screen.getByTestId('compare-filter')).toBeTruthy();
   });
 });

@@ -9,7 +9,7 @@ type Bilingual = { en: string; el: string };
 export const WORKSPACE_TOOL_SHORT_LABELS: Record<WorkspaceToolId, Bilingual> = {
   'concept-map': { en: 'Map', el: 'Χάρτης' },
   reader: { en: 'Reader', el: 'Ανάγνωση' },
-  leitner: { en: 'Leitner', el: 'Κάρτες' },
+  leitner: { en: 'Flashcards', el: 'Κάρτες' },
   quiz: { en: 'Quiz', el: 'Κουίζ' },
   feynman: { en: 'Feynman', el: 'Feynman' },
   compare: { en: 'Compare', el: 'Σύγκριση' },

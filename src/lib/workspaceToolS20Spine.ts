@@ -68,8 +68,8 @@ export const WORKSPACE_TOOL_S20: Record<WorkspaceToolId, WorkspaceToolS20Record>
   reader: spine({
     toolId: 'reader',
     purpose: {
-      en: 'Read source text aligned to the active workspace step and concept.',
-      el: 'Ανάγνωση κειμένου πηγής ευθυγραμμισμένη με το ενεργό βήμα και την έννοια.',
+      en: 'Read your notes for this step — highlight terms and jump sections as you go.',
+      el: 'Διάβασε τις σημειώσεις για αυτό το βήμα — επισήμανε όρους και άλλαξε ενότητες καθώς προχωράς.',
     },
     learnerProblem: {
       en: 'I need to understand the original material before practicing or testing.',
@@ -96,8 +96,8 @@ export const WORKSPACE_TOOL_S20: Record<WorkspaceToolId, WorkspaceToolS20Record>
   'concept-map': spine({
     toolId: 'concept-map',
     purpose: {
-      en: 'Visualize and rearrange concept relationships from the source.',
-      el: 'Οπτικοποίηση και αναδιάταξη σχέσεων εννοιών από την πηγή.',
+      en: 'See how ideas connect — drag them around, then tap one to focus your study.',
+      el: 'Δες πώς συνδέονται οι ιδέες — σύρε τις, πάτα μία για να εστιάσεις τη μελέτη σου.',
     },
     learnerProblem: {
       en: 'I see facts but not how ideas connect.',
@@ -124,12 +124,12 @@ export const WORKSPACE_TOOL_S20: Record<WorkspaceToolId, WorkspaceToolS20Record>
   scratchpad: spine({
     toolId: 'scratchpad',
     purpose: {
-      en: 'Draft formulas and step-by-step derivations with SymPy validation.',
-      el: 'Πρόχειρες τύποι και βήματα με SymPy validation.',
+      en: 'Try a formula, fill in the numbers, and check each step as you go.',
+      el: 'Δοκίμασε έναν τύπο, βάλε τιμές και έλεγξε κάθε βήμα στην πορεία.',
     },
     learnerProblem: {
-      en: 'I need to work through math steps and verify each line.',
-      el: 'Χρειάζομαι να δουλέψω βήμα-βήμα τους τύπους και να τους ελέγξω.',
+      en: 'I want to work through the math without getting stuck on a wrong line.',
+      el: 'Θέλω να λύσω τα μαθηματικά χωρίς να κολλήσω σε λάθος γραμμή.',
     },
     reads: ['Document', 'Concept', 'ScratchpadEntry'],
     writes: ['ScratchpadEntry', 'ConceptBus', 'LearningEvent'],
@@ -152,12 +152,12 @@ export const WORKSPACE_TOOL_S20: Record<WorkspaceToolId, WorkspaceToolS20Record>
   whiteboard: spine({
     toolId: 'whiteboard',
     purpose: {
-      en: 'Draw diagrams with Agent coach blueprints tied to the active concept.',
-      el: 'Σχέδια με Agent coach blueprints για την ενεργή έννοια.',
+      en: 'Sketch the idea by hand — drop labels from your notes, then check what is still missing.',
+      el: 'Σκίτσαρε την ιδέα με το χέρι — βάλε ετικέτες από τις σημειώσεις και δες τι λείπει ακόμη.',
     },
     learnerProblem: {
-      en: 'I need spatial / visual thinking beyond linear text.',
-      el: 'Χρειάζομαι οπτική σκέψη πέρα από γραμμικό κείμενο.',
+      en: 'I understand better when I can draw it out.',
+      el: 'Καταλαβαίνω καλύτερα όταν το σχεδιάζω.',
     },
     reads: ['Concept', 'ConceptBus', 'AgentConversation'],
     writes: ['WhiteboardBoard', 'ConceptBus', 'LearningEvent'],
@@ -180,12 +180,12 @@ export const WORKSPACE_TOOL_S20: Record<WorkspaceToolId, WorkspaceToolS20Record>
   leitner: spine({
     toolId: 'leitner',
     purpose: {
-      en: 'Spaced-repetition flashcards grounded in source passages.',
-      el: 'Κάρτες spaced repetition από αποσπάσματα πηγής.',
+      en: 'Flip a card, say the answer, then rate how well you remembered it.',
+      el: 'Γύρισε την κάρτα, πες την απάντηση, και βαθμολόγησε πόσο καλά τη θυμήθηκες.',
     },
     learnerProblem: {
-      en: 'I forget terms and need scheduled retrieval practice.',
-      el: 'Ξεχνώ όρους και χρειάζομαι προγραμματισμένη επανάληψη.',
+      en: 'I forget key terms and need a gentle daily review habit.',
+      el: 'Ξεχνώ βασικούς όρους και χρειάζομαι μια ήπια καθημερινή επανάληψη.',
     },
     reads: ['Document', 'Concept', 'FlashcardReview', 'ReaderStep'],
     writes: ['FlashcardReview', 'ConceptBus', 'ProgressRecord', 'LearningEvent'],
@@ -208,12 +208,12 @@ export const WORKSPACE_TOOL_S20: Record<WorkspaceToolId, WorkspaceToolS20Record>
   feynman: spine({
     toolId: 'feynman',
     purpose: {
-      en: 'Explain the concept in plain language and detect gaps.',
-      el: 'Εξήγηση έννοιας με απλά λόγια και εντοπισμός κενών.',
+      en: 'Teach it in plain words — then see what still needs filling in.',
+      el: 'Δίδαξέ το με απλά λόγια — και δες τι ακόμα λείπει.',
     },
     learnerProblem: {
-      en: 'I think I understand but cannot explain it simply.',
-      el: 'Νομίζω ότι καταλαβαίνω αλλά δεν μπορώ να το εξηγήσω απλά.',
+      en: 'I think I get it, but I freeze when I try to explain it simply.',
+      el: 'Νομίζω ότι το πιάνω, αλλά κολλάω όταν πρέπει να το πω απλά.',
     },
     reads: ['Document', 'Concept', 'AgentConversation'],
     writes: ['LearningEvent', 'ConceptBus', 'ProgressRecord'],
@@ -236,12 +236,12 @@ export const WORKSPACE_TOOL_S20: Record<WorkspaceToolId, WorkspaceToolS20Record>
   quiz: spine({
     toolId: 'quiz',
     purpose: {
-      en: 'Active-recall knowledge checks with IRT-aware difficulty.',
-      el: 'Έλεγχος γνώσης (active recall) με IRT δυσκολία.',
+      en: 'Quick questions from your notes — see what sticks and what to review.',
+      el: 'Γρήγορες ερωτήσεις από τις σημειώσεις σου — δες τι μένει και τι να ξαναδείς.',
     },
     learnerProblem: {
-      en: 'I need to test whether I truly remember, not just recognize.',
-      el: 'Χρειάζομαι να ελέγξω αν θυμάμαι, όχι μόνο να αναγνωρίζω.',
+      en: 'I need to check what I can recall, not only what looks familiar.',
+      el: 'Θέλω να ελέγξω τι μπορώ να ανακαλέσω, όχι μόνο τι μου φαίνεται οικείο.',
     },
     reads: ['Document', 'Concept', 'QuizAttempt', 'ReaderStep'],
     writes: ['QuizAttempt', 'ConceptBus', 'ProgressRecord', 'LearningEvent'],
@@ -264,12 +264,12 @@ export const WORKSPACE_TOOL_S20: Record<WorkspaceToolId, WorkspaceToolS20Record>
   simulator: spine({
     toolId: 'simulator',
     purpose: {
-      en: 'Exam-style sandbox with sensitivity cues and timer presets.',
-      el: 'Προσομοίωση εξέτασης με cues και presets χρονομέτρου.',
+      en: 'Move the sliders, watch the graph change, then practice under a timer.',
+      el: 'Κούνα τους διακόπτες, δες το γράφημα, μετά εξάσκηση με χρονόμετρο.',
     },
     learnerProblem: {
-      en: 'I need exam conditions without real stakes.',
-      el: 'Χρειάζομαι συνθήκες εξέτασης χωρίς πραγματικό ρίσκο.',
+      en: 'I want to try what-if scenarios without real exam stress.',
+      el: 'Θέλω να δοκιμάσω σενάρια χωρίς άγχος πραγματικής εξέτασης.',
     },
     reads: ['Document', 'Concept', 'SimulatorSession', 'TimerSession'],
     writes: ['SimulatorSession', 'ConceptBus', 'LearningEvent', 'ProgressRecord'],
@@ -292,12 +292,12 @@ export const WORKSPACE_TOOL_S20: Record<WorkspaceToolId, WorkspaceToolS20Record>
   compare: spine({
     toolId: 'compare',
     purpose: {
-      en: 'Side-by-side concept comparison with diff export.',
-      el: 'Σύγκριση εννοιών side-by-side με diff export.',
+      en: 'See two ideas side by side — spot what actually differs.',
+      el: 'Δες δύο ιδέες δίπλα-δίπλα — βρες τι πραγματικά διαφέρει.',
     },
     learnerProblem: {
-      en: 'I confuse similar terms and need contrast.',
-      el: 'Μπερδεύω παρόμοιους όρους και χρειάζομαι αντίθεση.',
+      en: 'I mix up similar terms and need a clear contrast.',
+      el: 'Μπερδεύω παρόμοιους όρους και θέλω καθαρή αντίθεση.',
     },
     reads: ['Document', 'Concept', 'ComparisonSession'],
     writes: ['ComparisonSession', 'ConceptBus', 'LearningEvent'],
@@ -320,12 +320,12 @@ export const WORKSPACE_TOOL_S20: Record<WorkspaceToolId, WorkspaceToolS20Record>
   debate: spine({
     toolId: 'debate',
     purpose: {
-      en: 'Structured argument map with persisted rebuttals.',
-      el: 'Χάρτης επιχειρημάτων με persisted rebuttals.',
+      en: 'Map claims for and against — write your reply and keep it.',
+      el: 'Χάρτης ισχυρισμών υπέρ και κατά — γράψε την απάντησή σου και κράτα την.',
     },
     learnerProblem: {
-      en: 'I need to stress-test my understanding through counter-arguments.',
-      el: 'Χρειάζομαι να δοκιμάσω την κατανόησή μου με αντεπιχειρήματα.',
+      en: 'I want to test my understanding against a real counter-argument.',
+      el: 'Θέλω να δοκιμάσω την κατανόησή μου απέναντι σε πραγματικό αντίλογο.',
     },
     reads: ['Document', 'Concept', 'DebateSession'],
     writes: ['DebateSession', 'ConceptBus', 'LearningEvent'],
@@ -348,12 +348,12 @@ export const WORKSPACE_TOOL_S20: Record<WorkspaceToolId, WorkspaceToolS20Record>
   timer: spine({
     toolId: 'timer',
     purpose: {
-      en: 'Pomodoro / exam countdown synced with simulator presets.',
-      el: 'Pomodoro / αντίστροφη εξέτασης συγχρονισμένα με simulator.',
+      en: 'Focus now, or count down to your exam — pick a block and start.',
+      el: 'Εστίασε τώρα, ή μέτρα αντίστροφα μέχρι την εξέταση — διάλεξε μπλοκ και ξεκίνα.',
     },
     learnerProblem: {
-      en: 'I lose focus or misjudge exam pacing.',
-      el: 'Χάνω την εστίαση ή υποτιμώ τον χρόνο στην εξέταση.',
+      en: 'I lose focus or misjudge how long I have before the exam.',
+      el: 'Χάνω την εστίαση ή δεν υπολογίζω σωστά τον χρόνο μέχρι την εξέταση.',
     },
     reads: ['Concept', 'TimerSession', 'ProgressRecord'],
     writes: ['TimerSession', 'LearningEvent', 'ProgressRecord'],
@@ -376,8 +376,8 @@ export const WORKSPACE_TOOL_S20: Record<WorkspaceToolId, WorkspaceToolS20Record>
   annotations: spine({
     toolId: 'annotations',
     purpose: {
-      en: 'Highlight and annotate source with reprocess anchor remap.',
-      el: 'Highlight και σχόλια με reprocess anchor remap.',
+      en: 'Mark what matters in your notes — highlights, comments, and pins.',
+      el: 'Σημείωσε τι μετράει στις σημειώσεις — επισημάνσεις, σχόλια και pins.',
     },
     learnerProblem: {
       en: 'I need to mark confusing or exam-critical passages.',
@@ -404,8 +404,8 @@ export const WORKSPACE_TOOL_S20: Record<WorkspaceToolId, WorkspaceToolS20Record>
   dashboard: spine({
     toolId: 'dashboard',
     purpose: {
-      en: 'In-workspace mastery, activity breakdown, and session export.',
-      el: 'Mastery, δραστηριότητα και export συνεδρίας μέσα στο workspace.',
+      en: 'See how today went — readiness, weak spots, and what to do next.',
+      el: 'Δες πώς πήγε σήμερα — ετοιμότητα, αδύναμα σημεία και τι να κάνεις μετά.',
     },
     learnerProblem: {
       en: 'I need to see whether my study session actually moved the needle.',

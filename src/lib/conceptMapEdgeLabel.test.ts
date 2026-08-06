@@ -10,8 +10,8 @@ describe('conceptMapEdgeLabel (TOOL-CM-03)', () => {
     expect(formatPmiScore(1.456)).toBe('1.5');
   });
 
-  it('appends PMI on related edges', () => {
-    expect(formatConceptMapEdgeGlyph('related', 2.14)).toBe('~ 2.1');
+  it('keeps related edges glyph-only on canvas (PMI stays in inspector)', () => {
+    expect(formatConceptMapEdgeGlyph('related', 2.14)).toBe('~');
   });
 
   it('keeps glyph-only for non-PMI relations', () => {
@@ -20,8 +20,8 @@ describe('conceptMapEdgeLabel (TOOL-CM-03)', () => {
     expect(formatConceptMapEdgeGlyph('related')).toBe('~');
   });
 
-  it('formats panel PMI suffix', () => {
-    expect(formatConceptMapPmiPanel(1.2)).toBe('PMI 1.2');
+  it('formats panel relatedness suffix', () => {
+    expect(formatConceptMapPmiPanel(1.2)).toBe('Relatedness 1.2');
     expect(formatConceptMapPmiPanel(undefined)).toBeNull();
   });
 });

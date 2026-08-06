@@ -96,11 +96,16 @@ export function MiniDashboard({
     <motion.div
       layout
       className={cn(
-        'rounded-2xl border border-border-subtle bg-surface-card shadow-xl overflow-hidden',
-        embedded ? 'w-full max-w-lg' : undefined,
+        'overflow-hidden bg-surface-card',
+        /* Wave PR — embedded Progress is full-bleed (no max-w-lg / card-in-card) */
+        embedded
+          ? 'w-full max-w-none'
+          : 'rounded-2xl border border-border-subtle shadow-xl',
       )}
       style={embedded ? undefined : { width: collapsed ? 56 : 280 }}
       data-testid={embedded ? 'mini-dashboard-embedded' : 'mini-dashboard'}
+      data-bleed={embedded ? 'full' : undefined}
+      data-layout={embedded ? 'full' : 'float'}
     >
       {/* Header */}
       {!embedded && (
@@ -141,7 +146,10 @@ export function MiniDashboard({
 
             {/* Overview tab */}
             {activeTab === 'overview' && (
-              <div className="p-3 space-y-3">
+              <div
+                className={cn('space-y-3', embedded ? 'px-3 py-3 sm:px-4' : 'p-3')}
+                data-testid="progress-status-surface"
+              >
                 {/* Mini readiness ring */}
                 <div className="flex items-center gap-3">
                   <svg width={size} height={size} className="-rotate-90 shrink-0">
@@ -152,28 +160,39 @@ export function MiniDashboard({
                     <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="central"
                       className="rotate-90 origin-center" fill={band.color} fontSize={16} fontWeight="800">{readiness}%</text>
                   </svg>
-                  <div>
-                    <p className="type-caption font-semibold">{band.label}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="type-caption font-semibold text-text-primary">{band.label}</p>
                     <p className="type-caption text-text-muted">{t('examReadiness')}</p>
                     <p className="type-caption text-text-muted mt-1">{conceptsMastered}/{totalConcepts} {t('concepts')}</p>
                   </div>
                 </div>
 
-                {/* Quick stats */}
-                <div className="grid grid-cols-3 gap-1.5">
+                {/* Quick stats — full width when embedded */}
+                <div className={cn('grid gap-1.5', embedded ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-3')}>
                   <StatPill icon={<Zap className="w-3 h-3 text-accent-amber" />} label={t('streak')} value={`${streak}d`} />
                   <StatPill icon={<RotateCcw className="w-3 h-3 text-accent-teal" />} label={t('due')} value={`${reviewsDue}`} />
                   <StatPill icon={<Brain className="w-3 h-3 text-text-secondary" />} label={t('weak')} value={`${weakSpots.length}`} />
+                  {embedded ? (
+                    <>
+                      <StatPill icon={<Clock className="w-3 h-3 text-accent-emerald" />} label={t('studyToday')} value={`${studyTimeToday}m`} />
+                      <StatPill icon={<Clock className="w-3 h-3 text-text-secondary" />} label={t('studyThisWeek')} value={`${studyTimeWeek}m`} />
+                    </>
+                  ) : null}
                 </div>
 
-                <div className="grid grid-cols-2 gap-1.5">
-                  <StatPill icon={<Clock className="w-3 h-3 text-accent-emerald" />} label={t('studyToday')} value={`${studyTimeToday}m`} />
-                  <StatPill icon={<Clock className="w-3 h-3 text-text-secondary" />} label={t('studyThisWeek')} value={`${studyTimeWeek}m`} />
-                </div>
+                {!embedded && (
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <StatPill icon={<Clock className="w-3 h-3 text-accent-emerald" />} label={t('studyToday')} value={`${studyTimeToday}m`} />
+                    <StatPill icon={<Clock className="w-3 h-3 text-text-secondary" />} label={t('studyThisWeek')} value={`${studyTimeWeek}m`} />
+                  </div>
+                )}
 
                 {/* Always show — empty well was screenshot P0 when week>0 but daily series missing */}
                 <div
-                  className="rounded-lg border border-border-subtle bg-surface-primary/40 p-2"
+                  className={cn(
+                    'bg-surface-secondary/30 p-2',
+                    embedded ? 'border-y border-border-subtle -mx-3 px-3 sm:-mx-4 sm:px-4' : 'rounded-lg border border-border-subtle',
+                  )}
                   data-testid="progress-study-week-chart"
                 >
                   <p className="type-caption text-text-secondary mb-1.5">{t('studyThisWeek')}</p>
@@ -216,7 +235,10 @@ export function MiniDashboard({
 
                 {toolChipItems.length > 0 && (
                   <div
-                    className="rounded-lg border border-border-subtle bg-surface-primary/40 p-2"
+                    className={cn(
+                      'bg-surface-secondary/30 p-2',
+                      embedded ? 'border-y border-border-subtle -mx-3 px-3 sm:-mx-4 sm:px-4' : 'rounded-lg border border-border-subtle',
+                    )}
                     data-testid="progress-tool-activity"
                   >
                     <p className="type-caption text-text-secondary mb-1.5">

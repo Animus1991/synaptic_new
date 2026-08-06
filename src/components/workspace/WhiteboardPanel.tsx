@@ -16,7 +16,6 @@ import { WhiteboardDiagramCoach } from './WhiteboardDiagramCoach';
 import { CollapsibleChromeSection } from './CollapsibleChromeSection';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
 import { useI18n } from '../../lib/i18n';
-import { AllCapsLabel } from '../ui/AllCapsLabel';
 import type { WhiteboardDocument } from '../../lib/whiteboardLayers';
 
 type WhiteboardCrdtProps = {
@@ -182,14 +181,20 @@ export function WhiteboardPanel({
         />
 
         <CollapsibleChromeSection
-          title={`${session.formulas.length} ${t('panelFormulas')}${session.sectionLabel ? ` · ${session.sectionLabel}` : ''}`}
+          title={
+            session.sectionLabel
+              ? t('wbFormulasChromeTopic')
+                .replace('{count}', String(session.formulas.length))
+                .replace('{topic}', session.sectionLabel)
+              : t('wbFormulasChrome').replace('{count}', String(session.formulas.length))
+          }
           alwaysCollapse
           data-testid="whiteboard-chrome"
         >
           <div className="px-4 py-3 space-y-2">
             {session.sectionLabel && (
               <p className="type-caption text-text-muted" data-testid="whiteboard-section-label">
-                <AllCapsLabel>{t('wsSectionLabel')}</AllCapsLabel>
+                <span className="font-medium text-text-secondary">{t('wsSectionLabel')}</span>
                 <span className="ml-2 text-text-secondary">{session.sectionLabel}</span>
               </p>
             )}

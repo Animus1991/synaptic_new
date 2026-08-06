@@ -5,8 +5,9 @@ import {
 } from '@phosphor-icons/react';
 import { cn } from '../utils/cn';
 import { useI18n } from '../lib/i18n';
-import { BlueprintSurface } from './ui/BlueprintSurface';
 import { AllCapsLabel } from './ui/AllCapsLabel';
+import { PrimaryCTA } from './ui/primitives';
+import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import {
   buildDashboardHubActions,
   partitionDashboardHubActions,
@@ -21,6 +22,7 @@ import type { Lang } from '../lib/i18n';
 import type { PersonalStudyDate } from '../types';
 import type { SessionType } from '../lib/taskFlows';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
+import { ArrowRight } from '@phosphor-icons/react';
 
 const ACTION_ICONS: Record<DashboardHubActionId, typeof Upload> = {
   calendar: Calendar,
@@ -181,15 +183,14 @@ export function DashboardActionHub({
       <div
         id="dashboard-action-hub"
         className={cn(
-          /* overflow-visible so «Περισσότερα» menu is not clipped; raise stack when open */
-          'relative overflow-visible border border-border-subtle bg-surface-secondary/35',
+          /* Wave H2 — full-bleed hero (no nested card gutters); overflow-visible for More menu */
+          'relative overflow-visible border-b border-border-subtle bg-surface-secondary/35',
           hubQuiet && 'hub-quiet-surface',
           overflowOpen && 'z-40',
-          flushTop
-            ? 'rounded-none border-x-0 border-t-0'
-            : 'rounded-2xl',
+          !flushTop && 'rounded-2xl border border-border-subtle',
         )}
         data-testid="dashboard-action-hub"
+        data-bleed="full"
         data-tour="dashboard-hero-panel"
         style={
           wallpaperDataUrl
@@ -201,14 +202,10 @@ export function DashboardActionHub({
             : undefined
         }
       >
-        {/* UIUX-AUDIT-2026-08 H2 — outer rhythm tightened sm:space-y-4 -> sm:space-y-3
-            (16px -> 12px) so the desktop hero doesn't carry more air between the
-            greeting row and the KPI/study-center stack than the already-dense
-            Wave E/F workspace panels do. Mobile untouched (was already space-y-3).
-            Rollback: restore 'sm:space-y-4'. */}
-        <div className={cn('p-3.5 sm:p-4 space-y-3', heroText)}>
+        {/* Wave H2 — hero budget: greeting · Continue · nest stats/tools */}
+        <div className={cn('space-y-2.5 px-3 py-3 sm:px-4', heroText)}>
           {(greetingTitle || headerActions) && (
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0" id="dashboard-hero-greeting">
                 {greetingEyebrow && (
                   <p className="ws-eyebrow mb-1 text-text-secondary"><AllCapsLabel>{greetingEyebrow}</AllCapsLabel></p>
@@ -240,130 +237,129 @@ export function DashboardActionHub({
             )}
           </div>
 
-          <div className="space-y-3 sm:space-y-4">
-            {/* J-D02: KPI strip directly under greeting */}
-            {statsSlot}
-
-            {/* Study center before quick actions (canvas order) */}
+          <div className="space-y-2">
+            {/* Primary study strip — Continue is the one obvious CTA */}
             {workspaceLive ? (
-              <div className={cn('rounded-xl overflow-hidden', glassCard)} data-testid="dashboard-hero-study-center">
+              <div
+                className={cn('w-full max-w-none overflow-hidden', glassCard)}
+                data-testid="dashboard-hero-study-center"
+                data-bleed="full"
+              >
                 <DashboardLivePreview live={workspaceLive} lang={lang} onOpenWorkspace={onOpenWorkspace} compact />
               </div>
             ) : (
-              <BlueprintSurface
-                nest
-                /* UIUX-AUDIT-2026-08 H2 — dropped the sm:p-4 desktop padding bump
-                   (kept flat at p-3.5/14px on all breakpoints) so the empty-state
-                   study-center card doesn't sit visibly taller than the equivalent
-                   workspaceLive DashboardLivePreview card next to it, which has no
-                   extra desktop padding. Rollback: restore 'p-3.5 sm:p-4'. */
-                className={cn('p-3.5', glassCard)}
+              <div
+                className={cn(
+                  'flex w-full max-w-none flex-col gap-2 border-y border-border-subtle bg-surface-card/40 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3',
+                  glassCard,
+                )}
                 data-testid="dashboard-hero-study-center"
+                data-bleed="full"
               >
-                <div
-                  className={cn(
-                    'flex w-full flex-col gap-2.5 sm:gap-3',
-                    /* OPT-K18 — full-span row; Continue anchors to the trailing edge */
-                    hubQuiet
-                      ? 'sm:flex-row sm:items-center sm:justify-between'
-                      : 'sm:flex-row sm:items-center sm:justify-between sm:gap-4',
-                  )}
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className={cn('type-micro font-semibold uppercase tracking-[0.08em]', onHero ? 'text-white/80' : 'text-text-secondary')}>
-                      <AllCapsLabel>{t('dashboardLivePreviewEyebrow')}</AllCapsLabel>
-                    </p>
-                    <p className={cn('mt-1 type-meta font-medium', onHero ? 'text-white' : 'text-text-primary')}>
-                      {t('dashboardHeroHubSideTitle')}
-                    </p>
-                    <p className={cn('mt-0.5 type-caption leading-relaxed', onHero ? 'text-white/75' : 'text-text-secondary')}>
-                      {t('dashboardHeroHubSideBody')}
-                    </p>
-                  </div>
-                  {onOpenWorkspace && (
-                    <button
-                      type="button"
-                      onClick={onOpenWorkspace}
-                      data-testid="dashboard-resume-workspace"
-                      className={cn(
-                        'dashboard-continue-hero shrink-0 self-start sm:self-center rounded-md border px-3 py-2 type-caption font-semibold transition-colors min-h-10 inline-flex items-center justify-center',
-                        onHero
-                          ? 'border-white/20 bg-white/10 text-white hover:bg-white/15'
-                          : hubQuiet
-                            ? 'border-border-default bg-transparent text-text-primary hover:bg-surface-secondary'
-                            : 'border-brand-500/35 bg-brand-600/10 text-text-secondary hover:bg-brand-600/15',
-                      )}
-                    >
-                      {t('dashboardResumeContinue')}
-                    </button>
-                  )}
+                <div className="min-w-0 flex-1 px-0.5">
+                  <p className={cn('type-micro font-semibold uppercase tracking-[0.08em]', onHero ? 'text-white/80' : 'text-text-secondary')}>
+                    <AllCapsLabel>{t('dashboardLivePreviewEyebrow')}</AllCapsLabel>
+                  </p>
+                  <p className={cn('mt-0.5 type-meta font-medium', onHero ? 'text-white' : 'text-text-primary')}>
+                    {t('dashboardHeroHubSideTitle')}
+                  </p>
+                  <p className={cn('mt-0.5 type-caption leading-relaxed', onHero ? 'text-white/75' : 'text-text-secondary')}>
+                    {t('dashboardHeroHubSideBody')}
+                  </p>
                 </div>
-              </BlueprintSurface>
+                {onOpenWorkspace && (
+                  <PrimaryCTA
+                    type="button"
+                    size="md"
+                    onClick={onOpenWorkspace}
+                    data-testid="dashboard-resume-workspace"
+                    className="dashboard-continue-hero ws-touch-floor min-h-10 shrink-0 self-start rounded-lg px-4 sm:self-center"
+                  >
+                    {t('dashboardResumeContinue')}
+                    <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+                  </PrimaryCTA>
+                )}
+              </div>
             )}
 
-            {/* OPT-K62 — 2×2 on mobile (no mid-word chip ellipsis); 4-col from sm */}
-            <div className="flex items-stretch gap-2 sm:gap-2.5">
-              <div
-                className="grid min-w-0 flex-1 grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5"
-                data-testid="dashboard-hero-action-grid"
+            {statsSlot && (
+              <CollapsibleChromeSection
+                title={t('dashTodayChrome')}
+                alwaysCollapse
+                data-testid="dashboard-today-chrome"
               >
-                {primary.map((action) => renderChip(action, 'dashboard-hero-action-grid'))}
-              </div>
+                <div className="px-0.5 pb-1">{statsSlot}</div>
+              </CollapsibleChromeSection>
+            )}
 
-              {overflow.length > 0 && (
-                <div className="relative flex shrink-0 items-stretch" ref={overflowRef}>
-                  <button
-                    type="button"
-                    data-testid="dashboard-hero-hub-more"
-                    aria-expanded={overflowOpen}
-                    aria-haspopup="menu"
-                    aria-label={t('dashboardHeroHubMoreAria')}
-                    onClick={() => setOverflowOpen((v) => !v)}
-                    className={cn(
-                      'inline-flex h-full min-h-[3.25rem] flex-col items-center justify-center gap-1 rounded-xl border border-border-subtle px-2.5 py-2 type-micro font-semibold transition-colors',
-                      'hover:bg-surface-hover/40',
-                      glassCard,
-                      onHero ? 'text-white/90' : 'text-text-secondary',
-                    )}
-                  >
-                    <DotsThree className="h-4 w-4" weight="bold" aria-hidden />
-                    <span className="leading-tight">{t('dashboardHeroHubMore')}</span>
-                  </button>
-                  {overflowOpen && (
-                    <div
-                      role="menu"
-                      data-testid="dashboard-hero-hub-overflow"
+            <CollapsibleChromeSection
+              title={t('dashQuickToolsChrome')}
+              alwaysCollapse
+              data-testid="dashboard-quick-tools-chrome"
+            >
+              <div className="flex items-stretch gap-2 px-0.5 pb-1 sm:gap-2.5">
+                <div
+                  className="grid min-w-0 flex-1 grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-2.5"
+                  data-testid="dashboard-hero-action-grid"
+                >
+                  {primary.map((action) => renderChip(action, 'dashboard-hero-action-grid'))}
+                </div>
+
+                {overflow.length > 0 && (
+                  <div className="relative flex shrink-0 items-stretch" ref={overflowRef}>
+                    <button
+                      type="button"
+                      data-testid="dashboard-hero-hub-more"
+                      aria-expanded={overflowOpen}
+                      aria-haspopup="menu"
+                      aria-label={t('dashboardHeroHubMoreAria')}
+                      onClick={() => setOverflowOpen((v) => !v)}
                       className={cn(
-                        'ux-elev-popover absolute right-0 top-full z-50 mt-1.5 min-w-[12rem] overflow-hidden rounded-xl border border-border-subtle bg-surface-card py-1 shadow-lg',
-                        onHero && 'bg-surface-card/95 backdrop-blur-md',
+                        'inline-flex h-full min-h-[3.25rem] flex-col items-center justify-center gap-1 rounded-xl border border-border-subtle px-2.5 py-2 type-micro font-semibold transition-colors',
+                        'hover:bg-surface-hover/40',
+                        glassCard,
+                        onHero ? 'text-white/90' : 'text-text-secondary',
                       )}
                     >
-                      {overflow.map((action) => {
-                        const Icon = ACTION_ICONS[action.id];
-                        return (
-                          <button
-                            key={action.id}
-                            type="button"
-                            role="menuitem"
-                            data-testid={`dashboard-hero-overflow-${action.id}`}
-                            onClick={() => handleCardClick(action.id)}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption text-text-primary hover:bg-surface-hover/50"
-                          >
-                            <Icon className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
-                            <span className="min-w-0 flex-1 truncate">{t(action.chipLabelKey)}</span>
-                            {action.badge && (
-                              <span className="rounded-md bg-accent-rose/15 px-1.5 py-0.5 type-micro font-bold text-accent-rose">
-                                {action.badge}
-                              </span>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+                      <DotsThree className="h-4 w-4" weight="bold" aria-hidden />
+                      <span className="leading-tight">{t('dashboardHeroHubMore')}</span>
+                    </button>
+                    {overflowOpen && (
+                      <div
+                        role="menu"
+                        data-testid="dashboard-hero-hub-overflow"
+                        className={cn(
+                          'ux-elev-popover absolute right-0 top-full z-50 mt-1.5 min-w-[12rem] overflow-hidden rounded-xl border border-border-subtle bg-surface-card py-1 shadow-lg',
+                          onHero && 'bg-surface-card/95 backdrop-blur-md',
+                        )}
+                      >
+                        {overflow.map((action) => {
+                          const Icon = ACTION_ICONS[action.id];
+                          return (
+                            <button
+                              key={action.id}
+                              type="button"
+                              role="menuitem"
+                              data-testid={`dashboard-hero-overflow-${action.id}`}
+                              onClick={() => handleCardClick(action.id)}
+                              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption text-text-primary hover:bg-surface-hover/50"
+                            >
+                              <Icon className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
+                              <span className="min-w-0 flex-1 truncate">{t(action.chipLabelKey)}</span>
+                              {action.badge && (
+                                <span className="rounded-md bg-accent-rose/15 px-1.5 py-0.5 type-micro font-bold text-accent-rose">
+                                  {action.badge}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </CollapsibleChromeSection>
           </div>
         </div>
       </div>

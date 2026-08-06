@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { GitCommit, Plus, Pencil, BookOpen, Shield, Sparkles } from '@/lib/lucide-shim';
+import { Plus, Pencil, BookOpen, Shield, Sparkles } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { useI18n, type I18nKey } from '../../lib/i18n';
 import { suggestCounterArguments } from '../../lib/debateCounterArgs';
@@ -15,7 +15,9 @@ import {
 import { DebateRebuttalPersistStrip } from './DebateRebuttalPersistStrip';
 import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { CollapsibleChromeSection } from './CollapsibleChromeSection';
+import { PanelOverflowMenu } from './PanelOverflowMenu';
 import { InfoHint } from '../ui/InfoHint';
+import { PrimaryCTA } from '../ui/primitives';
 
 /* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export type ArgNodeType = 'claim' | 'premise' | 'support' | 'refutation';
@@ -211,7 +213,7 @@ export function ArgumentMap({
     const id = `n-${Date.now()}`;
     const label = text ?? (type === 'refutation'
       ? t('debateCounterArgument')
-      : 'New argument point');
+      : t('debateNewPoint'));
     const child: ArgNode = {
       id,
       type,
@@ -342,11 +344,10 @@ export function ArgumentMap({
             </>
           )}
           <div
-            className="absolute -top-2 z-10 rounded-full border px-2 py-0.5 type-caption font-semibold shadow-[0_0_0_2px_var(--color-surface-primary)]"
+            className="absolute -top-2 z-10 rounded-full border px-2 py-0.5 type-caption font-semibold text-text-primary shadow-[0_0_0_2px_var(--color-surface-primary)]"
             style={{
               backgroundColor: colorStyle.bg,
               borderColor: colorStyle.border,
-              color: '#f8fafc',
             }}
           >
             {typeLabel}
@@ -358,33 +359,52 @@ export function ArgumentMap({
   };
 
   return (
-    <div className="flex h-full flex-col overflow-hidden">
-      {/* Wave G2 — title + Ask Agent; edit legend via InfoHint; counters collapsed */}
+    <div
+      className="flex h-full min-h-0 flex-col overflow-hidden bg-surface-card"
+      data-testid="argument-map"
+      data-bleed="full"
+    >
+      {/* Wave DB — primary: Add a counter; Ask Tutor in ⋯; find/links nested */}
       <div
-        className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border-subtle bg-surface-card px-3 py-2"
+        className="flex shrink-0 flex-wrap items-center gap-1.5 border-b border-border-subtle bg-surface-secondary/40 px-3 py-1.5"
         data-testid="debate-tree-toolbar"
       >
-        <span className="flex min-w-0 flex-1 items-center gap-2 type-meta font-semibold text-text-secondary">
-          <GitCommit className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
-          <span className="truncate">
-            {t('debateTree')}
-            {concept ? ` — ${concept}` : ''}
-          </span>
+        <span className="min-w-0 flex-1 truncate type-caption font-medium text-text-secondary">
+          {t('debateTree')}
+          {concept ? (
+            <span className="text-text-muted"> · {concept}</span>
+          ) : null}
         </span>
+        <PrimaryCTA
+          type="button"
+          size="md"
+          data-testid="debate-add-counter-primary"
+          onClick={() => addCounterFromNotes(root.id)}
+          className="ws-touch-floor min-h-9 rounded-lg px-3"
+        >
+          <Shield className="h-3.5 w-3.5" aria-hidden />
+          {t('debateAddCounter')}
+        </PrimaryCTA>
         <InfoHint
           triggerAriaLabel={t('debateEditSupport')}
           label={`${t('debateEditSupport')} · ${t('debateCounterLabel')}`}
         />
         {onAskAgent && (
-          <button
-            type="button"
-            data-testid="debate-ask-agent"
-            onClick={() => onAskAgent(root.text)}
-            className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary"
+          <PanelOverflowMenu
+            ariaLabel={t('wsMore')}
+            triggerTestId="debate-more-menu"
+            summaryClassName="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover"
           >
-            <Sparkles className="h-3.5 w-3.5" aria-hidden />
-            <span className="hidden sm:inline">{t('askAgentShort')}</span>
-          </button>
+            <button
+              type="button"
+              data-testid="debate-ask-agent"
+              onClick={() => onAskAgent(root.text)}
+              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
+            >
+              <Sparkles className="h-3.5 w-3.5" aria-hidden />
+              {t('askAgentShort')}
+            </button>
+          </PanelOverflowMenu>
         )}
       </div>
       {counterSuggestions.length > 0 && (
@@ -398,7 +418,7 @@ export function ArgumentMap({
               <button
                 key={i}
                 type="button"
-                className="ws-touch-floor max-w-full rounded-lg border border-accent-rose/35 bg-accent-rose/10 px-2.5 py-1 text-left text-text-secondary hover:text-text-primary"
+                className="ws-touch-floor max-w-full rounded-lg border border-border-subtle bg-surface-secondary/50 px-2.5 py-1 text-left text-text-secondary hover:border-border-default hover:text-text-primary"
                 onClick={() => addNode(root.id, 'refutation', s.text)}
                 title={s.source}
               >
@@ -409,41 +429,46 @@ export function ArgumentMap({
         </CollapsibleChromeSection>
       )}
       <DebateRebuttalPersistStrip report={persistReport} lang={lang} />
+      {rebuttalGraph.edges.length > 0 && (
+        <CollapsibleChromeSection
+          title={`${t('debateRebuttalGraph')} · ${rebuttalGraph.edges.length} ${t('debateEdges')}`}
+          alwaysCollapse
+          data-testid="debate-links-chrome"
+        >
+          <div className="px-3 pb-2" data-testid="debate-rebuttal-graph">
+            <ul className="max-h-28 space-y-1.5 overflow-y-auto" data-testid="debate-rebuttal-list">
+              {rebuttalGraph.edges.map((e, i) => {
+                const fromText = rebuttalGraph.nodes.find((n) => n.id === e.fromId)?.text?.trim() ?? '';
+                const toText = rebuttalGraph.nodes.find((n) => n.id === e.toId)?.text?.trim() ?? '';
+                return (
+                  <li
+                    key={i}
+                    className={cn(
+                      'rounded-lg border px-2.5 py-1.5 type-caption font-medium leading-snug',
+                      e.kind === 'rebuts'
+                        ? 'border-accent-rose/45 bg-accent-rose/10 text-text-secondary'
+                        : 'border-border-subtle bg-surface-secondary/40 text-text-secondary',
+                    )}
+                  >
+                    <span className="font-semibold text-text-primary">{e.label ?? e.kind}</span>
+                    {fromText ? (
+                      <span> — {fromText.slice(0, 96)}{fromText.length > 96 ? '…' : ''}</span>
+                    ) : null}
+                    {toText ? (
+                      <span className="mt-0.5 block">→ {toText.slice(0, 96)}{toText.length > 96 ? '…' : ''}</span>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </CollapsibleChromeSection>
+      )}
       <div
-        className="mx-4 mb-2 rounded-xl border border-border-subtle bg-surface-card p-3"
-        data-testid="debate-rebuttal-graph"
+        className="relative min-h-0 flex-1 cursor-grab overflow-auto bg-surface-primary active:cursor-grabbing"
+        data-testid="debate-canvas"
       >
-        <p className="type-caption font-semibold text-text-muted mb-2">
-          {t('debateRebuttalGraph')} · {rebuttalGraph.edges.length} {t('debateEdges')}
-        </p>
-        <ul className="space-y-1.5 max-h-28 overflow-y-auto" data-testid="debate-rebuttal-list">
-          {rebuttalGraph.edges.map((e, i) => {
-            const fromText = rebuttalGraph.nodes.find((n) => n.id === e.fromId)?.text?.trim() ?? '';
-            const toText = rebuttalGraph.nodes.find((n) => n.id === e.toId)?.text?.trim() ?? '';
-            return (
-              <li
-                key={i}
-                className={cn(
-                  'rounded-lg border px-2.5 py-1.5 type-caption font-medium leading-snug',
-                  e.kind === 'rebuts'
-                    ? 'border-accent-rose/45 bg-accent-rose/10 text-text-secondary'
-                    : 'border-accent-emerald/45 bg-accent-emerald/10 text-text-secondary',
-                )}
-              >
-                <span className="font-semibold">{e.label ?? e.kind}</span>
-                {fromText ? (
-                  <span className="text-text-secondary"> — {fromText.slice(0, 96)}{fromText.length > 96 ? '…' : ''}</span>
-                ) : null}
-                {toText ? (
-                  <span className="block mt-0.5 text-text-secondary">→ {toText.slice(0, 96)}{toText.length > 96 ? '…' : ''}</span>
-                ) : null}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-      <div className="relative flex-1 cursor-grab overflow-auto bg-surface-primary active:cursor-grabbing">
-        <div className="relative h-[600px] w-[800px]">
+        <div className="relative h-[600px] w-full min-w-[800px]">
           <svg className="pointer-events-none absolute inset-0 h-full w-full">
             {renderEdges(root)}
           </svg>

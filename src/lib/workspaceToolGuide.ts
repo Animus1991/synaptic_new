@@ -20,75 +20,78 @@ export type WorkspaceToolGuide = {
 export const WORKSPACE_TOOL_GUIDE: Record<WorkspaceToolId, WorkspaceToolGuide> = {
   reader: {
     howTo: [
-      { en: 'Read the source text, section by section.', el: 'Διάβασε το κείμενο πηγής, ενότητα προς ενότητα.' },
-      { en: 'Click a highlighted term to see its meaning and focus it everywhere.', el: 'Κάνε κλικ σε υπογραμμισμένο όρο για επεξήγηση και εστίαση παντού.' },
-      { en: 'Mark passages as understood or confusing to steer your plan.', el: 'Σημείωσε σημεία ως κατανοητά ή μπερδεμένα για να καθοδηγήσεις το πλάνο.' },
+      { en: 'Read the passage for this step, section by section.', el: 'Διάβασε το απόσπασμα για αυτό το βήμα, ενότητα προς ενότητα.' },
+      { en: 'Tap a highlighted term to see what it means and keep it in focus.', el: 'Πάτα έναν υπογραμμισμένο όρο για να δεις τι σημαίνει και να μείνει σε εστίαση.' },
+      { en: 'Use Study when a section clicks — or Ask Tutor if you get stuck.', el: 'Πάτα Μελέτη όταν μια ενότητα «κουμπώνει» — ή Ρώτα τον βοηθό αν κολλήσεις.' },
     ],
-    produces: { en: 'A solid grasp of the original material before you practice.', el: 'Στέρεη κατανόηση του υλικού πριν την εξάσκηση.' },
+    produces: { en: 'A clear read of your notes before you practice.', el: 'Καθαρή ανάγνωση των σημειώσεών σου πριν την εξάσκηση.' },
   },
   'concept-map': {
     howTo: [
-      { en: 'See how concepts connect as a draggable graph.', el: 'Δες πώς συνδέονται οι έννοιες σε διαδραστικό γράφο.' },
-      { en: 'Click a node to focus that concept across every tool.', el: 'Κάνε κλικ σε κόμβο για εστίαση της έννοιας σε όλα τα εργαλεία.' },
-      { en: 'Drag nodes to arrange them your way — positions are saved.', el: 'Σύρε τους κόμβους όπως θες — οι θέσεις αποθηκεύονται.' },
+      { en: 'Glance at the map — colors show how solid each idea feels.', el: 'Ρίξε μια ματιά στον χάρτη — τα χρώματα δείχνουν πόσο στέρεη νιώθεις κάθε ιδέα.' },
+      { en: 'Tap an idea to focus it — drag only moves it (won’t jump your notes).', el: 'Πάτα μια ιδέα για εστίαση — το σύρσιμο μόνο τη μετακινεί (χωρίς άλμα στις σημειώσεις).' },
+      { en: 'Drag the idea cards to arrange them your way — we save the layout.', el: 'Σύρε τις κάρτες ιδεών όπως σου βολεύει — αποθηκεύουμε τη διάταξη.' },
     ],
-    produces: { en: 'A clear mental model of how the ideas relate.', el: 'Καθαρό νοητικό μοντέλο για το πώς σχετίζονται οι ιδέες.' },
+    produces: { en: 'A clear picture of how the ideas fit together.', el: 'Καθαρή εικόνα για το πώς ταιριάζουν οι ιδέες μεταξύ τους.' },
   },
   scratchpad: {
     howTo: [
-      { en: 'Write a formula or derivation step by step.', el: 'Γράψε έναν τύπο ή μια παραγωγή βήμα-βήμα.' },
-      { en: 'Assign values to the variables.', el: 'Δώσε τιμές στις μεταβλητές.' },
-      { en: 'Check each line — verified math is flagged.', el: 'Έλεγξε κάθε γραμμή — τα σωστά βήματα επισημαίνονται.' },
+      { en: 'Type a formula (or paste one from your notes).', el: 'Γράψε έναν τύπο (ή επικόλλησε από τις σημειώσεις).' },
+      { en: 'Fill in the numbers for each letter.', el: 'Βάλε τις τιμές για κάθε γράμμα.' },
+      { en: 'Tap check — good steps light up green.', el: 'Πάτα έλεγχο — τα σωστά βήματα γίνονται πράσινα.' },
     ],
-    produces: { en: 'Confidence that your working is mathematically correct.', el: 'Σιγουριά ότι η λύση σου είναι μαθηματικά σωστή.' },
+    produces: {
+      en: 'A clear walkthrough you can trust before the exam.',
+      el: 'Καθαρή λύση που μπορείς να εμπιστευτείς πριν την εξέταση.',
+    },
   },
   whiteboard: {
     howTo: [
-      { en: 'Pick a concept and draw it freely.', el: 'Διάλεξε μια έννοια και σχεδίασέ την ελεύθερα.' },
-      { en: 'Drop concept labels and formulas as stamps.', el: 'Πρόσθεσε ετικέτες εννοιών και τύπους ως σφραγίδες.' },
-      { en: 'Check coverage — see which required labels are still missing.', el: 'Έλεγξε την κάλυψη — δες ποιες ετικέτες λείπουν ακόμη.' },
+      { en: 'Start drawing — the board is yours.', el: 'Ξεκίνα να σχεδιάζεις — ο πίνακας είναι δικός σου.' },
+      { en: 'Pull labels or formulas from your notes when you need them.', el: 'Τράβα ετικέτες ή τύπους από τις σημειώσεις όταν τους χρειάζεσαι.' },
+      { en: 'Open the drawing guide to see what to include next.', el: 'Άνοιξε τον οδηγό σχεδίου για να δεις τι να βάλεις μετά.' },
     ],
-    produces: { en: 'A diagram that proves you can reconstruct the concept.', el: 'Ένα διάγραμμα που αποδεικνύει ότι ανασυνθέτεις την έννοια.' },
+    produces: { en: 'A sketch that shows you can rebuild the idea from memory.', el: 'Ένα σκίτσο που δείχνει ότι ξαναχτίζεις την ιδέα από μνήμη.' },
   },
   leitner: {
     howTo: [
-      { en: 'Review the cards that are due today.', el: 'Επανάλαβε τις κάρτες που είναι για σήμερα.' },
-      { en: 'Rate your recall: Again, Hard, Good, or Easy.', el: 'Βαθμολόγησε την ανάκληση: Ξανά, Δύσκολο, Καλό ή Εύκολο.' },
-      { en: 'Cards you struggle with come back sooner.', el: 'Οι δύσκολες κάρτες επανέρχονται νωρίτερα.' },
+      { en: 'Tap a card, try to recall the answer, then flip to check.', el: 'Πάτα μια κάρτα, προσπάθησε να θυμηθείς, και γύρισέ την για έλεγχο.' },
+      { en: 'Rate how it felt: Again, Hard, Good, or Easy.', el: 'Βαθμολόγησε πώς σου φάνηκε: Ξανά, Δύσκολο, Καλό ή Εύκολο.' },
+      { en: 'Harder cards come back sooner — easier ones wait longer.', el: 'Οι δύσκολες επανέρχονται νωρίτερα — οι εύκολες περιμένουν περισσότερο.' },
     ],
-    produces: { en: 'Long-term retention through spaced repetition.', el: 'Μακροπρόθεσμη συγκράτηση μέσω επανάληψης με διαστήματα.' },
+    produces: { en: 'Terms that stick when you need them on exam day.', el: 'Όροι που μένουν όταν τους χρειαστείς την ημέρα της εξέτασης.' },
   },
   feynman: {
     howTo: [
-      { en: 'Explain the concept in plain words, as if to a beginner.', el: 'Εξήγησε την έννοια με απλά λόγια, σαν σε αρχάριο.' },
-      { en: 'Get a rubric score on accuracy, simplicity and completeness.', el: 'Πάρε βαθμολογία rubric για ακρίβεια, απλότητα και πληρότητα.' },
-      { en: 'Export the rubric report (HTML or PDF) and fix gaps it finds.', el: 'Εξήγαγε την αναφορά rubric (HTML ή PDF) και διόρθωσε τα κενά.' },
+      { en: 'Write as if you are teaching a curious beginner — no unexplained jargon.', el: 'Γράψε σαν να διδάσκεις έναν περίεργο αρχάριο — χωρίς ανεξήγητο jargon.' },
+      { en: 'Tap Check my explanation to see what is clear and what is missing.', el: 'Πάτα «Έλεγξε την εξήγησή μου» για να δεις τι είναι καθαρό και τι λείπει.' },
+      { en: 'Open the gaps in Reader, fix them in your draft, then save a report if you want.', el: 'Άνοιξε τα κενά στον Reader, διόρθωσέ τα στο κείμενο, και αποθήκευσε αναφορά αν θες.' },
     ],
-    produces: { en: 'Real understanding you can actually put into words.', el: 'Πραγματική κατανόηση που μπορείς να διατυπώσεις.' },
+    produces: { en: 'An explanation you can actually say out loud on exam day.', el: 'Μια εξήγηση που μπορείς πραγματικά να πεις δυνατά την ημέρα της εξέτασης.' },
   },
   quiz: {
     howTo: [
-      { en: 'Answer each active-recall question.', el: 'Απάντησε σε κάθε ερώτηση active recall.' },
-      { en: 'Rate how confident you were.', el: 'Βαθμολόγησε πόσο σίγουρος ήσουν.' },
-      { en: 'Review wrong answers against the source.', el: 'Δες τις λάθος απαντήσεις σε σχέση με την πηγή.' },
+      { en: 'Pick the answer that best matches your notes.', el: 'Διάλεξε την απάντηση που ταιριάζει καλύτερα στις σημειώσεις σου.' },
+      { en: 'Say how sure you felt — honest ratings make the next questions fairer.', el: 'Πες πόσο σίγουρος ήσουν — οι ειλικρινείς βαθμοί κάνουν τις επόμενες ερωτήσεις πιο δίκαιες.' },
+      { en: 'Open mistakes in Reader, or jump to Flashcards / Feynman to fix them.', el: 'Άνοιξε τα λάθη στον Reader, ή πήγαινε σε Κάρτες / Feynman για να τα διορθώσεις.' },
     ],
-    produces: { en: 'Proof of what you truly remember vs. only recognize.', el: 'Απόδειξη για το τι θυμάσαι πραγματικά κι όχι απλώς αναγνωρίζεις.' },
+    produces: { en: 'A clear picture of what you can recall under a little pressure.', el: 'Μια καθαρή εικόνα για το τι μπορείς να ανακαλέσεις με λίγη πίεση.' },
   },
   simulator: {
     howTo: [
-      { en: 'Adjust the input parameters with the sliders.', el: 'Ρύθμισε τις παραμέτρους εισόδου με τους sliders.' },
-      { en: 'Watch the outputs and sensitivity update live.', el: 'Δες τα αποτελέσματα και την ευαισθησία να ενημερώνονται ζωντανά.' },
-      { en: 'Test "what-if" scenarios against your notes.', el: 'Δοκίμασε σενάρια "τι-αν" σε σχέση με τις σημειώσεις σου.' },
+      { en: 'Pick a preset or drag the sliders to try a what-if.', el: 'Διάλεξε προεπιλογή ή σύρε τους διακόπτες για ένα «τι θα γινόταν αν».' },
+      { en: 'Watch the graph and numbers update as you move them.', el: 'Δες το γράφημα και τους αριθμούς να αλλάζουν καθώς κινείς.' },
+      { en: 'Start a timed block when you want exam-style practice.', el: 'Ξεκίνα χρονισμένο μπλοκ όταν θες εξάσκηση τύπου εξέτασης.' },
     ],
-    produces: { en: 'Intuition for how each variable drives the result.', el: 'Διαίσθηση για το πώς κάθε μεταβλητή επηρεάζει το αποτέλεσμα.' },
+    produces: { en: 'A feel for how each change moves the result.', el: 'Αίσθηση για το πώς κάθε αλλαγή κινεί το αποτέλεσμα.' },
   },
   compare: {
     howTo: [
-      { en: 'Pick two related concepts.', el: 'Διάλεξε δύο σχετικές έννοιες.' },
-      { en: 'See them side by side across key dimensions.', el: 'Δες τες δίπλα-δίπλα στις βασικές διαστάσεις.' },
-      { en: 'Study the differences that trip you up.', el: 'Μελέτησε τις διαφορές που σε μπερδεύουν.' },
+      { en: 'Scan the table — two ideas sit in columns side by side.', el: 'Σάρωσε τον πίνακα — δύο ιδέες στις στήλες δίπλα-δίπλα.' },
+      { en: 'Tap Highlight differences to see what actually changes.', el: 'Πάτα «Δείξε διαφορές» για να δεις τι πραγματικά αλλάζει.' },
+      { en: 'Tap a row when you want to open it in your notes or ask the Tutor.', el: 'Πάτα μια σειρά όταν θες να την ανοίξεις στις σημειώσεις ή να ρωτήσεις τον βοηθό.' },
     ],
-    produces: { en: 'Clear separation of easily-confused terms.', el: 'Καθαρός διαχωρισμός εύκολα μπερδεμένων όρων.' },
+    produces: { en: 'A clear picture of what separates two easy-to-mix ideas.', el: 'Καθαρή εικόνα για το τι χωρίζει δύο εύκολα μπερδεμένες ιδέες.' },
   },
   debate: {
     howTo: [
@@ -100,25 +103,25 @@ export const WORKSPACE_TOOL_GUIDE: Record<WorkspaceToolId, WorkspaceToolGuide> =
   },
   timer: {
     howTo: [
-      { en: 'Set a focus goal and pick a preset.', el: 'Όρισε στόχο εστίασης και διάλεξε preset.' },
-      { en: 'Study until the timer ends.', el: 'Μελέτησε μέχρι να λήξει το χρονόμετρο.' },
-      { en: 'Log a quick reflection — minutes feed your analytics.', el: 'Κατάγραψε έναν σύντομο αναστοχασμό — τα λεπτά τροφοδοτούν τα analytics.' },
+      { en: 'Pick Focus or Exam, then choose a length.', el: 'Διάλεξε Εστίαση ή Εξέταση, μετά διάρκεια.' },
+      { en: 'Tap Start and stay with the material until it rings.', el: 'Πάτα Έναρξη και μείνε στο υλικό μέχρι να χτυπήσει.' },
+      { en: 'On a break, review a few cards if you like.', el: 'Στο διάλειμμα, κάνε λίγες κάρτες αν θες.' },
     ],
-    produces: { en: 'Focused sessions with measured, exam-ready pacing.', el: 'Εστιασμένες συνεδρίες με μετρημένο ρυθμό εξέτασης.' },
+    produces: { en: 'Steady focus blocks with a clear sense of exam time left.', el: 'Σταθερά μπλοκ εστίασης με καθαρή αίσθηση χρόνου μέχρι την εξέταση.' },
   },
   annotations: {
     howTo: [
-      { en: 'Highlight passages in the source.', el: 'Υπογράμμισε αποσπάσματα στην πηγή.' },
-      { en: 'Add a margin note or pin.', el: 'Πρόσθεσε σημείωση περιθωρίου ή pin.' },
-      { en: 'Revisit your marks any time — they survive reprocessing.', el: 'Δες ξανά τις σημειώσεις σου — επιβιώνουν μετά την επανεπεξεργασία.' },
+      { en: 'Tap Highlight, then select words or a whole line.', el: 'Πάτα Επισήμανση, μετά επίλεξε λέξεις ή ολόκληρη γραμμή.' },
+      { en: 'Add a margin note or pin on anything confusing.', el: 'Πρόσθεσε σημείωση περιθωρίου ή καρφίτσα σε ό,τι σε μπερδεύει.' },
+      { en: 'Open your marks from the side list whenever you need them.', el: 'Άνοιξε τις σημειώσεις σου από τη λίστα στο πλάι όποτε τις χρειάζεσαι.' },
     ],
-    produces: { en: 'A personal layer of marks anchored to the material.', el: 'Ένα προσωπικό στρώμα σημειώσεων πάνω στο υλικό.' },
+    produces: { en: 'A personal layer of marks on top of your material.', el: 'Ένα προσωπικό στρώμα σημειώσεων πάνω στο υλικό σου.' },
   },
   dashboard: {
     howTo: [
-      { en: 'See your mastery and weak spots at a glance.', el: 'Δες την κυριαρχία και τα αδύναμα σημεία με μια ματιά.' },
-      { en: 'Read what changed in this session.', el: 'Δες τι άλλαξε σε αυτή τη συνεδρία.' },
-      { en: 'Follow the recommended next action.', el: 'Ακολούθησε την προτεινόμενη επόμενη ενέργεια.' },
+      { en: 'Check your exam readiness ring and today’s study time.', el: 'Δες τον δακτύλιο ετοιμότητας και τον χρόνο μελέτης σήμερα.' },
+      { en: 'Open Weak to pick a spot that needs work.', el: 'Άνοιξε τα Αδύναμα για να διαλέξεις τι χρειάζεται δουλειά.' },
+      { en: 'Tap the suggested next step when you are ready.', el: 'Πάτα το προτεινόμενο επόμενο βήμα όταν είσαι έτοιμος/η.' },
     ],
     produces: { en: 'Always knowing what to study next, and why.', el: 'Να ξέρεις πάντα τι να μελετήσεις μετά, και γιατί.' },
   },

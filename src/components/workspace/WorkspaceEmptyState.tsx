@@ -43,10 +43,19 @@ export function WorkspaceEmptyState({
     ? [{ id: 'switch-tool', label: secondaryLabel, onClick: onSecondary }]
     : [];
   const contextOrLegacy = contextActions.length > 0 ? contextActions : legacySecondary;
+  /** Scratchpad empty: custom formula is the tool's primary next step; reprocess/tool jumps demoted. */
+  const mergedScratchpadPrimary =
+    tool === 'scratchpad' && contextActions.length > 0 && legacySecondary.length > 0
+      ? [
+          { ...legacySecondary[0], id: 'add-custom' as const, primary: true },
+          ...contextActions.map((a) => ({ ...a, primary: false })),
+        ]
+      : null;
   const actions: WorkspaceEmptyAction[] = actionsOverride ?? (
-    contextActions.length > 0 && legacySecondary.length > 0
-      ? [...contextActions, ...legacySecondary]
-      : contextOrLegacy
+    mergedScratchpadPrimary
+      ?? (contextActions.length > 0 && legacySecondary.length > 0
+        ? [...contextActions, ...legacySecondary]
+        : contextOrLegacy)
   );
   const showLegacyUpload = !hasSource && onUpload && actions.length === 0;
   const heading = title ?? workspaceEmptyTitle({ hasSource, lang });

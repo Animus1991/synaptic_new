@@ -73,25 +73,25 @@ export function WhiteboardDiagramCoach({
               type="button"
               data-testid="whiteboard-coach-insert-labels"
               onClick={() => onInsertLabels(plan.nodeLabels)}
-              className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 type-caption font-medium hover:bg-brand-600/15"
+              className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2.5 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary"
             >
-              <PenLine className="w-3 h-3" />
+              <PenLine className="h-3 w-3" aria-hidden />
               {t('wbInsertLabels')}
             </button>
             <button
               type="button"
               data-testid="whiteboard-coach-ask-guide"
               onClick={() => onAskAgent('guide')}
-              className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 type-caption font-medium hover:opacity-90"
+              className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2.5 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary"
             >
-              <Sparkles className="w-3 h-3" />
+              <Sparkles className="h-3 w-3" aria-hidden />
               {t('wbAgentGuide')}
             </button>
             <button
               type="button"
               data-testid="whiteboard-coach-ask-critique"
               onClick={() => onAskAgent('critique')}
-              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1 type-caption text-text-muted hover:text-text-secondary"
+              className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
             >
               <Bot className="w-3 h-3" />
               {t('wbCritiqueSketch')}

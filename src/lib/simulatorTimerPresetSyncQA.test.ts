@@ -22,7 +22,7 @@ describe('simulatorTimerPresetSyncQA', () => {
     });
     expect(report.scenarioCount).toBe(4);
     expect(report.linkedTimerPreset).toBeTruthy();
-    expect(report.bannerSummary).toContain('Timer');
+    expect(report.bannerSummary).toContain('Focus length');
   });
 
   it('resolves exam practice from saved scenario fallback', () => {

@@ -56,6 +56,18 @@ export function passageSentences(text: string, minLen = 28): string[] {
     .slice(0, 24);
 }
 
+/** Wave QZ — soft-clip only very long MC options (UI wraps; avoid mid-sentence … at 140). */
+export const QUIZ_OPTION_MAX_CHARS = 360;
+
+export function clipQuizOptionText(text: string, max = QUIZ_OPTION_MAX_CHARS): string {
+  const trimmed = text.trim();
+  if (trimmed.length <= max) return trimmed;
+  const cut = trimmed.slice(0, Math.max(1, max - 1));
+  const lastSpace = cut.lastIndexOf(' ');
+  const base = lastSpace > max * 0.55 ? cut.slice(0, lastSpace) : cut;
+  return `${base}…`;
+}
+
 /** MC quiz from any substantive sentences in the passage (no concept threshold). */
 export function buildFallbackMcQuiz(
   text: string,
@@ -79,9 +91,9 @@ export function buildFallbackMcQuiz(
     ? `Ποια πρόταση αντανακλά καλύτερα το υλικό σου${isGenericStudyConcept(concept) ? '' : ` για «${concept}»`};`
     : `Which statement best reflects your material${isGenericStudyConcept(concept) ? '' : ` on «${concept}»`}?`;
 
-  const correctClipped = correct.slice(0, 140);
+  const correctClipped = clipQuizOptionText(correct);
   const options = seededShuffle(
-    [correctClipped, ...distractors.map((d) => d.slice(0, 140))],
+    [correctClipped, ...distractors.map((d) => clipQuizOptionText(d))],
     seedFromString(`${concept}|fallback|${variant}|${correctClipped}`),
   );
   const correctIndex = Math.max(0, options.indexOf(correctClipped));

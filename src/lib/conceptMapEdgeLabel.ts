@@ -15,22 +15,18 @@ export function formatPmiScore(pmi: number): string {
 }
 
 /**
- * Canvas edge label: relation glyph, plus PMI when the edge came from
- * co-occurrence inference (`related` + score).
+ * Canvas edge label — relation only (Wave CM2). Raw PMI scores stay in the
+ * inspector so the map does not look like a research graph.
  */
 export function formatConceptMapEdgeGlyph(
   relation: ConceptMapRelation,
-  pmi?: number,
+  _pmi?: number,
 ): string {
-  const glyph = RELATION_GLYPH[relation];
-  if (relation === 'related' && pmi != null && Number.isFinite(pmi) && pmi > 0) {
-    return `${glyph} ${formatPmiScore(pmi)}`;
-  }
-  return glyph;
+  return RELATION_GLYPH[relation];
 }
 
-/** Human-readable PMI suffix for the edge inspector panel. */
+/** Human-readable relatedness for the edge inspector panel. */
 export function formatConceptMapPmiPanel(pmi?: number): string | null {
   if (pmi == null || !Number.isFinite(pmi) || pmi <= 0) return null;
-  return `PMI ${formatPmiScore(pmi)}`;
+  return `Relatedness ${formatPmiScore(pmi)}`;
 }

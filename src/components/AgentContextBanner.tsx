@@ -8,6 +8,7 @@ import {
 } from '../features/agent';
 import { useI18n } from '../lib/i18n';
 import { InfoHint } from './ui/InfoHint';
+import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 
 type Props = {
   context: AgentWorkspaceContext | null | undefined;
@@ -17,7 +18,7 @@ type Props = {
   compact?: boolean;
 };
 
-/** Visible workspace handoff strip in the Agent panel (Prompt 3 · Wave E13). */
+/** Visible workspace handoff strip in the Agent panel (Prompt 3 · Wave E13 / AG). */
 export function AgentContextBanner({ context, lang, className, compact = false }: Props) {
   const { t } = useI18n();
   const banner = buildAgentContextBanner(context, lang);
@@ -84,13 +85,14 @@ export function AgentContextBanner({ context, lang, className, compact = false }
   return (
     <div
       className={cn(
-        'border-b border-border-subtle bg-surface-secondary/40 px-4 sm:px-6 py-2.5',
+        'border-b border-border-subtle bg-surface-secondary/40',
         className,
       )}
       data-testid="agent-context-banner"
+      data-bleed="full"
       role="status"
     >
-      <div className="flex items-start gap-2 max-w-none w-full min-w-0">
+      <div className="flex w-full min-w-0 max-w-none items-start gap-2 px-3 py-2 sm:px-4">
         <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
         <div className="min-w-0 flex-1 space-y-1">
           <p className="type-caption font-medium text-text-primary">
@@ -104,33 +106,46 @@ export function AgentContextBanner({ context, lang, className, compact = false }
               {banner.caution}
             </p>
           )}
-          {banner.groundingNote && (
-            <p className="type-caption text-text-secondary">{banner.groundingNote}</p>
-          )}
-          {jsonText && (
-            <div className="pt-0.5">
-              <button
-                type="button"
-                onClick={() => setJsonOpen((v) => !v)}
-                className="inline-flex items-center gap-1 type-caption font-medium text-text-secondary hover:text-text-primary min-h-9"
-                data-testid="agent-context-json-toggle"
-                aria-expanded={jsonOpen}
-              >
-                {jsonOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                {t('agentJsonContext')}
-              </button>
-              {jsonOpen && (
-                <pre
-                  className="mt-1 max-h-40 overflow-auto rounded-lg border border-border-subtle bg-surface-input/80 p-2 font-mono type-caption leading-relaxed text-text-secondary"
-                  data-testid="agent-context-json"
-                >
-                  {jsonText}
-                </pre>
-              )}
-            </div>
-          )}
         </div>
       </div>
+      {/* Wave AG — grounding / session details nested closed */}
+      {(banner.groundingNote || jsonText) && (
+        <CollapsibleChromeSection
+          title={t('agentHowAnswersChrome')}
+          alwaysCollapse
+          data-testid="agent-how-answers-chrome"
+        >
+          <div className="space-y-1.5 px-3 pb-2 sm:px-4">
+            {banner.groundingNote && (
+              <p className="type-caption text-text-secondary" data-testid="agent-grounding-note">
+                {banner.groundingNote}
+              </p>
+            )}
+            {jsonText && (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setJsonOpen((v) => !v)}
+                  className="inline-flex min-h-9 items-center gap-1 type-caption font-medium text-text-secondary hover:text-text-primary"
+                  data-testid="agent-context-json-toggle"
+                  aria-expanded={jsonOpen}
+                >
+                  {jsonOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                  {t('agentJsonContext')}
+                </button>
+                {jsonOpen && (
+                  <pre
+                    className="mt-1 max-h-40 overflow-auto rounded-lg border border-border-subtle bg-surface-input/80 p-2 font-mono type-caption leading-relaxed text-text-secondary"
+                    data-testid="agent-context-json"
+                  >
+                    {jsonText}
+                  </pre>
+                )}
+              </div>
+            )}
+          </div>
+        </CollapsibleChromeSection>
+      )}
     </div>
   );
 }

@@ -86,7 +86,24 @@ describe('nextActionEngine', () => {
     expect(rec?.primary).toBe('feynman-explain');
   });
 
-  it('labels reprocess action in Greek', () => {
-    expect(nextActionLabel('reprocess', 'el')).toContain('επανεπεξεργασίας');
+  it('labels reprocess action warmly in EN + EL', () => {
+    expect(nextActionLabel('reprocess', 'en')).toBe('Refresh notes');
+    expect(nextActionLabel('reprocess', 'el')).toBe('Ανανέωσε τις σημειώσεις');
+  });
+
+  it('migration reason drops pipeline jargon', () => {
+    const rec = recommendNextAction({
+      lang: 'en',
+      hasSource: true,
+      sourceQuality: 40,
+      showMigration: true,
+      showLowQuality: false,
+      stepIndex: 0,
+      stepCount: 4,
+      quizPassed: false,
+      weakConceptCount: 0,
+    });
+    expect(rec?.reason).toMatch(/fresh pass/i);
+    expect(rec?.reason).not.toMatch(/pipeline/i);
   });
 });

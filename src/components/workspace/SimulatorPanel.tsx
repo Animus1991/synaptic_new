@@ -156,7 +156,11 @@ export function SimulatorPanel({
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel">
+    <div
+      className="flex h-full flex-col overflow-hidden"
+      data-testid="simulator-panel"
+      data-bleed="full"
+    >
       {tabBar}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       {/* Wave G5 — exam/meta densify: one strip; timer sync only when warn */}
@@ -232,10 +236,10 @@ export function SimulatorPanel({
               onClick={() => onOpenInReader(concept)}
               className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center gap-1 rounded-lg border border-border-subtle px-2 type-caption text-text-secondary hover:border-border-default hover:text-text-primary sm:min-w-0 sm:px-2.5"
               data-testid="simulator-open-reader"
-              aria-label="Reader"
+              aria-label={t('cognitiveReader')}
             >
               <BookOpen className="h-3.5 w-3.5" aria-hidden />
-              <span className="hidden sm:inline">Reader</span>
+              <span className="hidden sm:inline">{t('cognitiveReader')}</span>
             </button>
           )}
         </div>

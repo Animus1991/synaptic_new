@@ -47,7 +47,7 @@ export function FeynmanRubricExportDiscoverabilityStrip({
               type="button"
               data-testid="feynman-strip-export-download"
               onClick={onExportDownload}
-              className="ws-chip-brand inline-flex items-center gap-1 rounded-lg px-2 py-1 type-caption font-medium hover:opacity-90"
+              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-card px-2 py-1 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary"
             >
               <Download className="h-3 w-3" />
               HTML
@@ -58,7 +58,7 @@ export function FeynmanRubricExportDiscoverabilityStrip({
               type="button"
               data-testid="feynman-strip-export-print"
               onClick={onExportPrint}
-              className="ws-chip-brand inline-flex items-center gap-1 rounded-lg px-2 py-1 type-caption font-medium hover:opacity-90"
+              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-card px-2 py-1 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary"
             >
               <Printer className="h-3 w-3" />
               PDF

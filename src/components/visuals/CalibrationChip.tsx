@@ -1,42 +1,43 @@
 import { cn } from '../../utils/cn';
-import { BlueprintSurface } from '../ui/BlueprintSurface';
 import type { CalibrationDirection } from '../../lib/pedagogy';
+import { useI18n, type I18nKey } from '../../lib/i18n';
 
 interface Props {
   score: number;
   direction: CalibrationDirection;
 }
 
-const labels: Record<CalibrationDirection, { text: string; chip: string; hint: string }> = {
+const META: Record<CalibrationDirection, { textKey: I18nKey; hintKey: I18nKey; chip: string }> = {
   overconfident: {
-    text: 'Overconfident',
+    textKey: 'dashOverconfident',
+    hintKey: 'dashOverconfidentHint',
     chip: 'ws-chip-danger',
-    hint: 'You predicted higher confidence than your actual accuracy. Rate lower before submitting.',
   },
   underconfident: {
-    text: 'Underconfident',
+    textKey: 'dashUnderconfident',
+    hintKey: 'dashUnderconfidentHint',
     chip: 'ws-chip-brand',
-    hint: 'You underestimate yourself. Trust your knowledge more on retrieval tasks.',
   },
   calibrated: {
-    text: 'Well calibrated',
+    textKey: 'dashCalibrated',
+    hintKey: 'dashCalibratedHint',
     chip: 'ws-chip-ok',
-    hint: 'Your confidence ratings match your actual performance.',
   },
 };
 
+/** Wave H2 — warm bilingual confidence match (no repo “calibration” lecture). */
 export function CalibrationChip({ score, direction }: Props) {
-  const meta = labels[direction];
+  const { t } = useI18n();
+  const meta = META[direction];
   return (
-    <BlueprintSurface className="p-4">
-      {/* OPT-K9b — score sits beside status chip, not far-right of ultrawide well */}
+    <div className="w-full max-w-none border-b border-border-subtle px-1 py-3" data-testid="calibration-chip" data-bleed="full">
       <div className="proximity-row flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <span className={cn('proximity-row-label type-caption px-2.5 py-1 rounded-full', meta.chip)}>
-          {meta.text}
+          {t(meta.textKey)}
         </span>
         <span className="text-lg font-bold text-text-primary ws-num tabular-nums shrink-0">{score}/100</span>
       </div>
-      <p className="proximity-track type-caption text-text-secondary mt-2 leading-relaxed">{meta.hint}</p>
-    </BlueprintSurface>
+      <p className="proximity-track type-caption text-text-secondary mt-2 leading-relaxed">{t(meta.hintKey)}</p>
+    </div>
   );
 }

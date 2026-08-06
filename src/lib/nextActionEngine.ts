@@ -57,11 +57,11 @@ export function recommendNextAction(opts: {
       primary: 'reprocess',
       reason: showMigration
         ? (isEl
-          ? 'Το υλικό αναλύθηκε με παλαιότερο pipeline — οι πίνακες/τύποι μπορεί να είναι λανθασμένοι.'
-          : 'Material used an older pipeline — tables and formulas may be wrong.')
+          ? 'Οι σημειώσεις χρειάζονται φρέσκια ανάγνωση — πίνακες και τύποι μπορεί να φαίνονται λάθος.'
+          : 'Your notes need a fresh pass — tables and formulas may look off.')
         : (isEl
-          ? `Χαμηλή ποιότητα πηγής${q != null ? ` (${q}/100)` : ''} — προτείνεται επανεπεξεργασία πριν το κουίζ.`
-          : `Low source quality${q != null ? ` (${q}/100)` : ''} — reprocess before relying on quizzes.`),
+          ? `Η ποιότητα της πηγής είναι χαμηλή${q != null ? ` (${q}/100)` : ''} — ανανέωσε τις σημειώσεις πριν βασιστείς σε κουίζ.`
+          : `Source quality is low${q != null ? ` (${q}/100)` : ''} — refresh your notes before relying on quizzes.`),
       secondary: secondary('study-section', 'ask-agent'),
     };
   }
@@ -145,7 +145,7 @@ export function nextActionLabel(
   lang: Lang,
 ): string {
   if (id === 'reprocess') {
-    return lang === 'el' ? 'Προεπισκόπηση επανεπεξεργασίας' : 'Preview reprocess';
+    return lang === 'el' ? 'Ανανέωσε τις σημειώσεις' : 'Refresh notes';
   }
   return getLearningActions(lang).find((a) => a.id === id)?.label ?? id;
 }

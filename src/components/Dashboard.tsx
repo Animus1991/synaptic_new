@@ -266,6 +266,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         isMinimal ? 'dashboard-calm hub-quiet' : 'shell-edge-balance',
       )}
       data-testid="dashboard-page"
+      data-bleed="full"
       data-dashboard-layout={layoutMode}
     >
       <MotionSection
@@ -363,62 +364,45 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </>
           }
           statsSlot={
-            isMinimal ? (
-              <HubSection data-testid="dashboard-page-stats">
-                <UtilityRow
-                  icon={<Flame className="w-3.5 h-3.5" />}
-                  label={t('dashboardStatStreak')}
-                  value={t('dashboardStatDaysSuffix').replace('{count}', String(pageStats.streak))}
-                  data-testid="dashboard-stat-streak"
-                />
-                <UtilityRow
-                  icon={<Zap className="w-3.5 h-3.5" />}
-                  label={t('dashboardStatTodayXp')}
-                  value={`${pageStats.todayXp}`}
-                  data-testid="dashboard-stat-today-xp"
-                />
-                <UtilityRow
-                  icon={<Target className="w-3.5 h-3.5" />}
-                  label={t('dashboardStatReviewsDue')}
-                  value={`${pageStats.reviewsDue}`}
-                  onClick={pageStats.reviewsDue > 0 ? () => (onOpenTasksReview ? onOpenTasksReview() : onNavigate('tasks')) : undefined}
-                  data-testid="dashboard-stat-reviews-due"
-                />
-                <UtilityRow
-                  icon={<Brain className="w-3.5 h-3.5" />}
-                  label={t('dashboardStatConceptsMastered')}
-                  value={`${pageStats.conceptsMastered}/${pageStats.totalConcepts}`}
-                  barPct={
-                    pageStats.totalConcepts > 0
-                      ? Math.round((pageStats.conceptsMastered / pageStats.totalConcepts) * 100)
-                      : undefined
-                  }
-                  data-testid="dashboard-stat-concepts-mastered"
-                />
-                <UtilityRow
-                  icon={<Clock className="w-3.5 h-3.5" />}
-                  label={t('dashboardStatStudyToday')}
-                  value={t('dashboardStatStudyMinutes').replace('{count}', String(pageStats.studyMinutesToday))}
-                  data-testid="dashboard-stat-study-today"
-                />
-              </HubSection>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3" data-testid="dashboard-page-stats">
-                {/* OPT-K86 — decorative KPI icons quiet (ink owns values; accents stay semantic elsewhere) */}
-                <StatCard icon={<Flame className="w-3.5 h-3.5 text-text-secondary" />} label={t('dashboardStatStreak')} value={t('dashboardStatDaysSuffix').replace('{count}', String(pageStats.streak))} data-testid="dashboard-stat-streak" />
-                <StatCard icon={<Zap className="w-3.5 h-3.5 text-text-secondary" />} label={t('dashboardStatTodayXp')} value={`${pageStats.todayXp}`} data-testid="dashboard-stat-today-xp" />
-                <StatCard
-                  icon={<Target className="w-3.5 h-3.5 text-text-secondary" />}
-                  label={t('dashboardStatReviewsDue')}
-                  value={`${pageStats.reviewsDue}`}
-                  onClick={pageStats.reviewsDue > 0 ? () => (onOpenTasksReview ? onOpenTasksReview() : onNavigate('tasks')) : undefined}
-                  data-testid="dashboard-stat-reviews-due"
-                  id="dashboard-stat-reviews-due"
-                />
-                <StatCard icon={<Brain className="w-3.5 h-3.5 text-text-secondary" />} label={t('dashboardStatConceptsMastered')} value={`${pageStats.conceptsMastered}/${pageStats.totalConcepts}`} data-testid="dashboard-stat-concepts-mastered" />
-                <StatCard icon={<Clock className="w-3.5 h-3.5 text-text-secondary" />} label={t('dashboardStatStudyToday')} value={t('dashboardStatStudyMinutes').replace('{count}', String(pageStats.studyMinutesToday))} data-testid="dashboard-stat-study-today" />
-              </div>
-            )
+            /* Wave H2 — dense UtilityRows (no 5-card KPI grid dominating the hero) */
+            <HubSection data-testid="dashboard-page-stats">
+              <UtilityRow
+                icon={<Flame className="w-3.5 h-3.5" />}
+                label={t('dashboardStatStreak')}
+                value={t('dashboardStatDaysSuffix').replace('{count}', String(pageStats.streak))}
+                data-testid="dashboard-stat-streak"
+              />
+              <UtilityRow
+                icon={<Zap className="w-3.5 h-3.5" />}
+                label={t('dashboardStatTodayXp')}
+                value={`${pageStats.todayXp}`}
+                data-testid="dashboard-stat-today-xp"
+              />
+              <UtilityRow
+                icon={<Target className="w-3.5 h-3.5" />}
+                label={t('dashboardStatReviewsDue')}
+                value={`${pageStats.reviewsDue}`}
+                onClick={pageStats.reviewsDue > 0 ? () => (onOpenTasksReview ? onOpenTasksReview() : onNavigate('tasks')) : undefined}
+                data-testid="dashboard-stat-reviews-due"
+              />
+              <UtilityRow
+                icon={<Brain className="w-3.5 h-3.5" />}
+                label={t('dashboardStatConceptsMastered')}
+                value={`${pageStats.conceptsMastered}/${pageStats.totalConcepts}`}
+                barPct={
+                  pageStats.totalConcepts > 0
+                    ? Math.round((pageStats.conceptsMastered / pageStats.totalConcepts) * 100)
+                    : undefined
+                }
+                data-testid="dashboard-stat-concepts-mastered"
+              />
+              <UtilityRow
+                icon={<Clock className="w-3.5 h-3.5" />}
+                label={t('dashboardStatStudyToday')}
+                value={t('dashboardStatStudyMinutes').replace('{count}', String(pageStats.studyMinutesToday))}
+                data-testid="dashboard-stat-study-today"
+              />
+            </HubSection>
           }
         />
       </MotionSection>
@@ -450,7 +434,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
 
       {!isEmpty && showAlertGrid && (
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }}>
-          <CollapsibleChromeSection title={t('chromeAlerts')} data-testid="dashboard-alerts-chrome">
+          <CollapsibleChromeSection
+            title={t('chromeAlerts')}
+            alwaysCollapse
+            data-testid="dashboard-alerts-chrome"
+          >
             <DashboardAlertGrid
               daysToExam={daysToExam}
               smartCTAs={smartCTAs}
@@ -468,8 +456,9 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <CollapsibleChromeSection
             title={t('chromeStudyPrompts')}
+            alwaysCollapse
             data-testid="dashboard-study-prompts-chrome"
-            defaultOpen={isMinimal && daysToExam !== null && daysToExam <= 1}
+            defaultOpen={daysToExam !== null && daysToExam <= 1}
           >
             <div
               className={cn(
@@ -608,14 +597,43 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               </div>
             </HubSection>
           ) : (
-          <BlueprintSurface className="ux-calm-panel p-3.5" data-dashboard-col="a">
-            <div className="flex flex-col sm:flex-row items-center gap-3">
+          /* Wave H2 — full-bleed readiness; signal detail nested closed */
+          <div
+            className="w-full max-w-none border-b border-border-subtle px-1 py-3"
+            data-dashboard-col="a"
+            data-testid="dashboard-readiness-section"
+            data-bleed="full"
+          >
+            <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
               <ReadinessRing
                 value={learnerModel.overallMastery}
                 label={t('examReadiness')}
                 sublabel={t('dashReadinessSublabel')}
+                size={120}
               />
-              <div className="flex-1 space-y-2.5 w-full min-w-0">
+              <div className="min-w-0 flex-1">
+                <PrimaryCTA
+                  type="button"
+                  size="sm"
+                  className="ws-touch-floor min-h-9"
+                  data-testid="dashboard-practice-weak-cta"
+                  onClick={() => {
+                    const concept = conceptMastery[0]?.concept;
+                    if (concept && onFocusWeakArea) onFocusWeakArea(concept);
+                    else onNavigate('tasks');
+                  }}
+                >
+                  {t('dashPracticeWeak')}
+                  <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+                </PrimaryCTA>
+              </div>
+            </div>
+            <CollapsibleChromeSection
+              title={t('dashReadinessSignalsChrome')}
+              alwaysCollapse
+              data-testid="dashboard-readiness-signals-chrome"
+            >
+              <div className="w-full min-w-0 space-y-2.5 pb-1">
                 <SignalBars signals={[
                   { label: t('dashSignalAccuracy'), value: Math.round(learnerModel.retentionRate * 100), icon: 'target', color: 'var(--dashboard-signal-ink)', detail: t('dashSignalAccuracyDetail') },
                   { label: t('dashSignalReliance'), value: Math.round((1 - learnerModel.helpSeekingRate) * 100), icon: 'strength', color: 'var(--dashboard-signal-cyan)', detail: t('dashSignalRelianceDetail') },
@@ -623,8 +641,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   { label: t('dashSignalRetrieval'), value: Math.round(learnerModel.retrievalPerformance * 100), icon: 'brain', color: 'var(--dashboard-signal-ink)', detail: t('dashSignalRetrievalDetail') },
                 ]} />
               </div>
-            </div>
-          </BlueprintSurface>
+            </CollapsibleChromeSection>
+          </div>
           )}
           {/* OPT-K18 Minimal: coverage + mastery share one full-width pair row when both present */}
           {isMinimal && (conceptMastery.length > 0 || prerequisiteRepairs.length > 0) ? (
@@ -1372,49 +1390,6 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
     </div>
     <ScrollToTopButton />
     </div>
-  );
-}
-
-function StatCard({
-  icon,
-  label,
-  value,
-  onClick,
-  className,
-  ...rest
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  onClick?: () => void;
-  className?: string;
-} & Omit<React.ComponentPropsWithoutRef<'div'>, 'onClick' | 'className'>) {
-  const clickable = Boolean(onClick);
-  return (
-    <BlueprintSurface
-      hint
-      {...rest}
-      role={clickable ? 'button' : undefined}
-      tabIndex={clickable ? 0 : undefined}
-      onClick={onClick}
-      onKeyDown={clickable ? (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick?.();
-        }
-      } : undefined}
-      className={cn(
-        'p-2.5 card-hover',
-        clickable && 'cursor-pointer hover:border-brand-500/30 hover:bg-surface-hover transition-colors',
-        className,
-      )}
-    >
-      <div className="mb-0.5 flex items-center gap-1.5">
-        {icon}
-        <span className="type-micro font-medium uppercase tracking-wide text-text-tertiary truncate"><AllCapsLabel>{label}</AllCapsLabel></span>
-      </div>
-      <p className="ux-kpi-value-sm leading-tight">{value}</p>
-    </BlueprintSurface>
   );
 }
 

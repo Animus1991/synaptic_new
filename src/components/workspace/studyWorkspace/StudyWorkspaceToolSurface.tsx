@@ -237,7 +237,18 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                       <div
                         className={cn(
                           'relative flex h-full min-h-0 flex-col overflow-hidden',
-                          layout === 'split' && 'm-3 blueprint-surface-nest',
+                          /* Full-bleed tools: no nested card gutter (CM3 / SP4 / SIM / CMP / DB / TM / AN / PR / RD) */
+                          layout === 'split'
+                            && activeTool !== 'concept-map'
+                            && activeTool !== 'scratchpad'
+                            && activeTool !== 'simulator'
+                            && activeTool !== 'compare'
+                            && activeTool !== 'debate'
+                            && activeTool !== 'timer'
+                            && activeTool !== 'annotations'
+                            && activeTool !== 'dashboard'
+                            && activeTool !== 'reader'
+                            && 'm-3 blueprint-surface-nest',
                         )}
                       >
                       {activeTool === 'concept-map' && (

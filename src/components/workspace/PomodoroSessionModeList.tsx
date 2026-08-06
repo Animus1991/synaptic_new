@@ -21,6 +21,8 @@ type Props = {
   examPracticeActive: boolean;
   onSelect: (index: number) => void;
   className?: string;
+  /** Hide redundant “Pick a length” when a parent chrome title already names the section. */
+  hideLabel?: boolean;
 };
 
 export function PomodoroSessionModeList({
@@ -29,12 +31,21 @@ export function PomodoroSessionModeList({
   examPracticeActive,
   onSelect,
   className,
+  hideLabel = false,
 }: Props) {
   const { t } = useI18n();
 
   return (
-    <div className={cn('ux-pomodoro-mode-list', className)} data-testid="pomodoro-session-modes">
-      <p className="ux-pomodoro-mode-list-label"><AllCapsLabel>{t('pomodoroSessionModes')}</AllCapsLabel></p>
+    <div
+      className={cn('ux-pomodoro-mode-list w-full', className)}
+      data-testid="pomodoro-session-modes"
+      data-bleed="full"
+    >
+      {!hideLabel && (
+        <p className="ux-pomodoro-mode-list-label">
+          <AllCapsLabel>{t('pomodoroSessionModes')}</AllCapsLabel>
+        </p>
+      )}
       <div className="ux-pomodoro-mode-list-stack">
         {presets.map((preset, index) => {
           const active = activeIdx === index && !examPracticeActive;

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Layers, RotateCcw, Download, Upload } from '@/lib/lucide-shim';
+import { RotateCcw, Download, Upload } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { PanelOverflowMenu } from './PanelOverflowMenu';
 import type { FsrsRating } from '../../lib/pedagogy';
@@ -209,8 +209,21 @@ export function LeitnerBox({
       />
     );
   }
+  const resetDeck = () => {
+    setFlipped(false);
+    setIndex(0);
+    setBoxCounts([0, 0, 0, 0]);
+    setFinished(false);
+    saveDeckState(scopeKey, {
+      index: 0,
+      boxCounts: [0, 0, 0, 0],
+      lastSyncedAt: new Date().toISOString(),
+      cardOrder: deck.map((c) => c.front),
+    });
+  };
+
   return (
-    <div className="flex flex-col h-full p-4 leitner-box-shell">
+    <div className="leitner-box-shell flex h-full flex-col px-4 pb-4 pt-2">
       {artifactStale && onAcknowledgeStale && (
         <LeitnerStaleArtifactBanner
           lang={lang}
@@ -218,20 +231,23 @@ export function LeitnerBox({
           onDismiss={onAcknowledgeStale}
         />
       )}
-      {/* Wave E5 — compact title + overflow for Quiz / Anki import-export */}
+      {/* Wave FC — no nested “Leitner/FSRS” title; due badge + deck ⋯ only */}
       <div className="mb-2 flex items-center gap-2">
-        <h3 className="flex min-w-0 flex-1 items-center gap-2 type-meta font-semibold text-text-secondary">
-          <Layers className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
-          <span className="truncate">{concept || t('leitnerBox')}</span>
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          {concept ? (
+            <p className="truncate type-caption font-medium text-text-secondary" data-testid="leitner-deck-topic">
+              {concept}
+            </p>
+          ) : null}
           {dueCount > 0 && (
             <span
               data-testid="leitner-due-badge"
-              className="shrink-0 rounded-lg bg-accent-rose/20 px-2 py-0.5 type-caption font-semibold text-accent-rose"
+              className="shrink-0 rounded-lg border border-accent-rose/25 bg-accent-rose/10 px-2 py-0.5 type-caption font-medium text-text-secondary"
             >
               {dueCount} {t('leitnerDueBadge')}
             </span>
           )}
-        </h3>
+        </div>
         <input
           ref={importRef}
           type="file"
@@ -255,16 +271,25 @@ export function LeitnerBox({
               type="button"
               data-testid="leitner-open-quiz"
               onClick={onOpenQuiz}
-              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted"
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
             >
               {t('quiz')}
             </button>
           )}
           <button
             type="button"
+            data-testid="leitner-reset-deck"
+            onClick={resetDeck}
+            className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+          >
+            <RotateCcw className="h-3.5 w-3.5" aria-hidden />
+            {t('resetDeck')}
+          </button>
+          <button
+            type="button"
             data-testid="leitner-import-anki"
             onClick={() => importRef.current?.click()}
-            className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary"
+            className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
           >
             <Upload className="h-3.5 w-3.5" aria-hidden />
             {t('leitnerImportAnki')}
@@ -273,7 +298,7 @@ export function LeitnerBox({
             type="button"
             data-testid="leitner-export-anki"
             onClick={() => void handleAnkiExportApkg()}
-            className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary"
+            className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
           >
             <Download className="h-3.5 w-3.5" aria-hidden />
             {t('leitnerExportAnkiApkg')}
@@ -282,7 +307,7 @@ export function LeitnerBox({
             type="button"
             data-testid="leitner-export-anki-tsv"
             onClick={() => void handleAnkiExportTsv()}
-            className="block w-full px-3 py-1.5 text-left type-caption text-text-muted hover:bg-surface-muted hover:text-text-primary"
+            className="block w-full px-3 py-1.5 text-left type-caption text-text-muted hover:bg-surface-hover hover:text-text-primary"
           >
             {t('leitnerExportAnkiTsv')}
           </button>
@@ -294,20 +319,23 @@ export function LeitnerBox({
         </p>
       )}
 
-      {/* Card stage first — queues demoted below / collapsible */}
-      <div className="flex flex-1 min-h-0 flex-col gap-3">
+      {/* Wave FC — card stage hero; schedule chrome nested closed */}
+      <div className="flex min-h-0 flex-1 flex-col gap-3">
         <div className="leitner-box-main flex min-h-0 flex-col">
-          {/* Content-sized stage — avoid flex-1 dead height on short cards */}
           <div className="leitner-flip-stage flex min-h-0 flex-col">
             <button
               type="button"
               onClick={() => setFlipped(!flipped)}
+              aria-label={flipped ? t('answer') : t('leitnerTapToFlip')}
               className={cn(
-                'leitner-flip-card w-full min-h-[7rem] max-h-[min(36vh,18rem)] overflow-y-auto p-4 text-left transition-all',
+                'leitner-flip-card w-full min-h-[8rem] max-h-[min(40vh,20rem)] overflow-y-auto p-4 text-left transition-all sm:min-h-[9rem]',
                 flipped && 'leitner-flip-card--flipped',
               )}
+              data-testid="leitner-flip-card"
             >
-              <p className="type-caption text-text-muted mb-2">{flipped ? t('answer') : t('question')}</p>
+              <p className="mb-2 type-caption text-text-muted">
+                {flipped ? t('answer') : t('leitnerTapToFlip')}
+              </p>
               <div className="mb-2 flex flex-wrap items-center gap-1.5">
                 {card && (
                   <span
@@ -319,7 +347,7 @@ export function LeitnerBox({
                 )}
                 {card?.source && (
                   <span
-                    className="inline-block rounded-lg border border-brand-500/25 bg-brand-600/10 px-2 py-0.5 type-caption font-medium text-text-secondary"
+                    className="inline-block rounded-lg border border-border-subtle bg-surface-secondary/80 px-2 py-0.5 type-caption font-medium text-text-secondary"
                     data-testid="leitner-card-source"
                   >
                     {leitnerCardSourceLabel(card.source, lang)}
@@ -336,7 +364,9 @@ export function LeitnerBox({
               {card?.occlusion ? (
                 <LeitnerOcclusionFace occlusion={card.occlusion} flipped={flipped} />
               ) : (
-                <p className="type-body font-medium leading-relaxed">{flipped ? card!.back : card!.front}</p>
+                <p className="type-body font-medium leading-relaxed text-text-primary">
+                  {flipped ? card!.back : card!.front}
+                </p>
               )}
             </button>
           </div>
@@ -350,51 +380,38 @@ export function LeitnerBox({
               type="button"
               data-testid="leitner-quiz-this-card"
               onClick={() => onQuizCard(card.front)}
-              className="mt-2 w-full rounded-lg border border-border-subtle bg-surface-secondary py-2 type-caption font-medium text-text-secondary hover:opacity-90"
+              className="ws-touch-floor mt-2 w-full min-h-10 rounded-lg border border-border-subtle bg-surface-secondary py-2 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary"
             >
               {t('leitnerQuizThisCard')}
             </button>
           )}
           {flipped && !finished && (
-            <p className="mt-2 text-center type-caption text-text-muted">Space · 1–4 {t('leitnerRateKeyboard')}</p>
+            <p className="mt-2 text-center type-caption text-text-muted">
+              Space · 1–4 {t('leitnerRateKeyboard')}
+            </p>
           )}
           {flipped && !finished && (
-            <div className="mt-2 grid grid-cols-4 gap-2">
+            <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
               {([
-                { rating: 'again' as FsrsRating, key: 'leitnerAgain' as const, color: 'border-accent-rose/40 text-accent-rose' },
-                { rating: 'hard' as FsrsRating, key: 'leitnerHard' as const, color: 'border-accent-orange/40 text-accent-orange' },
-                { rating: 'good' as FsrsRating, key: 'leitnerGood' as const, color: 'border-accent-amber/40 text-accent-amber' },
-                { rating: 'easy' as FsrsRating, key: 'leitnerEasy' as const, color: 'border-accent-emerald/40 text-accent-emerald' },
+                { rating: 'again' as FsrsRating, key: 'leitnerAgain' as const, color: 'border-accent-rose/35 bg-accent-rose/5 text-text-secondary hover:text-accent-rose' },
+                { rating: 'hard' as FsrsRating, key: 'leitnerHard' as const, color: 'border-accent-orange/35 bg-accent-orange/5 text-text-secondary hover:text-accent-orange' },
+                { rating: 'good' as FsrsRating, key: 'leitnerGood' as const, color: 'border-accent-amber/35 bg-accent-amber/5 text-text-secondary hover:text-accent-amber' },
+                { rating: 'easy' as FsrsRating, key: 'leitnerEasy' as const, color: 'border-accent-emerald/35 bg-accent-emerald/5 text-text-secondary hover:text-accent-emerald' },
               ]).map(({ rating, key, color }) => (
                 <button
                   key={rating}
                   type="button"
                   onClick={() => rate(rating)}
-                  className={cn('min-h-11 rounded-lg border py-2 type-caption font-medium transition-all hover:opacity-90 touch-manipulation', color)}
+                  className={cn(
+                    'ws-touch-floor min-h-11 rounded-lg border py-2 type-caption font-medium transition-colors touch-manipulation',
+                    color,
+                  )}
                 >
                   {t(key)}
                 </button>
               ))}
             </div>
           )}
-          <button
-            type="button"
-            onClick={() => {
-              setFlipped(false);
-              setIndex(0);
-              setBoxCounts([0, 0, 0, 0]);
-              setFinished(false);
-              saveDeckState(scopeKey, {
-                index: 0,
-                boxCounts: [0, 0, 0, 0],
-                lastSyncedAt: new Date().toISOString(),
-                cardOrder: deck.map((c) => c.front),
-              });
-            }}
-            className="mt-3 flex items-center justify-center gap-1 type-caption text-text-secondary hover:text-text-secondary"
-          >
-            <RotateCcw className="h-3 w-3" aria-hidden /> {t('resetDeck')}
-          </button>
         </div>
 
         <CollapsibleChromeSection
@@ -402,10 +419,10 @@ export function LeitnerBox({
           alwaysCollapse
           data-testid="leitner-queues-chrome"
         >
-          <aside className="leitner-box-sidebar space-y-3 p-3 min-h-0 overflow-y-auto">
+          <aside className="leitner-box-sidebar min-h-0 space-y-3 overflow-y-auto p-3">
             <p className="type-caption leading-relaxed text-text-secondary">{t('leitnerBoxSidebarHint')}</p>
             <div data-testid="leitner-due-heatmap">
-              <p className="mb-1 type-caption font-semibold text-text-muted">
+              <p className="mb-1 type-caption font-medium text-text-muted">
                 {t('leitnerDueQueue7d')}
               </p>
               <div className="flex gap-1">
@@ -416,8 +433,8 @@ export function LeitnerBox({
                     className="flex-1 rounded-lg border border-border-subtle/60 p-1 text-center"
                     style={{ backgroundColor: `rgba(251, 191, 36, ${0.08 + day.intensity * 0.45})` }}
                   >
-                    <p className="type-caption text-text-muted truncate">{day.label}</p>
-                    <p className="type-caption font-bold text-accent-amber">{day.dueCount}</p>
+                    <p className="truncate type-caption text-text-muted">{day.label}</p>
+                    <p className="type-caption font-semibold tabular-nums text-text-secondary">{day.dueCount}</p>
                   </div>
                 ))}
               </div>

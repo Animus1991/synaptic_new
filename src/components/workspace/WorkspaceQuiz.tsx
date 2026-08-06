@@ -90,31 +90,35 @@ export function WorkspaceQuiz({
           <QuizIrtBadge irt={irt} lang={lang} responseCount={irtResponseCount} />
         )}
         <p {...questionProps(quizDef.question, onQuestionSelect)}>{quizDef.question}</p>
+        <div className="flex w-full min-w-0 flex-col gap-2" data-testid="quiz-mc-options" role="listbox" aria-label={quizDef.question}>
         {quizDef.options.map((opt, i) => (
           <button
             key={i}
             type="button"
+            role="option"
+            aria-selected={mcAnswer === i}
             onClick={() => {
               setMcAnswer(i);
               onComplete(i === quizDef.correctIndex);
             }}
             className={cn(
-              'ux-quiz-option w-full text-left p-2.5 sm:p-3 rounded-lg border type-body mb-1.5 transition-all flex items-start gap-2.5',
+              'ux-quiz-option ws-touch-floor flex w-full min-h-11 min-w-0 items-start gap-2.5 rounded-xl border p-3 text-left type-body transition-colors sm:p-3.5',
               mcAnswer === i
                 ? i === quizDef.correctIndex
-                  ? 'border-accent-emerald/50 bg-accent-emerald/10 text-accent-emerald'
-                  : 'border-accent-rose/50 bg-accent-rose/10 text-accent-rose'
-                : 'border-border-subtle hover:border-border-default hover:bg-surface-hover',
+                  ? 'border-accent-emerald/40 bg-accent-emerald/8 text-text-primary'
+                  : 'border-accent-rose/40 bg-accent-rose/8 text-text-primary'
+                : 'border-border-subtle text-text-primary hover:border-border-default hover:bg-surface-hover',
             )}
           >
-            <span className="mt-0.5 w-5 h-5 rounded-full border border-current/30 flex items-center justify-center type-caption shrink-0">
+            <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border-subtle type-caption font-medium text-text-secondary">
               {String.fromCharCode(65 + i)}
             </span>
-            <span className="min-w-0 flex-1 whitespace-normal break-words leading-snug">
+            <span className="min-w-0 flex-1 whitespace-normal break-words text-pretty leading-relaxed">
               {opt}
             </span>
           </button>
         ))}
+        </div>
         {mcAnswer !== null && (
           <p className={cn('type-caption mt-2', passed ? 'text-accent-emerald' : 'text-accent-rose')}>
             {passed ? t('quizWkCorrectContinue') : t('quizWkReviewMaterial')}

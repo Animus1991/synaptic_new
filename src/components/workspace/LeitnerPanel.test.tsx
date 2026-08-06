@@ -73,3 +73,22 @@ describe('LeitnerPanel — stale artifact mobile UX (Wave 6.8d)', () => {
     expect(screen.queryByTestId('leitner-stale-banner-mobile')).toBeNull();
   });
 });
+
+describe('LeitnerPanel — Wave FC card-first', () => {
+  it('keeps filters collapsed and shows flip card surface', () => {
+    render(
+      <LeitnerPanel
+        session={{ ...session, sectionLabel: 'Game Theory Basics', passageGrounded: true }}
+        concept="Introduction"
+        lang="en"
+        scopeKey="fc-scope"
+      />,
+    );
+    expect(screen.getByTestId('leitner-section-label')).toBeTruthy();
+    expect(screen.getByTestId('leitner-card-count')).toBeTruthy();
+    expect(screen.getByTestId('leitner-weak-extraction')).toBeTruthy();
+    expect(screen.getByTestId('leitner-filters-chrome')).toBeTruthy();
+    expect(screen.getByTestId('leitner-flip-card')).toBeTruthy();
+    expect(screen.getByTestId('leitner-queues-chrome')).toBeTruthy();
+  });
+});

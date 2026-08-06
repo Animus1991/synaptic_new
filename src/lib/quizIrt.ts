@@ -166,23 +166,23 @@ export function buildQuizIrtConfidenceBand(
   const bandLabel =
     tier === 'unknown'
       ? isEl
-        ? 'Εκτιμώμενο εύρος (βαθμονόμηση…)'
-        : 'Estimated range (calibrating…)'
+        ? 'Εύρος ακόμα πρόχειρο'
+        : 'Range still settling in'
       : tier === 'low'
         ? isEl
-          ? 'Χαμηλή πιθανότητα επιτυχίας'
-          : 'Low success likelihood'
+          ? 'Χαμηλή πιθανότητα σωστής'
+          : 'Lower chance of getting it right'
         : tier === 'medium'
           ? isEl
-            ? 'Μέτρια πιθανότητα επιτυχίας'
-            : 'Moderate success likelihood'
+            ? 'Μέτρια πιθανότητα σωστής'
+            : 'Fair chance of getting it right'
           : isEl
-            ? 'Υψηλή πιθανότητα επιτυχίας'
-            : 'High success likelihood';
+            ? 'Υψηλή πιθανότητα σωστής'
+            : 'Good chance of getting it right';
 
   const rangeLabel = isEl
-    ? `${lowPct}–${highPct}% εκτιμώμενη επιτυχία`
-    : `${lowPct}–${highPct}% estimated success`;
+    ? `περίπου ${lowPct}–${highPct}% σωστά`
+    : `about ${lowPct}–${highPct}% right`;
 
   return { pointPct, lowPct, highPct, tier, bandLabel, rangeLabel };
 }
@@ -197,25 +197,25 @@ export function formatQuizIrtForLearner(
   const pct = Math.round(irt.passProbability * 100);
 
   const readinessLabel = responseCount === 0
-    ? (isEl ? 'Ετοιμότητα: Άγνωστη (χωρίς προσπάθειες)' : 'Readiness: Unknown (no attempts yet)')
+    ? (isEl ? 'Επίπεδο: Ακόμα μαθαίνουμε πού βρίσκεσαι' : 'Level: Still learning where you are')
     : irt.ability < -0.5
-      ? (isEl ? 'Ετοιμότητα: Χαμηλή' : 'Readiness: Low')
+      ? (isEl ? 'Επίπεδο: Χρειάζεται ενίσχυση' : 'Level: Needs a boost')
       : irt.ability < 0.5
-        ? (isEl ? 'Ετοιμότητα: Μέτρια' : 'Readiness: Moderate')
-        : (isEl ? 'Ετοιμότητα: Καλή' : 'Readiness: Good');
+        ? (isEl ? 'Επίπεδο: Στην πορεία' : 'Level: On your way')
+        : (isEl ? 'Επίπεδο: Σταθερό' : 'Level: Solid');
 
   const difficultyLabel = irt.difficulty < 1.2
-    ? (isEl ? 'Δυσκολία: Βασική' : 'Difficulty: Basic')
+    ? (isEl ? 'Δυσκολία: Απαλή' : 'Difficulty: Gentle')
     : irt.difficulty < 2
       ? (isEl ? 'Δυσκολία: Μέτρια' : 'Difficulty: Medium')
-      : (isEl ? 'Δυσκολία: Υψηλή' : 'Difficulty: Hard');
+      : (isEl ? 'Δυσκολία: Δύσκολη' : 'Difficulty: Challenging');
 
   const probabilityLabel = isEl
     ? `Πιθανότητα σωστής: ~${pct}%`
-    : `Estimated success: ~${pct}%`;
+    : `Chance you get it right: ~${pct}%`;
 
   const hint = responseCount === 0
-    ? (isEl ? 'Η εκτίμηση βελτιώνεται μετά την πρώτη απάντηση.' : 'Estimates improve after your first answer.')
+    ? (isEl ? 'Γίνεται πιο ακριβές μετά από μερικές απαντήσεις.' : 'Gets clearer after a few answers.')
     : '';
 
   return { readinessLabel, difficultyLabel, probabilityLabel, hint };

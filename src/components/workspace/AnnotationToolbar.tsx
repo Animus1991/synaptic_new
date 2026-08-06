@@ -8,6 +8,8 @@ import { UiIcon } from '../ui/UiIcon';
 
 import { ANNOTATION_PALETTE } from '../../lib/masteryPalette';
 import { useI18n, type I18nKey } from '../../lib/i18n';
+import { PrimaryCTA } from '../ui/primitives';
+import { CollapsibleChromeSection } from './CollapsibleChromeSection';
 
 const COLORS = [...ANNOTATION_PALETTE];
 
@@ -77,8 +79,7 @@ export function AnnotationToolbar({
   pinLabel,
 }: Props) {
   const { t } = useI18n();
-  const tools: { id: Tool; icon: typeof Highlighter; label: string }[] = [
-    { id: 'highlight', icon: Highlighter, label: highlightLabel },
+  const secondaryTools: { id: Exclude<Tool, 'highlight'>; icon: typeof Highlighter; label: string }[] = [
     { id: 'comment', icon: MessageSquare, label: commentLabel },
     { id: 'pin', icon: Pin, label: pinLabel },
   ];
@@ -87,43 +88,79 @@ export function AnnotationToolbar({
 
   return (
     <div className="ws-panel-toolbar" data-testid="annotation-toolbar">
-      <div className="ws-panel-toolbar-row">
-        <FileText className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
-        <span className="type-caption shrink-0 font-semibold text-text-secondary">{sourceViewerLabel}</span>
-        {sharedCount > 0 && (
-          <span className="ws-chip-warn rounded px-1.5 py-0.5 type-caption">
-            {sharedCount} {t('annoTeacherShort')}
-          </span>
-        )}
-        {syncLive && (
-          <span
-            data-testid="annotation-sync-live"
-            className="ws-chip-ok rounded px-1.5 py-0.5 type-caption"
-            title={t('annoSyncVersion').replace('{version}', String(syncVersion))}
-          >
-            {syncMode === 'stream' ? t('annoStream') : t('annoLive')}
-          </span>
-        )}
-        {sourceName && (
-          <span className="min-w-0 flex-1 truncate type-caption text-text-muted" title={sourceName}>
-            {sourceName}
-          </span>
-        )}
-        {canExport && (
-          <button
-            type="button"
-            onClick={onExportMd}
-            className="ws-panel-tool-btn shrink-0 text-text-muted hover:text-text-primary"
-            title={t('exportLabel')}
-            aria-label={t('exportLabel')}
-          >
-            <Download className="h-3.5 w-3.5" />
-          </button>
-        )}
-      </div>
+      {/* Wave AN — source / sync / export nested closed */}
+      <CollapsibleChromeSection
+        title={sourceViewerLabel}
+        alwaysCollapse
+        data-testid="annotation-source-chrome"
+      >
+        <div className="ws-panel-toolbar-row px-3 pb-2">
+          <FileText className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
+          <span className="type-caption shrink-0 font-medium text-text-secondary">{sourceViewerLabel}</span>
+          {sharedCount > 0 && (
+            <span className="ws-chip-warn rounded px-1.5 py-0.5 type-caption">
+              {sharedCount} {t('annoTeacherShort')}
+            </span>
+          )}
+          {syncLive && (
+            <span
+              data-testid="annotation-sync-live"
+              className="ws-chip-ok rounded px-1.5 py-0.5 type-caption"
+              title={t('annoSyncVersion').replace('{version}', String(syncVersion))}
+            >
+              {syncMode === 'stream' ? t('annoStream') : t('annoLive')}
+            </span>
+          )}
+          {sourceName && (
+            <span className="min-w-0 flex-1 truncate type-caption text-text-muted" title={sourceName}>
+              {sourceName}
+            </span>
+          )}
+          {canExport && (
+            <button
+              type="button"
+              onClick={onExportMd}
+              className="ws-panel-tool-btn shrink-0 text-text-muted hover:text-text-primary"
+              title={t('exportLabel')}
+              aria-label={t('exportLabel')}
+            >
+              <Download className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+      </CollapsibleChromeSection>
 
       <div className="ws-panel-toolbar-row">
-        {tools.map((b) => (
+        {tool === 'highlight' ? (
+          <PrimaryCTA
+            type="button"
+            size="sm"
+            data-testid="annotation-tool-highlight"
+            data-active="true"
+            aria-pressed
+            onClick={() => onToolChange('highlight')}
+            className="ws-touch-floor min-h-9 rounded-lg px-3"
+            title={highlightLabel}
+          >
+            <Highlighter className="h-3.5 w-3.5 shrink-0" aria-hidden />
+            <span>{highlightLabel}</span>
+          </PrimaryCTA>
+        ) : (
+          <button
+            type="button"
+            data-testid="annotation-tool-highlight"
+            data-active="false"
+            onClick={() => onToolChange('highlight')}
+            className="ws-panel-tool-btn"
+            aria-pressed={false}
+            title={highlightLabel}
+          >
+            <Highlighter className="h-3.5 w-3.5 shrink-0" aria-hidden />
+            <span>{highlightLabel}</span>
+          </button>
+        )}
+
+        {secondaryTools.map((b) => (
           <button
             key={b.id}
             type="button"

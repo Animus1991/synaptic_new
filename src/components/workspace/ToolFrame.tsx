@@ -48,6 +48,7 @@ export function ToolFrame({
       {crossLinkBar && (
         <CollapsibleChromeSection
           title={t('chromeAgentLinks')}
+          alwaysCollapse
           data-testid="workspace-tool-frame-crosslink"
         >
           <div className="shrink-0 border-b border-border-subtle/60">

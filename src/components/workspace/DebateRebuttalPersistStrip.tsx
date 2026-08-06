@@ -1,4 +1,4 @@
-import { CheckCircle2, AlertTriangle } from '@/lib/lucide-shim';
+import { AlertTriangle } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { DebateRebuttalPersistReport } from '../../lib/debateRebuttalGraphPersistQA';
 import { debatePersistEdgeLabel } from '../../lib/debateRebuttalGraphPersistQA';
@@ -9,19 +9,15 @@ type Props = {
 };
 
 export function DebateRebuttalPersistStrip({ report, lang }: Props) {
-  if (report.edgeKind === 'empty-tree') return null;
-
-  const Icon = report.ok ? CheckCircle2 : AlertTriangle;
+  /* Wave DB — status strip only when something needs attention */
+  if (report.edgeKind === 'empty-tree' || report.ok) return null;
 
   return (
     <div
-      className={cn(
-        'ws-status-strip mx-4 mb-2 flex items-center gap-2',
-        report.ok ? 'ws-status-ok' : 'ws-status-warn',
-      )}
+      className={cn('ws-status-strip flex items-center gap-2 border-b border-border-subtle px-3 py-1.5', 'ws-status-warn')}
       data-testid="debate-rebuttal-persist-strip"
     >
-      <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
+      <AlertTriangle className="h-3.5 w-3.5 shrink-0" aria-hidden />
       <span className="min-w-0 flex-1">
         {report.bannerSummary ?? debatePersistEdgeLabel(report.edgeKind, lang)}
       </span>

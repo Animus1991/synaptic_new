@@ -37,9 +37,9 @@ const TOOL_GUIDES_EN: Record<WorkspaceToolId, Omit<ToolFeatureGuide, 'toolId'>> 
     quickActionIds: ['open-reader-focus'],
   },
   simulator: {
-    title: 'Parametric Sandbox',
-    summary: 'Economics equilibrium or numeric cues from your notes; sensitivity heatmap shows which parameter matters most.',
-    features: ['Note-grounded sliders', 'P* sensitivity heatmap', 'Auto-detects most sensitive parameter'],
+    title: 'What-if sandbox',
+    summary: 'Move sliders, watch the graph, try presets — then practice under a timer.',
+    features: ['What-if presets', 'Live graph + numbers', 'Timed practice block'],
     quickActionIds: ['open-reader-focus'],
   },
   leitner: {
@@ -50,8 +50,8 @@ const TOOL_GUIDES_EN: Record<WorkspaceToolId, Omit<ToolFeatureGuide, 'toolId'>> 
   },
   compare: {
     title: 'Compare',
-    summary: 'Tables from your notes; sort columns, highlight diffs vs focus row, export CSV.',
-    features: ['Focus-term highlight', 'Sortable columns', 'Diff highlight + CSV [≠]'],
+    summary: 'See two ideas side by side — highlight what differs, then ask the Tutor.',
+    features: ['Side-by-side table', 'Highlight differences', 'Download CSV'],
     quickActionIds: ['open-compare', 'open-reader-focus'],
   },
   whiteboard: {
@@ -62,20 +62,20 @@ const TOOL_GUIDES_EN: Record<WorkspaceToolId, Omit<ToolFeatureGuide, 'toolId'>> 
   },
   feynman: {
     title: 'Feynman',
-    summary: 'Explain in simple terms; rubric scores accuracy/completeness; gap terms jump to Reader.',
-    features: ['Gap → Reader', 'Rubric PDF export', 'Voice input + auto-gap'],
+    summary: 'Teach the idea in plain words; get a friendly score; jump gaps to Reader.',
+    features: ['Gaps → Reader', 'Score report export', 'Voice + missing bits'],
     quickActionIds: ['open-reader-focus'],
   },
   timer: {
-    title: 'Study Timer',
-    summary: 'Focus sessions bound to concept/step; exam countdown with calendar .ics export.',
-    features: ['Concept/step label', 'Exam countdown', 'Calendar .ics'],
+    title: 'Timer',
+    summary: 'Focus blocks and an exam countdown tied to what you are studying.',
+    features: ['Start focus', 'Exam countdown', 'Save to calendar'],
     quickActionIds: [],
   },
   debate: {
-    title: 'Argument Map',
-    summary: 'Claim tree from notes; counter-arguments grounded in source; interactive rebuttal graph.',
-    features: ['Claim → Reader', 'Counter-args', 'Rebuttal graph'],
+    title: 'Debate',
+    summary: 'Map claims from your notes, add counters, and keep your replies.',
+    features: ['Open in Reader', 'Suggested counters', 'Saved replies'],
     quickActionIds: ['open-reader-focus'],
   },
   reader: {
@@ -85,9 +85,9 @@ const TOOL_GUIDES_EN: Record<WorkspaceToolId, Omit<ToolFeatureGuide, 'toolId'>> 
     quickActionIds: ['open-reader-focus'],
   },
   scratchpad: {
-    title: 'Formula Scratchpad',
-    summary: 'Formulas from notes; step solver, graph plot, send to whiteboard.',
-    features: ['KaTeX + whiteboard bridge', 'CAS graph plot'],
+    title: 'Scratchpad',
+    summary: 'Try a formula from your notes, fill in numbers, and check each step.',
+    features: ['Step check', 'Graph', 'Send to whiteboard'],
     quickActionIds: [],
   },
   annotations: {
@@ -118,9 +118,9 @@ const TOOL_GUIDES_EL: Record<WorkspaceToolId, Omit<ToolFeatureGuide, 'toolId'>> 
     quickActionIds: ['open-reader-focus'],
   },
   simulator: {
-    title: 'Παράμετρος sandbox',
-    summary: 'Οικονομική ισορροπία ή αριθμητικά cues από σημειώσεις· heatmap ευαισθησίας.',
-    features: ['Sliders από σημειώσεις', 'Heatmap ευαισθησίας'],
+    title: 'Τι θα γινόταν αν…',
+    summary: 'Κούνα διακόπτες, δες το γράφημα, δοκίμασε προεπιλογές — μετά εξάσκηση με χρονόμετρο.',
+    features: ['Προεπιλογές σεναρίων', 'Ζωντανό γράφημα', 'Χρονισμένο μπλοκ'],
     quickActionIds: ['open-reader-focus'],
   },
   leitner: {
@@ -131,8 +131,8 @@ const TOOL_GUIDES_EL: Record<WorkspaceToolId, Omit<ToolFeatureGuide, 'toolId'>> 
   },
   compare: {
     title: 'Σύγκριση',
-    summary: 'Πίνακες από σημειώσεις· ταξινόμηση, diff vs focus row, CSV export.',
-    features: ['Εστίαση όρου', 'Sortable columns', 'Diff + CSV'],
+    summary: 'Δες δύο ιδέες δίπλα-δίπλα — τόνισε τι διαφέρει, μετά ρώτα τον βοηθό.',
+    features: ['Πίνακας δίπλα-δίπλα', 'Δείξε διαφορές', 'Λήψη CSV'],
     quickActionIds: ['open-compare', 'open-reader-focus'],
   },
   whiteboard: {
@@ -143,20 +143,20 @@ const TOOL_GUIDES_EL: Record<WorkspaceToolId, Omit<ToolFeatureGuide, 'toolId'>> 
   },
   feynman: {
     title: 'Feynman',
-    summary: 'Εξήγηση με απλά λόγια· rubric· κενά → Reader· φωνητική εισαγωγή.',
-    features: ['Gap → Reader', 'Rubric PDF', 'Voice + auto-gap'],
+    summary: 'Δίδαξε την ιδέα με απλά λόγια· φιλικό σκορ· κενά → Reader.',
+    features: ['Κενά → Reader', 'Εξαγωγή αναφοράς score', 'Φωνή + ελλείψεις'],
     quickActionIds: ['open-reader-focus'],
   },
   timer: {
     title: 'Χρονόμετρο',
-    summary: 'Συνεδρίες + exam countdown· εξαγωγή .ics ημερολογίου.',
-    features: ['Concept/step', 'Exam countdown', 'Calendar .ics'],
+    summary: 'Μπλοκ εστίασης και αντίστροφη μέτρηση μέχρι την εξέταση.',
+    features: ['Έναρξη εστίασης', 'Αντίστροφη εξέτασης', 'Αποθήκευση στο ημερολόγιο'],
     quickActionIds: [],
   },
   debate: {
-    title: 'Argument Map',
-    summary: 'Δέντρο ισχυρισμών· counter-args· interactive rebuttal graph.',
-    features: ['Claim → Reader', 'Counter-args', 'Rebuttal graph'],
+    title: 'Συζήτηση',
+    summary: 'Χάρτης ισχυρισμών από τις σημειώσεις, αντίλογος και αποθηκευμένες απαντήσεις.',
+    features: ['Άνοιγμα στην Ανάγνωση', 'Προτεινόμενα αντίθετα', 'Αποθηκευμένες απαντήσεις'],
     quickActionIds: ['open-reader-focus'],
   },
   reader: {
@@ -166,9 +166,9 @@ const TOOL_GUIDES_EL: Record<WorkspaceToolId, Omit<ToolFeatureGuide, 'toolId'>> 
     quickActionIds: ['open-reader-focus'],
   },
   scratchpad: {
-    title: 'Scratchpad τύπων',
-    summary: 'Τύποι από σημειώσεις· solver, γράφημα, αποστολή στον πίνακα.',
-    features: ['KaTeX + board', 'Graph plot'],
+    title: 'Πρόχειρο',
+    summary: 'Δοκίμασε τύπο από τις σημειώσεις, βάλε τιμές και έλεγξε κάθε βήμα.',
+    features: ['Έλεγχος βημάτων', 'Γράφημα', 'Στον πίνακα'],
     quickActionIds: [],
   },
   annotations: {

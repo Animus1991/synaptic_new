@@ -15,16 +15,15 @@ import {
   layerColor,
 } from '../../lib/conceptMapHierarchy';
 import { filterConceptNodes } from '../../lib/conceptGraphModel';
-import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import type { WorkspaceSelectionActionId, WorkspaceSelectionContext } from '../../lib/workspaceSelectionActions';
 import { ConceptTypeIcon } from '../ui/ConceptTypeIcon';
-import { conceptTypeGlyph } from '../../lib/conceptTypeIcons';
 import { BookOpen, Pencil, FileText, X, Plus, Trash2, Link2 } from '@/lib/lucide-shim';
-import { BlueprintSurface } from '../ui/BlueprintSurface';
 import { InfoHint } from '../ui/InfoHint';
 import { CollapsibleChromeSection } from './CollapsibleChromeSection';
 import { PanelOverflowMenu } from './PanelOverflowMenu';
+import { useWorkspaceEmptyActions } from './WorkspaceEmptyActionsContext';
+import { PrimaryCTA, SecondaryCTA } from '../ui/primitives';
 import { cn } from '../../utils/cn';
 import { bandColorVar, masteryColorForValue, accentHighlightVar } from '../../lib/masteryPalette';
 import { edgeKey, newCustomNodeId } from '../../lib/conceptMapGraph';
@@ -74,6 +73,53 @@ function nodeMasteryOpacity(mastery: number): number {
   return 1;
 }
 
+/** Two-line wrap for text inside map idea chips (friendly label-first nodes). */
+function wrapConceptMapLabel(label: string, maxChars: number): string[] {
+  const words = label.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return ['·'];
+  const full = words.join(' ');
+  if (full.length <= maxChars) return [full];
+  let line1 = words[0]!;
+  let i = 1;
+  while (i < words.length && `${line1} ${words[i]}`.length <= maxChars) {
+    line1 = `${line1} ${words[i]}`;
+    i += 1;
+  }
+  if (line1.length > maxChars) line1 = `${line1.slice(0, maxChars - 1)}…`;
+  if (i >= words.length) return [line1];
+  let line2 = words[i]!;
+  i += 1;
+  while (i < words.length && `${line2} ${words[i]}`.length <= maxChars) {
+    line2 = `${line2} ${words[i]}`;
+    i += 1;
+  }
+  if (i < words.length || line2.length > maxChars) {
+    line2 = `${line2.slice(0, Math.max(1, maxChars - 1))}…`;
+  }
+  return [line1, line2];
+}
+
+function masteryCaption(
+  mastery: number,
+  t: (key: 'strong' | 'proficient' | 'developing' | 'weakLabel') => string,
+): string {
+  if (mastery >= 80) return t('strong');
+  if (mastery >= 60) return t('proficient');
+  if (mastery >= 40) return t('developing');
+  return t('weakLabel');
+}
+
+/** Chip footprint for readable multi-word idea labels (Wave CM3). */
+function nodeChipSize(labelLines: string[]): { w: number; h: number } {
+  const longest = Math.max(...labelLines.map((l) => l.length), 5);
+  const w = Math.min(156, Math.max(108, Math.round(longest * 7.4 + 32)));
+  const h = labelLines.length > 1 ? 58 : 46;
+  return { w, h };
+}
+
+/** Pointer slop: below this = tap (focus study); above = drag (move only). */
+const NODE_CLICK_SLOP_PX = 8;
+
 interface Props {
   initialNodes: DragNode[];
   initialEdges: DragEdge[];
@@ -109,6 +155,7 @@ const MASTERY_COLOR = (m: number) => (m > 0 ? masteryColorForValue(m) : 'var(--c
 /* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, onGraphUpdate, emptyMessage, hasSource = false, onUpload, onFocusTerm, onSelectionAction, focusConcept, lensConcept, conceptLens, onConceptSelect, cursorSync, crdt }: Props) {
   const { t, lang } = useI18n();
+  const emptyActions = useWorkspaceEmptyActions('concept-map');
   const [nodes, setNodes] = useState<DragNode[]>(initialNodes);
   const [edges, setEdges] = useState<DragEdge[]>(initialEdges);
   const [selected, setSelected] = useState<string | null>(null);
@@ -134,6 +181,13 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
   const panStart = useRef({ x: 0, y: 0, px: 0, py: 0 });
   const dragging = useRef<string | null>(null);
   const dragOffset = useRef({ x: 0, y: 0 });
+  /** Wave CM3 — tap focuses study; drag only moves (no reader/focus on pointerdown). */
+  const nodeGesture = useRef<{
+    nodeId: string | null;
+    startX: number;
+    startY: number;
+    dragged: boolean;
+  }>({ nodeId: null, startX: 0, startY: 0, dragged: false });
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasFocusRef = useRef<HTMLDivElement>(null);
   const [liveAnnouncement, setLiveAnnouncement] = useState('');
@@ -263,18 +317,32 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
       setConnectFrom(null);
       return;
     }
-    e.currentTarget.setPointerCapture(e.pointerId);
     dragging.current = nodeId;
+    nodeGesture.current = {
+      nodeId,
+      startX: e.clientX,
+      startY: e.clientY,
+      dragged: false,
+    };
+    try {
+      e.currentTarget.setPointerCapture?.(e.pointerId);
+    } catch {
+      /* jsdom / SVG <g> may lack pointer capture */
+    }
     const pt = toSvg(e.clientX, e.clientY);
     const node = nodeMap[nodeId];
     dragOffset.current = { x: pt.x - node.x, y: pt.y - node.y };
     setSelected(nodeId);
     setSelectedEdgeKey(null);
-    if (node) onConceptSelect?.(node.label);
-  }, [toSvg, nodeMap, onConceptSelect, connectFrom, nodes, edges, publishGraph, pushHistory]);
+    // Do NOT focus notes/reader here — wait for pointerup click vs drag (Wave CM3).
+  }, [toSvg, nodeMap, connectFrom, nodes, edges, publishGraph, pushHistory]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (dragging.current) {
+      const gesture = nodeGesture.current;
+      const dist = Math.hypot(e.clientX - gesture.startX, e.clientY - gesture.startY);
+      if (dist > NODE_CLICK_SLOP_PX) gesture.dragged = true;
+      if (!gesture.dragged) return;
       const pt = toSvg(e.clientX, e.clientY);
       const nx = pt.x - dragOffset.current.x;
       const ny = pt.y - dragOffset.current.y;
@@ -294,15 +362,33 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
   }, [toSvg, isPanning, nodeMap, publishCursor]);
 
   const handlePointerUp = useCallback(() => {
-    if (dragging.current) {
-      dragging.current = null;
-      setNodes((prev) => {
-        publishGraph(prev, edges);
-        return prev;
-      });
+    const gesture = nodeGesture.current;
+    const nodeId = dragging.current ?? gesture.nodeId;
+    if (nodeId) {
+      if (gesture.dragged) {
+        setNodes((prev) => {
+          publishGraph(prev, edges);
+          return prev;
+        });
+      } else {
+        // Single tap → focus study (notes highlight). Reader stays on explicit CTA.
+        const node = nodeMap[nodeId];
+        if (node) {
+          const linkCount = edges.filter((e) => e.from === nodeId || e.to === nodeId).length;
+          const base = t('conceptMapNodeFocused').replace('{label}', node.label);
+          setLiveAnnouncement(
+            linkCount > 0
+              ? `${base}. ${t('conceptMapNodeLinks').replace('{count}', String(linkCount))}`
+              : base,
+          );
+          onConceptSelect?.(node.label);
+        }
+      }
     }
+    dragging.current = null;
+    nodeGesture.current = { nodeId: null, startX: 0, startY: 0, dragged: false };
     setIsPanning(false);
-  }, [onNodeUpdate, edges, publishGraph]);
+  }, [edges, nodeMap, onConceptSelect, publishGraph, t]);
 
   const handleBgPointerDown = useCallback((e: React.PointerEvent) => {
     if (dragging.current) return;
@@ -572,61 +658,115 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
     });
   }, [selectedEdgeKey, nodes, publishGraph, pushHistory]);
 
-  if (initialNodes.length === 0) {
+  /* Wave CM — work-first empty: start with an idea instead of a cold repo empty */
+  if (nodes.length === 0) {
     return (
-      <WorkspaceToolEmptyState
-        tool="concept-map"
-        concept={focusConcept}
-        message={emptyMessage}
-        hasSource={hasSource ?? false}
-        onUpload={onUpload}
-      />
+      <div
+        className="flex h-full min-h-0 flex-1 flex-col overflow-y-auto"
+        data-testid="concept-map-empty-composer"
+      >
+        <div className="mx-auto flex w-full max-w-lg flex-col gap-3 px-4 pb-8 pt-3 sm:px-5 sm:pt-4">
+          <div className="space-y-1 text-left">
+            <h3 className="text-base font-semibold leading-snug text-text-primary sm:text-lg">
+              {t('conceptMapEmptyTitle')}
+            </h3>
+            <p className="type-caption leading-relaxed text-text-secondary">
+              {emptyMessage
+                ?? (focusConcept
+                  ? t('conceptMapEmptyHint').replace('{topic}', focusConcept)
+                  : t('conceptMapEmptyHintGeneric'))}
+            </p>
+          </div>
+          <div className="space-y-2 rounded-xl border border-border-subtle bg-surface-secondary/40 p-3">
+            <PrimaryCTA
+              type="button"
+              size="md"
+              onClick={addNode}
+              data-testid="concept-map-empty-start"
+              className="ws-touch-floor w-full min-h-11 rounded-lg"
+            >
+              <Plus className="h-3.5 w-3.5" aria-hidden />
+              {t('conceptMapAddNode')}
+            </PrimaryCTA>
+          </div>
+          {(emptyActions.length > 0 || (!hasSource && onUpload)) && (
+            <div className="flex flex-wrap items-center gap-1.5 pt-1">
+              {!hasSource && onUpload && (
+                <SecondaryCTA size="sm" onClick={onUpload} data-testid="workspace-empty-upload">
+                  {t('uploadMaterial')}
+                </SecondaryCTA>
+              )}
+              {emptyActions.map((action) => (
+                <SecondaryCTA
+                  key={`${action.id}-${action.label}`}
+                  size="sm"
+                  onClick={action.onClick}
+                  data-testid={`workspace-empty-${action.id}`}
+                >
+                  {action.label}
+                </SecondaryCTA>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     );
   }
 
   return (
-    <BlueprintSurface className="relative overflow-hidden flex flex-col h-full">
-      {/* Wave G1 — primary: filter + add/connect; view/layout/export in overflow */}
+    <div
+      className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-card"
+      data-testid="concept-map-root"
+      data-bleed="full"
+    >
+      {/* Wave CM — primary: find + add/link; tidy/zoom/export in ⋯; zoom HUD on canvas */}
       <div
-        className="flex flex-wrap items-center gap-1.5 px-3 py-2 border-b border-border-subtle bg-surface-secondary/40 shrink-0"
+        className="flex flex-wrap items-center gap-1.5 px-3 py-1.5 border-b border-border-subtle bg-surface-secondary/40 shrink-0"
         data-testid="concept-map-toolbar"
       >
-        <div className="relative flex items-center flex-1 min-w-[7rem] max-w-[12rem]">
+        <div className="relative flex min-w-[8rem] max-w-[14rem] flex-1 items-center">
+          <label className="sr-only" htmlFor="concept-map-filter-input">
+            {t('conceptMapFilterPlaceholder')}
+          </label>
           <input
+            id="concept-map-filter-input"
             type="search"
             value={filterQuery}
             onChange={(e) => setFilterQuery(e.target.value)}
             placeholder={t('conceptMapFilterPlaceholder')}
-            className="w-full min-h-9 rounded-lg border border-border-subtle bg-surface-card px-2 py-1 type-caption text-text-secondary placeholder:text-text-muted focus:border-border-default focus:outline-none"
+            className="w-full min-h-9 rounded-lg border border-border-subtle bg-surface-card px-2.5 py-1.5 type-caption text-text-primary placeholder:text-text-muted focus:border-border-default focus:outline-none"
             data-testid="concept-map-filter"
           />
           {filterQuery && (
             <button
               type="button"
               onClick={() => setFilterQuery('')}
-              className="absolute right-1.5 flex items-center justify-center w-4 h-4 rounded text-text-muted hover:text-text-secondary"
+              className="absolute right-1.5 flex h-7 w-7 items-center justify-center rounded-md text-text-muted hover:text-text-secondary"
               aria-label={t('close')}
               data-testid="concept-map-filter-clear"
             >
-              <X className="w-3 h-3" aria-hidden />
+              <X className="h-3 w-3" aria-hidden />
             </button>
           )}
         </div>
-        {filterQuery && (
-          <span className="type-caption text-text-muted tabular-nums shrink-0 select-none" aria-live="polite" aria-atomic="true">
+        {filterQuery ? (
+          <span
+            className="type-caption shrink-0 select-none tabular-nums text-text-muted"
+            data-testid="concept-map-filter-count"
+          >
             {visibleNodes.length}/{nodes.length}
           </span>
-        )}
+        ) : null}
         <div className="ml-auto flex flex-wrap items-center gap-1">
           <button
             type="button"
             data-testid="concept-map-add-node"
             onClick={addNode}
-            className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2 type-caption font-medium text-text-secondary hover:border-border-default sm:min-w-0 sm:px-2.5"
+            className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary sm:min-w-0 sm:px-2.5"
             aria-label={t('conceptMapAddNode')}
             title={t('conceptMapAddNode')}
           >
-            <Plus className="w-3.5 h-3.5" aria-hidden />
+            <Plus className="h-3.5 w-3.5" aria-hidden />
             <span className="hidden sm:inline">{t('conceptMapAddNode')}</span>
           </button>
           <button
@@ -640,71 +780,26 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             className={cn(
               'ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center gap-1 rounded-lg border px-2 type-caption font-medium sm:min-w-0 sm:px-2.5',
               connectFrom
-                ? 'border-brand-500/40 bg-brand-500/10 text-text-secondary'
-                : 'border-border-subtle text-text-muted hover:text-text-secondary',
+                ? 'border-brand-500/40 bg-brand-500/10 text-text-primary'
+                : 'border-border-subtle text-text-secondary hover:border-border-default hover:text-text-primary disabled:opacity-40',
             )}
             aria-label={t('conceptMapConnect')}
             title={t('conceptMapConnectHint')}
           >
-            <Link2 className="w-3.5 h-3.5" aria-hidden />
+            <Link2 className="h-3.5 w-3.5" aria-hidden />
             <span className="hidden sm:inline">{t('conceptMapConnect')}</span>
           </button>
-          <button
-            type="button"
-            data-testid="concept-map-auto-layout-btn"
-            disabled={layoutRunning || nodes.length < 2}
-            onClick={runForceLayout}
-            className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2 type-caption font-medium text-text-secondary hover:border-border-default disabled:opacity-40 sm:min-w-0 sm:px-2.5"
-            aria-label={t('conceptMapForce')}
-            title={t('conceptMapForce')}
+          <PanelOverflowMenu
+            ariaLabel={t('wsMore')}
+            triggerTestId="concept-map-more-menu"
+            summaryClassName="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover"
           >
-            <span className="text-sm leading-none select-none" aria-hidden>⊛</span>
-            <span className="hidden sm:inline">{t('conceptMapForce')}</span>
-          </button>
-          <InfoHint
-            triggerAriaLabel={t('conceptMapLayoutHelpAria')}
-            label={`${t('dragHint')}. ${t('conceptMapLayoutHint')}`}
-          />
-          <div className="flex items-center" role="group" aria-label={`Zoom ${Math.round(zoom * 100)}%`}>
-            <button
-              type="button"
-              onClick={() => setZoom((z) => Math.max(0.3, z - 0.2))}
-              className="ws-touch-floor inline-flex min-h-9 w-8 items-center justify-center rounded-l-lg border border-r-0 border-border-subtle bg-surface-secondary text-text-secondary hover:text-text-primary"
-              aria-label={t('conceptMapZoomOut')}
-              title={t('conceptMapZoomOut')}
-            >
-              <span className="text-base font-medium leading-none select-none" aria-hidden>−</span>
-            </button>
-            <span className="flex h-9 w-10 items-center justify-center border-y border-border-subtle bg-surface-secondary type-caption text-text-muted tabular-nums select-none">
-              {Math.round(zoom * 100)}%
-            </span>
-            <button
-              type="button"
-              onClick={() => setZoom((z) => Math.min(2.5, z + 0.2))}
-              className="ws-touch-floor inline-flex min-h-9 w-8 items-center justify-center rounded-r-lg border border-l-0 border-border-subtle bg-surface-secondary text-text-secondary hover:text-text-primary"
-              aria-label={t('conceptMapZoomIn')}
-              title={t('conceptMapZoomIn')}
-            >
-              <span className="text-base font-medium leading-none select-none" aria-hidden>+</span>
-            </button>
-          </div>
-          <button
-            type="button"
-            data-testid="concept-map-fit-view"
-            onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
-            className="ws-touch-floor inline-flex min-h-9 w-9 items-center justify-center rounded-lg border border-border-subtle bg-surface-secondary text-text-secondary hover:text-text-primary"
-            aria-label={t('conceptMapResetView')}
-            title={t('conceptMapResetView')}
-          >
-            <span className="text-base leading-none select-none" aria-hidden>⤢</span>
-          </button>
-          <PanelOverflowMenu ariaLabel={t('wsMore')} triggerTestId="concept-map-more-menu">
             <button
               type="button"
               data-testid="concept-map-undo"
               disabled={!canUndo}
               onClick={undo}
-              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted disabled:opacity-40"
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover disabled:opacity-40"
             >
               {t('conceptMapUndo')}
             </button>
@@ -713,27 +808,51 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
               data-testid="concept-map-redo"
               disabled={!canRedo}
               onClick={redo}
-              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted disabled:opacity-40"
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover disabled:opacity-40"
             >
               {t('conceptMapRedo')}
-            </button>
-            <button
-              type="button"
-              data-testid="concept-map-hierarchy-layout"
-              disabled={layoutRunning || nodes.length < 2}
-              onClick={runHierarchyLayout}
-              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted disabled:opacity-40"
-            >
-              {layoutRunning && hierarchyMode ? '…' : t('conceptMapHierarchy')}
             </button>
             <button
               type="button"
               data-testid="concept-map-force-layout"
               disabled={layoutRunning || nodes.length < 2}
               onClick={runForceLayout}
-              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted disabled:opacity-40"
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover disabled:opacity-40"
             >
               {layoutRunning ? '…' : t('conceptMapForce')}
+            </button>
+            <button
+              type="button"
+              data-testid="concept-map-hierarchy-layout"
+              disabled={layoutRunning || nodes.length < 2}
+              onClick={runHierarchyLayout}
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover disabled:opacity-40"
+            >
+              {layoutRunning && hierarchyMode ? '…' : t('conceptMapHierarchy')}
+            </button>
+            <button
+              type="button"
+              data-testid="concept-map-zoom-in"
+              onClick={() => setZoom((z) => Math.min(2.5, z + 0.2))}
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
+            >
+              {t('conceptMapZoomIn')}
+            </button>
+            <button
+              type="button"
+              data-testid="concept-map-zoom-out"
+              onClick={() => setZoom((z) => Math.max(0.3, z - 0.2))}
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
+            >
+              {t('conceptMapZoomOut')}
+            </button>
+            <button
+              type="button"
+              data-testid="concept-map-reset-view"
+              onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
+            >
+              {t('conceptMapResetView')}
             </button>
             <button
               type="button"
@@ -750,26 +869,20 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
                   }
                 })();
               }}
-              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted disabled:opacity-40"
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover disabled:opacity-40"
             >
               {exporting ? '…' : 'PNG'}
             </button>
-            <button
-              type="button"
-              data-testid="concept-map-reset-view"
-              aria-label={t('conceptMapResetView')}
-              onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
-              className="block w-full px-3 py-2 text-left type-caption text-text-secondary hover:bg-surface-muted hover:text-text-primary"
-            >
-              {t('reset')}
-            </button>
+            <p className="border-t border-border-subtle px-3 py-2 type-caption leading-snug text-text-muted">
+              {t('conceptMapLayoutHint')}
+            </p>
           </PanelOverflowMenu>
           {crdt && (
             <span
               className={cn(
-                'rounded-lg px-2 py-1 type-caption font-semibold border',
+                'rounded-lg border px-2 py-1 type-caption font-medium',
                 crdt.synced
-                  ? 'border-accent-emerald/40 bg-accent-emerald/10 text-text-secondary'
+                  ? 'border-accent-emerald/35 bg-accent-emerald/10 text-text-secondary'
                   : 'border-border-subtle bg-surface-hover text-text-secondary',
               )}
               data-testid="concept-map-crdt-status"
@@ -832,7 +945,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
       )}
 
       {connectFrom && (
-        <div className="shrink-0 flex items-center justify-between gap-3 border-b border-accent-cyan/25 bg-accent-cyan/10 px-4 py-1.5" data-testid="concept-map-connect-hint">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border-subtle bg-surface-secondary/60 px-3 py-1.5" data-testid="concept-map-connect-hint">
           <span className="type-caption text-text-secondary">{t('conceptMapConnectHint')}</span>
           <button
             type="button"
@@ -879,9 +992,10 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
         })}
       </ul>
 
+      <div className="relative min-h-0 flex-1">
       <div
         ref={canvasFocusRef}
-        className="flex-1 overflow-hidden cursor-grab active:cursor-grabbing outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
+        className="h-full overflow-hidden cursor-grab active:cursor-grabbing outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         onWheel={handleWheel}
         data-testid="concept-map-canvas"
         role="application"
@@ -906,6 +1020,9 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             <marker id="dm-arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
               <polygon points="0 0, 10 3.5, 0 7" fill="var(--color-border-strong)" />
             </marker>
+            <filter id="cm-node-shadow" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="1.5" stdDeviation="2.5" floodOpacity="0.14" />
+            </filter>
           </defs>
           <rect width="100%" height="100%" fill="url(#cm-dot-grid)" />
           <g transform={`translate(${pan.x},${pan.y}) scale(${zoom})`}>
@@ -967,49 +1084,134 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
               );
             })}
 
-            {/* Nodes */}
+            {/* Nodes — Wave CM3: rounded idea chips; mastery bar + caption; tap≠drag */}
             {visibleNodes.map(node => {
               const color = hierarchyMode ? layerColor(layerMap.get(node.id) ?? 0) : MASTERY_COLOR(node.mastery);
               const isSel = selected === node.id;
               const lensHit = conceptLens ? lensHighlightsMapNode(node.label, conceptLens) : false;
-              const r = 30;
+              const labelLines = wrapConceptMapLabel(node.label, 14);
+              const { w, h } = nodeChipSize(labelLines);
+              const x0 = node.x - w / 2;
+              const y0 = node.y - h / 2;
+              const barW = node.mastery > 0 ? Math.max(6, (w - 16) * (node.mastery / 100)) : 0;
               return (
                 <g
                   key={node.id}
                   opacity={nodeMasteryOpacity(node.mastery)}
                   onPointerDown={e => handlePointerDown(e, node.id)}
-                  className="cursor-move"
+                  className="cursor-grab active:cursor-grabbing"
                   aria-hidden
+                  data-testid="concept-map-node"
+                  data-mastery={node.mastery}
                 >
+                  <title>{node.label}</title>
                   {lensHit && !isSel && (
-                    <circle cx={node.x} cy={node.y} r={r + 6} fill="none" stroke="var(--palette-cyan)" strokeWidth={1.5} opacity={0.45} data-testid="concept-map-lens-highlight" />
-                  )}
-                  {isSel && <circle cx={node.x} cy={node.y} r={r + 8} fill="none" stroke={color} strokeWidth={2} opacity={0.35} />}
-                  {/* Theme-aware disc: soft tint of the band color over the card surface,
-                      colored ring carries the mastery signal on light AND dark themes
-                      (was hardcoded #0f0a1e — black discs + invisible labels on light). */}
-                  <circle
-                    cx={node.x} cy={node.y} r={r}
-                    fill={`color-mix(in srgb, ${color} 12%, var(--color-surface-card))`}
-                    stroke={color} strokeWidth={isSel ? 3 : 2}
-                  />
-                  {/* mastery arc — always visible ring (track), progress arc on top */}
-                  <circle cx={node.x} cy={node.y} r={r} fill="none" stroke={color} strokeWidth={1.5} opacity={0.2}
-                    transform={`rotate(-90 ${node.x} ${node.y})`}
-                  />
-                  {node.mastery > 0 && (
-                    <circle cx={node.x} cy={node.y} r={r} fill="none" stroke={color} strokeWidth={3} opacity={0.6}
-                      strokeDasharray={`${(node.mastery / 100) * 2 * Math.PI * r} ${2 * Math.PI * r}`}
-                      transform={`rotate(-90 ${node.x} ${node.y})`}
+                    <rect
+                      x={x0 - 5}
+                      y={y0 - 5}
+                      width={w + 10}
+                      height={h + 10}
+                      rx={18}
+                      fill="none"
+                      stroke="var(--palette-cyan)"
+                      strokeWidth={1.5}
+                      opacity={0.45}
+                      data-testid="concept-map-lens-highlight"
                     />
                   )}
-                  <text x={node.x} y={node.y - 4} textAnchor="middle" dominantBaseline="central" fontSize={12} fill="var(--color-text-secondary)" fontWeight="600">{conceptTypeGlyph(node.type)}</text>
-                  {node.mastery > 0 && <text x={node.x} y={node.y + 15} textAnchor="middle" fontSize={12} fill="var(--color-text-primary)" fontWeight="700">{node.mastery}%</text>}
-                  {/* Label under node — primary/secondary ink on card canvas (was #d8d4ea on black disc). */}
-                  <text x={node.x} y={node.y + r + 16} textAnchor="middle" fontSize={13} fill="var(--color-text-primary)" fontWeight={isSel ? '600' : '500'}>
-                    {node.label.length > 22 ? node.label.slice(0, 20) + '…' : node.label}
+                  {isSel && (
+                    <rect
+                      x={x0 - 4}
+                      y={y0 - 4}
+                      width={w + 8}
+                      height={h + 8}
+                      rx={18}
+                      fill="none"
+                      stroke={color}
+                      strokeWidth={2}
+                      opacity={0.4}
+                    />
+                  )}
+                  <rect
+                    x={x0}
+                    y={y0}
+                    width={w}
+                    height={h}
+                    rx={16}
+                    fill={`color-mix(in srgb, ${color} 18%, var(--color-surface-card))`}
+                    stroke={color}
+                    strokeWidth={isSel ? 2.5 : 1.75}
+                    filter="url(#cm-node-shadow)"
+                    data-testid="concept-map-node-chip"
+                  />
+                  {/* Mastery progress along the chip floor */}
+                  {node.mastery > 0 && (
+                    <>
+                      <rect
+                        x={x0 + 8}
+                        y={y0 + h - 8}
+                        width={w - 16}
+                        height={3}
+                        rx={1.5}
+                        fill={color}
+                        opacity={0.18}
+                      />
+                      <rect
+                        x={x0 + 8}
+                        y={y0 + h - 8}
+                        width={barW}
+                        height={3}
+                        rx={1.5}
+                        fill={color}
+                        opacity={0.9}
+                      />
+                    </>
+                  )}
+                  <text
+                    x={node.x}
+                    y={node.y - (labelLines.length > 1 ? 8 : 2)}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fill="var(--color-text-primary)"
+                    fontWeight={isSel ? 600 : 500}
+                    fontSize={12}
+                    data-testid="concept-map-node-inner-label"
+                  >
+                    {labelLines.map((line, i) => (
+                      <tspan key={`${node.id}-l${i}`} x={node.x} dy={i === 0 ? 0 : 14}>
+                        {line}
+                      </tspan>
+                    ))}
                   </text>
-                  {node.note && <circle cx={node.x + r - 4} cy={node.y - r + 4} r={5} fill="var(--palette-amber)" />}
+                  {node.mastery > 0 && (
+                    <g data-testid="concept-map-node-mastery-pill">
+                      <rect
+                        x={node.x - 28}
+                        y={y0 + h + 6}
+                        width={56}
+                        height={16}
+                        rx={8}
+                        fill={`color-mix(in srgb, ${color} 14%, var(--color-surface-secondary))`}
+                        stroke={`color-mix(in srgb, ${color} 35%, var(--color-border-subtle))`}
+                        strokeWidth={1}
+                      />
+                      <text
+                        x={node.x}
+                        y={y0 + h + 14}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                        fontSize={10}
+                        fill="var(--color-text-secondary)"
+                        fontWeight={500}
+                        data-testid="concept-map-node-mastery"
+                      >
+                        {masteryCaption(node.mastery, t)}
+                      </text>
+                    </g>
+                  )}
+                  {node.note && (
+                    <circle cx={x0 + w - 6} cy={y0 + 6} r={5} fill="var(--palette-amber)" />
+                  )}
                 </g>
               );
             })}
@@ -1025,6 +1227,46 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
               ))}
           </g>
         </svg>
+      </div>
+      {/* Wave CM — zoom lives on the canvas (Miro-style), not competing in the toolbar */}
+      <div
+        className="pointer-events-auto absolute bottom-3 right-3 z-10 flex items-center overflow-hidden rounded-lg border border-border-subtle bg-surface-card/95 shadow-sm"
+        data-testid="concept-map-zoom-hud"
+        role="group"
+        aria-label={t('conceptMapZoomGroup')}
+      >
+        <button
+          type="button"
+          data-testid="concept-map-zoom-out-hud"
+          onClick={() => setZoom((z) => Math.max(0.3, z - 0.2))}
+          className="ws-touch-floor inline-flex min-h-9 w-8 items-center justify-center text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+          aria-label={t('conceptMapZoomOut')}
+        >
+          <span className="text-base font-medium leading-none select-none" aria-hidden>−</span>
+        </button>
+        <span className="flex h-9 min-w-[2.5rem] items-center justify-center border-x border-border-subtle type-caption tabular-nums text-text-muted select-none">
+          {Math.round(zoom * 100)}%
+        </span>
+        <button
+          type="button"
+          data-testid="concept-map-zoom-in-hud"
+          onClick={() => setZoom((z) => Math.min(2.5, z + 0.2))}
+          className="ws-touch-floor inline-flex min-h-9 w-8 items-center justify-center text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+          aria-label={t('conceptMapZoomIn')}
+        >
+          <span className="text-base font-medium leading-none select-none" aria-hidden>+</span>
+        </button>
+        <button
+          type="button"
+          data-testid="concept-map-fit-view"
+          onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
+          className="ws-touch-floor inline-flex min-h-9 w-9 items-center justify-center border-l border-border-subtle text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+          aria-label={t('conceptMapResetView')}
+          title={t('conceptMapResetView')}
+        >
+          <span className="text-base leading-none select-none" aria-hidden>⤢</span>
+        </button>
+      </div>
       </div>
 
       {selectedEdge && !editingNote && !editingLabel && (
@@ -1167,22 +1409,39 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
         </div>
       )}
 
-      {/* Wave E4 — compact legend + InfoHint (full key in popover on dense layouts) */}
-      <div className="flex items-center justify-center gap-2 sm:gap-3 py-2 border-t border-border-subtle bg-surface-secondary/30 shrink-0 px-2">
-        {([['strong', t('strong')], ['proficient', t('proficient')], ['developing', t('developing')], ['weak', t('weakLabel')]] as const).map(([band, l]) => (
-          <span key={band} className="flex items-center gap-1 type-caption text-text-secondary">
-            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: bandColorVar(band) }} aria-hidden />
-            <span className="hidden sm:inline">{l}</span>
+      {/* Wave CM — legend nested so the map stays the hero surface */}
+      <details
+        className="shrink-0 border-t border-border-subtle bg-surface-secondary/30 px-3"
+        data-testid="concept-map-legend"
+      >
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 py-1.5 type-caption text-text-secondary select-none">
+          <span>{t('conceptMapLegendSummary')}</span>
+          <span className="flex items-center gap-1.5" aria-hidden>
+            {([['strong'], ['proficient'], ['developing'], ['weak']] as const).map(([band]) => (
+              <span
+                key={band}
+                className="h-2 w-2 rounded-full"
+                style={{ backgroundColor: bandColorVar(band) }}
+              />
+            ))}
           </span>
-        ))}
-        <span className="type-caption text-text-secondary hidden sm:inline">→ {t('prerequisite')}</span>
-        <span className="type-caption text-text-secondary hidden sm:inline">┄ {t('related')}</span>
-        <InfoHint
-          triggerAriaLabel={t('conceptMapLayersHelpAria')}
-          label={`${t('strong')} · ${t('proficient')} · ${t('developing')} · ${t('weakLabel')}. → ${t('prerequisite')} · ┄ ${t('related')}`}
-          data-testid="concept-map-legend-hint"
-        />
-      </div>
-    </BlueprintSurface>
+        </summary>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pb-2">
+          {([['strong', t('strong')], ['proficient', t('proficient')], ['developing', t('developing')], ['weak', t('weakLabel')]] as const).map(([band, l]) => (
+            <span key={band} className="inline-flex items-center gap-1 type-caption text-text-secondary">
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: bandColorVar(band) }} aria-hidden />
+              {l}
+            </span>
+          ))}
+          <span className="type-caption text-text-muted">→ {t('prerequisite')}</span>
+          <span className="type-caption text-text-muted">┄ {t('related')}</span>
+          <InfoHint
+            triggerAriaLabel={t('conceptMapLegendSummary')}
+            label={`${t('strong')} · ${t('proficient')} · ${t('developing')} · ${t('weakLabel')}. → ${t('prerequisite')} · ┄ ${t('related')}`}
+            data-testid="concept-map-legend-hint"
+          />
+        </div>
+      </details>
+    </div>
   );
 }

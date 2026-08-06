@@ -44,7 +44,12 @@ export function feynmanRubricOverallScore(scores: RubricScores): number {
 
 export function feynmanDiscoverabilityGuideHasExport(): boolean {
   const features = buildToolFeatureGuide('feynman', 'en').features.join(' ').toLowerCase();
-  return features.includes('rubric') && features.includes('export');
+  const hasExport = features.includes('export');
+  const hasScoreSurface =
+    features.includes('rubric')
+    || features.includes('score')
+    || features.includes('report');
+  return hasExport && hasScoreSurface;
 }
 
 export function auditFeynmanRubricExportDiscoverability(input: {

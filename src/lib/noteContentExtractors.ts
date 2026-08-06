@@ -32,6 +32,7 @@ import {
   buildFallbackComparisons,
   buildFallbackDebateTree,
   buildFallbackQuizFromPassage,
+  clipQuizOptionText,
   isGenericStudyConcept,
 } from './workspaceContentFallback';
 import {
@@ -620,8 +621,8 @@ function buildMcQuizFromNotes(
     distractors.push(t('quizNotInNotes', lang));
   }
 
-  const correctClipped = correct.slice(0, 140);
-  const allOptions = [correctClipped, ...distractors.slice(0, 3).map((d) => d.slice(0, 140))];
+  const correctClipped = clipQuizOptionText(correct);
+  const allOptions = [correctClipped, ...distractors.slice(0, 3).map((d) => clipQuizOptionText(d))];
   const shuffled = seededShuffle(allOptions, seedFromString(`${concept}|${correctClipped}`));
   const correctIndex = shuffled.indexOf(correctClipped);
   return { question, options: shuffled, correctIndex: correctIndex >= 0 ? correctIndex : 0 };

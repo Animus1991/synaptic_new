@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { Timer, Play, Pause, RotateCcw, BookOpen, GraduationCap, Calendar, Layers } from '@/lib/lucide-shim';
+import { Play, Pause, RotateCcw, GraduationCap, Calendar, Layers } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { useI18n } from '../../lib/i18n';
 import {
@@ -23,6 +23,8 @@ import { saveExamPracticePreset } from '../../lib/workspacePersistence';
 import { emitTakeBreathPrompt } from '../../lib/examPrep/takeBreathEvents';
 import { PomodoroRing } from './PomodoroRing';
 import { PomodoroSessionModeList } from './PomodoroSessionModeList';
+import { CollapsibleChromeSection } from './CollapsibleChromeSection';
+import { PrimaryCTA } from '../ui/primitives';
 
 const PRESET_DEFS = [
   { key: 'focus25' as const, work: 25 * 60, break: 5 * 60 },
@@ -127,7 +129,7 @@ export function StudyTimer({
 
   useEffect(() => {
     if (mode !== 'exam') return;
-    const id = setInterval(() => setExamTick((t) => t + 1), 1000);
+    const id = setInterval(() => setExamTick((tick) => tick + 1), 1000);
     return () => clearInterval(id);
   }, [mode]);
 
@@ -197,60 +199,61 @@ export function StudyTimer({
   const ringPhaseLabel = mode === 'exam' ? t('timerCountdown') : (phase === 'work' ? t('focus') : t('break'));
 
   return (
-    <div className="ux-tier-b-tool ux-pomodoro-shell flex flex-col h-full p-4" data-testid="study-timer">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="type-meta font-semibold flex items-center gap-2">
-          <Timer className="w-4 h-4 text-accent-teal" />
-          {t('studyTimer')}
-        </h3>
-        <div className="flex rounded-lg border border-border-subtle overflow-hidden type-caption">
+    <div
+      className="ux-tier-b-tool ux-pomodoro-shell flex h-full min-h-0 flex-col"
+      data-testid="study-timer"
+      data-bleed="full"
+      data-layout="hero"
+    >
+      {/* Wave TM — mode strip; no nested “Study timer” title */}
+      <div
+        className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border-subtle bg-surface-secondary/40 px-3 py-1.5"
+        data-testid="timer-mode-strip"
+      >
+        <div className="flex rounded-lg border border-border-subtle overflow-hidden type-caption" role="group" aria-label={t('studyTimer')}>
           <button
             type="button"
             data-testid="timer-mode-pomodoro"
             onClick={() => { setMode('pomodoro'); setRunning(false); reset(); }}
-            className={cn('min-h-9 px-2 py-1', mode === 'pomodoro' ? 'bg-surface-secondary text-text-secondary' : 'text-text-muted')}
+            className={cn(
+              'ws-touch-floor min-h-9 px-3 py-1 font-medium',
+              mode === 'pomodoro' ? 'bg-surface-secondary text-text-primary' : 'text-text-muted hover:text-text-secondary',
+            )}
           >
-            Pomodoro
+            {t('timerModeFocus')}
           </button>
           <button
             type="button"
             data-testid="timer-mode-exam"
             onClick={() => { setMode('exam'); setRunning(true); }}
-            className={cn('min-h-9 px-2 py-1 flex items-center gap-1', mode === 'exam' ? 'bg-accent-amber/20 text-accent-amber' : 'text-text-muted')}
+            className={cn(
+              'ws-touch-floor inline-flex min-h-9 items-center gap-1 px-3 py-1 font-medium',
+              mode === 'exam' ? 'bg-surface-secondary text-text-primary' : 'text-text-muted hover:text-text-secondary',
+            )}
           >
-            <GraduationCap className="w-3 h-3" />
+            <GraduationCap className="h-3.5 w-3.5" aria-hidden />
             {t('timerExam')}
           </button>
         </div>
+        {concept ? (
+          <p className="min-w-0 max-w-[14rem] truncate type-caption text-text-muted" title={sessionLabel}>
+            {sessionLabel}
+          </p>
+        ) : null}
       </div>
-
-      {concept && (
-        <div className="mb-4 flex items-start gap-2 rounded-lg border border-border-subtle bg-surface-primary/50 px-3 py-2">
-          <BookOpen className="w-3.5 h-3.5 text-text-muted shrink-0 mt-0.5" />
-          <div className="min-w-0 flex-1">
-            <p className="type-caption text-text-muted">{t('timerSession')}</p>
-            <p className="type-caption font-medium text-text-secondary truncate">{sessionLabel}</p>
-            {conceptMastery !== undefined && (
-              <p className="type-caption text-text-muted mt-0.5">
-                {t('timerMasteryColon')}: {conceptMastery}%
-              </p>
-            )}
-          </div>
-        </div>
-      )}
 
       {mode === 'pomodoro' && phase === 'break' && onOpenBreakTool && !leitnerBreakDismissed && (
         <div
-          className="mb-3 flex items-center gap-2 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-2"
+          className="flex items-center gap-2 border-b border-border-subtle bg-surface-secondary/40 px-3 py-2"
           data-testid="timer-break-leitner-suggest"
         >
-          <Layers className="w-3.5 h-3.5 text-accent-cyan shrink-0" />
-          <p className="flex-1 type-caption text-text-secondary min-w-0">{t('timerBreakLeitnerSuggest')}</p>
+          <Layers className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
+          <p className="min-w-0 flex-1 type-caption text-text-secondary">{t('timerBreakLeitnerSuggest')}</p>
           <button
             type="button"
             data-testid="timer-break-open-leitner"
             onClick={onOpenBreakTool}
-            className="shrink-0 rounded-md border border-accent-cyan/40 bg-accent-cyan/15 px-2 py-1 type-caption font-semibold text-accent-cyan hover:bg-accent-cyan/25"
+            className="ws-touch-floor shrink-0 rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption font-medium text-text-primary hover:border-border-default"
           >
             {t('timerBreakOpenLeitner')}
           </button>
@@ -258,7 +261,7 @@ export function StudyTimer({
             type="button"
             aria-label={t('dismiss')}
             onClick={() => setLeitnerBreakDismissed(true)}
-            className="shrink-0 type-caption text-text-muted hover:text-text-secondary px-1"
+            className="shrink-0 px-1 type-caption text-text-muted hover:text-text-secondary"
           >
             ×
           </button>
@@ -266,31 +269,18 @@ export function StudyTimer({
       )}
 
       {mode === 'pomodoro' && (
-        <>
-          {/* Wave E10 — segmented pomodoro modes; exam blocks in compact select */}
-          <div
-            className="ux-pomodoro-preset-pills mb-3 inline-flex self-start rounded-lg border border-border-subtle p-0.5 xl:hidden"
-            role="group"
-            aria-label={t('studyTimer')}
-          >
-            {PRESET_DEFS.map((p, i) => (
-              <button
-                key={p.key}
-                type="button"
-                onClick={() => selectPreset(i)}
-                className={cn(
-                  'px-2.5 py-1.5 rounded-md type-caption font-medium transition-all',
-                  presetIdx === i && !examPracticeId
-                    ? 'bg-surface-secondary text-text-secondary'
-                    : 'text-text-muted hover:text-text-secondary',
-                )}
-              >
-                {t(p.key)}
-              </button>
-            ))}
-          </div>
-          <div className="mb-4 w-full max-w-md">
-            <label className="mb-1.5 block type-caption font-semibold text-text-secondary" htmlFor="timer-exam-practice-select">
+        <CollapsibleChromeSection
+          title={t('timerExamPracticeBlocks')}
+          alwaysCollapse
+          data-testid="timer-exam-blocks-chrome"
+        >
+          <div className="space-y-2 px-3 pb-2">
+            {conceptMastery !== undefined && (
+              <p className="type-caption text-text-muted" data-testid="timer-mastery-meta">
+                {t('timerMasteryColon')}: {conceptMastery}%
+              </p>
+            )}
+            <label className="sr-only" htmlFor="timer-exam-practice-select">
               {t('timerExamPracticeBlocks')}
             </label>
             <select
@@ -304,7 +294,6 @@ export function StudyTimer({
                   setPhase('work');
                   setSecondsLeft(PRESET_DEFS[presetIdx].work);
                   setRunning(false);
-                  // Clear the persisted preset too, or the workspace re-applies it on remount.
                   saveExamPracticePreset(scopeKey, null);
                   return;
                 }
@@ -314,9 +303,9 @@ export function StudyTimer({
                 setRunning(false);
                 saveExamPracticePreset(scopeKey, id);
               }}
-              className="w-full rounded-lg border border-border-subtle bg-surface-input px-2.5 py-2 type-caption text-text-secondary"
+              className="w-full min-h-9 rounded-lg border border-border-subtle bg-surface-input px-2.5 py-2 type-caption text-text-primary"
             >
-              <option value="">{t(PRESET_DEFS[presetIdx].key)} (Pomodoro)</option>
+              <option value="">{t(PRESET_DEFS[presetIdx].key)} — {t('timerModeFocus')}</option>
               {EXAM_PRACTICE_PRESETS.map((block) => (
                 <option key={block.id} value={block.id}>
                   {examPracticeLabel(block.id, lang)}
@@ -328,125 +317,179 @@ export function StudyTimer({
                 type="button"
                 data-testid="timer-open-simulator"
                 onClick={onOpenSimulator}
-                className="mt-2 type-caption text-text-secondary hover:underline"
+                className="type-caption text-text-secondary hover:text-text-primary hover:underline"
               >
-                {t('timerOpenSimulator')}
+                {t('timerGoToExam')}
               </button>
             )}
           </div>
-        </>
+        </CollapsibleChromeSection>
       )}
 
       {mode === 'exam' && (
-        <div className="mb-4 space-y-2">
-          <label className="type-caption text-text-muted">{t('timerExamDate')}</label>
-          <input
-            type="datetime-local"
-            data-testid="exam-target-input"
-            value={examTarget.slice(0, 16)}
-            onChange={(e) => {
-              const iso = new Date(e.target.value).toISOString();
-              setExamTarget(iso);
-              saveExamTarget(scopeKey, iso);
-            }}
-            className="w-full rounded-lg border border-border-subtle bg-surface-input px-2 py-1.5 type-caption text-text-secondary"
-          />
-          <button
-            type="button"
-            data-testid="timer-export-calendar"
-            onClick={() => downloadIcs(
-              `exam-${concept || scopeKey}`,
-              buildExamIcs(examTarget, concept || 'Study exam', lang),
-            )}
-            className="inline-flex items-center gap-1 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-2 py-1 type-caption font-medium text-accent-amber hover:bg-accent-amber/20"
-          >
-            <Calendar className="w-3 h-3" />
-            {t('timerExportIcs')}
-          </button>
-        </div>
+        <CollapsibleChromeSection
+          title={t('timerExamDate')}
+          alwaysCollapse={false}
+          defaultOpen
+          data-testid="timer-exam-date-chrome"
+        >
+          <div className="space-y-2 px-3 pb-2">
+            <input
+              type="datetime-local"
+              data-testid="exam-target-input"
+              value={examTarget.slice(0, 16)}
+              onChange={(e) => {
+                const iso = new Date(e.target.value).toISOString();
+                setExamTarget(iso);
+                saveExamTarget(scopeKey, iso);
+              }}
+              className="w-full min-h-9 rounded-lg border border-border-subtle bg-surface-input px-2 py-1.5 type-caption text-text-primary"
+            />
+            <button
+              type="button"
+              data-testid="timer-export-calendar"
+              onClick={() => downloadIcs(
+                `exam-${concept || scopeKey}`,
+                buildExamIcs(examTarget, concept || 'Study exam', lang),
+              )}
+              className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2.5 type-caption font-medium text-text-secondary hover:border-border-default"
+            >
+              <Calendar className="h-3.5 w-3.5" aria-hidden />
+              {t('timerExportIcs')}
+            </button>
+          </div>
+        </CollapsibleChromeSection>
       )}
 
-      <div className="ux-pomodoro-stage flex-1 min-h-0">
-        <div className="ux-pomodoro-stage-inner flex flex-col xl:grid xl:grid-cols-[1fr_minmax(200px,260px)] xl:items-center xl:gap-8 h-full">
-          <div className="ux-pomodoro-ring-col flex flex-col items-center justify-center py-4">
-            <PomodoroRing
-              pct={pct}
-              timeDisplay={timeDisplay}
-              phaseLabel={ringPhaseLabel}
-              strokeTone={ringStrokeTone}
-              className="mb-6"
-            />
+      {/* Hero: ring + Start dominate full width (no side Session modes column) */}
+      <div
+        className="ux-pomodoro-stage flex min-h-0 flex-1 flex-col items-center justify-center px-3 py-6"
+        data-testid="timer-hero"
+      >
+        <PomodoroRing
+          pct={pct}
+          timeDisplay={timeDisplay}
+          phaseLabel={ringPhaseLabel}
+          strokeTone={ringStrokeTone}
+          className="ux-pomodoro-ring-hero mb-6"
+        />
 
-            {mode === 'pomodoro' && (
-              <div className="ux-pomodoro-controls flex gap-3">
-                <button
-                  type="button"
-                  data-testid="timer-play-pause"
-                  onClick={() => setRunning(!running)}
-                  aria-label={running ? t('pause') : t('start')}
-                  className={cn(
-                    'ux-pomodoro-play-btn inline-flex items-center gap-2 min-h-11 px-5 py-2.5 rounded-xl type-meta font-medium',
-                    running ? 'ux-pomodoro-play-btn-pause' : 'ux-pomodoro-play-btn-start',
-                  )}
-                >
-                  {running ? <Pause className="w-4 h-4" aria-hidden /> : <Play className="w-4 h-4" aria-hidden />}
-                  {running ? t('pause') : t('start')}
-                </button>
-                <button
-                  type="button"
-                  data-testid="timer-reset"
-                  onClick={reset}
-                  aria-label={t('reset')}
-                  className="ux-pomodoro-reset-btn p-2.5 rounded-xl border border-border-subtle hover:bg-surface-hover text-text-secondary"
-                >
-                  <RotateCcw className="w-4 h-4" aria-hidden />
-                </button>
-              </div>
+        {mode === 'pomodoro' && (
+          <div className="ux-pomodoro-controls flex w-full max-w-sm items-center justify-center gap-2" data-testid="timer-primary-actions">
+            {running ? (
+              <button
+                type="button"
+                data-testid="timer-play-pause"
+                onClick={() => setRunning(false)}
+                aria-label={t('pause')}
+                className="ux-pomodoro-play-btn-pause ws-touch-floor inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl px-6 type-meta font-medium"
+              >
+                <Pause className="h-4 w-4" aria-hidden />
+                {t('pause')}
+              </button>
+            ) : (
+              <PrimaryCTA
+                type="button"
+                size="md"
+                data-testid="timer-play-pause"
+                onClick={() => setRunning(true)}
+                aria-label={t('start')}
+                className="ws-touch-floor min-h-12 flex-1 rounded-xl px-6"
+              >
+                <Play className="h-4 w-4" aria-hidden />
+                {t('start')}
+              </PrimaryCTA>
             )}
+            <button
+              type="button"
+              data-testid="timer-reset"
+              onClick={reset}
+              aria-label={t('reset')}
+              className="ws-touch-floor inline-flex min-h-12 min-w-12 items-center justify-center rounded-xl border border-border-subtle text-text-secondary hover:bg-surface-hover"
+            >
+              <RotateCcw className="h-4 w-4" aria-hidden />
+            </button>
           </div>
+        )}
 
-          {mode === 'pomodoro' && (
-            <PomodoroSessionModeList
-              presets={PRESET_DEFS}
-              activeIdx={presetIdx}
-              examPracticeActive={!!examPracticeId}
-              onSelect={selectPreset}
-              className="hidden xl:flex"
-            />
-          )}
-        </div>
+        {loggedWork > 0 && mode === 'pomodoro' && (
+          <p className="mt-3 text-center type-caption text-text-muted">
+            {t('loggedStudyTime').replace('{n}', String(loggedWork))}
+          </p>
+        )}
       </div>
 
-      {loggedWork > 0 && mode === 'pomodoro' && (
-        <p className="type-caption text-text-muted mt-2 text-center">{t('loggedStudyTime').replace('{n}', String(loggedWork))}</p>
+      {mode === 'pomodoro' && (
+        <>
+          <div className="ux-pomodoro-preset-pills flex shrink-0 justify-center gap-1 border-t border-border-subtle px-3 py-2 sm:hidden">
+            {PRESET_DEFS.map((p, i) => (
+              <button
+                key={p.key}
+                type="button"
+                onClick={() => selectPreset(i)}
+                className={cn(
+                  'ws-touch-floor min-h-9 rounded-lg px-2.5 type-caption font-medium',
+                  presetIdx === i && !examPracticeId
+                    ? 'border border-border-default bg-surface-secondary text-text-primary'
+                    : 'border border-border-subtle text-text-muted hover:text-text-secondary',
+                )}
+              >
+                {t(p.key)}
+              </button>
+            ))}
+          </div>
+          <CollapsibleChromeSection
+            title={t('timerLengthsChrome')}
+            alwaysCollapse
+            data-testid="timer-lengths-chrome"
+            className="hidden w-full sm:block"
+          >
+            {/* Wave TM2 — full panel width (no shrink-wrapped / sidebar column gutters) */}
+            <div className="w-full px-3 pb-3" data-testid="timer-lengths-body">
+              <PomodoroSessionModeList
+                presets={PRESET_DEFS}
+                activeIdx={presetIdx}
+                examPracticeActive={!!examPracticeId}
+                onSelect={selectPreset}
+                hideLabel
+                className="w-full"
+              />
+            </div>
+          </CollapsibleChromeSection>
+        </>
       )}
 
       {recentSessions.length > 0 && (
-        <div className="mt-4 border-t border-border-subtle pt-3 shrink-0">
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <p className="type-caption font-semibold text-text-muted">{t('timerRecentSessions')}</p>
-            <button
-              type="button"
-              data-testid="timer-export-sessions-calendar"
-              onClick={() => downloadIcs(
-                `sessions-${scopeKey}`,
-                buildStudySessionsIcs(recentSessions, lang),
-              )}
-              className="inline-flex items-center gap-1 type-caption text-text-secondary hover:text-text-primary"
-            >
-              <Calendar className="w-3 h-3" />
-              .ics
-            </button>
+        <CollapsibleChromeSection
+          title={t('timerRecentChrome')}
+          alwaysCollapse
+          data-testid="timer-recent-chrome"
+        >
+          <div className="px-3 pb-3">
+            <div className="mb-2 flex items-center justify-end">
+              <button
+                type="button"
+                data-testid="timer-export-sessions-calendar"
+                onClick={() => downloadIcs(
+                  `sessions-${scopeKey}`,
+                  buildStudySessionsIcs(recentSessions, lang),
+                )}
+                className="inline-flex items-center gap-1 type-caption text-text-secondary hover:text-text-primary"
+              >
+                <Calendar className="h-3 w-3" aria-hidden />
+                .ics
+              </button>
+            </div>
+            <ul className="max-h-24 space-y-1 overflow-y-auto">
+              {recentSessions.slice(-4).reverse().map((entry, i) => (
+                <li key={`${entry.at}-${i}`} className="flex justify-between gap-2 type-caption text-text-secondary">
+                  <span className="truncate">{entry.label}</span>
+                  <span className="shrink-0 font-mono">{entry.minutes}m</span>
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul className="space-y-1 max-h-24 overflow-y-auto">
-            {recentSessions.slice(-4).reverse().map((s, i) => (
-              <li key={`${s.at}-${i}`} className="type-caption text-text-secondary flex justify-between gap-2">
-                <span className="truncate">{s.label}</span>
-                <span className="shrink-0 font-mono">{s.minutes}m</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        </CollapsibleChromeSection>
       )}
     </div>
   );

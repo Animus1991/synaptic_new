@@ -31,7 +31,7 @@ import { RichText } from './RichText';
 import { getAgentContent, type AgentUiCopy, AGENT_MODE_VISUALS } from '../features/agent';
 import { AgentModeCatalogGrid, AgentModeSidebar } from './agent/AgentModeSidebar';
 import { useI18n } from '../lib/i18n';
-import { PlatformSection } from './ui/primitives';
+import { PlatformSection, PrimaryCTA } from './ui/primitives';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { TrustBadgeRow } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
@@ -1067,6 +1067,7 @@ export function Agent({
         embedded ? 'flex-col h-full' : 'h-[calc(100vh-56px)] lg:h-[calc(100vh-56px)]',
       )}
       data-testid={embedded ? 'agent-embedded' : 'agent-page'}
+      data-bleed="full"
       data-quiet-modes={quietModes ? 'true' : undefined}
     >
       {!embedded && (
@@ -1353,7 +1354,12 @@ export function Agent({
       {!embedded && (
         <div className={cn('agent-chat-column w-full pt-3', pagePadX)}>
           {/* OPT-R14 — flow rail stays collapsible; Minimal defaults collapsed (M2). */}
-          <CollapsibleChromeSection title={t('chromeAgentFlow')} data-testid="agent-flow-chrome" defaultOpen={false}>
+          <CollapsibleChromeSection
+            title={t('chromeAgentFlow')}
+            alwaysCollapse
+            data-testid="agent-flow-chrome"
+            defaultOpen={false}
+          >
             <AgentFlowRail
               activeIndex={messages.length === 0 ? 0 : messages.length < 4 ? 1 : 2}
             />
@@ -1469,15 +1475,16 @@ export function Agent({
         )}
       </AnimatePresence>
 
-      {/* Messages — OPT-C1 centered conversation column */}
+      {/* Messages — Wave AG full-bleed conversation column */}
       <div
         ref={threadRef}
-        className="agent-thread flex-1 overflow-y-auto"
+        className="agent-thread min-h-0 flex-1 overflow-y-auto"
         data-testid="agent-thread"
+        data-bleed="full"
       >
         <div className={cn(
-          'agent-chat-column w-full min-w-0 py-4 space-y-4',
-          embedded ? 'px-2.5 pb-6' : pagePadX,
+          'agent-chat-column w-full max-w-none min-w-0 space-y-4 py-4',
+          embedded ? 'px-3 pb-6' : cn(pagePadX, 'sm:px-4'),
         )}>
           {messages.length === 0 && !isThinking && (
             embedded ? (
@@ -1533,9 +1540,9 @@ export function Agent({
                 }}
               />
               {(pathTryChips.length > 0 || contextualSuggestions.length > 0) && (
-                <div className="max-w-xl mx-auto" data-testid="agent-try-chips">
-                  <p className="type-caption text-text-tertiary mb-3 text-center">{contextualPrompts.emptySuggestionsHeading}</p>
-                  <div className="flex flex-wrap justify-center gap-2">
+                <div className="w-full max-w-none" data-testid="agent-try-chips">
+                  <p className="type-caption text-text-tertiary mb-3">{contextualPrompts.emptySuggestionsHeading}</p>
+                  <div className="flex flex-wrap gap-2">
                     {pathTryChips.length > 0
                       ? pathTryChips.map((chip) => (
                         <button
@@ -1606,7 +1613,11 @@ export function Agent({
               {...entranceMotion(quietModes)}
               className="pt-4"
             >
-              <CollapsibleChromeSection title={t('chromeQuickActions')} data-testid="agent-quick-actions-chrome">
+              <CollapsibleChromeSection
+                title={t('chromeQuickActions')}
+                alwaysCollapse
+                data-testid="agent-quick-actions-chrome"
+              >
                 <p className="type-caption text-text-tertiary mb-3 px-1">{ui.quickActionsHeading}</p>
                 <div className="flex flex-wrap gap-2 px-1 pb-2">
                   {contextualSuggestions.map(action => (
@@ -1742,24 +1753,21 @@ export function Agent({
                 )}
               </div>
             </div>
-            <button
+            <PrimaryCTA
               type="button"
+              size="sm"
               onClick={() => void handleSend()}
               disabled={!input.trim() || isThinking}
               aria-label={t('agentSendMessage')}
               data-testid="agent-send"
               className={cn(
-                'agent-composer-send rounded-xl transition-all shrink-0 self-end',
-                embedded ? 'p-2' : 'p-3',
-                input.trim() && !isThinking
-                  ? quietModes
-                    ? 'bg-text-primary text-surface-primary hover:opacity-90'
-                    : 'bg-brand-600 hover:bg-brand-500 text-white'
-                  : 'bg-surface-hover text-text-muted cursor-not-allowed'
+                'agent-composer-send ws-touch-floor shrink-0 self-end rounded-xl !px-0',
+                embedded ? 'min-h-9 min-w-9' : 'min-h-11 min-w-11',
+                (!input.trim() || isThinking) && 'opacity-50',
               )}
             >
-              <Send className={cn(embedded ? 'w-4 h-4' : 'w-5 h-5')} aria-hidden="true" />
-            </button>
+              <Send className={cn(embedded ? 'h-4 w-4' : 'h-5 w-5')} aria-hidden="true" />
+            </PrimaryCTA>
           </div>
 
           {!embedded && (
@@ -1921,11 +1929,11 @@ function MessageBubble({
       )}
 
       <div className={cn(
-        'agent-message-bubble max-w-[85%] sm:max-w-[75%] rounded-xl px-4 py-3 type-body leading-relaxed',
+        /* Wave AG — messages use the full chat column (no 75% gutters) */
+        'agent-message-bubble rounded-xl px-4 py-3 type-body leading-relaxed',
         isUser
-          ? 'agent-message-bubble-user agent-user-bubble text-white rounded-tr-md'
-          : 'agent-message-bubble-assistant bg-surface-card border border-border-subtle text-text-primary rounded-tl-md',
-        isUser ? 'ml-auto' : 'mr-auto',
+          ? 'agent-message-bubble-user agent-user-bubble ml-auto max-w-[min(100%,42rem)] rounded-tr-md text-white'
+          : 'agent-message-bubble-assistant mr-auto w-full max-w-none bg-surface-card border border-border-subtle text-text-primary rounded-tl-md',
       )}>
         <div>
           {isUser ? (

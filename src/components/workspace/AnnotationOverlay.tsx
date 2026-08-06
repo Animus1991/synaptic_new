@@ -35,6 +35,7 @@ import { AnnotationConflictPanel } from './AnnotationConflictPanel';
 import { AnnotationToolbar, ANNOTATION_COLORS, SEMANTIC_CATEGORIES } from './AnnotationToolbar';
 import { AnnotationMarginRail } from './AnnotationMarginRail';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
+import { CollapsibleChromeSection } from './CollapsibleChromeSection';
 import {
   autoRemapAnnotations,
   buildAnnotationRemapPlan,
@@ -133,7 +134,9 @@ export function AnnotationOverlay({
   const [newComment, setNewComment] = useState('');
   const [tagDraft, setTagDraft] = useState('');
   const [addingAt, setAddingAt] = useState<number | null>(null);
-  const [expanded, setExpanded] = useState(true);
+  /* Wave AN — marks list collapsed; empty rail hidden for full-bleed source */
+  const [expanded, setExpanded] = useState(false);
+  const prevAnnCountRef = useRef(0);
   const [filterTerm, setFilterTerm] = useState<string | null>(null);
   const [filterCategory, setFilterCategory] = useState<AnnotationCategory | null>(null);
   const [activeCategory, setActiveCategory] = useState<AnnotationCategory>('general');
@@ -201,6 +204,12 @@ export function AnnotationOverlay({
     }),
     [allAnnotations, filterTerm, filterCategory],
   );
+
+  useEffect(() => {
+    const n = annotations.length;
+    if (prevAnnCountRef.current === 0 && n > 0) setExpanded(true);
+    prevAnnCountRef.current = n;
+  }, [annotations.length]);
 
   const needsReviewCount = useMemo(
     () => countAnnotationsNeedingReview(annotations),
@@ -423,18 +432,25 @@ export function AnnotationOverlay({
 
   if (!sourceText.trim()) {
     return (
-      <WorkspaceToolEmptyState
-        tool="annotations"
-        concept={concept}
-        message={emptyMessage}
-        hasSource={hasSource ?? false}
-        onUpload={onUpload}
-      />
+      <div className="p-3" data-testid="annotation-overlay-empty" data-bleed="full">
+        <WorkspaceToolEmptyState
+          tool="annotations"
+          concept={concept}
+          message={emptyMessage}
+          hasSource={hasSource ?? false}
+          onUpload={onUpload}
+        />
+      </div>
     );
   }
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-card" data-testid="annotation-overlay">
+    <div
+      className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-card"
+      data-testid="annotation-overlay"
+      data-bleed="full"
+      data-rail={annotations.length > 0 ? 'on' : 'off'}
+    >
       <AnnotationToolbar
         lang={lang}
         sourceName={sourceName}
@@ -451,7 +467,7 @@ export function AnnotationOverlay({
         syncVersion={annotationSyncVersion}
         canExport={annotations.length > 0}
         onExportMd={exportMd}
-        sourceViewerLabel={t('sourceViewer')}
+        sourceViewerLabel={t('annoSourceChrome')}
         highlightLabel={t('highlight')}
         commentLabel={t('comment')}
         pinLabel={t('pin')}
@@ -547,62 +563,72 @@ export function AnnotationOverlay({
       )}
 
       {(focusTerm || taggedTerms.length > 0 || annotations.some((a) => a.category && a.category !== 'general')) && (
-        <div
-          className="ws-filter-strip ws-ribbon flex shrink-0 flex-wrap items-center gap-1.5 px-2 py-1.5"
-          data-testid="annotation-filter-strip"
+        <CollapsibleChromeSection
+          title={t('annoFindChrome')}
+          alwaysCollapse
+          data-testid="annotation-filter-chrome"
         >
-          <Tag className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
-          <button
-            type="button"
-            onClick={() => { setFilterTerm(null); setFilterCategory(null); }}
-            className={cn(
-              'ws-touch-floor shrink-0 rounded-lg px-2 py-1 type-caption font-medium',
-              !filterTerm && !filterCategory ? 'ws-chip-brand text-text-secondary' : 'text-text-secondary',
-            )}
-            data-testid="annotation-filter-all"
+          <div
+            className="ws-filter-strip ws-ribbon flex shrink-0 flex-wrap items-center gap-1.5 px-2 py-1.5"
+            data-testid="annotation-filter-strip"
           >
-            {t('annoFilterAll')}
-          </button>
-          <OverflowChipRow
-            testId="annotation-filter-chips"
-            maxVisible={4}
-            chipClassName="type-caption max-w-[8rem]"
-            moreAriaLabel={(n) => `+${n} ${t('annoFilterAll')}`}
-            items={[
-              ...taggedTerms.map((term): OverflowChipItem => ({
-                key: `term-${term}`,
-                label: term,
-                title: term,
-                testId: `annotation-filter-term-${term}`,
-                active: filterTerm === term,
-                onClick: () => setFilterTerm(filterTerm === term ? null : term),
-              })),
-              ...SEMANTIC_CATEGORIES.map(({ cat, labelKey }): OverflowChipItem => ({
-                key: `cat-${cat}`,
-                label: t(labelKey),
-                title: t(labelKey),
-                testId: `annotation-filter-cat-${cat}`,
-                active: filterCategory === cat,
-                onClick: () => setFilterCategory(filterCategory === cat ? null : cat),
-              })),
-            ]}
-          />
-          <input
-            value={tagDraft}
-            onChange={(e) => setTagDraft(e.target.value)}
-            placeholder={t('annoTagPlaceholder')}
-            className="ml-auto w-16 min-h-9 shrink-0 rounded-lg border border-border-subtle bg-surface-input px-2 py-1 type-caption sm:w-24"
-            data-testid="annotation-tag-draft"
-          />
-        </div>
+            <Tag className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
+            <button
+              type="button"
+              onClick={() => { setFilterTerm(null); setFilterCategory(null); }}
+              className={cn(
+                'ws-touch-floor shrink-0 rounded-lg px-2 py-1 type-caption font-medium',
+                !filterTerm && !filterCategory ? 'ws-chip-brand text-text-secondary' : 'text-text-secondary',
+              )}
+              data-testid="annotation-filter-all"
+            >
+              {t('annoFilterAll')}
+            </button>
+            <OverflowChipRow
+              testId="annotation-filter-chips"
+              maxVisible={4}
+              chipClassName="type-caption max-w-[8rem]"
+              moreAriaLabel={(n) => `+${n} ${t('annoFilterAll')}`}
+              items={[
+                ...taggedTerms.map((term): OverflowChipItem => ({
+                  key: `term-${term}`,
+                  label: term,
+                  title: term,
+                  testId: `annotation-filter-term-${term}`,
+                  active: filterTerm === term,
+                  onClick: () => setFilterTerm(filterTerm === term ? null : term),
+                })),
+                ...SEMANTIC_CATEGORIES.map(({ cat, labelKey }): OverflowChipItem => ({
+                  key: `cat-${cat}`,
+                  label: t(labelKey),
+                  title: t(labelKey),
+                  testId: `annotation-filter-cat-${cat}`,
+                  active: filterCategory === cat,
+                  onClick: () => setFilterCategory(filterCategory === cat ? null : cat),
+                })),
+              ]}
+            />
+            <input
+              value={tagDraft}
+              onChange={(e) => setTagDraft(e.target.value)}
+              placeholder={t('annoTagPlaceholder')}
+              className="ml-auto w-16 min-h-9 shrink-0 rounded-lg border border-border-subtle bg-surface-input px-2 py-1 type-caption sm:w-24"
+              data-testid="annotation-tag-draft"
+            />
+          </div>
+        </CollapsibleChromeSection>
       )}
 
-      <div className="flex min-h-0 flex-1 overflow-hidden">
+      <div
+        className="flex min-h-0 flex-1 overflow-hidden"
+        data-testid="annotation-work-surface"
+        data-bleed="full"
+      >
         <div
           ref={contentRef}
           onScroll={handleSourceScroll}
           className={cn(
-            'ws-annotation-source-scroll ws-source-code relative min-h-0 flex-1 overflow-y-auto overscroll-contain p-2.5 text-[12px] leading-[20px] text-text-secondary sm:p-3 sm:text-[13px] sm:leading-[21px]',
+            'ws-annotation-source-scroll ws-source-code relative min-h-0 w-full flex-1 overflow-y-auto overscroll-contain p-3 text-[12px] leading-[20px] text-text-secondary sm:p-4 sm:text-[13px] sm:leading-[21px]',
             scrollActive && 'ws-annotation-source-scroll--active',
           )}
           data-testid="annotation-source-scroll"
@@ -677,32 +703,35 @@ export function AnnotationOverlay({
           })}
         </div>
 
-        <AnnotationMarginRail
-          lang={lang}
-          expanded={expanded}
-          onToggleExpanded={() => setExpanded(!expanded)}
-          visibleAnnotations={visibleAnnotations}
-          lines={lines}
-          selectedAnnId={selectedAnnId}
-          onSelectAnn={(id) => {
-            setSelectedAnnId(id);
-            const ann = visibleAnnotations.find((a) => a.id === id);
-            if (ann) scrollToLine(ann.lineStart);
-          }}
-          onRemoveAnn={removeAnnotation}
-          countLabel={t('annotations')}
-          onExportJson={annotations.length > 0 ? exportJson : undefined}
-          onOpenInReader={onOpenInReader}
-          onAskAgent={onAskAgent}
-          onPublishShared={onPublishShared}
-          authToken={authToken}
-          courseId={courseId}
-          focusTerm={focusTerm}
-          concept={concept}
-          sectionLabel={sectionLabel}
-          onSelectionAction={onSelectionAction}
-          askAgentLabel={t('askAgent')}
-        />
+        {/* Wave AN — no empty “0 annotations” column; rail only when marks exist */}
+        {annotations.length > 0 && (
+          <AnnotationMarginRail
+            lang={lang}
+            expanded={expanded}
+            onToggleExpanded={() => setExpanded(!expanded)}
+            visibleAnnotations={visibleAnnotations}
+            lines={lines}
+            selectedAnnId={selectedAnnId}
+            onSelectAnn={(id) => {
+              setSelectedAnnId(id);
+              const ann = visibleAnnotations.find((a) => a.id === id);
+              if (ann) scrollToLine(ann.lineStart);
+            }}
+            onRemoveAnn={removeAnnotation}
+            countLabel={t('annotations')}
+            onExportJson={exportJson}
+            onOpenInReader={onOpenInReader}
+            onAskAgent={onAskAgent}
+            onPublishShared={onPublishShared}
+            authToken={authToken}
+            courseId={courseId}
+            focusTerm={focusTerm}
+            concept={concept}
+            sectionLabel={sectionLabel}
+            onSelectionAction={onSelectionAction}
+            askAgentLabel={t('askAgent')}
+          />
+        )}
       </div>
 
       <AnimatePresence>

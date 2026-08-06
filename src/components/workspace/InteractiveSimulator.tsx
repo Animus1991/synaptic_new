@@ -328,7 +328,11 @@ export function InteractiveSimulator({
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden">
+    <div
+      className="flex h-full min-h-0 flex-col overflow-hidden"
+      data-testid="simulator-sandbox"
+      data-bleed="full"
+    >
       <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border-subtle bg-surface-card px-3 py-1.5">
         <span className="flex min-w-0 items-center gap-2 type-meta font-semibold text-text-secondary">
           <SlidersHorizontal className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
@@ -339,8 +343,9 @@ export function InteractiveSimulator({
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col items-center overflow-y-auto p-3 sm:p-4">
-        <div className="mb-2 w-full max-w-sm">
+      {/* Wave SIM — full panel width (no centered narrow column) */}
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-4 pt-2 sm:px-3">
+        <div className="mb-2 w-full max-w-none">
           <div className="mb-1 flex items-center justify-between gap-2">
             <p className="type-caption font-medium text-text-secondary">{t('presets')}</p>
             {onSendToWhiteboard && (
@@ -377,7 +382,13 @@ export function InteractiveSimulator({
           </div>
         </div>
 
-        <svg width={w} height={h} className="mb-3 block overflow-visible" data-testid="simulator-sd-graph">
+        <svg
+          viewBox={`0 0 ${w} ${h}`}
+          className="mb-3 block w-full max-w-none overflow-visible"
+          role="img"
+          aria-label={`${t('parametricSandbox')} P–Q`}
+          data-testid="simulator-sd-graph"
+        >
           <line x1={pad} y1={pad - 10} x2={pad} y2={h - pad} stroke="var(--color-border-strong, var(--color-text-muted))" strokeWidth={2} />
           <line x1={pad} y1={h - pad} x2={w - pad + 10} y2={h - pad} stroke="var(--color-border-strong, var(--color-text-muted))" strokeWidth={2} />
           <text x={pad - 15} y={pad} fill="var(--color-text-secondary)" fontSize={12} fontWeight="bold">P</text>
@@ -432,13 +443,13 @@ export function InteractiveSimulator({
           </span>
         </div>
 
-        <div className="mb-3 w-full max-w-sm rounded-xl border border-border-subtle bg-surface-primary/50 p-3">
+        <div className="mb-3 w-full max-w-none rounded-xl border border-border-subtle bg-surface-primary/50 p-3">
           <p className="mb-1 type-caption font-semibold text-text-secondary">{t('equilibriumFormulas')}</p>
           <p className="font-mono type-meta text-text-secondary">P* = (100 + ΔD − ΔS) / 2</p>
           <p className="font-mono type-meta text-text-secondary">Q* = P* + ΔS</p>
         </div>
 
-        <div className="w-full max-w-sm space-y-4 rounded-xl border border-border-subtle bg-surface-card p-4">
+        <div className="w-full max-w-none space-y-4 rounded-xl border border-border-subtle bg-surface-card p-4">
           <div>
             <div className="mb-2 flex justify-between">
               <label htmlFor="sim-demand-shift" className="type-caption font-semibold text-accent-emerald">{t('demandShock')}</label>
@@ -461,7 +472,7 @@ export function InteractiveSimulator({
         </div>
 
         <div className={cn(
-          'mt-4 w-full max-w-sm rounded-lg border p-3.5 type-meta',
+          'mt-4 w-full max-w-none rounded-lg border p-3.5 type-meta',
           challengeMet ? 'border-accent-emerald/40 bg-accent-emerald/10 text-accent-emerald' : 'border-accent-amber/35 bg-accent-amber/8 text-text-secondary',
         )}>
           <div className="mb-1 flex items-center gap-2 font-semibold">
@@ -478,12 +489,12 @@ export function InteractiveSimulator({
           )}
         </div>
 
-        <div className="mt-4 flex w-full max-w-sm items-start gap-2 rounded-lg border border-border-subtle bg-surface-secondary text-text-primary">
+        <div className="mt-4 flex w-full max-w-none items-start gap-2 rounded-lg border border-border-subtle bg-surface-secondary p-3 text-text-primary">
           <Zap className="mt-0.5 w-4 h-4 shrink-0" />
           <p>{insight ?? t('sandboxInsight')}</p>
         </div>
 
-        <div className="mt-4 w-full max-w-sm rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="sandbox-sensitivity-heatmap">
+        <div className="mt-4 w-full max-w-none rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="sandbox-sensitivity-heatmap">
           <p className="mb-2 type-caption font-semibold text-text-muted">
             {t('pStarSensitivity')}
           </p>

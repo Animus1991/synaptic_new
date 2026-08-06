@@ -12,6 +12,7 @@ import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import { QuizSelectionContractStrip } from './QuizSelectionContractStrip';
 import { ArtifactStaleBanner } from './ArtifactStaleBanner';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
+import { CollapsibleChromeSection } from './CollapsibleChromeSection';
 import type {
   WorkspaceSelectionActionId,
   WorkspaceSelectionContext,
@@ -50,7 +51,7 @@ type Props = {
   onDiagnosisReady?: (diagnosis: import('../../lib/quizErrorDiagnosis').QuizErrorDiagnosis, item: QuizSessionItem) => void;
 };
 
-/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* Wave QZ — question-first, full-bleed; search demoted; warm warn */
 export function QuizPanel({
   session,
   concept,
@@ -149,89 +150,116 @@ export function QuizPanel({
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden p-4" data-testid="quiz-panel">
-      {session.sectionLabel && (
-        <p className="mb-2 type-caption text-text-muted" data-testid="quiz-section-label">
-          {t('wsSectionColon')}{' '}
-          <span className="text-text-secondary">{session.sectionLabel}</span>
-        </p>
-      )}
-
-      {artifactStale && onAcknowledgeStale && (
-        <ArtifactStaleBanner lang={lang} tool="quiz" onDismiss={onAcknowledgeStale} />
-      )}
-
-      <QuizSelectionContractStrip report={selectionContractReport} lang={lang} />
-
-      {(session.weakExtraction || session.passageGrounded) && (
-        <WorkspacePanelWarnStrip testId="quiz-weak-extraction">
-          {session.passageGrounded
-            ? t('panelPassageGroundedQuiz')
-            : t('panelWeakExtractionQuiz')}
-        </WorkspacePanelWarnStrip>
-      )}
-
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <div className="relative flex-1 min-w-[140px] max-w-xs">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-text-muted" />
-          <input
-            type="search"
-            value={filterQuery}
-            onChange={(e) => setFilterQuery(e.target.value)}
-            placeholder={t('panelSearchQuestions')}
-            className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 type-caption text-text-secondary placeholder:text-text-muted focus:border-accent-cyan/40 focus:outline-none"
-            data-testid="quiz-filter"
-          />
+    <div className="flex h-full w-full min-w-0 flex-col overflow-hidden" data-testid="quiz-panel">
+      <div className="shrink-0 border-b border-border-subtle px-4 pt-2.5 pb-1.5">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          {session.sectionLabel && (
+            <p className="type-caption text-text-muted" data-testid="quiz-section-label">
+              {t('wsSectionColon')}{' '}
+              <span className="font-medium text-text-secondary">{session.sectionLabel}</span>
+            </p>
+          )}
+          <span className="type-caption tabular-nums text-text-secondary" data-testid="quiz-item-count">
+            {session.items.length}{' '}
+            {session.items.length === 1 ? t('panelQuestion') : t('panelQuestions')}
+          </span>
         </div>
-        <span className="type-caption text-text-secondary">
-          {session.items.length}{' '}
-          {session.items.length === 1 ? t('panelQuestion') : t('panelQuestions')}
-        </span>
-        {onOpenInReader && (
-          <button
-            type="button"
-            onClick={() => onOpenInReader(concept)}
-            className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
-            data-testid="quiz-open-reader"
-          >
-            <BookOpen className="w-3 h-3" />
-            Reader
-          </button>
+
+        {artifactStale && onAcknowledgeStale && (
+          <div className="mt-2">
+            <ArtifactStaleBanner lang={lang} tool="quiz" onDismiss={onAcknowledgeStale} />
+          </div>
+        )}
+
+        <QuizSelectionContractStrip report={selectionContractReport} lang={lang} />
+
+        {(session.weakExtraction || session.passageGrounded) && (
+          <div className="mt-2">
+            <WorkspacePanelWarnStrip testId="quiz-weak-extraction">
+              {session.passageGrounded
+                ? t('panelPassageGroundedQuiz')
+                : t('panelWeakExtractionQuiz')}
+            </WorkspacePanelWarnStrip>
+          </div>
         )}
       </div>
 
-      {filterQuery.trim() && filterMatches.length > 0 && (
-        <div className="mb-3 flex flex-wrap gap-1.5" data-testid="quiz-filter-matches">
-          {filterMatches.slice(0, 4).map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => (onSelectionAction ? selectQuestion(item) : onOpenInReader?.(quizItemQuestion(item)))}
-              className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2.5 py-1 type-caption text-text-secondary hover:opacity-90"
-            >
-              {quizItemQuestion(item).slice(0, 56)}
-              {quizItemQuestion(item).length > 56 ? '…' : ''}
-            </button>
-          ))}
+      <CollapsibleChromeSection
+        title={t('quizFiltersChrome')}
+        alwaysCollapse
+        data-testid="quiz-filters-chrome"
+      >
+        <div className="space-y-2 px-4 pb-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative min-w-[140px] max-w-md flex-1">
+              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted" aria-hidden />
+              <label className="sr-only" htmlFor="quiz-filter-input">
+                {t('panelSearchQuestions')}
+              </label>
+              <input
+                id="quiz-filter-input"
+                type="search"
+                value={filterQuery}
+                onChange={(e) => setFilterQuery(e.target.value)}
+                placeholder={t('panelSearchQuestions')}
+                className="w-full min-h-9 rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-8 pr-2 type-caption text-text-primary placeholder:text-text-muted focus:border-border-default focus:outline-none"
+                data-testid="quiz-filter"
+              />
+            </div>
+            {onOpenInReader && (
+              <button
+                type="button"
+                onClick={() => onOpenInReader(concept)}
+                className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
+                data-testid="quiz-open-reader"
+              >
+                <BookOpen className="h-3.5 w-3.5" aria-hidden />
+                {t('quizOpenReader')}
+              </button>
+            )}
+          </div>
+
+          {filterQuery.trim() && filterMatches.length > 0 && (
+            <div className="flex flex-wrap gap-1.5" data-testid="quiz-filter-matches">
+              {filterMatches.slice(0, 4).map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => (onSelectionAction ? selectQuestion(item) : onOpenInReader?.(quizItemQuestion(item)))}
+                  className="max-w-full rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 text-left type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
+                >
+                  <span className="line-clamp-2 whitespace-normal break-words">
+                    {quizItemQuestion(item)}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </CollapsibleChromeSection>
+
+      {selectedPassage && onSelectionAction && (
+        <div className="px-4 pt-2">
+          <WorkspaceSelectionActionBar
+            lang={lang}
+            excerpt={selectedPassage.text}
+            originTool="quiz"
+            onAction={handleSelectionAction}
+            onDismiss={() => {
+              setSelectedPassage(null);
+              window.getSelection()?.removeAllRanges();
+            }}
+            className="mb-0 rounded-xl border border-border-subtle"
+            data-testid="quiz-selection-actions"
+          />
         </div>
       )}
 
-      {selectedPassage && onSelectionAction && (
-        <WorkspaceSelectionActionBar
-          lang={lang}
-          excerpt={selectedPassage.text}
-          originTool="quiz"
-          onAction={handleSelectionAction}
-          onDismiss={() => {
-            setSelectedPassage(null);
-            window.getSelection()?.removeAllRanges();
-          }}
-          className="mb-3 rounded-xl border border-accent-cyan/20"
-          data-testid="quiz-selection-actions"
-        />
-      )}
-
-      <div className="flex-1 min-h-0 overflow-y-auto" onMouseUp={captureTextSelection}>
+      <div
+        className="min-h-0 w-full min-w-0 flex-1 overflow-y-auto px-4 py-3"
+        onMouseUp={captureTextSelection}
+        data-testid="quiz-session-scroll"
+      >
         <WorkspaceQuizSession
           scopeKey={scopeKey}
           concept={concept}

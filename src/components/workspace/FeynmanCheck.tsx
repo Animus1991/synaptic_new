@@ -7,7 +7,6 @@ import { startFeynmanVoiceInput } from '../../lib/feynmanVoice';
 import { generateFeynmanCoachFeedbackAsync, isLlmAvailable } from '../../lib/llmClient';
 import type { CoachFeedback } from '../../lib/feynmanCoach';
 import { useI18n, type I18nKey } from '../../lib/i18n';
-import { cn } from '../../utils/cn';
 import type { UserSettings } from '../../types';
 import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import type { FeynmanKeyTerm } from '../../lib/feynmanSessionModel';
@@ -22,6 +21,8 @@ import {
 import { auditFeynmanRubricExportDiscoverability } from '../../lib/feynmanRubricExportDiscoverabilityQA';
 import { FeynmanRubricExportDiscoverabilityStrip } from './FeynmanRubricExportDiscoverabilityStrip';
 import { WorkspacePanelWarnStrip } from './WorkspacePanelWarnStrip';
+import { CollapsibleChromeSection } from './CollapsibleChromeSection';
+import { PrimaryCTA, SecondaryCTA } from '../ui/primitives';
 
 const RUBRIC_LABEL_KEYS: Record<RubricDimension, I18nKey> = {
   accuracy: 'feynmanAccuracy',
@@ -197,10 +198,16 @@ export function FeynmanCheck({
   };
   const rubricDims: RubricDimension[] = ['accuracy', 'completeness', 'simplicity', 'structure'];
   const coachEngineLabel = coachUsedLlm
-    ? 'AI Coach · LLM'
+    ? t('feynmanCoachLlm')
     : isLlmAvailable(settings)
-      ? 'AI Coach · offline rubric'
-      : 'AI Coach · offline (add API key in Settings)';
+      ? t('feynmanCoachOffline')
+      : t('feynmanCoachOfflineKey');
+
+  const dedupedKeyTerms = useMemo(
+    () => [...new Map(keyTerms.map((kt) => [kt.term.trim().toLowerCase(), kt])).values()],
+    [keyTerms],
+  );
+  const showFeedbackSide = Boolean(coachFeedback || rubric || autoGaps.length > 0);
 
   const exportRubric = (mode: 'download' | 'print') => {
     if (!rubric) return;
@@ -241,12 +248,22 @@ export function FeynmanCheck({
 
   return (
     <div className="flex h-full flex-col overflow-hidden" data-testid="feynman-check">
-      <div className="flex-1 overflow-y-auto p-4">
-        <h3 className="mb-1 type-meta font-semibold flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-text-secondary" />
-          {t('feynmanCheck')} — {concept}
-        </h3>
-        <p className="mb-3 type-caption text-text-secondary">{t('feynmanHint')}</p>
+      {/* Wave FY — composer-first; drop nested “Feynman Check” title; outline/terms demoted */}
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 pt-2.5">
+        <div className="mb-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+          {sectionLabel ? (
+            <p className="type-caption text-text-muted" data-testid="feynman-section-label">
+              {t('feynmanSectionColon')}{' '}
+              <span className="font-medium text-text-secondary">{sectionLabel}</span>
+            </p>
+          ) : (
+            <p className="type-caption font-medium text-text-secondary" data-testid="feynman-topic-label">
+              {concept}
+            </p>
+          )}
+        </div>
+
+        <p className="mb-2 type-caption leading-snug text-text-secondary">{t('feynmanHint')}</p>
 
         <FeynmanRubricExportDiscoverabilityStrip
           report={exportDiscoverability}
@@ -256,111 +273,81 @@ export function FeynmanCheck({
           onOpenDashboard={onOpenDashboard}
         />
 
-        {sectionLabel && (
-          <p className="mb-2 type-caption text-text-muted" data-testid="feynman-section-label">
-            {t('feynmanSectionColon')}{' '}
-            <span className="text-text-secondary">{sectionLabel}</span>
-          </p>
-        )}
-
         {weakExtraction && (
           <WorkspacePanelWarnStrip testId="feynman-weak-extraction">
             {t('panelPassageGroundedFeynman')}
           </WorkspacePanelWarnStrip>
         )}
 
-        {keyTerms.length > 0 && (
-          <div className="mb-3 flex flex-wrap gap-1.5" data-testid="feynman-key-terms">
-            <span className="type-caption text-text-secondary w-full">
-              {t('feynmanTermsFromMaterial')}
-            </span>
-            {/* Wave F7 — dedupe duplicate term pills from extraction noise */}
-            {[...new Map(keyTerms.map((kt) => [kt.term.trim().toLowerCase(), kt])).values()].map((kt) => (
-              <button
-                key={kt.term}
-                type="button"
-                title={kt.definition}
-                onClick={() => onOpenInReader?.(kt.term)}
-                className="rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
-              >
-                {kt.term}
-              </button>
-            ))}
-          </div>
-        )}
-
-        <div className="grid gap-3 xl:grid-cols-[1fr_0.85fr]">          <div className="space-y-3">
-            <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3">
-              <p className="mb-2 type-caption font-semibold text-text-muted">{t('outline')}</p>
-              {/* UIUX-AUDIT-2026-08 F2 — the outline previously used U+2036 (‶ REVERSED
-                  DOUBLE PRIME) as a bullet glyph; it renders as a stray quotation mark,
-                  not a bullet, and was visually confirmed as a bug from live screenshots.
-                  Swapped for the app's existing "•" separator glyph (see
-                  MiniDashboard.tsx / DraggableConceptMap.tsx). Rollback: restore ‶. */}
-              <ul className="space-y-1 type-caption text-text-secondary">
-                {outline.map((item) => (
-                  <li key={item}>• {item}</li>
-                ))}
-              </ul>
-            </div>
+        {/* Wave FY2 — full-bleed composer; second column only when score/feedback exists */}
+        <div
+          className={showFeedbackSide ? 'grid w-full gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)]' : 'flex w-full flex-col gap-3'}
+          data-testid="feynman-layout"
+          data-side={showFeedbackSide ? 'split' : 'full'}
+        >
+          <div className="min-w-0 w-full space-y-3">
+            <label className="sr-only" htmlFor="feynman-draft-input">
+              {t('feynmanHint')}
+            </label>
             <textarea
+              id="feynman-draft-input"
               value={text}
               onChange={(e) => handleTextChange(e.target.value)}
-              rows={7}
+              rows={8}
               placeholder={placeholder}
-              className="w-full rounded-xl border border-border-subtle bg-surface-primary p-3 type-body leading-6 outline-none placeholder:text-text-muted focus:border-brand-500/40"
+              data-testid="feynman-draft"
+              className="w-full min-h-[10rem] resize-y rounded-xl border border-border-subtle bg-surface-card p-3.5 type-body leading-relaxed text-text-primary outline-none placeholder:text-text-muted focus:border-border-default focus-visible:ring-2 focus-visible:ring-brand-500/40 sm:min-h-[14rem]"
             />
-            {/* Wave E7 — one primary CTA (Coach); Ask Agent secondary; Voice + exports in overflow */}
+
             <div className="flex flex-wrap items-center gap-2">
-              <span className="type-caption text-text-tertiary mr-auto">{wordCount} {t('words')}</span>
-              <button
+              <span className="mr-auto type-caption tabular-nums text-text-muted">
+                {wordCount} {t('words')}
+              </span>
+              <PrimaryCTA
                 type="button"
-                data-testid="feynman-voice-input"
-                onClick={toggleVoice}
-                aria-pressed={voiceActive}
-                className={cn(
-                  'inline-flex min-h-11 items-center gap-1.5 rounded-lg border px-3 py-2 type-caption font-medium',
-                  voiceActive
-                    ? 'border-accent-rose/40 bg-accent-rose/15 text-accent-rose'
-                    : 'border-border-subtle text-text-secondary hover:text-text-primary',
-                )}
-              >
-                {voiceActive ? <MicOff className="h-3.5 w-3.5" aria-hidden /> : <Mic className="h-3.5 w-3.5" aria-hidden />}
-                {t('feynmanVoice')}
-              </button>
-              <button
-                type="button"
+                size="md"
                 disabled={!rubric || coachLoading}
                 onClick={() => void requestCoach()}
                 data-testid="feynman-coach-primary"
-                className="inline-flex min-h-11 items-center gap-1.5 rounded-lg bg-brand-600 px-3.5 py-2 type-caption font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+                className="ws-touch-floor min-h-11 rounded-lg"
               >
                 {coachLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden /> : <Bot className="h-3.5 w-3.5" aria-hidden />}
                 {coachLoading ? t('coachThinking') : t('getCoachFeedback')}
-              </button>
+              </PrimaryCTA>
               {(onAskAgent ?? onOpenAgent) && (
-                <button
+                <SecondaryCTA
                   type="button"
+                  size="md"
                   data-testid="feynman-ask-agent"
                   onClick={onAskAgent ?? onOpenAgent}
-                  className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-border-subtle bg-surface-secondary px-3 py-2 type-caption font-medium text-text-secondary hover:border-border-default"
+                  className="ws-touch-floor min-h-11"
                 >
                   <Sparkles className="h-3.5 w-3.5" aria-hidden />
                   {t('askAgentShort')}
-                </button>
+                </SecondaryCTA>
               )}
               <PanelOverflowMenu
-                ariaLabel={t('feynmanExportReport')}
+                ariaLabel={t('wsMore')}
                 triggerTestId="feynman-export-menu"
-                summaryClassName="min-h-11 min-w-11"
+                summaryClassName="ws-touch-floor min-h-11 min-w-11"
                 menuClassName="min-w-[11rem]"
               >
+                <button
+                  type="button"
+                  data-testid="feynman-voice-input"
+                  onClick={toggleVoice}
+                  aria-pressed={voiceActive}
+                  className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+                >
+                  {voiceActive ? <MicOff className="h-3.5 w-3.5" aria-hidden /> : <Mic className="h-3.5 w-3.5" aria-hidden />}
+                  {t('feynmanVoice')}
+                </button>
                 <button
                   type="button"
                   data-testid="feynman-export-rubric"
                   disabled={!rubric}
                   onClick={() => exportRubric('download')}
-                  className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted disabled:opacity-40"
+                  className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover disabled:opacity-40"
                 >
                   <Download className="h-3.5 w-3.5" aria-hidden />
                   {t('feynmanExportReport')}
@@ -370,45 +357,78 @@ export function FeynmanCheck({
                   data-testid="feynman-print-rubric"
                   disabled={!rubric}
                   onClick={() => exportRubric('print')}
-                  className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary disabled:opacity-40"
+                  className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary disabled:opacity-40"
                 >
                   <Printer className="h-3.5 w-3.5" aria-hidden />
                   PDF
                 </button>
               </PanelOverflowMenu>
             </div>
+
+            <CollapsibleChromeSection
+              title={t('feynmanOutlineChrome')}
+              alwaysCollapse
+              defaultOpen={wordCount === 0}
+              data-testid="feynman-outline-chrome"
+            >
+              <ul className="space-y-1.5 px-3 pb-3 type-caption leading-snug text-text-secondary">
+                {outline.map((item) => (
+                  <li key={item}>• {item}</li>
+                ))}
+              </ul>
+            </CollapsibleChromeSection>
+
+            {dedupedKeyTerms.length > 0 && (
+              <CollapsibleChromeSection
+                title={t('feynmanTermsChrome')}
+                alwaysCollapse
+                data-testid="feynman-terms-chrome"
+              >
+                <div className="flex flex-wrap gap-1.5 px-3 pb-3" data-testid="feynman-key-terms">
+                  {dedupedKeyTerms.map((kt) => (
+                    <button
+                      key={kt.term}
+                      type="button"
+                      title={kt.definition}
+                      onClick={() => onOpenInReader?.(kt.term)}
+                      className="ws-touch-floor rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
+                    >
+                      {kt.term}
+                    </button>
+                  ))}
+                </div>
+              </CollapsibleChromeSection>
+            )}
           </div>
 
-          <div className="space-y-3">
+          {showFeedbackSide ? (
+          <div className="min-w-0 space-y-3">
             {coachFeedback && (
-              <div className="rounded-xl border border-brand-500/30 bg-brand-500/5 p-3 space-y-2">
+              <div className="space-y-2 rounded-xl border border-border-subtle bg-surface-secondary/40 p-3">
                 <p className="type-meta font-semibold text-text-primary">{coachFeedback.headline}</p>
                 <p className="type-caption text-text-muted">{coachEngineLabel}</p>
                 <div>
-                  <p className="type-caption font-semibold text-accent-emerald mb-1">Strengths</p>
-                  {/* UIUX-AUDIT-2026-08 F2 — same ‶ (U+2036) stray-glyph bug as the
-                      outline list above, found by repo-wide grep after the first fix.
-                      Rollback: restore ‶. */}
-                  <ul className="type-caption text-text-secondary space-y-0.5">
+                  <p className="mb-1 type-caption font-medium text-text-secondary">{t('feynmanCoachStrengths')}</p>
+                  <ul className="space-y-0.5 type-caption text-text-secondary">
                     {coachFeedback.strengths.map((s, i) => <li key={i}>• {s}</li>)}
                   </ul>
                 </div>
                 <div>
-                  <p className="type-caption font-semibold text-accent-amber mb-1">Improve</p>
-                  <ul className="type-caption text-text-secondary space-y-0.5">
+                  <p className="mb-1 type-caption font-medium text-text-secondary">{t('feynmanCoachImprove')}</p>
+                  <ul className="space-y-0.5 type-caption text-text-secondary">
                     {coachFeedback.improvements.map((s, i) => <li key={i}>• {s}</li>)}
                   </ul>
                 </div>
                 {coachFeedback.rewrite && (
-                  <p className="type-caption text-text-secondary whitespace-pre-wrap border-t border-border-subtle pt-2">{coachFeedback.rewrite}</p>
+                  <p className="whitespace-pre-wrap border-t border-border-subtle pt-2 type-caption text-text-secondary">{coachFeedback.rewrite}</p>
                 )}
-                <p className="type-caption text-text-primary font-medium">{coachFeedback.nextStep}</p>
+                <p className="type-caption font-medium text-text-primary">{coachFeedback.nextStep}</p>
               </div>
             )}
 
             {autoGaps.length > 0 && (
               <WorkspacePanelWarnStrip layout="box" testId="feynman-auto-gaps" className="mb-0">
-                <p className="mb-2 type-caption font-semibold">
+                <p className="mb-2 type-caption font-medium text-text-secondary">
                   {t('feynmanAutoGaps')}
                 </p>
                 <ul className="space-y-2">
@@ -419,9 +439,9 @@ export function FeynmanCheck({
                         <button
                           type="button"
                           onClick={() => onOpenInReader(g.searchTerm)}
-                          className="shrink-0 type-caption text-text-secondary hover:text-text-primary"
+                          className="shrink-0 type-caption font-medium text-text-secondary hover:text-text-primary"
                         >
-                          Reader →
+                          {t('feynmanOpenInReader')}
                         </button>
                       )}
                     </li>
@@ -431,18 +451,18 @@ export function FeynmanCheck({
             )}
 
             {rubric && (
-              <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3">
+              <div className="rounded-xl border border-border-subtle bg-surface-card/60 p-3" data-testid="feynman-score-panel">
                 <div className="mb-2 flex items-center justify-between gap-2">
-                  <p className="type-caption font-semibold text-text-muted">Rubric</p>
+                  <p className="type-caption font-medium text-text-secondary">{t('feynmanScoreTitle')}</p>
                   <div className="flex gap-1">
                     <button
                       type="button"
                       data-testid="feynman-rubric-export-download"
                       onClick={() => exportRubric('download')}
                       title={t('feynmanDownloadReport')}
-                      className="inline-flex items-center gap-1 rounded-md border ws-chip-brand rounded-md px-2 py-0.5 type-caption font-medium hover:bg-brand-600/20"
+                      className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary"
                     >
-                      <Download className="w-3 h-3" />
+                      <Download className="h-3 w-3" aria-hidden />
                       {t('exportLabel')}
                     </button>
                     <button
@@ -450,9 +470,9 @@ export function FeynmanCheck({
                       data-testid="feynman-rubric-export-print"
                       onClick={() => exportRubric('print')}
                       title={t('dashPrintPdf')}
-                      className="inline-flex items-center gap-1 rounded-md border border-border-subtle px-2 py-0.5 type-caption font-medium text-text-muted hover:text-text-secondary"
+                      className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1 type-caption font-medium text-text-muted hover:text-text-secondary"
                     >
-                      <Printer className="w-3 h-3" />
+                      <Printer className="h-3 w-3" aria-hidden />
                       PDF
                     </button>
                   </div>
@@ -460,12 +480,12 @@ export function FeynmanCheck({
                 <div className="space-y-2">
                   {rubricDims.map((dim) => (
                     <div key={dim}>
-                      <div className="mb-0.5 flex justify-between type-caption">
+                      <div className="mb-0.5 flex justify-between type-caption text-text-secondary">
                         <span>{t(RUBRIC_LABEL_KEYS[dim])}</span>
-                        <span className="font-mono text-text-primary">{rubric.scores[dim]}%</span>
+                        <span className="tabular-nums text-text-primary">{rubric.scores[dim]}%</span>
                       </div>
                       <div className="h-1.5 overflow-hidden rounded-full bg-surface-hover">
-                        <div className="h-full rounded-full bg-brand-500 transition-all" style={{ width: `${rubric.scores[dim]}%` }} />
+                        <div className="h-full rounded-full bg-brand-500/80 transition-all" style={{ width: `${rubric.scores[dim]}%` }} />
                       </div>
                     </div>
                   ))}
@@ -476,21 +496,21 @@ export function FeynmanCheck({
             {rubric && rubric.weak.length > 0 && (
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="type-caption font-semibold text-text-muted">Gaps to fix</p>
+                  <p className="type-caption font-medium text-text-secondary">{t('feynmanGapsTitle')}</p>
                   {onOpenQuiz && (
                     <button
                       type="button"
                       data-testid="feynman-open-quiz"
                       onClick={onOpenQuiz}
-                      className="inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption font-medium text-text-secondary hover:opacity-90"
+                      className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary"
                     >
                       {t('feynmanOpenQuiz')}
                     </button>
                   )}
                 </div>
                 {rubric.weak.map((dim) => (
-                  <div key={dim} className="rounded-lg border border-border-subtle bg-surface-primary/50 p-2.5 type-caption leading-5 text-text-secondary">
-                    <p className="font-medium text-text-secondary">{t(RUBRIC_LABEL_KEYS[dim])}</p>
+                  <div key={dim} className="rounded-xl border border-border-subtle bg-surface-secondary/30 p-2.5 type-caption leading-5 text-text-secondary">
+                    <p className="font-medium text-text-primary">{t(RUBRIC_LABEL_KEYS[dim])}</p>
                     <p className="mt-0.5">{gapHints?.[0] ?? rubricGapHint(dim, concept, t)}</p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {(onAskAgentWithPrompt ?? onAskAgent ?? onOpenAgent) && (
@@ -502,9 +522,9 @@ export function FeynmanCheck({
                             if (onAskAgentWithPrompt) onAskAgentWithPrompt(prompt);
                             else (onAskAgent ?? onOpenAgent)?.();
                           }}
-                          className="inline-flex items-center gap-1 ws-chip-brand rounded-lg border px-2 py-1 type-caption font-medium hover:opacity-90"
+                          className="inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-card px-2 py-1 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary"
                         >
-                          <Sparkles className="w-3 h-3" />
+                          <Sparkles className="h-3 w-3" aria-hidden />
                           {t('feynmanAgentFixDim').replace('{dim}', t(RUBRIC_LABEL_KEYS[dim]))}
                         </button>
                       )}
@@ -512,15 +532,18 @@ export function FeynmanCheck({
                         <button
                           type="button"
                           onClick={() => onOpenInReader(gapSearchTerm(dim, concept, gapTerms))}
-                          className="flex items-center gap-1 type-caption font-medium text-text-secondary hover:opacity-80"
+                          className="inline-flex items-center gap-1 type-caption font-medium text-text-secondary hover:text-text-primary"
                         >
-                          <BookOpen className="w-3 h-3" />
+                          <BookOpen className="h-3 w-3" aria-hidden />
                           {t('feynmanReadInSource')}
                         </button>
                       )}
                       {onFocusConcept && (
-                        <button type="button" onClick={() => onFocusConcept('concept-map')}
-                          className="type-caption font-medium text-text-secondary hover:text-text-primary">
+                        <button
+                          type="button"
+                          onClick={() => onFocusConcept('concept-map')}
+                          className="type-caption font-medium text-text-secondary hover:text-text-primary"
+                        >
                           {t('feynmanConceptMapArrow')}
                         </button>
                       )}
@@ -530,6 +553,7 @@ export function FeynmanCheck({
               </div>
             )}
           </div>
+          ) : null}
         </div>
       </div>
     </div>

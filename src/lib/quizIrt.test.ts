@@ -39,11 +39,12 @@ describe('quizIrt', () => {
       50,
     );
     const copy = formatQuizIrtForLearner(irt, 'el', 0);
-    expect(copy.readinessLabel).toContain('Άγνωστη');
-    expect(copy.difficultyLabel).toContain('Βασική');
+    expect(copy.readinessLabel).toMatch(/Επίπεδο|μαθαίνουμε/i);
+    expect(copy.difficultyLabel).toMatch(/Απαλή|Μέτρια|Δύσκολη/);
     expect(copy.probabilityLabel).toMatch(/~\d+%/);
     expect(copy.hint).toBeTruthy();
     expect(JSON.stringify(copy)).not.toContain('Ικανότητα');
+    expect(JSON.stringify(copy)).not.toMatch(/IRT|θ\b|theta/i);
   });
 
   it('builds narrowing confidence bands as responses grow', () => {

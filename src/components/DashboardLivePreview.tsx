@@ -8,6 +8,7 @@ import { workspaceEntryPrefetchHandlers } from '../features/workspace';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { DashboardLivePreviewWatches } from './DashboardLivePreviewWatches';
 import { AllCapsLabel } from './ui/AllCapsLabel';
+import { PrimaryCTA } from './ui/primitives';
 
 type PreviewStep = {
   id: string;
@@ -103,11 +104,13 @@ export function DashboardLivePreview({
       : t('dashboardResumeSubtitle'));
 
   if (compact) {
+    /* Wave H2 — full-bleed resume strip (no nested card gutter) */
     return (
-      <BlueprintSurface
-        className="dashboard-live-preview border border-accent-emerald/25 bg-accent-emerald/[0.06] border-l-[3px] border-l-accent-emerald p-3 sm:p-3.5"
+      <div
+        className="dashboard-live-preview w-full max-w-none border-y border-border-subtle border-l-[3px] border-l-accent-emerald bg-accent-emerald/[0.06] py-2.5"
         data-tour="dashboard-resume"
         data-testid="dashboard-live-preview"
+        data-bleed="full"
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
@@ -118,18 +121,20 @@ export function DashboardLivePreview({
             <p className="mt-0.5 type-caption text-text-tertiary line-clamp-1">{meta}</p>
           </div>
           {onOpenWorkspace && (
-            <button
+            <PrimaryCTA
               type="button"
+              size="md"
               onClick={onOpenWorkspace}
               data-testid="dashboard-resume-workspace"
               {...workspaceEntryPrefetchHandlers()}
-              className="dashboard-continue-hero flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-700 px-3.5 py-2 type-caption font-semibold text-white transition-all hover:bg-brand-800"
+              className="dashboard-continue-hero ws-touch-floor min-h-10 shrink-0 rounded-lg px-4"
             >
-              {t('dashboardResumeContinue')} <ArrowRight className="h-3 w-3" />
-            </button>
+              {t('dashboardResumeContinue')}
+              <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+            </PrimaryCTA>
           )}
         </div>
-      </BlueprintSurface>
+      </div>
     );
   }
 

@@ -70,3 +70,32 @@ describe('DashboardPanel — session export (Wave 5E)', () => {
     expect(click).toHaveBeenCalled();
   });
 });
+
+describe('DashboardPanel — Wave PR densify', () => {
+  it('is full-bleed with nested filter and PrimaryCTA next step', () => {
+    render(
+      <DashboardPanel
+        session={session}
+        concept="Tariffs"
+        lang="en"
+        miniProps={miniProps}
+        onOpenInReader={vi.fn()}
+        nextAction={{
+          primary: 'reprocess',
+          reason: 'Your notes need a fresh pass — tables and formulas may look off.',
+          secondary: ['study-section'],
+        }}
+        onRunNextAction={vi.fn()}
+      />,
+    );
+    expect(screen.getByTestId('dashboard-panel').getAttribute('data-bleed')).toBe('full');
+    expect(screen.getByTestId('dashboard-work-surface').getAttribute('data-bleed')).toBe('full');
+    expect(screen.getByTestId('mini-dashboard-embedded').getAttribute('data-bleed')).toBe('full');
+    expect(screen.getByTestId('dashboard-filter-chrome')).toBeTruthy();
+    expect(screen.queryByTestId('dashboard-filter')).toBeNull();
+    fireEvent.click(screen.getByTestId('dashboard-filter-chrome-toggle'));
+    expect(screen.getByTestId('dashboard-filter')).toBeTruthy();
+    expect(screen.getByTestId('workspace-dashboard-next-action-btn').textContent).toMatch(/Refresh notes/);
+  });
+});
+

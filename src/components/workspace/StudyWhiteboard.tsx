@@ -108,7 +108,14 @@ export function StudyWhiteboard({
   /* Wave F4 — layers chrome collapsed by default (canvas-first density) */
   const [showLayers, setShowLayers] = useState(false);
   const [showStamps, setShowStamps] = useState(false);
+  /* Wave WB — notes rail closed by default so the canvas is the hero (open if scratchpad import) */
+  const [notesOpen, setNotesOpen] = useState(!!scratchpadImport);
   const [liveAnnouncement, setLiveAnnouncement] = useState('');
+  const hasNotesRail = referenceFormulas.length > 0 || !!referenceExcerpt || !!scratchpadImport;
+
+  useEffect(() => {
+    if (scratchpadImport) setNotesOpen(true);
+  }, [scratchpadImport]);
   const drawing = useRef(false);
   const crdtRef = useRef(crdt);
   crdtRef.current = crdt;
@@ -538,9 +545,12 @@ export function StudyWhiteboard({
   }, [activeLayerLocked, redo, t, tool, undo]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden lg:flex-row min-w-0">
-      {(referenceFormulas.length > 0 || referenceExcerpt || scratchpadImport) && (
-        <aside className="shrink-0 border-b lg:border-b-0 lg:border-r border-border-subtle lg:w-64 overflow-y-auto p-3 space-y-3">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden lg:flex-row min-w-0" data-testid="study-whiteboard">
+      {hasNotesRail && notesOpen && (
+        <aside
+          className="shrink-0 border-b lg:border-b-0 lg:border-r border-border-subtle lg:w-56 overflow-y-auto p-3 space-y-3"
+          data-testid="whiteboard-notes-rail"
+        >
           {scratchpadImport && (
             <div className="p-3 rounded-xl border border-accent-cyan/30 bg-accent-cyan/5 space-y-2">
               <div className="flex items-center justify-between gap-2">
@@ -611,31 +621,10 @@ export function StudyWhiteboard({
       )}
 
       <div className="flex min-h-0 flex-1 flex-col min-w-0">
-      <div className="shrink-0 border-b border-border-subtle px-3 py-2">
-        <div className="flex items-center gap-2">
-          <h3 className="type-meta font-semibold">Study Whiteboard</h3>
-          {crdt && (
-            <span
-              className={cn(
-                'rounded-full px-2 py-0.5 type-caption font-semibold border',
-                crdt.synced
-                  ? 'border-accent-emerald/40 bg-accent-emerald/10 text-accent-emerald'
-                  : 'border-border-subtle bg-surface-hover text-text-muted',
-              )}
-              data-testid="whiteboard-crdt-status"
-            >
-              {crdt.synced ? t('conceptMapCollabSynced') : t('conceptMapCollabConnecting')}
-            </span>
-          )}
-        </div>
-        <p className="type-caption text-text-tertiary">
-          {t('wbHintLocalSave')}
-        </p>
-      </div>
-
-      {/* Wave F4 — icon-only primary tools; labels via title/aria (less chrome density) */}
+      {/* Wave WB — no nested “Study Whiteboard” title; tool header already names the panel */}
+      {/* Wave F4/WB — icon tools + ink popover; notes toggle; advanced in ⋯ */}
       <div
-        className="ws-wb-toolbar flex shrink-0 flex-wrap items-center gap-1 border-b border-border-subtle px-2 py-1.5 sm:gap-1.5 sm:px-3 sm:py-2"
+        className="ws-wb-toolbar flex shrink-0 flex-wrap items-center gap-1 border-b border-border-subtle px-2 py-1.5 sm:gap-1.5 sm:px-3"
         data-testid="whiteboard-draw-toolbar"
       >
         {DRAW_TOOLS.map(({ id, icon: Icon, label }) => (
@@ -709,18 +698,94 @@ export function StudyWhiteboard({
             <Bot className="w-3.5 h-3.5" aria-hidden />
           </button>
         )}
+        {/* Wave WB — ink (color + thickness) nested; not a permanent second toolbar row */}
+        <details className="relative" data-testid="whiteboard-ink-menu">
+          <summary
+            className="ws-touch-floor inline-flex min-h-9 cursor-pointer list-none items-center gap-1.5 rounded-lg border border-border-subtle px-2 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary [&::-webkit-details-marker]:hidden"
+            aria-label={t('wbInk')}
+          >
+            <span
+              className="h-3.5 w-3.5 shrink-0 rounded-full border border-border-subtle"
+              style={{ backgroundColor: color }}
+              aria-hidden
+            />
+            <span className="hidden sm:inline">{t('wbInk')}</span>
+          </summary>
+          <div className="absolute left-0 top-full z-20 mt-1 min-w-[12rem] rounded-lg border border-border-subtle bg-surface-elevated p-3 shadow-lg">
+            <p className="mb-1.5 type-caption text-text-muted">{t('wbColor')}</p>
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {COLORS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  aria-label={`${t('wbSelectColor')} ${c}`}
+                  aria-pressed={color === c}
+                  onClick={() => setColor(c)}
+                  className={cn(
+                    'h-7 w-7 rounded-full border-2',
+                    color === c ? 'border-brand-500' : 'border-transparent',
+                  )}
+                  style={{ backgroundColor: c }}
+                />
+              ))}
+            </div>
+            <label htmlFor="wb-stroke-width" className="type-caption text-text-muted">
+              {t('wbStrokeWidth')}
+            </label>
+            <input
+              id="wb-stroke-width"
+              type="range"
+              min={1}
+              max={12}
+              value={width}
+              onChange={(e) => setWidth(Number(e.target.value))}
+              className="mt-1 w-full"
+            />
+          </div>
+        </details>
+        {hasNotesRail && (
+          <button
+            type="button"
+            data-testid="whiteboard-notes-toggle"
+            aria-pressed={notesOpen}
+            onClick={() => setNotesOpen((v) => !v)}
+            className={cn(
+              'ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border px-2 type-caption font-medium sm:px-2.5',
+              notesOpen
+                ? 'border-border-default bg-surface-secondary text-text-primary'
+                : 'border-border-subtle text-text-secondary hover:border-border-default',
+            )}
+          >
+            <BookOpen className="h-3.5 w-3.5" aria-hidden />
+            <span className="hidden sm:inline">{t('wbNotesToggle')}</span>
+          </button>
+        )}
+        {crdt && (
+          <span
+            className={cn(
+              'rounded-lg border px-2 py-1 type-caption font-medium',
+              crdt.synced
+                ? 'border-accent-emerald/35 bg-accent-emerald/10 text-text-secondary'
+                : 'border-border-subtle bg-surface-hover text-text-secondary',
+            )}
+            data-testid="whiteboard-crdt-status"
+          >
+            {crdt.synced ? t('conceptMapCollabSynced') : t('conceptMapCollabConnecting')}
+          </span>
+        )}
         <PanelOverflowMenu
           className="ml-auto"
           ariaLabel={t('wbMoreTools')}
           triggerTestId="whiteboard-more-menu"
           menuClassName="min-w-[11rem]"
+          summaryClassName="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover"
         >
           <button
             type="button"
             data-testid="whiteboard-layers-toggle"
             aria-pressed={showLayers}
             onClick={() => setShowLayers((v) => !v)}
-            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted"
+            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
           >
             {t('wbToggleLayersPanel')}
           </button>
@@ -729,21 +794,21 @@ export function StudyWhiteboard({
             data-testid="whiteboard-latex-stamps"
             aria-pressed={showStamps}
             onClick={() => setShowStamps((v) => !v)}
-            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted"
+            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
           >
-            LaTeX
+            {t('wbLatexStamps')}
           </button>
           <button
             type="button"
             onClick={clearActiveLayer}
-            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted"
+            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
           >
             {t('wbClearActiveLayer')}
           </button>
           <button
             type="button"
             onClick={save}
-            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted"
+            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
           >
             {t('wbSaveBoard')}
           </button>
@@ -751,7 +816,7 @@ export function StudyWhiteboard({
             type="button"
             data-testid="whiteboard-export-png"
             onClick={exportPng}
-            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted"
+            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
           >
             {t('wbExportPng')}
           </button>
@@ -759,10 +824,13 @@ export function StudyWhiteboard({
             type="button"
             data-testid="whiteboard-export-svg"
             onClick={exportSvg}
-            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted"
+            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
           >
             {t('wbExportSvg')}
           </button>
+          <p className="border-t border-border-subtle px-3 py-2 type-caption leading-snug text-text-muted">
+            {t('wbHintLocalSave')}
+          </p>
         </PanelOverflowMenu>
         {savedMsg && <span className="type-caption text-accent-emerald">{t('wbSaved')}</span>}
         {activeLayerLocked && (
@@ -854,31 +922,6 @@ export function StudyWhiteboard({
         </div>
       )}
 
-      <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-border-subtle px-3 py-2 type-caption">
-        <span className="text-text-tertiary">Color</span>
-        {COLORS.map((c) => (
-          <button
-            key={c}
-            type="button"
-            aria-label={`${t('wbSelectColor')} ${c}`}
-            aria-pressed={color === c}
-            onClick={() => setColor(c)}
-            className={cn('h-5 w-5 rounded-full border-2', color === c ? 'border-brand-400' : 'border-transparent')}
-            style={{ backgroundColor: c }}
-          />
-        ))}
-        <label htmlFor="wb-stroke-width" className="ml-2 text-text-tertiary">{t('wbStrokeWidth')}</label>
-        <input
-          id="wb-stroke-width"
-          type="range"
-          min={1}
-          max={12}
-          value={width}
-          onChange={(e) => setWidth(Number(e.target.value))}
-          className="w-24"
-        />
-      </div>
-
       <div ref={containerRef} className="relative min-h-0 flex-1 p-2">
         <span className="sr-only" aria-live="polite" aria-atomic="true">{liveAnnouncement}</span>
         <canvas
@@ -888,7 +931,7 @@ export function StudyWhiteboard({
           tabIndex={0}
           aria-label={t('wbCanvasLabel')}
           className={cn(
-            'touch-none rounded-xl border border-border-subtle w-full outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
+            'touch-none h-full w-full rounded-xl border border-border-subtle outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
             activeLayerLocked && 'cursor-not-allowed opacity-90',
           )}
           onKeyDown={handleCanvasKeyDown}
@@ -897,6 +940,16 @@ export function StudyWhiteboard({
           onPointerUp={onUp}
           onPointerLeave={onUp}
         />
+        {doc.strokes.length === 0 && !draft && (
+          <div
+            className="pointer-events-none absolute inset-0 flex items-center justify-center px-6"
+            data-testid="whiteboard-empty-hint"
+          >
+            <p className="max-w-xs rounded-xl border border-border-subtle bg-surface-card/90 px-4 py-3 text-center type-caption leading-relaxed text-text-secondary shadow-sm">
+              {t('wbEmptyCanvasHint')}
+            </p>
+          </div>
+        )}
       </div>
       </div>
     </div>

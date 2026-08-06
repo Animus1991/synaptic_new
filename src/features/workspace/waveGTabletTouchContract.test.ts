@@ -24,17 +24,19 @@ const annotations = readFileSync(
 );
 
 describe('Wave G — toolbar disclosure + tablet touch matrix', () => {
-  it('Concept Map keeps primary toolbar; view tools live in overflow', () => {
+  it('Concept Map keeps primary toolbar; view tools live in overflow + canvas HUD', () => {
     expect(conceptMap).toContain('data-testid="concept-map-toolbar"');
     expect(conceptMap).toContain('concept-map-more-menu');
     expect(conceptMap).toContain('concept-map-zoom-in');
-    // Zoom no longer a permanent icon row in the primary strip
+    expect(conceptMap).toContain('concept-map-zoom-hud');
+    expect(conceptMap).not.toContain('concept-map-auto-layout-btn');
     const toolbar = conceptMap.slice(
       conceptMap.indexOf('concept-map-toolbar'),
       conceptMap.indexOf('concept-map-layers-chrome') > 0
         ? conceptMap.indexOf('concept-map-layers-chrome')
         : conceptMap.indexOf('concept-map-large-graph-banner'),
     );
+    // Filter count must not announce via aria-live in the chrome strip (Wave G / CM)
     expect(toolbar).not.toMatch(/aria-live="polite"/);
   });
 

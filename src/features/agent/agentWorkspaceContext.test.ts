@@ -100,7 +100,8 @@ describe('buildAgentContextBanner', () => {
       sourceQuality: 30,
       handwrittenSource: true,
     }, 'en');
-    expect(banner?.caution).toContain('low extraction quality');
+    expect(banner?.caution).toMatch(/refresh them first|hard to read/i);
+    expect(banner?.caution).not.toMatch(/extraction quality|reprocessing/i);
   });
 
   it('surfaces selection excerpt in banner and JSON handoff', () => {

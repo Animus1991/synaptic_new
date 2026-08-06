@@ -21,11 +21,13 @@ describe('agentContent', () => {
     }
   });
 
-  it('OPT-K74 — grounding badges stay short (no emoji width on phone)', () => {
+  it('OPT-K74 / Wave AG — grounding badges stay short and warm', () => {
     const en = getAgentContent('en').ui;
-    expect(en.badgeSourceGrounded).toBe('Source grounded');
-    expect(en.badgeAiInference).toBe('AI inference');
-    expect(en.badgeSourceGrounded).not.toMatch(/📖|🧠/);
+    expect(en.badgeSourceGrounded).toBe('From your notes');
+    expect(en.badgeAiInference).toBe('Tutor reasoning');
+    expect(en.llmConnected).not.toMatch(/LLM/i);
+    expect(en.sourceModeFooter('strict')).toBe('My notes only');
+    expect(en.badgeSourceGrounded).not.toMatch(/📖|🧠|✓|🛡|📎/);
   });
 });
 

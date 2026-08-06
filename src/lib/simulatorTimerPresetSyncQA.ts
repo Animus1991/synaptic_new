@@ -7,6 +7,7 @@ import type { TimerPresetKey } from './timerSessionModel';
 import {
   EXAM_PRACTICE_PRESETS,
   SIMULATOR_SCENARIO_PRESETS,
+  examPracticeLabel,
   examPracticePresetForScenario,
   getExamPracticePreset,
   timerPresetForExamPractice,
@@ -124,9 +125,11 @@ export function formatSimulatorTimerSyncBanner(input: {
   lang: Lang;
 }): string | null {
   const lang = input.lang;
+  const presetLabel = t(input.linkedTimerPreset, lang);
+  const practice = examPracticeLabel(input.examPractice, lang);
   const parts = [
-    t('qaTimerPresetLabel', lang).replace('{preset}', input.linkedTimerPreset),
-    input.examPractice,
+    t('qaTimerPresetLabel', lang).replace('{preset}', presetLabel),
+    practice,
   ];
   if (input.scenario) {
     parts.push(t('qaScenarioLabel', lang).replace('{id}', input.scenario));

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
-import { ArrowDownUp, Download, Sparkles, List, Calculator, Scale, Flag, TrendingUp } from '@/lib/lucide-shim';
+import { ArrowDownUp, Download, Sparkles, List, Calculator, Flag, TrendingUp } from '@/lib/lucide-shim';
 import { termMatchesFocus } from '../../lib/workspaceFocus';
 import { cn } from '../../utils/cn';
 import { downloadCompareCsv } from '../../lib/compareExport';
@@ -12,6 +12,7 @@ import {
   rowDiffScores,
 } from '../../lib/compareDiff';
 import { t as translate, useI18n, type Lang } from '../../lib/i18n';
+import { PanelOverflowMenu } from '../workspace/PanelOverflowMenu';
 
 /* --- Flowchart Diagram --- */
 interface FlowNode { id: string; label: string; type: 'start' | 'step' | 'decision' | 'end' }
@@ -161,10 +162,17 @@ export function ComparisonTable({
   };
 
   return (
-    <div className="rounded-xl border border-border-subtle bg-surface-card p-4 overflow-x-auto" data-testid="comparison-table">
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <p className="type-caption font-semibold text-text-secondary inline-flex items-center gap-1.5"><Scale className="w-3.5 h-3.5" /> {title}</p>
-        <div className="flex items-center gap-1.5">
+    /* Wave CMP — full-bleed table surface (no nested card gutters) */
+    <div
+      className="overflow-x-auto bg-surface-card"
+      data-testid="comparison-table"
+      data-bleed="full"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-subtle px-3 py-2">
+        <p className="type-caption font-medium text-text-secondary truncate min-w-0">
+          {title}
+        </p>
+        <div className="ml-auto flex items-center gap-1.5">
           <button
             type="button"
             data-testid="compare-diff-toggle"
@@ -172,58 +180,66 @@ export function ComparisonTable({
             aria-pressed={diffMode}
             title={translate('compareDiffLegend', lang as Lang)}
             className={cn(
-              'rounded-lg border px-2 py-1 type-caption font-medium',
-              diffMode ? 'border-accent-amber/40 bg-accent-amber/10 text-accent-amber' : 'border-border-subtle text-text-muted',
+              'ws-touch-floor inline-flex min-h-9 items-center rounded-lg border px-2.5 type-caption font-medium',
+              diffMode
+                ? 'border-accent-amber/40 bg-accent-amber/10 text-text-primary'
+                : 'border-border-subtle text-text-secondary hover:border-border-default',
             )}
           >
             {translate('compareDiff', lang as Lang)}
           </button>
-          <button
-            type="button"
-            data-testid="compare-export-csv"
-            onClick={() => {
-              const rows = diffMode ? annotateDiffCells(sortedItems, baselineIndex) : sortedItems;
-              downloadCompareCsv(`comparison-${lang}`, title, headers, rows, concept);
-            }}
-            className="inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary text-text-primary hover:bg-brand-600/20"
+          <PanelOverflowMenu
+            ariaLabel={translate('wsMore', lang as Lang)}
+            triggerTestId="compare-more-menu"
+            summaryClassName="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover"
           >
-            <Download className="w-3 h-3" />
-            CSV
-          </button>
-          {onAskAgent && (
             <button
               type="button"
-              data-testid="compare-ask-agent"
-              onClick={onAskAgent}
-              className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-1 type-caption font-medium text-accent-cyan hover:bg-accent-cyan/15"
+              data-testid="compare-export-csv"
+              onClick={() => {
+                const rows = diffMode ? annotateDiffCells(sortedItems, baselineIndex) : sortedItems;
+                downloadCompareCsv(`comparison-${lang}`, title, headers, rows, concept);
+              }}
+              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
             >
-              <Sparkles className="w-3 h-3" />
-              Agent
+              <Download className="h-3.5 w-3.5" aria-hidden />
+              {translate('compareExportCsv', lang as Lang)}
             </button>
-          )}
+            {onAskAgent && (
+              <button
+                type="button"
+                data-testid="compare-ask-agent"
+                onClick={onAskAgent}
+                className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
+              >
+                <Sparkles className="h-3.5 w-3.5" aria-hidden />
+                {translate('compareAskTutor', lang as Lang)}
+              </button>
+            )}
+          </PanelOverflowMenu>
         </div>
       </div>
       {diffMode && (
-        <p className="mb-2 type-caption text-accent-amber" data-testid="compare-diff-legend">
+        <p className="border-b border-border-subtle px-3 py-1.5 type-caption text-text-secondary" data-testid="compare-diff-legend">
           {translate('compareDiffLegend', lang as Lang)}
         </p>
       )}
       <table className="w-full type-caption">
         <thead>
-          <tr className="border-b border-border-subtle">
+          <tr className="border-b border-border-subtle bg-surface-secondary/40">
             {headers.map((h, i) => (
-              <th key={i} className="text-left py-2 px-3 text-text-tertiary font-medium">
+              <th key={i} className="px-3 py-2 text-left font-medium text-text-secondary">
                 <button
                   type="button"
                   data-testid={`compare-sort-col-${i}`}
                   onClick={() => toggleSort(i)}
                   className={cn(
                     'inline-flex items-center gap-1 hover:text-text-primary transition-colors',
-                    sortCol === i && 'text-text-secondary',
+                    sortCol === i && 'text-text-primary',
                   )}
                 >
                   {h}
-                  <ArrowDownUp className="w-3 h-3 opacity-60" />
+                  <ArrowDownUp className="h-3 w-3 opacity-60" aria-hidden />
                   {sortCol === i && (
                     <span className="type-caption font-mono">{sortDir === 'asc' ? '↑' : '↓'}</span>
                   )}
@@ -248,8 +264,8 @@ export function ComparisonTable({
                 className={cn(
                   'border-b border-border-subtle/50 last:border-0',
                   focused && 'bg-brand-500/10',
-                  selected && 'ring-1 ring-accent-cyan/40 bg-accent-cyan/5',
-                  isBaseline && diffMode && 'ring-1 ring-accent-amber/30',
+                  selected && 'ring-1 ring-inset ring-border-default bg-surface-secondary/50',
+                  isBaseline && diffMode && 'bg-surface-secondary/30',
                   (onRowFocus || onRowSelect) && 'cursor-pointer hover:bg-surface-hover',
                 )}
                 onClick={() => {
@@ -265,10 +281,9 @@ export function ComparisonTable({
                     <td
                       key={j}
                       className={cn(
-                        'py-2 px-3 text-text-secondary',
+                        'max-w-[18rem] whitespace-normal break-words px-3 py-2.5 text-text-secondary',
                         j === 0 && focused && 'font-semibold text-text-primary',
-                        // Wash carries the "diff" signal; ink stays primary for AA on light themes.
-                        highlight && 'bg-accent-amber/22 text-text-primary font-semibold',
+                        highlight && 'bg-accent-amber/22 font-semibold text-text-primary',
                       )}
                     >
                       {cell}

@@ -33,7 +33,7 @@ type Props = {
   onAcknowledgeStale?: () => void;
 };
 
-/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* Wave FC — card-first Flashcards; warm chrome; filters demoted */
 export function LeitnerPanel({
   session,
   concept,
@@ -98,63 +98,68 @@ export function LeitnerPanel({
   return (
     <div className="flex h-full flex-col overflow-hidden" data-testid="leitner-panel">
       <div className="shrink-0 border-b border-border-subtle">
-        {(session.sectionLabel || artifactStale || session.weakExtraction || session.passageGrounded) && (
-          <div className="px-4 pt-3 space-y-2">
+        {/* Wave FC — one compact meta strip: section + count; warn soft-ink */}
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-4 pt-2.5 pb-1.5">
+          <div className="min-w-0 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
             {session.sectionLabel && (
               <p className="type-caption text-text-muted" data-testid="leitner-section-label">
                 {t('wsSectionColon')}{' '}
-                <span className="text-text-secondary">{session.sectionLabel}</span>
+                <span className="font-medium text-text-secondary">{session.sectionLabel}</span>
               </p>
             )}
+            <span className="type-caption tabular-nums text-text-secondary" data-testid="leitner-card-count">
+              {visibleCards.length}/{session.cards.length} {t('panelCards')}
+              {interleaved ? ` · ${t('leitnerInterleaveToggle')}` : ''}
+              {typeFilter !== 'all' ? ` · ${leitnerCardTypeLabel(typeFilter, lang)}` : ''}
+            </span>
+          </div>
+        </div>
 
-            {artifactStale && onAcknowledgeStale && (
-              <LeitnerStaleArtifactBanner
-                lang={lang}
-                placement="header"
-                onDismiss={onAcknowledgeStale}
-              />
-            )}
-
-            {(session.weakExtraction || session.passageGrounded) && (
-              <div
-                className="flex items-start gap-2 rounded-xl border border-accent-amber/30 bg-accent-amber/8 px-3 py-2 type-caption text-accent-amber"
-                data-testid="leitner-weak-extraction"
-              >
-                <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                <p>
-                  {session.passageGrounded
-                    ? t('panelPassageGroundedLeitner')
-                    : t('panelWeakExtractionLeitner')}
-                </p>
-              </div>
-            )}
+        {artifactStale && onAcknowledgeStale && (
+          <div className="px-4 pb-2">
+            <LeitnerStaleArtifactBanner
+              lang={lang}
+              placement="header"
+              onDismiss={onAcknowledgeStale}
+            />
           </div>
         )}
 
-        {/* Wave E5 — keep card stage first; filters live in collapsed chrome */}
-        <div className="flex items-center justify-between gap-2 px-4 py-2">
-          <span className="type-caption text-text-secondary" data-testid="leitner-card-count">
-            {visibleCards.length}/{session.cards.length} {t('panelCards')}
-            {interleaved ? ` · ${t('leitnerInterleaveToggle')}` : ''}
-            {typeFilter !== 'all' ? ` · ${leitnerCardTypeLabel(typeFilter, lang)}` : ''}
-          </span>
-        </div>
+        {(session.weakExtraction || session.passageGrounded) && (
+          <div className="px-4 pb-2">
+            <div
+              className="flex items-start gap-2 rounded-xl border border-accent-amber/25 bg-accent-amber/8 px-3 py-2 type-caption leading-snug text-text-secondary"
+              data-testid="leitner-weak-extraction"
+            >
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-amber" aria-hidden />
+              <p>
+                {session.passageGrounded
+                  ? t('panelPassageGroundedLeitner')
+                  : t('panelWeakExtractionLeitner')}
+              </p>
+            </div>
+          </div>
+        )}
 
         <CollapsibleChromeSection
           title={t('leitnerFiltersChrome')}
           alwaysCollapse
           data-testid="leitner-filters-chrome"
         >
-          <div className="px-4 pb-3 space-y-2">
+          <div className="space-y-2 px-4 pb-3">
             <div className="flex flex-wrap items-center gap-2">
-              <div className="relative flex-1 min-w-[140px] max-w-xs">
-                <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-text-muted" />
+              <div className="relative min-w-[140px] max-w-xs flex-1">
+                <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted" aria-hidden />
+                <label className="sr-only" htmlFor="leitner-filter-input">
+                  {t('panelSearchCards')}
+                </label>
                 <input
+                  id="leitner-filter-input"
                   type="search"
                   value={filterQuery}
                   onChange={(e) => setFilterQuery(e.target.value)}
                   placeholder={t('panelSearchCards')}
-                  className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 type-caption text-text-secondary placeholder:text-text-muted focus:border-border-default focus:outline-none"
+                  className="w-full min-h-9 rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-8 pr-2 type-caption text-text-primary placeholder:text-text-muted focus:border-border-default focus:outline-none"
                   data-testid="leitner-filter"
                 />
               </div>
@@ -162,20 +167,20 @@ export function LeitnerPanel({
                 <button
                   type="button"
                   onClick={() => onOpenInReader(concept)}
-                  className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
+                  className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
                   data-testid="leitner-open-reader"
                 >
-                  <BookOpen className="w-3 h-3" />
+                  <BookOpen className="h-3.5 w-3.5" aria-hidden />
                   {t('cognitiveReader')}
                 </button>
               )}
               <button
                 type="button"
                 onClick={() => setInterleaved((v) => !v)}
-                className={`min-h-9 rounded-lg border px-2.5 py-1 type-caption font-medium transition-colors ${
+                className={`ws-touch-floor min-h-9 rounded-lg border px-2.5 py-1 type-caption font-medium transition-colors ${
                   interleaved
-                    ? 'border-brand-500/40 bg-brand-500/10 text-text-secondary'
-                    : 'border-border-subtle text-text-muted hover:text-text-secondary'
+                    ? 'border-brand-500/40 bg-brand-500/10 text-text-primary'
+                    : 'border-border-subtle text-text-secondary hover:border-border-default hover:text-text-primary'
                 }`}
                 data-testid="leitner-interleave-toggle"
               >
@@ -187,9 +192,9 @@ export function LeitnerPanel({
               <button
                 type="button"
                 onClick={() => setTypeFilter('all')}
-                className={`rounded-lg border px-2 py-1 type-caption font-medium transition-colors ${
+                className={`rounded-lg border px-2.5 py-1 type-caption font-medium transition-colors ${
                   typeFilter === 'all'
-                    ? 'border-brand-500/40 bg-brand-500/10 text-text-secondary'
+                    ? 'border-brand-500/40 bg-brand-500/10 text-text-primary'
                     : 'border-border-subtle text-text-muted hover:text-text-secondary'
                 }`}
               >
@@ -203,9 +208,9 @@ export function LeitnerPanel({
                     key={type}
                     type="button"
                     onClick={() => setTypeFilter(type)}
-                    className={`rounded-lg border px-2 py-1 type-caption font-medium transition-colors ${
+                    className={`rounded-lg border px-2.5 py-1 type-caption font-medium transition-colors ${
                       typeFilter === type
-                        ? 'border-brand-500/40 bg-surface-secondary text-text-secondary'
+                        ? 'border-brand-500/40 bg-surface-secondary text-text-primary'
                         : 'border-border-subtle text-text-muted hover:text-text-secondary'
                     }`}
                     data-testid={`leitner-type-${type}`}
@@ -223,7 +228,7 @@ export function LeitnerPanel({
                     key={card.front}
                     type="button"
                     onClick={() => onOpenInReader?.(card.front)}
-                    className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-0.5 type-caption text-text-secondary hover:opacity-90"
+                    className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-0.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
                   >
                     {card.front.slice(0, 48)}{card.front.length > 48 ? '…' : ''}
                   </button>
@@ -234,7 +239,7 @@ export function LeitnerPanel({
         </CollapsibleChromeSection>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto">
         {visibleCards.length === 0 ? (
           <div className="p-4 text-center type-caption text-text-muted" data-testid="leitner-type-empty">
             {t('leitnerFilterNoMatch')}
