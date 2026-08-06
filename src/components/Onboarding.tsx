@@ -244,7 +244,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
           {showResumeHint && (
             <p
               data-testid="onboarding-resume-hint"
-              className="mb-4 text-center text-xs text-text-secondary"
+              className="mb-4 text-center type-caption text-text-secondary"
             >
               {content.resumeDraftHint}
             </p>
@@ -255,7 +255,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
               tabIndex={-1}
               role="alert"
               data-testid="onboarding-validation-error"
-              className="mb-4 flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200 outline-none focus:ring-2 focus:ring-red-400/50"
+              className="mb-4 flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 type-body text-red-200 outline-none focus:ring-2 focus:ring-red-400/50"
             >
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden />
               {validationText}
@@ -283,7 +283,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-3 text-center">
+                  <p className="type-caption font-semibold text-text-tertiary uppercase tracking-wider mb-3 text-center">
                     <AllCapsLabel>{content.welcomeFeatureTitle}</AllCapsLabel>
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -294,8 +294,8 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                           <div className="w-9 h-9 rounded-xl bg-brand-600/10 flex items-center justify-center mb-3">
                             <Icon className="w-4 h-4 text-text-primary0" />
                           </div>
-                          <p className="text-sm font-medium text-text-primary">{feature.title}</p>
-                          <p className="text-xs text-text-tertiary mt-1">{feature.desc}</p>
+                          <p className="type-meta font-medium text-text-primary">{feature.title}</p>
+                          <p className="type-caption text-text-tertiary mt-1">{feature.desc}</p>
                         </div>
                       );
                     })}
@@ -303,7 +303,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 </div>
                 <div className="max-w-sm mx-auto text-left space-y-4">
                   <div>
-                    <label className="block text-xs font-medium text-text-tertiary mb-1.5" htmlFor="onb-name">
+                    <label className="block type-caption font-medium text-text-tertiary mb-1.5" htmlFor="onb-name">
                       {content.nameLabel}{' '}
                       <span className="text-text-muted">{content.nameOptional}</span>
                     </label>
@@ -314,7 +314,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                       onChange={(e) => setDisplayName(e.target.value)}
                       placeholder={content.namePlaceholder}
                       autoComplete="name"
-                      className="w-full px-4 py-2.5 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
+                      className="w-full px-4 py-2.5 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50"
                     />
                   </div>
                   <button
@@ -328,7 +328,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     type="button"
                     data-testid="onboarding-continue-without-upload"
                     onClick={() => completeOnboarding({ skipWizard: true })}
-                    className="w-full text-sm text-text-secondary hover:text-text-primary transition-colors"
+                    className="w-full type-meta text-text-secondary hover:text-text-primary transition-colors"
                   >
                     {content.continueWithoutUpload}
                   </button>
@@ -348,7 +348,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
               >
                 <div className="text-center">
                   <h2 id="onb-role-title" className="text-xl font-medium ws-serif">{content.roleTitle}</h2>
-                  <p className="text-text-secondary mt-1 text-sm">{content.roleSubtitle}</p>
+                  <p className="text-text-secondary mt-1 type-body">{content.roleSubtitle}</p>
                 </div>
                 <div className="space-y-2" role="radiogroup" aria-labelledby="onb-role-title">
                   {roles.map((role) => {
@@ -377,8 +377,8 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                           className={cn('w-6 h-6', selected ? 'text-text-secondary' : 'text-text-tertiary')}
                         />
                         <div>
-                          <p className="font-medium text-sm">{role.label}</p>
-                          <p className="text-xs text-text-tertiary">{role.desc}</p>
+                          <p className="font-medium type-meta">{role.label}</p>
+                          <p className="type-caption text-text-tertiary">{role.desc}</p>
                         </div>
                         {selected && <CheckCircle2 className="w-5 h-5 text-text-secondary ml-auto" />}
                       </button>
@@ -400,7 +400,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
               >
                 <div className="text-center">
                   <h2 id="onb-goals-title" className="text-xl font-medium ws-serif">{content.goalsTitle}</h2>
-                  <p className="text-text-secondary mt-1 text-sm">{content.goalsSubtitle}</p>
+                  <p className="text-text-secondary mt-1 type-body">{content.goalsSubtitle}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-2" role="group" aria-labelledby="onb-goals-title">
                   {goals.map((goal) => {
@@ -421,7 +421,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                         )}
                       >
                         <UiIcon id={goal.icon} size="lg" className="mb-2 text-text-secondary" />
-                        <p className="text-sm font-medium">{goal.label}</p>
+                        <p className="type-meta font-medium">{goal.label}</p>
                         <p className="type-caption text-text-tertiary mt-1">
                           {goal.id === 'exam'
                             ? content.examDateHint
@@ -448,11 +448,11 @@ export function Onboarding({ onComplete }: OnboardingProps) {
               >
                 <div className="text-center">
                   <h2 className="text-xl font-medium ws-serif">{content.prefsTitle}</h2>
-                  <p className="text-text-secondary mt-1 text-sm">{content.prefsSubtitle}</p>
+                  <p className="text-text-secondary mt-1 type-body">{content.prefsSubtitle}</p>
                 </div>
                 {isTeacherRole && (
                   <div
-                    className="ux-banner-warn p-3 rounded-xl border border-accent-amber/30 bg-accent-amber/10 text-xs text-text-secondary flex items-start gap-2"
+                    className="ux-banner-warn p-3 rounded-xl border border-accent-amber/30 bg-accent-amber/10 type-caption text-text-secondary flex items-start gap-2"
                     data-testid="onboarding-teacher-preview-hint"
                   >
                     <Users className="ux-banner-warn-accent w-4 h-4 shrink-0 mt-0.5" aria-hidden />
@@ -463,7 +463,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   <div className="p-4 rounded-xl border border-border-subtle">
                     <div className="flex items-center gap-2 mb-3">
                       <Clock className="w-4 h-4 text-text-tertiary" />
-                      <span className="text-sm font-medium">{content.dailyGoal}</span>
+                      <span className="type-meta font-medium">{content.dailyGoal}</span>
                     </div>
                     <div className="flex gap-2">
                       {[15, 30, 45, 60, 90].map((m) => (
@@ -473,7 +473,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                           aria-pressed={dailyTime === m}
                           onClick={() => setDailyTime(m)}
                           className={cn(
-                            'flex-1 py-2 rounded-lg text-xs font-medium transition-all',
+                            'flex-1 py-2 rounded-lg type-caption font-medium transition-all',
                             dailyTime === m
                               ? 'platform-nav-active'
                               : 'border border-border-subtle text-text-tertiary',
@@ -487,7 +487,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   <div className="p-4 rounded-xl border border-border-subtle">
                     <div className="flex items-center gap-2 mb-3">
                       <Calendar className="w-4 h-4 text-text-tertiary" />
-                      <span className="text-sm font-medium">{content.upcomingExam}</span>
+                      <span className="type-meta font-medium">{content.upcomingExam}</span>
                     </div>
                     <input
                       type="date"
@@ -497,15 +497,15 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                         setExamDate(e.target.value);
                       }}
                       aria-invalid={validationError === 'examDateRequired' || validationError === 'examDatePast'}
-                      className="px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50 w-full"
+                      className="px-4 py-2 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50 w-full"
                     />
                     <p className="type-caption text-text-tertiary mt-2">
                       {hasExamGoal ? content.examDateHint : content.examOnlyHint}
                     </p>
                   </div>
                   <div className="ux-card">
-                    <p className="text-sm font-medium text-text-primary mb-3">{content.summaryTitle}</p>
-                    <div className="space-y-2 text-sm">
+                    <p className="type-meta font-medium text-text-primary mb-3">{content.summaryTitle}</p>
+                    <div className="space-y-2 type-body">
                       <div className="flex justify-between gap-4">
                         <span className="text-text-tertiary">{content.summaryProfile}</span>
                         <span className="text-text-primary font-medium text-right">
@@ -528,7 +528,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                       </div>
                     </div>
                   </div>
-                  <div className="p-3 rounded-xl bg-surface-hover/50 text-xs text-text-muted flex items-start gap-2">
+                  <div className="p-3 rounded-xl bg-surface-hover/50 type-caption text-text-muted flex items-start gap-2">
                     <Brain className="w-4 h-4 text-text-secondary shrink-0 mt-0.5" />
                     {content.adaptiveHint}
                   </div>
@@ -544,7 +544,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
           <button
             type="button"
             onClick={prev}
-            className="flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary"
+            className="flex items-center gap-1 type-meta text-text-secondary hover:text-text-primary"
           >
             <ArrowLeft className="w-4 h-4" /> {content.back}
           </button>
@@ -556,7 +556,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             type="button"
             onClick={next}
             data-testid="onboarding-next"
-            className="flex items-center gap-2 px-5 py-2 ws-fab rounded-xl text-sm font-medium transition-all"
+            className="flex items-center gap-2 px-5 py-2 ws-fab rounded-xl type-meta font-medium transition-all"
           >
             {content.continueBtn} <ArrowRight className="w-4 h-4" />
           </button>
@@ -568,7 +568,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 type="button"
                 data-testid="onboarding-open-teacher"
                 onClick={() => completeOnboarding({ openTeacher: true })}
-                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-medium border border-brand-500/30 bg-surface-secondary text-text-primary hover:bg-brand-600/20 transition-all text-sm"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-medium border border-brand-500/30 bg-surface-secondary text-text-primary hover:bg-brand-600/20 transition-all type-meta"
               >
                 <Users className="w-4 h-4" /> {content.teacherDashboardCta}
               </button>
@@ -577,7 +577,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
               type="button"
               data-testid="onboarding-upload"
               onClick={() => completeOnboarding({ openUpload: true })}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2 ws-fab rounded-xl text-sm font-medium transition-all"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2 ws-fab rounded-xl type-meta font-medium transition-all"
             >
               <Upload className="w-4 h-4" /> {isTeacherRole ? content.uploadCta : content.beginLearning}
             </button>
@@ -591,7 +591,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             type="button"
             data-testid="onboarding-continue-without-upload"
             onClick={() => completeOnboarding()}
-            className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+            className="type-meta text-text-secondary hover:text-text-primary transition-colors"
           >
             {content.continueWithoutUpload}
           </button>
@@ -599,7 +599,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             type="button"
             data-testid="onboarding-explore-demo"
             onClick={() => completeOnboarding({ exploreDemoMode: true })}
-            className="text-sm text-text-tertiary hover:text-text-secondary transition-colors"
+            className="type-meta text-text-tertiary hover:text-text-secondary transition-colors"
           >
             {content.exploreDemoSandbox}
           </button>

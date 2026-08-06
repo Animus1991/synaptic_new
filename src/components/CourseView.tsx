@@ -219,7 +219,7 @@ export function CourseView({
         type="button"
         onClick={onBack}
         data-testid="course-back"
-        className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary mb-2 transition-colors -mt-1"
+        className="flex items-center gap-1.5 type-meta text-text-secondary hover:text-text-primary mb-2 transition-colors -mt-1"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to library
@@ -231,7 +231,7 @@ export function CourseView({
         subtitle={
           <>
             <span className="block max-w-xl">{course.description}</span>
-            <span className="mt-2 flex flex-wrap items-center gap-3 text-xs text-text-tertiary">
+            <span className="mt-2 flex flex-wrap items-center gap-3 type-caption text-text-tertiary">
               <span className="flex items-center gap-1">
                 <BookOpen className="w-3.5 h-3.5" />
                 {course.totalLessons} lessons
@@ -260,7 +260,7 @@ export function CourseView({
                 type="button"
                 onClick={() => setRemoveCourseOpen(true)}
                 data-testid="course-delete"
-                className="flex items-center gap-2 px-3 py-2.5 border border-accent-rose/30 hover:bg-accent-rose/10 rounded-xl text-sm font-medium text-accent-rose transition-all"
+                className="flex items-center gap-2 px-3 py-2.5 border border-accent-rose/30 hover:bg-accent-rose/10 rounded-xl type-meta font-medium text-accent-rose transition-all"
                 aria-label={t('deleteCourseAria')}
               >
                 <Trash2 className="w-4 h-4" />
@@ -272,7 +272,7 @@ export function CourseView({
                 type="button"
                 onClick={onUploadMore}
                 data-testid="course-upload-more"
-                className="flex items-center gap-2 px-4 py-2.5 border border-accent-amber/30 bg-accent-amber/10 hover:bg-accent-amber/15 rounded-xl text-sm font-medium text-accent-amber transition-all"
+                className="flex items-center gap-2 px-4 py-2.5 border border-accent-amber/30 bg-accent-amber/10 hover:bg-accent-amber/15 rounded-xl type-meta font-medium text-accent-amber transition-all"
               >
                 <Upload className="w-4 h-4" />
                 Add material
@@ -352,7 +352,7 @@ export function CourseView({
               type="button"
               onClick={() => onStartLesson()}
               data-testid="course-continue-callout-action"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium ws-empty-cta-secondary shrink-0"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl type-caption font-medium ws-empty-cta-secondary shrink-0"
             >
               {t('courseContinueCalloutAction')} <ArrowRight className="w-3 h-3" />
             </button>
@@ -423,16 +423,16 @@ export function CourseView({
                   {quality.needsMoreMaterial ? <AlertTriangle className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
                   {quality.needsMoreMaterial ? 'Needs More Material' : `${quality.band[0]!.toUpperCase()}${quality.band.slice(1)} Source`}
                 </span>
-                <span className="text-xs text-text-muted">Source quality {quality.score}/100</span>
+                <span className="type-caption text-text-muted">Source quality {quality.score}/100</span>
               </div>
-              <h2 className="mt-3 text-sm font-semibold">Generation diagnostics</h2>
-              <p className="mt-1 text-sm text-text-secondary max-w-3xl">
+              <h2 className="mt-3 type-meta font-semibold">Generation diagnostics</h2>
+              <p className="mt-1 type-body text-text-secondary max-w-3xl">
                 {quality.outlineAdjusted
                   ? `The course outline was compacted to ${quality.finalTopicCount} modules so the source material stays grounded instead of being over-split.`
                   : `The current material supports ${quality.finalTopicCount} grounded modules without needing outline compaction.`}
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-2 gap-2 type-caption">
               <div className="rounded-xl border border-white/10 bg-surface-primary/40 px-3 py-2">
                 <p className="text-text-muted">Detected topics</p>
                 <p className="mt-1 font-semibold">{quality.detectedTopicCount}</p>
@@ -452,12 +452,12 @@ export function CourseView({
             </div>
           </div>
           {quality.warnings.length > 0 && (
-            <p className="mt-4 text-sm text-text-secondary">
+            <p className="mt-4 type-body text-text-secondary">
               <span className="font-semibold text-text-primary">Watch-outs:</span> {quality.warnings.join(' ')}
             </p>
           )}
           {quality.nextActions.length > 0 && (
-            <p className="mt-2 text-sm text-text-secondary">
+            <p className="mt-2 type-body text-text-secondary">
               <span className="font-semibold text-text-primary">Best next upgrade:</span> {quality.nextActions[0]}
             </p>
           )}
@@ -467,7 +467,7 @@ export function CourseView({
                 type="button"
                 onClick={onUploadMore}
                 data-testid="course-quality-upload-more"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-accent-amber/30 bg-accent-amber/10 text-xs font-medium text-accent-amber hover:bg-accent-amber/15"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-accent-amber/30 bg-accent-amber/10 type-caption font-medium text-accent-amber hover:bg-accent-amber/15"
               >
                 <Upload className="w-3.5 h-3.5" />
                 {t('courseQualityActionUpload')}
@@ -479,7 +479,7 @@ export function CourseView({
                 onClick={openReprocessWizard}
                 disabled={reprocessingMaterial}
                 data-testid="course-quality-reprocess"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 text-xs font-medium text-text-secondary hover:bg-brand-500/10 disabled:opacity-60"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 type-caption font-medium text-text-secondary hover:bg-brand-500/10 disabled:opacity-60"
               >
                 <RefreshCw className={cn('w-3.5 h-3.5', reprocessingMaterial && 'animate-spin')} />
                 {t('courseQualityActionReprocess')}
@@ -489,7 +489,7 @@ export function CourseView({
               type="button"
               onClick={() => onStartLesson()}
               data-testid="course-quality-open-workspace"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-600/15 text-xs font-medium text-text-secondary hover:bg-brand-600/25"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-600/15 type-caption font-medium text-text-secondary hover:bg-brand-600/25"
             >
               <Play className="w-3.5 h-3.5" />
               {t('courseQualityActionWorkspace')}
@@ -505,8 +505,8 @@ export function CourseView({
       {/* Progress bar */}
       <AnimatedCard delay={0.1}>
         <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-medium">Course Progress</span>
-          <span className="text-sm text-text-secondary">{course.completedLessons}/{course.totalLessons} lessons</span>
+          <span className="type-meta font-medium">Course Progress</span>
+          <span className="type-body text-text-secondary">{course.completedLessons}/{course.totalLessons} lessons</span>
         </div>
         {/* Wave P-2 C08 — Course Progress top-of-page track uses --viz-bar-track. */}
         <div className="w-full rounded-full h-3" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
@@ -515,7 +515,7 @@ export function CourseView({
             style={{ width: `${progress}%`, backgroundColor: resolveCourseColor(course.color) }}
           />
         </div>
-        <div className="flex justify-between mt-2 text-xs text-text-tertiary">
+        <div className="flex justify-between mt-2 type-caption text-text-tertiary">
           <span>{Math.round(progress)}% complete</span>
           <span>~{Math.round(course.estimatedHours * (1 - progress / 100))}h remaining</span>
         </div>
@@ -523,7 +523,7 @@ export function CourseView({
           <div className="text-center"><p className="ux-kpi-value">{course.conceptCount}</p><p className="type-micro text-text-muted">Concepts</p></div>
           <div className="text-center"><p className="ux-kpi-value">{course.glossaryCount}</p><p className="type-micro text-text-muted">Glossary</p></div>
           <div className="text-center"><p className="ux-kpi-value">{course.exerciseCount}</p><p className="type-micro text-text-muted">Exercises</p></div>
-          <div className="text-center"><p className="text-xs font-semibold capitalize">{course.sourceMode}</p><p className="type-micro text-text-muted">Source Mode</p></div>
+          <div className="text-center"><p className="type-caption font-semibold capitalize">{course.sourceMode}</p><p className="type-micro text-text-muted">Source Mode</p></div>
         </div>
       </AnimatedCard>
 
@@ -680,9 +680,9 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-sm">{topic.title}</h3>
-          <p className="text-xs text-text-tertiary mt-0.5">{topic.description}</p>
-          <div className="flex items-center gap-3 mt-2 text-xs text-text-muted">
+          <h3 className="font-semibold type-meta">{topic.title}</h3>
+          <p className="type-caption text-text-tertiary mt-0.5">{topic.description}</p>
+          <div className="flex items-center gap-3 mt-2 type-caption text-text-muted">
             <span>{topic.estimatedMinutes}m</span>
             <span>{topicLessonCount(topic)} lessons</span>
             {topic.conceptCount > 0 && <span>{topic.conceptCount} concepts</span>}
@@ -708,7 +708,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
           {!topic.isLocked && (
             <>
               <div className="hidden sm:block w-20">
-                <div className="flex justify-between text-xs mb-1">
+                <div className="flex justify-between type-caption mb-1">
                   <span className="text-text-muted">Mastery</span>
                   <span className="font-medium">{topic.mastery}%</span>
                 </div>
@@ -743,12 +743,12 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
         >
           {(topic.objectives?.length ?? 0) > 0 && (
             <div className="pt-4">
-              <p className="text-xs font-semibold text-text-secondary mb-2 flex items-center gap-1.5">
+              <p className="type-caption font-semibold text-text-secondary mb-2 flex items-center gap-1.5">
                 <Target className="w-3.5 h-3.5 text-text-secondary" /> Learning objectives
               </p>
               <ul className="space-y-1">
                 {topic.objectives!.map((o, i) => (
-                  <li key={i} className="flex items-start gap-2 text-xs text-text-secondary">
+                  <li key={i} className="flex items-start gap-2 type-caption text-text-secondary">
                     <CheckCircle2 className="w-3.5 h-3.5 text-accent-emerald shrink-0 mt-0.5" />
                     {o}
                   </li>
@@ -758,7 +758,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
           )}
           {(topic.keyConcepts?.length ?? 0) > 0 && (
             <div>
-              <p className="text-xs font-semibold text-text-secondary mb-2 flex items-center gap-1.5">
+              <p className="type-caption font-semibold text-text-secondary mb-2 flex items-center gap-1.5">
                 <Brain className="w-3.5 h-3.5 text-accent-cyan" /> Key concepts
               </p>
               <div className="flex flex-wrap gap-1.5">
@@ -807,7 +807,7 @@ function ConceptMap({
     <div className="space-y-6">
       {graphSummary.nodeCount > 0 && (
         <p
-          className="text-xs text-text-secondary"
+          className="type-caption text-text-secondary"
           data-testid="course-knowledge-graph-meta"
         >
           {t('courseGraphMeta')
@@ -819,7 +819,7 @@ function ConceptMap({
 
       {graphNodes.length > 0 && (
         <>
-          <p className="text-xs text-text-secondary">{t('courseConceptMapHint')}</p>
+          <p className="type-caption text-text-secondary">{t('courseConceptMapHint')}</p>
           <ConceptGraph
             nodes={graphNodes}
             edges={graphEdges}
@@ -949,7 +949,7 @@ function SourceFiles({
               onClick={onReprocessMaterial}
               disabled={reprocessingMaterial}
               data-testid="course-reprocess-sources"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 text-xs font-medium text-text-secondary hover:bg-brand-500/10 disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 type-caption font-medium text-text-secondary hover:bg-brand-500/10 disabled:opacity-60"
             >
               <RefreshCw className={cn('w-3.5 h-3.5', reprocessingMaterial && 'animate-spin')} />
               {t('courseReprocessStoredText')}
@@ -974,12 +974,12 @@ function SourceFiles({
             <div key={file.id ?? i} className="flex items-start gap-3 p-3 rounded-xl bg-surface-primary/50 border border-border-subtle flex-wrap" data-testid={file.id ? `source-file-${file.id}` : undefined}>
               <FileText className="w-5 h-5 text-text-tertiary shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <span className="text-sm font-medium block truncate">{file.name}</span>
+                <span className="type-meta font-medium block truncate">{file.name}</span>
                 {'pipelineVersion' in file && file.pipelineVersion && (
                   <span className="type-micro text-text-muted">pipeline v{file.pipelineVersion}</span>
                 )}
                 {file.id && (
-                  <p className="mt-2 text-xs text-text-secondary leading-relaxed">
+                  <p className="mt-2 type-caption text-text-secondary leading-relaxed">
                     <span className="font-medium">{t('courseSourcePreviewLabel')}: </span>
                     {preview ?? t('courseSourcePreviewEmpty')}
                   </p>
@@ -991,7 +991,7 @@ function SourceFiles({
               {'ingestMethod' in file && file.ingestMethod && (
                 <span className="type-micro text-text-muted">{file.ingestMethod}</span>
               )}
-              <span className="text-xs text-text-muted">{t('courseAnalyzed')}</span>
+              <span className="type-caption text-text-muted">{t('courseAnalyzed')}</span>
               {file.id && (
                 <VideoSummarizeButton file={file} settings={userSettings} lang={lang} />
               )}
@@ -1028,10 +1028,10 @@ function SourceFiles({
             {glossaryEntries.slice(0, 24).map((g) => {
               const span = findConceptSpan(course, g.term);
               return (
-                <li key={g.term} className="flex items-start justify-between gap-2 text-sm border-b border-border-subtle/50 pb-2">
+                <li key={g.term} className="flex items-start justify-between gap-2 type-body border-b border-border-subtle/50 pb-2">
                   <div className="min-w-0">
                     <span className="font-medium text-text-secondary">{g.term}</span>
-                    <p className="text-xs text-text-tertiary mt-0.5 line-clamp-2">{g.definition}</p>
+                    <p className="type-caption text-text-tertiary mt-0.5 line-clamp-2">{g.definition}</p>
                     {(g.relatedConcepts?.length ?? 0) > 0 && (
                       <div className="flex flex-wrap gap-1 mt-1.5">
                         {g.relatedConcepts!.slice(0, 4).map((rc) => (
@@ -1058,11 +1058,11 @@ function SourceFiles({
 
       <div className="platform-panel-lg">
         <div className="mt-0 p-4 rounded-xl bg-surface-hover/50 border border-border-subtle">
-          <p className="text-xs text-text-tertiary mb-2 flex items-center gap-1.5">
+          <p className="type-caption text-text-tertiary mb-2 flex items-center gap-1.5">
             <AlertTriangle className="w-3.5 h-3.5 text-accent-amber" />
             Source Analysis Report
           </p>
-          <ul className="text-xs text-text-secondary space-y-1">
+          <ul className="type-caption text-text-secondary space-y-1">
             <li>‶ {provenanceCount} concept spans linked to source sentences</li>
             <li>‶ All content is source-grounded from your uploaded materials</li>
             {course.sourceQuality?.warnings.slice(0, 2).map((w) => (
@@ -1106,17 +1106,17 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div className="platform-panel-md sm:col-span-2" data-testid="course-analytics-mastery">
-        <p className="text-xs text-text-tertiary">{t('analyticsCourseMastery')}</p>
+        <p className="type-caption text-text-tertiary">{t('analyticsCourseMastery')}</p>
         <p className="mt-1 ux-kpi-value">{masteryPercent}%</p>
         <p className="mt-1 type-caption text-text-muted">{t('courseMasterySublabel')}</p>
       </div>
       <div className="platform-panel-md">
-        <h4 className="text-sm font-semibold mb-3">Study Time Distribution</h4>
+        <h4 className="type-meta font-semibold mb-3">Study Time Distribution</h4>
         <p className="type-caption text-text-tertiary mb-3">Estimated minutes per module, from the generated outline</p>
         <div className="space-y-2">
           {course.topics.slice(0, 6).map(topic => (
             <div key={topic.id} className="flex items-center gap-2">
-              <span className="text-xs text-text-secondary w-24 truncate">{topic.title}</span>
+              <span className="type-caption text-text-secondary w-24 truncate">{topic.title}</span>
               {/* Wave P-2 C08 — Study Time Distribution track uses --viz-bar-track. */}
               <div className="flex-1 rounded-full h-2" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                 <div
@@ -1130,15 +1130,15 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
         </div>
       </div>
       <div className="platform-panel-md">
-        <h4 className="text-sm font-semibold mb-3">Retention Predictions</h4>
+        <h4 className="type-meta font-semibold mb-3">Retention Predictions</h4>
         <div className="space-y-2">
           {course.topics.filter(t => t.mastery > 0).slice(0, 5).map(topic => {
             const retention = Math.max(0, topic.retentionPrediction || topic.mastery);
             return (
               <div key={topic.id} className="flex items-center justify-between">
-                <span className="text-xs text-text-secondary truncate w-24">{topic.title}</span>
+                <span className="type-caption text-text-secondary truncate w-24">{topic.title}</span>
                 <span className={cn(
-                  'text-xs font-medium',
+                  'type-caption font-medium',
                   retention >= 70 ? 'text-accent-emerald' : retention >= 50 ? 'text-accent-amber' : 'text-accent-rose'
                 )}>
                   {Math.round(retention)}% predicted
@@ -1149,25 +1149,25 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
         </div>
       </div>
       <div className="platform-panel-md sm:col-span-2">
-        <h4 className="text-sm font-semibold mb-3">Concept Coverage &amp; Pace</h4>
-        <p className="text-xs text-text-secondary mb-4">Mastered concepts relative to the {totalConcepts} concepts extracted from your material</p>
+        <h4 className="type-meta font-semibold mb-3">Concept Coverage &amp; Pace</h4>
+        <p className="type-caption text-text-secondary mb-4">Mastered concepts relative to the {totalConcepts} concepts extracted from your material</p>
         {masteredConcepts > 0 ? (
           <div className="flex items-center gap-6 flex-wrap">
             <div>
-              <div className="ux-kpi-value text-accent-emerald">{masteredConcepts}<span className="text-sm text-text-muted">/{totalConcepts}</span></div>
-              <p className="text-xs text-text-tertiary mt-1">concepts mastered</p>
+              <div className="ux-kpi-value text-accent-emerald">{masteredConcepts}<span className="type-meta text-text-muted">/{totalConcepts}</span></div>
+              <p className="type-caption text-text-tertiary mt-1">concepts mastered</p>
             </div>
             {velocity > 0 && (
               <div>
                 <div className={cn('ux-kpi-value', velocity >= 1 ? 'text-accent-emerald' : 'text-accent-amber')}>{velocity.toFixed(2)}×</div>
-                <p className="text-xs text-text-tertiary mt-1">
+                <p className="type-caption text-text-tertiary mt-1">
                   {velocity >= 1.05 ? 'Ahead of the expected pace' : velocity <= 0.95 ? 'Behind the expected pace' : 'On the expected pace'}
                 </p>
               </div>
             )}
           </div>
         ) : (
-          <p className="text-sm text-text-tertiary">Start studying this course to see your concept mastery and pace.</p>
+          <p className="type-body text-text-tertiary">Start studying this course to see your concept mastery and pace.</p>
         )}
       </div>
     </div>

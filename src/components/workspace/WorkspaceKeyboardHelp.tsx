@@ -43,8 +43,8 @@ export function WorkspaceKeyboardHelp({ open, onClose, lang, variant = 'workspac
           >
             <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
               <div className="flex items-center gap-2">
-                <Keyboard className="h-4 w-4 text-text-primary" />
-                <h2 className="text-sm font-semibold text-text-primary">
+                <Keyboard className="h-4 w-4 text-text-secondary" />
+                <h2 className="type-meta font-semibold text-text-secondary">
                   {t('keyboardShortcuts', lang)}
                 </h2>
               </div>
@@ -68,7 +68,7 @@ export function WorkspaceKeyboardHelp({ open, onClose, lang, variant = 'workspac
                     {items.map((item) => (
                       <li
                         key={item.id + item.keys}
-                        className="flex items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-sm"
+                        className="flex items-center justify-between gap-3 rounded-lg px-2 py-1.5 type-meta"
                       >
                         <span className="text-text-secondary">
                           {lang === 'el' ? item.labelEl : item.labelEn}

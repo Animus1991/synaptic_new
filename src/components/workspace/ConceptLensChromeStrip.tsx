@@ -66,7 +66,7 @@ export function ConceptLensChromeStrip({
             <button
               type="button"
               role="listitem"
-              className="whitespace-nowrap rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white"
+              className="whitespace-nowrap rounded-lg bg-brand-600 px-3 py-1.5 type-caption font-medium text-white"
               onClick={onToggleExpand}
               aria-expanded={conceptLensExpanded}
             >
@@ -78,7 +78,7 @@ export function ConceptLensChromeStrip({
               key={c.label}
               type="button"
               role="listitem"
-              className="whitespace-nowrap rounded-lg bg-surface-secondary px-3 py-1.5 text-xs font-medium text-text-secondary hover:bg-surface-hover"
+              className="whitespace-nowrap rounded-lg bg-surface-secondary px-3 py-1.5 type-caption font-medium text-text-secondary hover:bg-surface-hover"
               onClick={() => onFocus(c.label)}
             >
               {c.label}

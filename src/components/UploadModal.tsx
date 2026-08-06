@@ -368,13 +368,13 @@ export function UploadModal({
 
           {closeConfirmOpen && (
             <div className="mx-5 mt-4 rounded-xl border border-accent-amber/30 bg-accent-amber/10 p-4" data-testid="upload-close-confirm">
-              <p className="text-sm font-semibold">{t('uploadCloseWhileProcessingTitle', previewLang)}</p>
-              <p className="text-xs text-text-secondary mt-1">{t('uploadCloseWhileProcessingBody', previewLang)}</p>
+              <p className="type-meta font-semibold">{t('uploadCloseWhileProcessingTitle', previewLang)}</p>
+              <p className="type-caption text-text-secondary mt-1">{t('uploadCloseWhileProcessingBody', previewLang)}</p>
               <div className="mt-3 flex gap-2">
-                <button type="button" onClick={() => setCloseConfirmOpen(false)} className="px-3 py-1.5 text-xs rounded-lg border border-border-subtle">
+                <button type="button" onClick={() => setCloseConfirmOpen(false)} className="px-3 py-1.5 type-caption rounded-lg border border-border-subtle">
                   {t('uploadCancel', previewLang)}
                 </button>
-                <button type="button" onClick={() => { setCloseConfirmOpen(false); onClose(); }} className="px-3 py-1.5 text-xs rounded-lg bg-accent-rose/20 text-accent-rose">
+                <button type="button" onClick={() => { setCloseConfirmOpen(false); onClose(); }} className="px-3 py-1.5 type-caption rounded-lg bg-accent-rose/20 text-accent-rose">
                   {t('uploadCloseConfirm', previewLang)}
                 </button>
               </div>
@@ -383,8 +383,8 @@ export function UploadModal({
 
           {validationIssues.length > 0 && step === 'upload' && (
             <div className="mx-5 mt-4 rounded-xl border border-accent-rose/30 bg-accent-rose/10 p-4" data-testid="upload-validation-errors" role="alert">
-              <p className="text-xs font-semibold mb-2">{t('uploadValidationSummary', previewLang)}</p>
-              <ul className="space-y-1 text-xs text-text-secondary">
+              <p className="type-caption font-semibold mb-2">{t('uploadValidationSummary', previewLang)}</p>
+              <ul className="space-y-1 type-caption text-text-secondary">
                 {validationIssues.map((issue, i) => (
                   <li key={`${issue.key}-${i}`}>
                     {t(issue.key, previewLang)}{issue.detail ? `: ${issue.detail}` : ''}
@@ -422,9 +422,9 @@ export function UploadModal({
                       )}>
                         {isDone ? <CheckCircle2 className="w-3.5 h-3.5" /> : index + 1}
                       </div>
-                      <p className="text-sm font-medium text-text-primary">{t(stage.labelKey, previewLang)}</p>
+                      <p className="type-meta font-medium text-text-primary">{t(stage.labelKey, previewLang)}</p>
                     </div>
-                    <p className="text-xs text-text-secondary">{t(stage.hintKey, previewLang)}</p>
+                    <p className="type-caption text-text-secondary">{t(stage.hintKey, previewLang)}</p>
                   </div>
                 );
               })}
@@ -462,10 +462,10 @@ export function UploadModal({
                     'w-10 h-10 mx-auto mb-3 transition-colors',
                     dragActive ? 'text-text-secondary' : 'text-text-muted'
                   )} />
-                  <p className="text-sm font-medium mb-1">
+                  <p className="type-meta font-medium mb-1">
                     {dragActive ? t('uploadDropActive', previewLang) : t('uploadDropIdle', previewLang)}
                   </p>
-                  <p className="text-xs text-text-tertiary">
+                  <p className="type-caption text-text-tertiary">
                     {t('uploadFormatsHint', previewLang)}
                   </p>
                 </div>
@@ -473,7 +473,7 @@ export function UploadModal({
                 {/* Accepted formats */}
                 <div className="create-prompt-formats flex flex-wrap gap-2 justify-center">
                   {acceptedFormats.map(f => (
-                    <span key={f.ext} className="flex items-center gap-1.5 text-xs text-text-tertiary">
+                    <span key={f.ext} className="flex items-center gap-1.5 type-caption text-text-tertiary">
                       <f.icon className={cn('w-3.5 h-3.5', f.color)} />
                       {f.ext}
                     </span>
@@ -483,7 +483,7 @@ export function UploadModal({
                 {/* Selected files */}
                 {files.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-xs text-text-tertiary font-medium">
+                    <p className="type-caption text-text-tertiary font-medium">
                       {t('uploadFilesSelected', previewLang).replace('{count}', String(files.length))}
                     </p>
                     {files.map((file, i) => {
@@ -496,11 +496,11 @@ export function UploadModal({
                         ) : (
                           <FileText className="w-4 h-4 text-text-secondary shrink-0" />
                         )}
-                        <span className="text-sm flex-1 truncate">{file.name}</span>
+                        <span className="type-meta flex-1 truncate">{file.name}</span>
                         {isChatGpt && (
                           <span className="type-micro font-medium text-text-secondary shrink-0">{t('uploadChatGptExportBadge', previewLang)}</span>
                         )}
-                        <span className="text-xs text-text-muted">{(file.size / 1024).toFixed(1)} KB</span>
+                        <span className="type-caption text-text-muted">{(file.size / 1024).toFixed(1)} KB</span>
                         <button
                           onClick={e => { e.stopPropagation(); removeFile(i); }}
                           className="text-text-muted hover:text-accent-rose"
@@ -513,7 +513,7 @@ export function UploadModal({
                 )}
 
                 <div className="rounded-xl border border-border-subtle bg-surface-hover/40 p-3">
-                  <p className="text-xs text-text-secondary">{t('uploadNextStepHint', previewLang)}</p>
+                  <p className="type-caption text-text-secondary">{t('uploadNextStepHint', previewLang)}</p>
                 </div>
 
                 {/* OPT-R10 — paste/YouTube disclosed under Minimal; always present */}
@@ -525,18 +525,18 @@ export function UploadModal({
                 >
                   <div className="space-y-3 px-1 pb-1 pt-2">
                     <div className="ux-prompt-bar">
-                      <label className="text-xs text-text-tertiary font-medium block mb-2">{t('uploadPasteLabel', previewLang)}</label>
+                      <label className="type-caption text-text-tertiary font-medium block mb-2">{t('uploadPasteLabel', previewLang)}</label>
                       <textarea
                         data-testid="upload-paste"
                         value={pastedContent}
                         onChange={e => setPastedContent(e.target.value)}
                         placeholder={t('uploadPastePlaceholder', previewLang)}
                         rows={4}
-                        className="ux-prompt-bar-input w-full px-4 py-3 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50 resize-none"
+                        className="ux-prompt-bar-input w-full px-4 py-3 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50 resize-none"
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-text-tertiary font-medium block mb-2">
+                      <label className="type-caption text-text-tertiary font-medium block mb-2">
                         <Link2 className="w-3.5 h-3.5 inline mr-1" />
                         {t('uploadYoutubeLabel', previewLang)}
                       </label>
@@ -546,7 +546,7 @@ export function UploadModal({
                         value={youtubeUrl}
                         onChange={e => setYoutubeUrl(e.target.value)}
                         placeholder={t('uploadYoutubePlaceholder', previewLang)}
-                        className="w-full px-4 py-2.5 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50"
+                        className="w-full px-4 py-2.5 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50"
                       />
                     </div>
                   </div>
@@ -557,7 +557,7 @@ export function UploadModal({
             {step === 'configure' && (
               <>
                 <div className="rounded-xl border border-brand-500/15 bg-brand-500/5 p-3">
-                  <p className="text-xs text-text-secondary">{t('uploadConfigureHint', previewLang)}</p>
+                  <p className="type-caption text-text-secondary">{t('uploadConfigureHint', previewLang)}</p>
                 </div>
 
                 <OutlinePreviewPanel
@@ -578,13 +578,13 @@ export function UploadModal({
 
                 {extendableCourses.length > 0 && (
                   <div>
-                    <label className="text-sm font-medium block mb-3">{t('uploadCourseTarget', previewLang)}</label>
+                    <label className="type-meta font-medium block mb-3">{t('uploadCourseTarget', previewLang)}</label>
                     <div className="space-y-2">
                       <button
                         type="button"
                         onClick={() => setUploadMode('new')}
                         className={cn(
-                          'w-full text-left p-3 rounded-xl border text-sm transition-all',
+                          'w-full text-left p-3 rounded-xl border type-meta transition-all',
                           uploadMode === 'new' ? 'border-brand-500/50 bg-brand-500/10' : 'border-border-subtle',
                         )}
                       >
@@ -594,7 +594,7 @@ export function UploadModal({
                         type="button"
                         onClick={() => setUploadMode('extend')}
                         className={cn(
-                          'w-full text-left p-3 rounded-xl border text-sm transition-all',
+                          'w-full text-left p-3 rounded-xl border type-meta transition-all',
                           uploadMode === 'extend' ? 'border-brand-500/50 bg-brand-500/10' : 'border-border-subtle',
                         )}
                       >
@@ -604,7 +604,7 @@ export function UploadModal({
                         <select
                           value={targetCourseId}
                           onChange={(e) => setTargetCourseId(e.target.value)}
-                          className="w-full px-4 py-2.5 rounded-xl bg-surface-input border border-border-subtle text-sm"
+                          className="w-full px-4 py-2.5 rounded-xl bg-surface-input border border-border-subtle type-body"
                         >
                           <option value="">{t('uploadSelectCourse', previewLang)}</option>
                           {extendableCourses.map((c) => (
@@ -618,7 +618,7 @@ export function UploadModal({
 
                 {/* Source mode */}
                 <div>
-                  <label className="text-sm font-medium block mb-3">{t('uploadSourceModeLabel', previewLang)}</label>
+                  <label className="type-meta font-medium block mb-3">{t('uploadSourceModeLabel', previewLang)}</label>
                   <div className="space-y-2">
                     {SOURCE_MODES.map((s) => (
                       <button
@@ -633,9 +633,9 @@ export function UploadModal({
                       >
                         <div className="flex items-center gap-2 mb-1">
                           <UiIcon id={s.icon} size="sm" className="text-text-secondary" />
-                          <span className="font-medium text-sm">{t(s.labelKey, previewLang)}</span>
+                          <span className="font-medium type-meta">{t(s.labelKey, previewLang)}</span>
                         </div>
-                        <p className="text-xs text-text-secondary ml-6">{t(s.descKey, previewLang)}</p>
+                        <p className="type-caption text-text-secondary ml-6">{t(s.descKey, previewLang)}</p>
                       </button>
                     ))}
                   </div>
@@ -643,7 +643,7 @@ export function UploadModal({
 
                 {/* Focus */}
                 <div>
-                  <label className="text-sm font-medium block mb-3">{t('uploadLearningFocus', previewLang)}</label>
+                  <label className="type-meta font-medium block mb-3">{t('uploadLearningFocus', previewLang)}</label>
                   <div className="flex flex-wrap gap-2">
                     {UPLOAD_FOCUS_KEYS.map((focus) => (
                       <button
@@ -651,7 +651,7 @@ export function UploadModal({
                         type="button"
                         onClick={() => toggleFocus(focus)}
                         className={cn(
-                          'px-3 py-1.5 rounded-lg text-xs font-medium border transition-all',
+                          'px-3 py-1.5 rounded-lg type-caption font-medium border transition-all',
                           focusTags.includes(focus)
                             ? 'border-brand-500/50 bg-brand-500/10 text-text-secondary'
                             : 'border-border-subtle hover:border-brand-500/30 hover:bg-brand-500/5',
@@ -665,17 +665,17 @@ export function UploadModal({
 
                 {/* Exam date */}
                 <div>
-                  <label className="text-sm font-medium block mb-2">{t('uploadExamDateLabel', previewLang)}</label>
+                  <label className="type-meta font-medium block mb-2">{t('uploadExamDateLabel', previewLang)}</label>
                   <input
                     type="date"
                     value={examDate}
                     onChange={(e) => setExamDate(e.target.value)}
-                    className="px-4 py-2.5 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
+                    className="px-4 py-2.5 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50"
                   />
                 </div>
 
                 <div className="p-3 rounded-xl bg-surface-hover/50 border border-border-subtle">
-                  <p className="text-xs text-text-secondary flex items-start gap-2">
+                  <p className="type-caption text-text-secondary flex items-start gap-2">
                     <AlertCircle className="w-4 h-4 text-text-secondary shrink-0 mt-0.5" />
                     {t('uploadQualityHint', previewLang)}
                   </p>
@@ -687,11 +687,11 @@ export function UploadModal({
               <div className="text-center py-8 space-y-4" data-testid="upload-error">
                 <AlertCircle className="w-12 h-12 text-accent-rose mx-auto" />
                 <h3 className="text-lg font-semibold">{t('uploadErrorTitle', previewLang)}</h3>
-                <p className="text-sm text-text-secondary max-w-md mx-auto">{processingError}</p>
+                <p className="type-body text-text-secondary max-w-md mx-auto">{processingError}</p>
                 <button
                   type="button"
                   onClick={() => setStep('configure')}
-                  className="px-5 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-medium hover:bg-brand-500"
+                  className="px-5 py-2.5 rounded-xl bg-brand-600 text-white type-meta font-medium hover:bg-brand-500"
                 >
                   {t('uploadBackToSettings', previewLang)}
                 </button>
@@ -707,15 +707,15 @@ export function UploadModal({
                   </div>
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{t('uploadProcessingTitle', previewLang)}</h3>
-                <p className="text-sm text-text-secondary mb-6 max-w-sm mx-auto">
+                <p className="type-body text-text-secondary mb-6 max-w-sm mx-auto">
                   {t('uploadProcessingBody', previewLang)}
                 </p>
-                <p className="text-xs text-text-tertiary mb-5">{t('uploadProcessingSummary', previewLang)}</p>
+                <p className="type-caption text-text-tertiary mb-5">{t('uploadProcessingSummary', previewLang)}</p>
                 {uploadJobId && (
                   <p className="type-micro text-text-muted mb-3 font-mono" data-testid="upload-job-id">{uploadJobId.slice(0, 8)}</p>
                 )}
                 <div
-                  className="flex items-center justify-center gap-2 text-sm text-text-secondary"
+                  className="flex items-center justify-center gap-2 type-body text-text-secondary"
                   role="status"
                   aria-live="polite"
                   data-testid="upload-processing-status"
@@ -732,7 +732,7 @@ export function UploadModal({
             <div className="p-5 border-t border-border-subtle flex items-center justify-between">
               <button
                 onClick={step === 'configure' ? () => setStep('upload') : requestClose}
-                className="px-4 py-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
+                className="px-4 py-2 type-meta text-text-secondary hover:text-text-primary transition-colors"
               >
                 {step === 'configure' ? t('uploadBack', previewLang) : t('uploadCancel', previewLang)}
               </button>
@@ -741,7 +741,7 @@ export function UploadModal({
                 onClick={step === 'upload' ? goToConfigure : handleProceed}
                 disabled={isSubmitting || (step === 'configure' && uploadMode === 'extend' && !targetCourseId)}
                 className={cn(
-                  'flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all',
+                  'flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium type-meta transition-all',
                   isSubmitting || (step === 'configure' && uploadMode === 'extend' && !targetCourseId)
                     ? 'bg-surface-hover text-text-muted cursor-not-allowed'
                     : 'bg-gradient-to-r from-brand-600 to-brand-500 text-white hover:from-brand-500 hover:to-brand-400'

@@ -77,9 +77,9 @@ export function WorkspaceDiscoverabilityPanel({
         className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left hover:bg-white/[0.03] transition-colors"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <Link2 className="w-3.5 h-3.5 text-text-primary shrink-0" />
+          <Link2 className="w-3.5 h-3.5 text-text-secondary shrink-0" />
           <div className="min-w-0">
-            <p className="type-caption font-semibold text-text-primary truncate">{headline}</p>
+            <p className="type-caption font-semibold text-text-secondary truncate">{headline}</p>
             <p className="type-caption text-text-tertiary truncate">{subline}</p>
           </div>
         </div>
@@ -93,7 +93,7 @@ export function WorkspaceDiscoverabilityPanel({
             className={cn(
               'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 type-caption font-medium',
               chip.active
-                ? 'border-accent-cyan/45 bg-accent-cyan/15 text-text-primary'
+                ? 'border-accent-cyan/45 bg-accent-cyan/15 text-text-secondary'
                 : 'border-white/12 bg-white/[0.05] text-text-secondary',
             )}
           >
@@ -154,7 +154,7 @@ export function WorkspaceDiscoverabilityPanel({
           )}
 
           <div>
-            <p className="type-caption font-semibold text-text-primary0 mb-1">
+            <p className="type-caption font-semibold text-text-secondary mb-1">
               {toolGuide.title}
             </p>
             <p className="type-caption text-text-secondary leading-relaxed">{toolGuide.summary}</p>
@@ -174,7 +174,7 @@ export function WorkspaceDiscoverabilityPanel({
                 type="button"
                 data-testid="discoverability-recommended-tool"
                 onClick={onOpenRecommendedTool}
-                className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/40 bg-accent-cyan/12 px-2.5 py-1 type-caption font-medium text-text-primary hover:bg-accent-cyan/20"
+                className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/40 bg-accent-cyan/12 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-accent-cyan/20"
               >
                 <Sparkles className="w-3 h-3" />
                 {t('discoverRecommendedTool')}

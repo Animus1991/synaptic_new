@@ -12,14 +12,14 @@ export function PrerequisiteRepairPanel({ repairs, onStartRepair }: Props) {
 
   return (
     <div className="rounded-xl border border-accent-amber/30 bg-accent-amber/5 p-4">
-      <h3 className="text-sm font-semibold flex items-center gap-2 text-accent-amber mb-3">
+      <h3 className="type-meta font-semibold flex items-center gap-2 text-accent-amber mb-3">
         <AlertTriangle className="w-4 h-4" />
         Prerequisite repair
       </h3>
       <div className="space-y-2">
         {repairs.map((r) => (
           <div key={`${r.prerequisite}-${r.concept}`} className="flex items-start justify-between gap-2">
-            <p className="text-xs text-text-secondary leading-relaxed flex-1">
+            <p className="type-caption text-text-secondary leading-relaxed flex-1">
               Strengthen <span className="font-medium text-accent-amber">{r.prerequisite}</span>
               {' '}before tackling <span className="font-medium text-text-primary">{r.concept}</span>
             </p>

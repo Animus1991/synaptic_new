@@ -24,7 +24,7 @@ export function RetentionSparklineBoard({ forecast, skills, ariaLabel, emptyHint
 
   if (items.length === 0) {
     return (
-      <p className="text-xs text-text-muted text-center py-6" data-testid="retention-sparkline-board-empty">
+      <p className="type-caption text-text-muted text-center py-6" data-testid="retention-sparkline-board-empty">
         {emptyHint}
       </p>
     );

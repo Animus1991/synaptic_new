@@ -147,7 +147,7 @@ export function JitsiMeetEmbed({ roomName, lang: _lang = 'en', className }: Prop
     return (
       <div className={cn('ws-jitsi-inline', className)} data-ws-theme="warm" data-testid="jitsi-meet-embed">
         {toolbar}
-        <div className="ws-jitsi-popup-hint mt-2 rounded-lg border border-border-subtle bg-surface-card px-3 py-2 text-xs text-text-secondary">
+        <div className="ws-jitsi-popup-hint mt-2 rounded-lg border border-border-subtle bg-surface-card px-3 py-2 type-caption text-text-secondary">
           {t('jitsiVideoSeparateWindow')}
           {' '}
           <button type="button" className="ws-link-action" onClick={focusPopup}>

@@ -136,7 +136,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     {/* OPT-K74 — notebook phone: title inline (panels own section chrome) */}
                     {notebookMode ? (
                       <h1
-                        className="mx-2 min-w-0 flex-1 truncate text-sm font-semibold text-text-primary"
+                        className="mx-2 min-w-0 flex-1 truncate type-meta font-semibold text-text-primary"
                         data-testid="workspace-header-title"
                       >
                         {courseName ?? linkedCourse?.title ?? taskTitle ?? quizConcept}
@@ -163,7 +163,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         <SlidersHorizontal className="w-4 h-4" />
                       </button>
                       {mobileMenuOpen && (
-                        <div className="absolute right-0 top-full mt-1 z-30 w-52 rounded-xl border border-border-subtle bg-surface-card shadow-lg py-1 text-xs">
+                        <div className="absolute right-0 top-full mt-1 z-30 w-52 rounded-xl border border-border-subtle bg-surface-card shadow-lg py-1 type-caption">
                           {layout !== 'zen' && (
                             <button
                               type="button"
@@ -230,7 +230,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         </div>
                       </div>
                       <span
-                        className="text-xs font-semibold text-text-primary tabular-nums"
+                        className="type-caption font-semibold text-text-primary tabular-nums"
                         data-testid="workspace-mobile-step-progress"
                       >
                         {t('wsStepOf')
@@ -241,7 +241,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     <div className="flex items-center gap-1 flex-wrap min-w-0">
                       {typeof sourceQualityScore === 'number' && (
                         <span
-                          className="ws-pill bg-surface-tertiary text-text-primary border-border-default"
+                          className="ws-pill bg-surface-tertiary text-text-secondary border-border-default"
                           data-testid="workspace-mobile-source-quality"
                         >
                           {sourceQualityScore}% {t('wsSourceShort')}
@@ -251,7 +251,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         type="button"
                         onClick={() => setIntelTab((tb: MobileIntelTab | null) => (tb === 'weak-areas' ? null : 'weak-areas'))}
                         aria-pressed={intelTab === 'weak-areas'}
-                        className="ws-pill bg-surface-tertiary text-text-primary border-border-default"
+                        className="ws-pill bg-surface-tertiary text-text-secondary border-border-default"
                         data-active={intelTab === 'weak-areas' || undefined}
                         data-hydrating={!intelReady || undefined}
                       >
@@ -261,7 +261,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         type="button"
                         onClick={() => setIntelTab((tb: MobileIntelTab | null) => (tb === 'concept-bus' ? null : 'concept-bus'))}
                         aria-pressed={intelTab === 'concept-bus'}
-                        className="ws-pill bg-surface-tertiary text-text-primary border-border-default"
+                        className="ws-pill bg-surface-tertiary text-text-secondary border-border-default"
                         data-active={intelTab === 'concept-bus' || undefined}
                         data-hydrating={!intelReady || undefined}
                       >
@@ -314,7 +314,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     <X className="w-4 h-4" aria-hidden />
                   </button>
                   <h1
-                    className="text-sm font-semibold truncate text-text-primary"
+                    className="type-meta font-semibold truncate text-text-primary"
                     data-testid="workspace-header-title"
                   >
                     {courseName ?? linkedCourse?.title ?? taskTitle ?? quizConcept}
@@ -343,7 +343,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     <SlidersHorizontal className="w-4 h-4" />
                   </button>
                   {notebookMenuOpen && (
-                    <div className="absolute right-0 top-full mt-1 z-30 w-52 rounded-xl border border-border-subtle bg-surface-card shadow-lg py-1 text-xs">
+                    <div className="absolute right-0 top-full mt-1 z-30 w-52 rounded-xl border border-border-subtle bg-surface-card shadow-lg py-1 type-caption">
                       <button type="button" onClick={() => { setShowPalette(true); setNotebookMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('wsCommandPalette')}</button>
                       <button type="button" onClick={() => { setShowNotes((v) => !v); setNotebookMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('paletteSessionNotes')}</button>
                       <button type="button" onClick={() => { setStudyRoomOpen((v) => !v); setNotebookMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary">{t('studyRoomAria')}</button>
@@ -379,7 +379,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                   </button>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h1 className="text-sm font-semibold truncate text-text-primary" data-testid="workspace-header-title">
+                      <h1 className="type-meta font-semibold truncate text-text-primary" data-testid="workspace-header-title">
                         {courseName ?? linkedCourse?.title ?? taskTitle ?? quizConcept}
                       </h1>
                       {(courseName || linkedCourse?.title) && taskTitle && taskTitle !== (courseName ?? linkedCourse?.title) && (
@@ -489,7 +489,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       </button>
                       {classicMenuOpen && (
                         <div
-                          className="absolute right-0 top-full mt-1 z-30 w-56 rounded-lg border border-border-default bg-surface-card py-1 text-xs shadow-none"
+                          className="absolute right-0 top-full mt-1 z-30 w-56 rounded-lg border border-border-default bg-surface-card py-1 type-caption shadow-none"
                           data-testid="classic-chrome-menu-panel"
                         >
                           <button type="button" onClick={() => { setShowPalette(true); setClassicMenuOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-surface-hover text-text-secondary" data-testid="classic-menu-palette">{t('wsCommandPalette')}</button>

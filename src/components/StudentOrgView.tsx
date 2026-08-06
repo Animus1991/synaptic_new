@@ -166,14 +166,14 @@ export function StudentOrgView({
       <div className="max-w-3xl mx-auto p-6 space-y-4" data-testid="student-org-signin">
         <h1 className="text-lg font-semibold text-text-primary">{ui.title}</h1>
         <p className="text-text-secondary">{ui.signInRequired}</p>
-        <p className="text-sm text-text-muted">{ui.signInHint}</p>
+        <p className="type-body text-text-muted">{ui.signInHint}</p>
         {samlEmailHint && (
-          <p className="text-sm text-text-secondary border border-brand-500/30 rounded-xl px-3 py-2">
+          <p className="type-body text-text-secondary border border-brand-500/30 rounded-xl px-3 py-2">
             SSO: {samlEmailHint}
           </p>
         )}
         {onOpenSettings && (
-          <button type="button" className="platform-btn-primary px-4 py-2 rounded-xl text-sm" onClick={onOpenSettings}>
+          <button type="button" className="platform-btn-primary px-4 py-2 rounded-xl type-meta" onClick={onOpenSettings}>
             Settings
           </button>
         )}
@@ -203,7 +203,7 @@ export function StudentOrgView({
           onClick={() => void load()}
           disabled={loading}
           data-testid="student-org-refresh"
-          className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border-subtle text-sm hover:bg-surface-hover"
+          className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border-subtle type-meta hover:bg-surface-hover"
         >
           <RefreshCw className={cn('w-4 h-4', loading && 'animate-spin')} />
           {ui.refresh}
@@ -216,14 +216,14 @@ export function StudentOrgView({
           data-testid="student-org-saml-chrome"
           defaultOpen
         >
-          <div className="rounded-xl border border-brand-500/30 bg-brand-500/10 px-4 py-3 text-sm text-text-secondary">
+          <div className="rounded-xl border border-brand-500/30 bg-brand-500/10 px-4 py-3 type-body text-text-secondary">
             {ui.samlWelcome} ({samlEmailHint})
           </div>
         </CollapsibleChromeSection>
       )}
 
       {error && (
-        <div className="rounded-xl border border-accent-rose/30 bg-accent-rose/10 px-4 py-3 text-sm text-accent-rose" role="alert">
+        <div className="rounded-xl border border-accent-rose/30 bg-accent-rose/10 px-4 py-3 type-body text-accent-rose" role="alert">
           {error}
         </div>
       )}
@@ -250,14 +250,14 @@ export function StudentOrgView({
             {ui.myClasses}
           </h2>
           {orgs.length > 1 && (
-            <label className="flex items-center gap-2 text-sm text-text-muted">
+            <label className="flex items-center gap-2 type-meta text-text-muted">
               <SlidersHorizontal className="w-4 h-4" />
               <span className="sr-only">{ui.filterByOrg}</span>
               <select
                 value={orgFilter}
                 onChange={(e) => setOrgFilter(e.target.value)}
                 data-testid="student-org-filter"
-                className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 text-sm text-text-secondary"
+                className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 type-body text-text-secondary"
               >
                 <option value="all">{ui.filterAllOrgs}</option>
                 {orgs.map(({ org }) => (
@@ -273,15 +273,15 @@ export function StudentOrgView({
           title={i18nT('chromeOrgHints', lang)}
           data-testid="student-org-classes-hint-chrome"
         >
-          <p className="text-sm text-text-muted px-1 pb-2">{ui.myClassesHint}</p>
+          <p className="type-body text-text-muted px-1 pb-2">{ui.myClassesHint}</p>
         </CollapsibleChromeSection>
         {loading && filteredClasses.length === 0 ? (
           <div className="ux-shimmer-panel rounded-panel border border-border-subtle bg-surface-card p-6" role="status" aria-live="polite">
             <UxShimmerPanel lines={4} />
-            <p className="mt-3 text-sm text-text-muted">{ui.loading}</p>
+            <p className="mt-3 type-body text-text-muted">{ui.loading}</p>
           </div>
         ) : filteredClasses.length === 0 ? (
-          <p className="text-text-muted text-sm">{ui.noClasses}</p>
+          <p className="text-text-muted type-body">{ui.noClasses}</p>
         ) : (
           <div className="grid gap-4">
             {filteredClasses.map((row) => {
@@ -299,7 +299,7 @@ export function StudentOrgView({
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="space-y-1 min-w-0">
                       <h3 className="font-medium text-text-primary">{row.class.name}</h3>
-                      <div className="flex flex-wrap gap-3 text-xs text-text-muted">
+                      <div className="flex flex-wrap gap-3 type-caption text-text-muted">
                         {meta && (
                           <span>
                             {meta.gradedCount}/{meta.assignmentCount} {ui.assignmentsCount}
@@ -332,7 +332,7 @@ export function StudentOrgView({
                     {row.class.courseId && onOpenCourse && (
                       <button
                         type="button"
-                        className="text-sm text-text-secondary hover:underline shrink-0"
+                        className="type-meta text-text-secondary hover:underline shrink-0"
                         onClick={() => onOpenCourse(row.class.courseId!)}
                       >
                         {ui.openCourse}
@@ -341,7 +341,7 @@ export function StudentOrgView({
                   </div>
                   {row.assignments.length > 0 && (
                     <div className="overflow-x-auto rounded-lg border border-border-subtle/60">
-                      <table className="w-full text-sm">
+                      <table className="w-full type-body">
                         <thead>
                           <tr className="text-left type-micro text-text-muted border-b border-border-subtle/50">
                             <th className="p-2">{ui.colAssignments}</th>
@@ -431,10 +431,10 @@ export function StudentOrgView({
           {ui.myOrgs}
         </h2>
         {orgs.length === 0 ? (
-          <p className="text-text-muted text-sm">{ui.noOrgs}</p>
+          <p className="text-text-muted type-body">{ui.noOrgs}</p>
         ) : (
           <div className="overflow-x-auto rounded-xl border border-border-subtle">
-            <table className="w-full text-sm" data-testid="student-org-table">
+            <table className="w-full type-body" data-testid="student-org-table">
               <thead>
                 <tr className="border-b border-border-subtle text-text-muted text-left">
                   <th className="p-3">{ui.colOrg}</th>

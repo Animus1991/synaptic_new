@@ -178,7 +178,7 @@ function PostCard({
             placeholder={ui.replyPlaceholder}
             rows={2}
             data-testid={`assignment-discussion-reply-input-${post.id}`}
-            className="flex-1 min-w-[140px] px-2 py-1.5 rounded-lg border border-border-subtle bg-surface-card text-xs resize-y"
+            className="flex-1 min-w-[140px] px-2 py-1.5 rounded-lg border border-border-subtle bg-surface-card type-body resize-y"
           />
           <button
             type="button"
@@ -332,7 +332,7 @@ export function AssignmentDiscussionThread({
       )}
 
       {open && (
-        <div className="mt-2 rounded-xl border border-border-subtle/60 bg-surface-card/40 p-3 space-y-2 text-xs">
+        <div className="mt-2 rounded-xl border border-border-subtle/60 bg-surface-card/40 p-3 space-y-2 type-caption">
           <p className="type-micro text-text-muted">
             {ui.hint} — {assignmentTitle}
           </p>
@@ -376,7 +376,7 @@ export function AssignmentDiscussionThread({
               placeholder={ui.askPlaceholder || ui.placeholder}
               rows={2}
               data-testid={`assignment-discussion-input-${assignmentId}`}
-              className="flex-1 min-w-[140px] px-2 py-1.5 rounded-lg border border-border-subtle bg-surface-card text-xs resize-y"
+              className="flex-1 min-w-[140px] px-2 py-1.5 rounded-lg border border-border-subtle bg-surface-card type-body resize-y"
             />
             <button
               type="button"

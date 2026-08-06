@@ -73,7 +73,7 @@ export function ConceptLensPanel({
         'concept-lens-chip flex items-center gap-2 w-full rounded-full border border-white/10 bg-surface-secondary/85 backdrop-blur px-2.5 py-1 shadow-[0_8px_30px_rgba(2,6,23,0.45)]',
         isStrip && 'shadow-none max-w-full',
       )}>
-        <Aperture className="w-3.5 h-3.5 text-text-primary shrink-0" />
+        <Aperture className="w-3.5 h-3.5 text-text-secondary shrink-0" />
         <button
           type="button"
           onClick={() => onFocus(label)}
@@ -220,7 +220,7 @@ export function ConceptLensPanel({
                 key={action}
                 type="button"
                 onClick={() => onAction(action)}
-                className="rounded-full border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 type-caption font-medium text-text-primary hover:bg-brand-600/20 transition-colors"
+                className="rounded-full border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 type-caption font-medium text-text-secondary hover:bg-brand-600/20 transition-colors"
                 data-testid={`concept-lens-action-${action}`}
               >
                 {ACTION_LABELS[action][lang]}
@@ -268,7 +268,7 @@ function ConceptRefRow({
               <button
                 type="button"
                 onClick={() => onExplainRelation(ref.label)}
-                className="rounded-full border border-brand-500/25 bg-brand-600/8 px-1.5 py-0.5 type-caption font-medium text-text-primary hover:bg-brand-600/15"
+                className="rounded-full border border-brand-500/25 bg-brand-600/8 px-1.5 py-0.5 type-caption font-medium text-text-secondary hover:bg-brand-600/15"
                 data-testid={`concept-ref-explain-${ref.label.slice(0, 12).toLowerCase().replace(/\s+/g, '-')}`}
                 title={explainLabel}
               >

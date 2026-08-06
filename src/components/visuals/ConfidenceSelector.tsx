@@ -17,7 +17,7 @@ const levels: { value: number; label: string; Icon: LucideIcon; color: string }[
 export function ConfidenceSelector({ value, onChange, required }: ConfidenceSelectorProps) {
   return (
     <div>
-      <p className="text-xs text-text-tertiary mb-2 flex items-center gap-1">
+      <p className="type-caption text-text-tertiary mb-2 flex items-center gap-1">
         How confident are you?
         {required && !value && <span className="text-accent-rose type-micro">*required before submitting</span>}
       </p>
@@ -30,7 +30,7 @@ export function ConfidenceSelector({ value, onChange, required }: ConfidenceSele
             aria-checked={value === l.value}
             onClick={() => onChange(l.value)}
             className={cn(
-              'flex-1 py-2.5 px-2 rounded-xl border text-xs font-medium transition-all text-center',
+              'flex-1 py-2.5 px-2 rounded-xl border type-caption font-medium transition-all text-center',
               value === l.value ? l.color : 'border-border-subtle text-text-tertiary hover:border-brand-500/20'
             )}
           >

@@ -24,7 +24,7 @@ export function SubjectMasteryGrid({ tiles, onSelect, className }: Props) {
     <div className={cn('space-y-2', className)} data-testid="subject-mastery-grid">
       <SectionLabel>{title}</SectionLabel>
       {tiles.length === 0 ? (
-        <p className="text-xs text-text-tertiary">{empty}</p>
+        <p className="type-caption text-text-tertiary">{empty}</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
           {tiles.map((tile) => {
@@ -46,7 +46,7 @@ export function SubjectMasteryGrid({ tiles, onSelect, className }: Props) {
                 <div className="flex items-start gap-2">
                   <CourseIcon icon={tile.icon} size="sm" colorClassName="text-text-secondary shrink-0" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-text-primary truncate">{tile.title}</p>
+                    <p className="type-caption font-semibold text-text-primary truncate">{tile.title}</p>
                     <p className="type-micro text-text-tertiary mt-0.5">
                       {tile.pendingConcepts} {pending}
                     </p>

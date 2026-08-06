@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { emphasizedTransition, fadeUp } from '../../lib/motion';
-import { Plus, RotateCcw, Copy, Check, PenSquare, LineChart, Sparkles, ShieldCheck, Loader2, Calculator } from '@/lib/lucide-shim';
+import { Plus, RotateCcw, Copy, Check, PenSquare, LineChart, Sparkles, ShieldCheck, Loader2, Calculator, X, Pencil } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { inferVariablesFromFormula, evaluateFormulaExpression, type FormulaVariable } from '../../lib/formulaSolver';
 import { loadScratchpadFormulas, saveScratchpadFormulas } from '../../lib/workspacePersistence';
@@ -91,6 +91,9 @@ export function FormulaScratchpad({
   const [panel, setPanel] = useState<'formulas' | 'notes'>('formulas');
   const [stepHint, setStepHint] = useState<string | null>(null);
   const [stepHintLoading, setStepHintLoading] = useState(false);
+  const [editingFormula, setEditingFormula] = useState<string | null>(null);
+  const [formulaNameDraft, setFormulaNameDraft] = useState('');
+  const [formulaExprDraft, setFormulaExprDraft] = useState('');
   const persisted = loadScratchpadFormulas<PersistedScratch>(scope);
   const initialFormulas: SavedFormula[] = noteFormulas.map((f) => ({
     ...f,
@@ -239,6 +242,58 @@ export function FormulaScratchpad({
     selectFormula(id);
   };
 
+  const startEditFormula = (id: string) => {
+    const f = formulas.find((x) => x.id === id);
+    if (!f) return;
+    setEditingFormula(id);
+    setFormulaNameDraft(f.name);
+    setFormulaExprDraft(f.formula);
+  };
+
+  const saveFormulaEdit = () => {
+    if (!editingFormula) return;
+    const trimExpr = formulaExprDraft.trim();
+    if (!trimExpr) { setEditingFormula(null); return; }
+    const newVars = inferVariablesFromFormula(trimExpr);
+    setFormulas((prev) =>
+      prev.map((f) =>
+        f.id === editingFormula
+          ? { ...f, name: formulaNameDraft.trim() || f.name, formula: trimExpr, variables: newVars }
+          : f,
+      ),
+    );
+    if (editingFormula === active) {
+      setVars(newVars.map((v) => ({ ...v, value: '' })));
+      setSteps([]);
+      setDerivationDraft('');
+      setSympyValidation(null);
+      setNumericResult(null);
+    }
+    setEditingFormula(null);
+  };
+
+  const deleteFormula = (id: string) => {
+    setFormulas((prev) => {
+      const next = prev.filter((f) => f.id !== id);
+      if (active === id) {
+        if (next.length > 0) {
+          const first = next[0];
+          setActive(first.id);
+          setVars([...first.variables]);
+          setSteps([]);
+          setDerivationDraft('');
+          setSympyValidation(null);
+          setNumericResult(null);
+        } else {
+          setActive('');
+          setVars([{ symbol: 'x', value: '', unit: '' }]);
+          setSteps([]);
+        }
+      }
+      return next;
+    });
+  };
+
   const sendToWhiteboard = () => {
     if (!activeFormula || !onSendToWhiteboard) return;
     onSendToWhiteboard({
@@ -312,38 +367,108 @@ export function FormulaScratchpad({
       ) : (
         <div className="flex flex-1 overflow-hidden min-h-0">
           <div className="ux-tier-b-sidebar w-40 border-r border-border-subtle overflow-y-auto py-2 shrink-0">
-            {formulas.map(f => (
-              <button key={f.id} onClick={() => selectFormula(f.id)}
-                className={cn('w-full text-left px-3 py-2 text-xs transition-all',
-                  active === f.id ? 'bg-surface-secondary text-text-primary border border-border-subtle border-l-2 border-brand-500' : 'text-text-secondary hover:bg-surface-hover')}>
-                {f.name}
-              </button>
+            {formulas.map((f) => (
+              <div key={f.id} className="group relative">
+                <button
+                  onClick={() => selectFormula(f.id)}
+                  className={cn(
+                    'w-full text-left px-3 py-2 pr-8 type-caption transition-all truncate',
+                    active === f.id
+                      ? 'bg-surface-secondary text-text-secondary border-l-2 border-l-brand-500'
+                      : 'text-text-secondary hover:bg-surface-hover',
+                  )}
+                  title={f.name}
+                >
+                  {f.name}
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); deleteFormula(f.id); }}
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded opacity-0 group-hover:opacity-100 text-text-muted hover:text-accent-rose hover:bg-accent-rose/10 transition-opacity"
+                  aria-label={t('close')}
+                  title={t('close')}
+                >
+                  <X className="w-3 h-3" aria-hidden />
+                </button>
+              </div>
             ))}
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {activeFormula && (
             <>
-              {/* Formula display */}
-              <div className="text-center">
-                <p className="type-caption text-text-muted mb-1">{activeFormula.name}</p>
-                <div className="py-3 px-6 rounded-xl bg-surface-primary/60 inline-block">
-                  <FormulaLatexPreview formula={activeFormula.formula} />
+              {/* Formula display / edit */}
+              {editingFormula === activeFormula.id ? (
+                <div className="space-y-2 rounded-xl border border-brand-500/30 bg-surface-primary/60 p-3">
+                  <p className="type-caption font-semibold text-text-muted">{t('scratchEditFormula') || 'Edit formula'}</p>
+                  <input
+                    value={formulaNameDraft}
+                    onChange={(e) => setFormulaNameDraft(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50"
+                    placeholder={activeFormula.name}
+                    aria-label="Formula name"
+                  />
+                  <input
+                    value={formulaExprDraft}
+                    onChange={(e) => setFormulaExprDraft(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg bg-surface-input border border-border-subtle type-body font-mono text-text-primary focus:outline-none focus:border-brand-500/50"
+                    placeholder="e.g. y = m*x + b"
+                    aria-label="Formula expression"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') saveFormulaEdit();
+                      if (e.key === 'Escape') setEditingFormula(null);
+                    }}
+                  />
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setEditingFormula(null)}
+                      className="px-3 py-1 type-caption text-text-muted hover:text-text-secondary"
+                    >
+                      {t('cancel')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={saveFormulaEdit}
+                      disabled={!formulaExprDraft.trim()}
+                      className="px-3 py-1.5 type-caption font-medium bg-brand-600 text-white rounded-lg hover:bg-brand-500 disabled:opacity-50"
+                    >
+                      {t('save')}
+                    </button>
+                  </div>
                 </div>
-                <p className="type-caption text-text-muted font-mono mt-1 opacity-70">{activeFormula.formula}</p>
-              </div>
+              ) : (
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1.5 mb-1">
+                    <p className="type-caption text-text-muted">{activeFormula.name}</p>
+                    <button
+                      type="button"
+                      onClick={() => startEditFormula(activeFormula.id)}
+                      className="flex items-center justify-center w-5 h-5 rounded text-text-muted hover:text-text-secondary hover:bg-surface-hover"
+                      aria-label="Edit formula"
+                      title="Edit formula"
+                    >
+                      <Pencil className="w-3 h-3" aria-hidden />
+                    </button>
+                  </div>
+                  <div className="py-3 px-6 rounded-xl bg-surface-primary/60 inline-block">
+                    <FormulaLatexPreview formula={activeFormula.formula} />
+                  </div>
+                  <p className="type-caption text-text-muted font-mono mt-1 opacity-70">{activeFormula.formula}</p>
+                </div>
+              )}
 
               {/* Variable inputs */}
               <div className="space-y-2">
-                <p className="type-caption text-text-muted font-medium">Variables</p>
+                <p className="type-caption text-text-muted font-medium">{t('scratchVariables') || 'Variables'}</p>
                 {vars.map((v, i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-text-primary text-sm w-12 shrink-0 text-right">{v.symbol}</span>
-                    <span className="text-text-muted text-xs">=</span>
+                    <span className="font-mono font-bold text-text-primary type-meta w-12 shrink-0 text-right">{v.symbol}</span>
+                    <span className="text-text-muted type-caption">=</span>
                     <input
                       type="text" value={v.value} onChange={e => updateVar(i, e.target.value)}
-                      placeholder="value"
-                      className="flex-1 px-3 py-1.5 rounded-lg bg-surface-input border border-border-subtle text-sm font-mono text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50"
+                      placeholder={t('scratchVariableValue') || '…'}
+                      className="flex-1 px-3 py-1.5 rounded-lg bg-surface-input border border-border-subtle type-body font-mono text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50"
                     />
                     {v.unit && <span className="type-caption text-text-muted w-8">{v.unit}</span>}
                   </div>
@@ -359,14 +484,14 @@ export function FormulaScratchpad({
                 )}
                 {unitCheck.ok && vars.some((v) => v.unit.trim()) && (
                   <p className="type-caption text-accent-emerald" data-testid="scratchpad-unit-check-ok">
-                    Units OK
+                    {t('scratchUnitsOk') || 'Units OK'}
                   </p>
                 )}
               </div>
 
               {/* Actions */}
-              <div className="flex items-center gap-2">
-                <button onClick={compute} className="flex-1 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold transition-all">
+              <div className="flex flex-wrap items-center gap-2">
+                <button onClick={compute} className="flex-1 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl type-caption font-semibold transition-all">
                   {t('scratchComputeSteps')}
                 </button>
                 {plotSpec && (
@@ -375,7 +500,7 @@ export function FormulaScratchpad({
                     data-testid="scratchpad-graph-plot"
                     onClick={() => setShowGraph((v) => !v)}
                     className={cn(
-                      'flex items-center gap-1 px-3 py-2.5 rounded-xl border text-xs font-medium',
+                      'flex items-center gap-1 px-3 py-2.5 rounded-xl border type-caption font-medium',
                       showGraph ? 'ws-chip-brand' : 'border-border-subtle text-text-muted',
                     )}
                   >
@@ -388,10 +513,10 @@ export function FormulaScratchpad({
                     type="button"
                     data-testid="scratchpad-ask-agent"
                     onClick={() => onAskAgent(`${activeFormula.name}: ${activeFormula.formula}`)}
-                    className="flex items-center gap-1 px-3 py-2.5 rounded-xl border border-accent-cyan/30 bg-accent-cyan/10 text-text-primary text-xs font-medium hover:bg-accent-cyan/20"
+                    className="flex items-center gap-1 px-3 py-2.5 rounded-xl border border-accent-cyan/30 bg-accent-cyan/10 text-text-secondary type-caption font-medium hover:bg-accent-cyan/20"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    Agent
+                    {t('scratchAskAgent') || 'Agent'}
                   </button>
                 )}
                 {onStepHint && activeFormula && (
@@ -408,7 +533,7 @@ export function FormulaScratchpad({
                         setStepHintLoading(false);
                       }).catch(() => setStepHintLoading(false));
                     }}
-                    className="flex items-center gap-1 px-3 py-2.5 rounded-xl border border-border-default bg-surface-tertiary text-text-primary text-xs font-medium hover:bg-surface-hover disabled:opacity-60"
+                    className="flex items-center gap-1 px-3 py-2.5 rounded-xl border border-border-default bg-surface-tertiary text-text-secondary type-caption font-medium hover:bg-surface-hover disabled:opacity-60"
                   >
                     {stepHintLoading ? t('scratchStepHintLoading') : t('scratchStepHint')}
                   </button>
@@ -418,7 +543,7 @@ export function FormulaScratchpad({
                     type="button"
                     onClick={sendToWhiteboard}
                     title={t('scratchOpenWhiteboard')}
-                    className="flex items-center gap-1 px-3 py-2.5 rounded-xl border border-accent-cyan/30 bg-accent-cyan/10 text-text-primary text-xs font-medium hover:bg-accent-cyan/20"
+                    className="flex items-center gap-1 px-3 py-2.5 rounded-xl border border-accent-cyan/30 bg-accent-cyan/10 text-text-secondary type-caption font-medium hover:bg-accent-cyan/20"
                   >
                     <PenSquare className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">{t('scratchBoard')}</span>
@@ -454,7 +579,7 @@ export function FormulaScratchpad({
                     {plotSpec.dependent} = f({plotSpec.independent})
                   </p>
                   <svg viewBox="0 0 280 140" className="w-full h-36 rounded-lg bg-surface-card/60">
-                    <path d={plotPath} fill="none" stroke="#67e8f9" strokeWidth="2" />
+                    <path d={plotPath} fill="none" stroke="var(--palette-cyan, #67e8f9)" strokeWidth="2" />
                   </svg>
                 </div>
               )}
@@ -471,14 +596,16 @@ export function FormulaScratchpad({
                     className="ux-tier-b-panel p-4 rounded-xl bg-surface-primary/60 border border-border-subtle space-y-2"
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="type-caption text-text-muted font-medium">Solution</span>
+                      <span className="type-caption text-text-muted font-medium">{t('scratchSolution') || 'Solution'}</span>
                       <button onClick={copyResult} className="flex items-center gap-1 type-caption text-text-muted hover:text-text-secondary">
-                        {copied ? <><Check className="w-3 h-3 text-accent-emerald" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
+                        {copied
+                          ? <><Check className="w-3 h-3 text-accent-emerald" /> {t('copied') || 'Copied'}</>
+                          : <><Copy className="w-3 h-3" /> {t('copy') || 'Copy'}</>}
                       </button>
                     </div>
                     {steps.map((s, i) => (
                       <motion.p key={i} initial={{ opacity: 0, x: -5 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.12 }}
-                        className={cn('text-sm font-mono', s.startsWith('✓') ? 'text-accent-emerald font-semibold' : s.startsWith('⚠') ? 'text-accent-amber' : 'text-text-secondary')}>
+                        className={cn('type-meta font-mono', s.startsWith('✓') ? 'text-accent-emerald font-semibold' : s.startsWith('⚠') ? 'text-accent-amber' : 'text-text-secondary')}>
                         {s}
                       </motion.p>
                     ))}
@@ -500,12 +627,12 @@ export function FormulaScratchpad({
                       data-testid="scratchpad-simplify-sympy"
                       disabled={simplifyLoading || !activeFormula}
                       onClick={() => { void simplifyWithSympy(); }}
-                      className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-500/10 px-2.5 py-1 type-caption font-medium text-text-primary hover:bg-brand-500/15 disabled:opacity-40"
+                      className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-500/10 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-brand-500/15 disabled:opacity-40"
                     >
                       {simplifyLoading
                         ? <Loader2 className="w-3 h-3 animate-spin" />
                         : <Sparkles className="w-3 h-3" />}
-                      Simplify
+                      {t('scratchSimplify') || 'Simplify'}
                     </button>
                     <button
                       type="button"
@@ -538,7 +665,7 @@ export function FormulaScratchpad({
                   }}
                   rows={4}
                   placeholder={t('scratchDerivationPlaceholder')}
-                  className="w-full rounded-lg border border-border-subtle bg-surface-input px-3 py-2 text-xs font-mono text-text-secondary placeholder:text-text-muted focus:border-brand-500/40 focus:outline-none"
+                  className="w-full rounded-lg border border-border-subtle bg-surface-input px-3 py-2 type-caption font-mono text-text-secondary placeholder:text-text-muted focus:border-brand-500/40 focus:outline-none"
                 />
                 {sympyValidation && (
                   <div className="space-y-1" data-testid="scratchpad-sympy-results">
@@ -614,11 +741,11 @@ function ScratchpadHeader({
           data-testid="scratchpad-tab-formulas"
           onClick={() => setPanel('formulas')}
           className={cn(
-            'px-2 py-1 rounded-md type-caption font-medium inline-flex items-center gap-1',
-            panel === 'formulas' ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-muted',
+            'min-h-9 px-3 py-1.5 rounded-lg type-caption font-medium inline-flex items-center gap-1.5',
+            panel === 'formulas' ? 'bg-surface-secondary text-text-secondary border border-border-subtle' : 'text-text-muted hover:text-text-secondary',
           )}
         >
-          <Calculator className="w-3 h-3" />
+          <Calculator className="w-3.5 h-3.5" />
           {t('scratchFormulasTab')}
         </button>
         <button
@@ -626,17 +753,21 @@ function ScratchpadHeader({
           data-testid="scratchpad-tab-notes"
           onClick={() => setPanel('notes')}
           className={cn(
-            'px-2 py-1 rounded-md type-caption font-medium inline-flex items-center gap-1',
-            panel === 'notes' ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-muted',
+            'min-h-9 px-3 py-1.5 rounded-lg type-caption font-medium inline-flex items-center gap-1.5',
+            panel === 'notes' ? 'bg-surface-secondary text-text-secondary border border-border-subtle' : 'text-text-muted hover:text-text-secondary',
           )}
         >
-          <PenSquare className="w-3 h-3" />
+          <PenSquare className="w-3.5 h-3.5" />
           {t('scratchThinkingTab')}
         </button>
       </div>
       {onAddCustom && panel === 'formulas' && (
-        <button onClick={onAddCustom} className="flex items-center gap-1 px-2 py-1 rounded-md type-caption text-text-muted hover:text-text-secondary bg-surface-hover">
-          <Plus className="w-3 h-3" /> {t('scratchAddCustom')}
+        <button
+          type="button"
+          onClick={onAddCustom}
+          className="inline-flex items-center gap-1.5 min-h-9 px-2.5 py-1.5 rounded-lg type-caption font-medium text-text-muted hover:text-text-secondary border border-border-subtle bg-surface-secondary"
+        >
+          <Plus className="w-3.5 h-3.5" /> {t('scratchAddCustom')}
         </button>
       )}
     </div>

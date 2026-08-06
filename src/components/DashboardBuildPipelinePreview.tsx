@@ -34,7 +34,7 @@ export function DashboardBuildPipelinePreview({ className }: { className?: strin
         <h2 className="dashboard-preview-title mt-2">
           {t('dashboardBuildPreviewTitle')}
         </h2>
-        <p className="mt-1 text-sm text-text-secondary">{t('dashboardBuildPreviewSubtitle')}</p>
+        <p className="mt-1 type-body text-text-secondary">{t('dashboardBuildPreviewSubtitle')}</p>
       </div>
 
       <div className="space-y-3">
@@ -48,10 +48,10 @@ export function DashboardBuildPipelinePreview({ className }: { className?: strin
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-3">
-                <h3 className="text-sm font-semibold text-text-primary">{t(STEP_TITLE_KEYS[stepId])}</h3>
+                <h3 className="type-meta font-semibold text-text-primary">{t(STEP_TITLE_KEYS[stepId])}</h3>
                 <span className="dashboard-live-preview-status"><AllCapsLabel>{t('dashboardPipelineStage')}</AllCapsLabel></span>
               </div>
-              <p className="mt-2 text-sm leading-6 text-text-secondary">{t(STEP_BODY_KEYS[stepId])}</p>
+              <p className="mt-2 type-body leading-6 text-text-secondary">{t(STEP_BODY_KEYS[stepId])}</p>
             </div>
           </div>
         ))}

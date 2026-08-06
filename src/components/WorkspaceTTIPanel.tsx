@@ -33,7 +33,7 @@ export function WorkspaceTTIPanel() {
   }, []);
 
   const row = (label: string, ms?: number) => (
-    <div className="flex justify-between gap-4 text-xs">
+    <div className="flex justify-between gap-4 type-caption">
       <span className="text-text-secondary">{label}</span>
       <span className="font-mono text-text-primary tabular-nums">{ms != null ? `${ms} ms` : '—'}</span>
     </div>
@@ -73,14 +73,14 @@ export function WorkspaceTTIPanel() {
       {row('Note worker (full)', metrics.bundleWorkerMs)}
       {row('Intel panels', metrics.intelMs)}
       {metrics.textChars != null && metrics.textChars > 0 && (
-        <div className="flex justify-between gap-4 text-xs pt-1 border-t border-border-subtle/60">
+        <div className="flex justify-between gap-4 type-caption pt-1 border-t border-border-subtle/60">
           <span className="text-text-secondary">Source chars</span>
           <span className="font-mono text-text-primary tabular-nums">{metrics.textChars.toLocaleString()}</span>
         </div>
       )}
       {hasInteractive && (
         <div
-          className="flex justify-between gap-4 text-xs pt-1 border-t border-border-subtle/60"
+          className="flex justify-between gap-4 type-caption pt-1 border-t border-border-subtle/60"
           data-testid="workspace-tti-budget"
         >
           <span className="text-text-secondary">

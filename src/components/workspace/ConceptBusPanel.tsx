@@ -63,9 +63,9 @@ export function ConceptBusPanel({
         className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left hover:bg-surface-hover transition-colors"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <GitBranch className="w-3.5 h-3.5 text-text-primary shrink-0" />
+          <GitBranch className="w-3.5 h-3.5 text-text-secondary shrink-0" />
           <div className="min-w-0">
-            <p className="type-caption font-semibold text-text-primary truncate">
+            <p className="type-caption font-semibold text-text-secondary truncate">
               {t('busTitle')}
             </p>
             <p className="type-caption text-text-tertiary truncate">
@@ -191,7 +191,7 @@ export function ConceptBusPanel({
                 <button
                   type="button"
                   onClick={onOpenReaderSection}
-                  className="mt-1 type-caption text-text-primary hover:underline"
+                  className="mt-1 type-caption text-text-secondary hover:underline"
                   data-testid="concept-bus-reader-link"
                 >
                   {t('busOpenInReader')} · {activeLens.sourceSections[0]}
@@ -240,7 +240,7 @@ export function ConceptBusPanel({
                     className={cn(
                       'rounded-full border px-1.5 py-0.5 type-caption font-medium transition-colors',
                       tool === activeTool
-                        ? 'border-brand-500/50 bg-surface-secondary text-text-primary border border-border-subtle'
+                        ? 'border-brand-500/50 bg-surface-secondary text-text-secondary'
                         : 'border-border-subtle bg-surface-secondary text-text-secondary hover:border-border-default hover:text-text-primary',
                     )}
                   >

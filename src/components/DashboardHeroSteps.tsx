@@ -36,8 +36,8 @@ export function DashboardHeroSteps({ className }: { className?: string }) {
           <p className="dashboard-live-preview-eyebrow">
             <AllCapsLabel>{String(index + 1).padStart(2, '0')}</AllCapsLabel>
           </p>
-          <h3 className="mt-2 text-sm font-semibold text-text-primary">{t(STEP_TITLE_KEYS[stepId])}</h3>
-          <p className="mt-2 text-sm leading-6 text-text-secondary">{t(STEP_BODY_KEYS[stepId])}</p>
+          <h3 className="mt-2 type-meta font-semibold text-text-primary">{t(STEP_TITLE_KEYS[stepId])}</h3>
+          <p className="mt-2 type-body leading-6 text-text-secondary">{t(STEP_BODY_KEYS[stepId])}</p>
         </BlueprintSurface>
       ))}
     </div>

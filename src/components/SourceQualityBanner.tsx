@@ -62,7 +62,7 @@ export function SourceQualityBanner({
     <div
       className={cn(
         'flex items-start gap-3 rounded-2xl border border-accent-rose/30 bg-accent-rose/10',
-        compact ? 'px-3 py-2.5 text-xs' : 'px-4 py-3 text-sm',
+        compact ? 'px-3 py-2.5 type-caption' : 'px-4 py-3 type-meta',
         className,
       )}
       data-testid="source-quality-banner"
@@ -80,7 +80,7 @@ export function SourceQualityBanner({
               data-testid="source-quality-reprocess"
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-lg border border-border-subtle bg-surface-secondary text-text-primary hover:bg-brand-500/20 disabled:opacity-60',
-                compact ? 'px-2 py-1 type-micro' : 'px-3 py-1.5 text-xs',
+                compact ? 'px-2 py-1 type-micro' : 'px-3 py-1.5 type-caption',
               )}
             >
               <Cpu className={compact ? 'h-3 w-3' : 'h-3.5 w-3.5'} />
@@ -94,7 +94,7 @@ export function SourceQualityBanner({
               data-testid="source-quality-reupload"
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-lg border border-accent-amber/40 bg-accent-amber/15 font-medium text-accent-amber hover:bg-accent-amber/20',
-                compact ? 'px-2 py-1 type-micro' : 'px-3 py-1.5 text-xs',
+                compact ? 'px-2 py-1 type-micro' : 'px-3 py-1.5 type-caption',
               )}
             >
               <RefreshCw className={compact ? 'h-3 w-3' : 'h-3.5 w-3.5'} />
@@ -108,7 +108,7 @@ export function SourceQualityBanner({
               data-testid="source-quality-inspect"
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-surface-card/40 font-medium text-text-secondary hover:text-text-primary',
-                compact ? 'px-2 py-1 type-micro' : 'px-3 py-1.5 text-xs',
+                compact ? 'px-2 py-1 type-micro' : 'px-3 py-1.5 type-caption',
               )}
             >
               <FileSearch className={compact ? 'h-3 w-3' : 'h-3.5 w-3.5'} />
@@ -121,7 +121,7 @@ export function SourceQualityBanner({
             data-testid="source-quality-continue"
             className={cn(
               'inline-flex items-center gap-1.5 rounded-lg border border-white/10 font-medium text-text-muted hover:text-text-secondary',
-              compact ? 'px-2 py-1 type-micro' : 'px-3 py-1.5 text-xs',
+              compact ? 'px-2 py-1 type-micro' : 'px-3 py-1.5 type-caption',
             )}
           >
             {t('sqContinueAnyway')}

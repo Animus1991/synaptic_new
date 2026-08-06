@@ -109,14 +109,14 @@ export function StudyRoomNoteProposalsPanel({
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         rows={3}
-        className="ws-field-input text-xs resize-y min-h-[4rem]"
+        className="ws-field-input type-caption resize-y min-h-[4rem]"
         placeholder={tr('collabProposePlaceholder')}
         data-testid="collab-note-proposal-draft"
       />
       <input
         value={summary}
         onChange={(e) => setSummary(e.target.value)}
-        className="ws-field-input text-xs"
+        className="ws-field-input type-caption"
         placeholder={tr('collabProposalSummary')}
         data-testid="collab-note-proposal-summary"
       />
@@ -133,7 +133,7 @@ export function StudyRoomNoteProposalsPanel({
         type="button"
         disabled={!draft.trim() || !cap.allowed}
         onClick={submit}
-        className="ws-empty-cta-secondary w-full justify-center text-xs min-h-11 disabled:opacity-50"
+        className="ws-empty-cta-secondary w-full justify-center type-caption min-h-11 disabled:opacity-50"
         data-testid="collab-note-proposal-submit"
       >
         {cap.allowed
@@ -171,7 +171,7 @@ export function StudyRoomNoteProposalsPanel({
             <input
               value={reviewNote}
               onChange={(e) => setReviewNote(e.target.value)}
-              className="ws-field-input text-xs"
+              className="ws-field-input type-caption"
               placeholder={tr('collabReviewNote')}
               data-testid="collab-note-review-note"
             />

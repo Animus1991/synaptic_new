@@ -26,7 +26,7 @@ export function ExamPrepPanel() {
             className={cn(
               'rounded-lg px-3 py-1.5 type-caption font-medium whitespace-nowrap transition-colors',
               tab === id
-                ? 'bg-surface-secondary text-text-primary border border-border-subtle'
+                ? 'bg-surface-secondary text-text-secondary border border-border-subtle'
                 : 'text-text-secondary hover:bg-surface-hover',
             )}
           >
@@ -67,7 +67,7 @@ function PatternCards() {
                   : 'border-border-subtle hover:bg-surface-hover',
               )}
             >
-              <p className="text-sm font-medium">{t(p.titleKey as never)}</p>
+              <p className="type-meta font-medium">{t(p.titleKey as never)}</p>
               <p className="type-caption text-text-muted">{p.tags.join(' · ')}</p>
             </button>
           </li>
@@ -75,8 +75,8 @@ function PatternCards() {
       </ul>
       {pattern && (
         <div className="rounded-xl border border-border-subtle bg-surface-card/40 p-4">
-          <p className="text-sm font-semibold mb-2">{t(pattern.titleKey as never)}</p>
-          <p className="text-xs text-text-secondary mb-4">{t(pattern.summaryKey as never)}</p>
+          <p className="type-meta font-semibold mb-2">{t(pattern.titleKey as never)}</p>
+          <p className="type-caption text-text-secondary mb-4">{t(pattern.summaryKey as never)}</p>
           <pre className="type-caption font-mono whitespace-pre-wrap bg-surface-primary rounded-lg p-3 border border-border-subtle">
             {t(pattern.templateKey as never)}
           </pre>
@@ -99,7 +99,7 @@ function AlgorithmStepper() {
       <select
         value={scenarioId}
         onChange={(e) => { setScenarioId(e.target.value); setStepIdx(0); }}
-        className="rounded-lg border border-border-subtle bg-surface-card px-3 py-2 text-xs"
+        className="rounded-lg border border-border-subtle bg-surface-card px-3 py-2 type-caption"
         data-testid="algorithm-scenario-select"
       >
         {ALGORITHM_SCENARIOS.map((s) => (
@@ -109,7 +109,7 @@ function AlgorithmStepper() {
 
       {scenario && step && (
         <>
-          <p className="text-sm font-medium">{t(step.labelKey as never)}</p>
+          <p className="type-meta font-medium">{t(step.labelKey as never)}</p>
 
           {scenario.kind === 'array-scan' && scenario.initialArray && (
             <div className="flex gap-2 flex-wrap">
@@ -117,7 +117,7 @@ function AlgorithmStepper() {
                 <div
                   key={i}
                   className={cn(
-                    'w-10 h-10 rounded-lg border flex items-center justify-center text-sm font-mono',
+                    'w-10 h-10 rounded-lg border flex items-center justify-center type-meta font-mono',
                     step.highlightIndices?.includes(i)
                       ? 'border-brand-500 bg-brand-600/20'
                       : 'border-border-subtle',
@@ -132,7 +132,7 @@ function AlgorithmStepper() {
           {step.stackContents && (
             <div className="flex flex-col-reverse items-start gap-1">
               {step.stackContents.map((item, i) => (
-                <div key={i} className="px-4 py-1 rounded border border-border-subtle bg-surface-card text-xs font-mono">
+                <div key={i} className="px-4 py-1 rounded border border-border-subtle bg-surface-card type-caption font-mono">
                   {item}
                 </div>
               ))}
@@ -144,7 +144,7 @@ function AlgorithmStepper() {
             <div className="flex items-center gap-1 flex-wrap">
               <p className="type-caption text-text-muted w-full">QUEUE</p>
               {step.queueContents.map((item, i) => (
-                <div key={i} className="px-3 py-1 rounded border border-border-subtle bg-surface-card text-xs font-mono">
+                <div key={i} className="px-3 py-1 rounded border border-border-subtle bg-surface-card type-caption font-mono">
                   {item}
                 </div>
               ))}
@@ -178,7 +178,7 @@ function AlgorithmStepper() {
             >
               <CaretRight className="w-4 h-4" />
             </button>
-            <span className="text-xs text-text-muted self-center">
+            <span className="type-caption text-text-muted self-center">
               {stepIdx + 1}/{scenario.steps.length}
             </span>
           </div>
@@ -197,7 +197,7 @@ function GlossaSandbox() {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-2 text-sm font-medium">
+      <div className="flex items-center gap-2 type-meta font-medium">
         <Code className="w-4 h-4" />
         {t('examPrepGlossaTitle')}
       </div>
@@ -205,20 +205,20 @@ function GlossaSandbox() {
         value={source}
         onChange={(e) => setSource(e.target.value)}
         rows={10}
-        className="w-full rounded-xl border border-border-subtle bg-surface-card p-3 text-xs font-mono"
+        className="w-full rounded-xl border border-border-subtle bg-surface-card p-3 type-caption font-mono"
         data-testid="glossa-source"
       />
       <button
         type="button"
         onClick={run}
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 text-white text-xs font-medium"
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 text-white type-caption font-medium"
         data-testid="glossa-run"
       >
         <Play className="w-3 h-3" />
         {t('examPrepGlossaRun')}
       </button>
       {result && (
-        <div className="rounded-xl border border-border-subtle p-3 text-xs" data-testid="glossa-output">
+        <div className="rounded-xl border border-border-subtle p-3 type-caption" data-testid="glossa-output">
           {result.ok ? (
             <>
               <p className="font-medium text-accent-emerald mb-1">{t('examPrepGlossaOutput')}</p>
@@ -272,7 +272,7 @@ function ExerciseArchetypes() {
             className={cn(
               'rounded-full px-3 py-1 type-caption font-medium border',
               selected === a.id
-                ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle'
+                ? 'border-brand-500/40 bg-surface-secondary text-text-secondary'
                 : 'border-border-subtle text-text-secondary',
             )}
           >
@@ -283,11 +283,11 @@ function ExerciseArchetypes() {
 
       {archetype && (
         <div className="rounded-xl border border-border-subtle bg-surface-card/40 p-4 space-y-3">
-          <p className="text-sm font-semibold">{t(archetype.labelKey as never)}</p>
-          <p className="text-xs text-text-secondary">{t(archetype.descriptionKey as never)}</p>
+          <p className="type-meta font-semibold">{t(archetype.labelKey as never)}</p>
+          <p className="type-caption text-text-secondary">{t(archetype.descriptionKey as never)}</p>
           <div>
             <p className="type-caption font-medium text-text-muted mb-1">{t('examPrepRubricLabel')}</p>
-            <ul className="list-disc list-inside text-xs text-text-secondary space-y-0.5">
+            <ul className="list-disc list-inside type-caption text-text-secondary space-y-0.5">
               {archetype.rubricKeys.map((k) => (
                 <li key={k}>{t(k as never)}</li>
               ))}
@@ -295,7 +295,7 @@ function ExerciseArchetypes() {
           </div>
           <div>
             <p className="type-caption font-medium text-text-muted mb-1">{t('examPrepStepsLabel')}</p>
-            <ol className="list-decimal list-inside text-xs text-text-secondary space-y-0.5">
+            <ol className="list-decimal list-inside type-caption text-text-secondary space-y-0.5">
               {archetype.solutionStepKeys.map((k) => (
                 <li key={k}>{t(k as never)}</li>
               ))}
@@ -305,7 +305,7 @@ function ExerciseArchetypes() {
             type="button"
             onClick={copyArchetypeHint}
             data-testid="archetype-copy-hint"
-            className="rounded-lg border border-border-subtle bg-surface-secondary text-text-primary hover:opacity-90"
+            className="rounded-lg border border-border-subtle bg-surface-secondary text-text-secondary hover:opacity-90"
           >
             {copied ? t('examPrepArchetypeCopied') : t('examPrepCopyArchetypeHint')}
           </button>

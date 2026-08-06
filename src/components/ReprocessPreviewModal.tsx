@@ -310,7 +310,7 @@ export function ReprocessPreviewModal({
 
                 </h2>
 
-                <p className="mt-1 text-xs text-text-muted">
+                <p className="mt-1 type-caption text-text-muted">
 
                   {tr('reprocessSubtitle')}
 
@@ -362,7 +362,7 @@ export function ReprocessPreviewModal({
 
             {!preview ? (
 
-              <div className="p-8 text-center text-sm text-text-muted">
+              <div className="p-8 text-center type-body text-text-muted">
 
                 {tr('reprocessNoPreview')}
 
@@ -378,13 +378,13 @@ export function ReprocessPreviewModal({
 
                   <div>
 
-                    <p className="text-sm font-semibold text-accent-emerald">
+                    <p className="type-meta font-semibold text-accent-emerald">
 
                       {tr('reprocessApplied')}
 
                     </p>
 
-                    <p className="mt-1 text-xs text-text-secondary">
+                    <p className="mt-1 type-caption text-text-secondary">
 
                       {tr('reprocessAppliedDetail')
                         .replace('{score}', String(preview.afterScore))
@@ -428,7 +428,7 @@ export function ReprocessPreviewModal({
 
                       className={cn(
 
-                        'rounded-t-lg px-3 py-2 text-xs font-medium transition-colors',
+                        'rounded-t-lg px-3 py-2 type-caption font-medium transition-colors',
 
                         tab === id
 
@@ -681,7 +681,7 @@ export function ReprocessPreviewModal({
 
                     onClick={onClose}
 
-                    className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500"
+                    className="rounded-lg bg-brand-600 px-4 py-2 type-meta font-medium text-white hover:bg-brand-500"
 
                     data-testid="reprocess-preview-done"
 
@@ -705,7 +705,7 @@ export function ReprocessPreviewModal({
 
                       disabled={applying}
 
-                      className="rounded-lg border border-border-subtle px-4 py-2 text-sm text-text-secondary hover:bg-surface-hover disabled:opacity-50"
+                      className="rounded-lg border border-border-subtle px-4 py-2 type-meta text-text-secondary hover:bg-surface-hover disabled:opacity-50"
 
                     >
 
@@ -725,7 +725,7 @@ export function ReprocessPreviewModal({
 
                         data-testid="reprocess-preview-apply"
 
-                        className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-60"
+                        className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 type-meta font-medium text-white hover:bg-brand-500 disabled:opacity-60"
 
                       >
 

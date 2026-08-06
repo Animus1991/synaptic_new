@@ -78,14 +78,14 @@ export function CoReadingHubPanel({ lang, roomId, memberId, displayName }: Props
         value={excerpt}
         onChange={(e) => setExcerpt(e.target.value)}
         rows={2}
-        className="ws-field-input text-xs resize-y"
+        className="ws-field-input type-caption resize-y"
         placeholder={tr('collabSourceExcerpt')}
         data-testid="co-reading-excerpt"
       />
       <input
         value={sourceRef}
         onChange={(e) => setSourceRef(e.target.value)}
-        className="ws-field-input text-xs"
+        className="ws-field-input type-caption"
         placeholder={tr('collabSourceRef')}
         data-testid="co-reading-source-ref"
       />
@@ -93,7 +93,7 @@ export function CoReadingHubPanel({ lang, roomId, memberId, displayName }: Props
         type="button"
         disabled={excerpt.trim().length < 8}
         onClick={createChallenge}
-        className="ws-empty-cta-secondary w-full justify-center text-xs min-h-11 disabled:opacity-50"
+        className="ws-empty-cta-secondary w-full justify-center type-caption min-h-11 disabled:opacity-50"
         data-testid="co-reading-create-challenge"
       >
         {tr('collabCreateChallenge')}
@@ -111,7 +111,7 @@ export function CoReadingHubPanel({ lang, roomId, memberId, displayName }: Props
                 value={explainDraft[ch.id] ?? ''}
                 onChange={(e) => setExplainDraft((d) => ({ ...d, [ch.id]: e.target.value }))}
                 rows={2}
-                className="ws-field-input text-xs resize-y"
+                className="ws-field-input type-caption resize-y"
                 placeholder={tr('collabExplainPlaceholder')}
                 data-testid={`co-reading-explain-draft-${ch.id}`}
               />

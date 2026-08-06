@@ -28,7 +28,7 @@ function PlainEditor({ value, onChange, readOnly, className }: CodeEditorProps) 
       spellCheck={false}
       className={
         className ??
-        'w-full h-full p-4 bg-[#0d0b14] text-sm font-mono text-accent-emerald focus:outline-none resize-none leading-relaxed'
+        'w-full h-full p-4 bg-[#0d0b14] type-body font-mono text-accent-emerald focus:outline-none resize-none leading-relaxed'
       }
     />
   );

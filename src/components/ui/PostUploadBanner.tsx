@@ -33,8 +33,8 @@ export function PostUploadBanner({ courseTitle, onOpenWorkspace, onViewCourse, o
     >
       <div className="flex-1 min-w-0">
         <p className="ws-eyebrow text-text-secondary mb-1"><AllCapsLabel>{t('postUploadCourseReady')}</AllCapsLabel></p>
-        <p className="text-sm font-semibold text-text-primary truncate">{courseTitle}</p>
-        <p className="text-xs text-text-secondary mt-1">{t('postUploadHint')}</p>
+        <p className="type-meta font-semibold text-text-primary truncate">{courseTitle}</p>
+        <p className="type-caption text-text-secondary mt-1">{t('postUploadHint')}</p>
       </div>
       <div className="flex flex-wrap items-center gap-2 shrink-0">
         <PrimaryCTA

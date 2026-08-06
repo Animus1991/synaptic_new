@@ -38,12 +38,12 @@ export function LiveEngineTransparencyPanel({
             <Search className="w-4 h-4 text-text-secondary" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-text-primary">{c.liveTransparencyTitle}</h3>
-            <p className="text-xs text-text-secondary mt-1">{c.liveTransparencyHint}</p>
+            <h3 className="type-meta font-semibold text-text-primary">{c.liveTransparencyTitle}</h3>
+            <p className="type-body text-text-secondary mt-1">{c.liveTransparencyHint}</p>
           </div>
         </div>
 
-        <label className="block text-xs font-medium text-text-tertiary mb-1.5">
+        <label className="block type-caption font-medium text-text-tertiary mb-1.5">
           {c.liveTransparencyQueryLabel}
         </label>
         <div className="flex flex-col sm:flex-row gap-2">
@@ -52,12 +52,12 @@ export function LiveEngineTransparencyPanel({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={c.liveTransparencyQueryPlaceholder}
-            className="flex-1 px-4 py-2.5 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
+            className="flex-1 px-4 py-2.5 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50"
             data-testid="live-engine-query"
           />
           <button
             type="button"
-            className="px-4 py-2.5 rounded-xl ws-fab text-sm font-medium whitespace-nowrap"
+            className="px-4 py-2.5 rounded-xl ws-fab type-meta font-medium whitespace-nowrap"
             onClick={() => setQuery((q) => q.trim())}
           >
             {c.liveTransparencyRun}
@@ -70,12 +70,12 @@ export function LiveEngineTransparencyPanel({
 
       <div className="grid lg:grid-cols-2 gap-4">
         <div className="ux-card">
-          <h3 className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
+          <h3 className="type-meta font-semibold text-text-primary mb-3 flex items-center gap-2">
             <FileText className="w-4 h-4 text-text-secondary" />
             {c.liveTransparencyHits}
           </h3>
           {data.hits.length === 0 ? (
-            <p className="text-sm text-text-secondary">{c.liveTransparencyNoHits}</p>
+            <p className="type-body text-text-secondary">{c.liveTransparencyNoHits}</p>
           ) : (
             <div className="space-y-3">
               {data.hits.map((hit, index) => {
@@ -83,10 +83,10 @@ export function LiveEngineTransparencyPanel({
                 return (
                   <div key={hit.chunk.id} className="rounded-xl border border-border-subtle p-3 bg-surface-card/50">
                     <div className="flex items-center justify-between gap-3 mb-2">
-                      <span className="text-xs font-mono text-text-secondary">#{index + 1} · {hit.score.toFixed(2)}</span>
+                      <span className="type-caption font-mono text-text-secondary">#{index + 1} · {hit.score.toFixed(2)}</span>
                       <span className="type-caption text-text-tertiary truncate">{formatCitation(citation)}</span>
                     </div>
-                    <p className="text-xs text-text-secondary leading-relaxed">{citation.snippet}</p>
+                    <p className="type-body text-text-secondary leading-relaxed">{citation.snippet}</p>
                   </div>
                 );
               })}
@@ -95,13 +95,13 @@ export function LiveEngineTransparencyPanel({
         </div>
 
         <div className="ux-card">
-          <h3 className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
+          <h3 className="type-meta font-semibold text-text-primary mb-3 flex items-center gap-2">
             <Brain className="w-4 h-4 text-text-secondary" />
             {c.textRankSentences}
           </h3>
           <div className="space-y-2">
             {data.textRankSentences.slice(0, 5).map((sentence, i) => (
-              <div key={`${sentence.text}-${i}`} className={cn('p-3 rounded-xl border text-xs', sentence.selected ? 'border-brand-500/30 bg-brand-600/5' : 'border-border-subtle')}>
+              <div key={`${sentence.text}-${i}`} className={cn('p-3 rounded-xl border type-caption', sentence.selected ? 'border-brand-500/30 bg-brand-600/5' : 'border-border-subtle')}>
                 <div className="flex items-center justify-between gap-2 mb-1">
                   <span className="font-mono text-text-secondary">{sentence.score.toFixed(2)}</span>
                   {sentence.selected && <span className="ux-chip-info px-2 py-0.5 rounded-full type-micro">Selected</span>}
@@ -115,11 +115,11 @@ export function LiveEngineTransparencyPanel({
 
       <div className="grid lg:grid-cols-2 gap-4">
         <div className="ux-card overflow-x-auto">
-          <h3 className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
+          <h3 className="type-meta font-semibold text-text-primary mb-3 flex items-center gap-2">
             <Network className="w-4 h-4 text-text-secondary" />
             {c.bm25Ranking}
           </h3>
-          <table className="w-full text-xs">
+          <table className="w-full type-caption">
             <thead>
               <tr className="text-text-tertiary border-b border-border-subtle">
                 <th className="text-left py-2 pr-4">#</th>
@@ -144,16 +144,16 @@ export function LiveEngineTransparencyPanel({
         </div>
 
         <div className="ux-card">
-          <h3 className="text-sm font-semibold text-text-primary mb-3">{c.keyphraseRankings}</h3>
+          <h3 className="type-meta font-semibold text-text-primary mb-3">{c.keyphraseRankings}</h3>
           <div className="space-y-1.5">
             {data.keyphrases.map((kp, i) => (
               <div key={kp.phrase} className="flex items-center gap-3">
-                <span className="text-xs font-mono text-text-muted w-4">{i + 1}</span>
+                <span className="type-caption font-mono text-text-muted w-4">{i + 1}</span>
                 <div className="flex-1 ux-progress-track h-1.5">
                   <div className="ux-progress-fill h-full" style={{ width: `${Math.min(100, kp.score * 100)}%` }} />
                 </div>
-                <span className="text-xs text-text-primary min-w-[8rem] truncate">{kp.phrase}</span>
-                <span className="text-xs font-mono text-text-secondary">{kp.score.toFixed(2)}</span>
+                <span className="type-caption text-text-primary min-w-[8rem] truncate">{kp.phrase}</span>
+                <span className="type-caption font-mono text-text-secondary">{kp.score.toFixed(2)}</span>
               </div>
             ))}
           </div>

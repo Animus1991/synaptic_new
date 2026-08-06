@@ -152,7 +152,7 @@ export function NotebookShellView({
           <p className="type-micro text-text-primary font-semibold">
             {el ? 'Notebook Shell' : 'Notebook Shell'}
           </p>
-          <h1 className="text-sm font-semibold text-text-primary truncate">{course.title}</h1>
+          <h1 className="type-meta font-semibold text-text-primary truncate">{course.title}</h1>
         </div>
         <button
           type="button"
@@ -177,7 +177,7 @@ export function NotebookShellView({
           </div>
           <ul className="p-2 space-y-1">
             {sources.length === 0 ? (
-              <li className="px-2 py-3 text-xs text-text-muted">
+              <li className="px-2 py-3 type-caption text-text-muted">
                 {el ? 'Χωρίς συνδεδεμένα αρχεία.' : 'No linked files yet.'}
               </li>
             ) : sources.map((file) => (
@@ -191,7 +191,7 @@ export function NotebookShellView({
                   className="w-full text-left rounded-lg px-2 py-2 hover:bg-surface-hover transition-colors"
                   data-testid={`notebook-shell-source-${file.id}`}
                 >
-                  <p className="text-xs font-medium text-text-primary truncate">{file.name}</p>
+                  <p className="type-caption font-medium text-text-primary truncate">{file.name}</p>
                   <p className="type-micro text-text-muted mt-0.5">
                     {file.ingestMethod === 'notebooklm-import' || file.ingestMethod === 'notebooklm-chat' || file.ingestMethod === 'notebooklm-audio-transcript'
                       ? 'NotebookLM'
@@ -207,16 +207,16 @@ export function NotebookShellView({
         <main className="flex-1 min-w-0 overflow-y-auto p-4 lg:p-6" data-testid="notebook-shell-center">
           <div className="max-w-2xl mx-auto space-y-4">
             <div className="rounded-2xl border border-border-subtle bg-surface-card p-4">
-              <p className="text-xs text-text-secondary mb-2">
+              <p className="type-caption text-text-secondary mb-2">
                 {el ? 'Κέντρο μελέτης — Synapse native' : 'Study center — Synapse native'}
               </p>
               {topicLine && (
-                <p className="text-sm font-medium text-text-primary mb-3">{topicLine}</p>
+                <p className="type-meta font-medium text-text-primary mb-3">{topicLine}</p>
               )}
               {excerpt ? (
-                <p className="text-xs text-text-secondary whitespace-pre-wrap line-clamp-[12]">{excerpt}</p>
+                <p className="type-caption text-text-secondary whitespace-pre-wrap line-clamp-[12]">{excerpt}</p>
               ) : (
-                <p className="text-xs text-text-muted">
+                <p className="type-caption text-text-muted">
                   {el ? 'Άνοιξε το Workspace για πλήρες υλικό.' : 'Open Workspace for full material.'}
                 </p>
               )}
@@ -225,7 +225,7 @@ export function NotebookShellView({
               <button
                 type="button"
                 onClick={onOpenWorkspace}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 text-white text-sm font-medium"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 text-white type-meta font-medium"
                 data-testid="notebook-shell-continue-workspace"
               >
                 <Sparkles className="w-4 h-4" />
@@ -235,7 +235,7 @@ export function NotebookShellView({
                 <button
                   type="button"
                   onClick={onAddQuizToFsrs}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-emerald/90 text-white text-sm font-medium"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-emerald/90 text-white type-meta font-medium"
                   data-testid="notebook-shell-add-fsrs"
                 >
                   <Brain className="w-4 h-4" />
@@ -246,7 +246,7 @@ export function NotebookShellView({
                 <button
                   type="button"
                   onClick={() => onAddAudioToFsrs(audioSource.id!)}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-violet/90 text-white text-sm font-medium"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-violet/90 text-white type-meta font-medium"
                   data-testid="notebook-shell-add-audio-fsrs"
                 >
                   <Brain className="w-4 h-4" />
@@ -258,7 +258,7 @@ export function NotebookShellView({
               <button
                 type="button"
                 onClick={() => void openNotebookLm({ sourceTitle: course.title, lang })}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border-subtle text-sm text-text-secondary hover:bg-surface-hover"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border-subtle type-meta text-text-secondary hover:bg-surface-hover"
               >
                 <ExternalLink className="w-4 h-4" />
                 {el ? 'NotebookLM Q&A' : 'NotebookLM Q&A'}
@@ -292,7 +292,7 @@ export function NotebookShellView({
                 )}
               >
                 <tile.icon className="w-4 h-4 text-text-secondary mb-2" />
-                <p className="text-xs font-semibold text-text-primary">{tile.label}</p>
+                <p className="type-caption font-semibold text-text-primary">{tile.label}</p>
                 <p className="type-micro text-text-muted mt-0.5">{tile.hint}</p>
               </button>
             ))}

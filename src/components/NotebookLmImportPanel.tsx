@@ -93,23 +93,23 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
         className="w-full flex items-center gap-2 px-3 py-2 text-left"
       >
         <BookOpen className="w-4 h-4 text-text-primary dark:text-text-secondary shrink-0" />
-        <span className="text-xs font-semibold text-text-primary flex-1">{title}</span>
+        <span className="type-caption font-semibold text-text-primary flex-1">{title}</span>
         {open ? <ChevronUp className="w-4 h-4 text-text-muted" /> : <ChevronDown className="w-4 h-4 text-text-muted" />}
       </button>
 
       {open && (
         <div className="px-3 pb-3 space-y-2 border-t border-brand-500/15 pt-2">
-          <p className="text-xs text-text-secondary">{hint}</p>
+          <p className="type-caption text-text-secondary">{hint}</p>
           <button
             type="button"
             onClick={() => void openNotebookLm({ lang })}
-            className="inline-flex items-center gap-1 text-xs font-medium text-text-primary dark:text-text-secondary hover:underline"
+            className="inline-flex items-center gap-1 type-caption font-medium text-text-primary dark:text-text-secondary hover:underline"
             data-testid="notebooklm-open-external"
           >
             <ExternalLink className="w-3 h-3" />
             {lang === 'el' ? 'Άνοιγμα NotebookLM' : 'Open NotebookLM'}
           </button>
-          <p className="text-xs text-text-muted">
+          <p className="type-caption text-text-muted">
             {NOTEBOOKLM_URL}
           </p>
           <textarea
@@ -127,12 +127,12 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
                 ? 'Επικόλλησε markdown, study guide, Q/A quiz, chat ή audio transcript…'
                 : 'Paste markdown, study guide, Q/A quiz, chat, or audio transcript…'
             }
-            className="w-full rounded-lg border border-border-subtle bg-surface-input px-2 py-1.5 text-xs text-text-primary placeholder:text-text-muted resize-y min-h-[80px]"
+            className="w-full rounded-lg border border-border-subtle bg-surface-input px-2 py-1.5 type-caption text-text-primary placeholder:text-text-muted resize-y min-h-[80px]"
             data-testid="notebooklm-import-text"
             aria-invalid={importError ? true : undefined}
           />
           {importError && (
-            <p className="text-xs text-accent-rose" data-testid="notebooklm-import-error" role="alert">
+            <p className="type-caption text-accent-rose" data-testid="notebooklm-import-error" role="alert">
               {importError}
             </p>
           )}
@@ -141,7 +141,7 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
               type="button"
               disabled={busy || !text.trim()}
               onClick={() => void handleImport(text)}
-              className="px-3 py-1.5 rounded-lg bg-brand-600 text-white text-xs font-medium disabled:opacity-50"
+              className="px-3 py-1.5 rounded-lg bg-brand-600 text-white type-caption font-medium disabled:opacity-50"
               data-testid="notebooklm-import-submit"
             >
               {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin inline" /> : lang === 'el' ? 'Εισαγωγή' : 'Import'}
@@ -149,7 +149,7 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="px-3 py-1.5 rounded-lg border border-border-subtle text-xs text-text-secondary hover:bg-surface-hover"
+              className="px-3 py-1.5 rounded-lg border border-border-subtle type-caption text-text-secondary hover:bg-surface-hover"
             >
               {lang === 'el' ? 'Αρχείο .md/.txt' : '.md / .txt file'}
             </button>
@@ -163,7 +163,7 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
           </div>
           {lastResult && (
             <div
-              className="rounded-lg border border-border-subtle/60 bg-surface-input/50 px-2 py-1.5 text-xs text-text-secondary space-y-1"
+              className="rounded-lg border border-border-subtle/60 bg-surface-input/50 px-2 py-1.5 type-caption text-text-secondary space-y-1"
               data-testid="notebooklm-import-success"
             >
               <p>
@@ -220,7 +220,7 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
                 </div>
               )}
               {lastFsrsAdded != null && (
-                <p className="text-xs text-accent-emerald font-medium" data-testid="notebooklm-fsrs-added-hint">
+                <p className="type-caption text-accent-emerald font-medium" data-testid="notebooklm-fsrs-added-hint">
                   {lang === 'el'
                     ? 'Άνοιξε Leitner στο Workspace για review.'
                     : 'Open Leitner in Workspace to review.'}

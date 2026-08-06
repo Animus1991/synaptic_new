@@ -199,7 +199,7 @@ export function StudyTimer({
   return (
     <div className="ux-tier-b-tool ux-pomodoro-shell flex flex-col h-full p-4" data-testid="study-timer">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold flex items-center gap-2">
+        <h3 className="type-meta font-semibold flex items-center gap-2">
           <Timer className="w-4 h-4 text-accent-teal" />
           {t('studyTimer')}
         </h3>
@@ -208,7 +208,7 @@ export function StudyTimer({
             type="button"
             data-testid="timer-mode-pomodoro"
             onClick={() => { setMode('pomodoro'); setRunning(false); reset(); }}
-            className={cn('px-2 py-1', mode === 'pomodoro' ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-muted')}
+            className={cn('min-h-9 px-2 py-1', mode === 'pomodoro' ? 'bg-surface-secondary text-text-secondary' : 'text-text-muted')}
           >
             Pomodoro
           </button>
@@ -216,7 +216,7 @@ export function StudyTimer({
             type="button"
             data-testid="timer-mode-exam"
             onClick={() => { setMode('exam'); setRunning(true); }}
-            className={cn('px-2 py-1 flex items-center gap-1', mode === 'exam' ? 'bg-accent-amber/20 text-accent-amber' : 'text-text-muted')}
+            className={cn('min-h-9 px-2 py-1 flex items-center gap-1', mode === 'exam' ? 'bg-accent-amber/20 text-accent-amber' : 'text-text-muted')}
           >
             <GraduationCap className="w-3 h-3" />
             {t('timerExam')}
@@ -226,10 +226,10 @@ export function StudyTimer({
 
       {concept && (
         <div className="mb-4 flex items-start gap-2 rounded-lg border border-border-subtle bg-surface-primary/50 px-3 py-2">
-          <BookOpen className="w-3.5 h-3.5 text-text-primary shrink-0 mt-0.5" />
+          <BookOpen className="w-3.5 h-3.5 text-text-muted shrink-0 mt-0.5" />
           <div className="min-w-0 flex-1">
             <p className="type-caption text-text-muted">{t('timerSession')}</p>
-            <p className="text-xs font-medium text-text-primary truncate">{sessionLabel}</p>
+            <p className="type-caption font-medium text-text-secondary truncate">{sessionLabel}</p>
             {conceptMastery !== undefined && (
               <p className="type-caption text-text-muted mt-0.5">
                 {t('timerMasteryColon')}: {conceptMastery}%
@@ -245,12 +245,12 @@ export function StudyTimer({
           data-testid="timer-break-leitner-suggest"
         >
           <Layers className="w-3.5 h-3.5 text-accent-cyan shrink-0" />
-          <p className="flex-1 type-caption text-text-primary min-w-0">{t('timerBreakLeitnerSuggest')}</p>
+          <p className="flex-1 type-caption text-text-secondary min-w-0">{t('timerBreakLeitnerSuggest')}</p>
           <button
             type="button"
             data-testid="timer-break-open-leitner"
             onClick={onOpenBreakTool}
-            className="shrink-0 rounded-md border border-accent-cyan/40 bg-accent-cyan/15 px-2 py-1 type-caption font-semibold text-text-primary hover:bg-accent-cyan/25"
+            className="shrink-0 rounded-md border border-accent-cyan/40 bg-accent-cyan/15 px-2 py-1 type-caption font-semibold text-accent-cyan hover:bg-accent-cyan/25"
           >
             {t('timerBreakOpenLeitner')}
           </button>
@@ -281,7 +281,7 @@ export function StudyTimer({
                 className={cn(
                   'px-2.5 py-1.5 rounded-md type-caption font-medium transition-all',
                   presetIdx === i && !examPracticeId
-                    ? 'bg-surface-secondary text-text-primary'
+                    ? 'bg-surface-secondary text-text-secondary'
                     : 'text-text-muted hover:text-text-secondary',
                 )}
               >
@@ -290,7 +290,7 @@ export function StudyTimer({
             ))}
           </div>
           <div className="mb-4 w-full max-w-md">
-            <label className="mb-1.5 block type-caption font-semibold text-text-muted" htmlFor="timer-exam-practice-select">
+            <label className="mb-1.5 block type-caption font-semibold text-text-secondary" htmlFor="timer-exam-practice-select">
               {t('timerExamPracticeBlocks')}
             </label>
             <select
@@ -314,7 +314,7 @@ export function StudyTimer({
                 setRunning(false);
                 saveExamPracticePreset(scopeKey, id);
               }}
-              className="w-full rounded-lg border border-border-subtle bg-surface-input px-2.5 py-2 type-caption text-text-primary"
+              className="w-full rounded-lg border border-border-subtle bg-surface-input px-2.5 py-2 type-caption text-text-secondary"
             >
               <option value="">{t(PRESET_DEFS[presetIdx].key)} (Pomodoro)</option>
               {EXAM_PRACTICE_PRESETS.map((block) => (
@@ -328,7 +328,7 @@ export function StudyTimer({
                 type="button"
                 data-testid="timer-open-simulator"
                 onClick={onOpenSimulator}
-                className="mt-2 type-caption text-text-primary hover:underline"
+                className="mt-2 type-caption text-text-secondary hover:underline"
               >
                 {t('timerOpenSimulator')}
               </button>
@@ -349,7 +349,7 @@ export function StudyTimer({
               setExamTarget(iso);
               saveExamTarget(scopeKey, iso);
             }}
-            className="w-full rounded-lg border border-border-subtle bg-surface-input px-2 py-1.5 text-xs"
+            className="w-full rounded-lg border border-border-subtle bg-surface-input px-2 py-1.5 type-caption text-text-secondary"
           />
           <button
             type="button"
@@ -385,7 +385,7 @@ export function StudyTimer({
                   onClick={() => setRunning(!running)}
                   aria-label={running ? t('pause') : t('start')}
                   className={cn(
-                    'ux-pomodoro-play-btn flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium',
+                    'ux-pomodoro-play-btn inline-flex items-center gap-2 min-h-11 px-5 py-2.5 rounded-xl type-meta font-medium',
                     running ? 'ux-pomodoro-play-btn-pause' : 'ux-pomodoro-play-btn-start',
                   )}
                 >
@@ -440,7 +440,7 @@ export function StudyTimer({
           </div>
           <ul className="space-y-1 max-h-24 overflow-y-auto">
             {recentSessions.slice(-4).reverse().map((s, i) => (
-              <li key={`${s.at}-${i}`} className="type-caption text-text-tertiary flex justify-between gap-2">
+              <li key={`${s.at}-${i}`} className="type-caption text-text-secondary flex justify-between gap-2">
                 <span className="truncate">{s.label}</span>
                 <span className="shrink-0 font-mono">{s.minutes}m</span>
               </li>

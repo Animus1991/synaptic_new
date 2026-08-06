@@ -288,7 +288,7 @@ export function ArgumentMap({
               onBlur={saveEdit}
               autoFocus
               aria-label={`${t('debateEditNode')} — ${typeLabel}`}
-              className="w-full h-14 bg-transparent text-xs resize-none outline-none text-center"
+              className="w-full h-14 bg-transparent type-caption resize-none outline-none text-center"
             />
           ) : (
             <>
@@ -308,7 +308,7 @@ export function ArgumentMap({
                     type="button"
                     aria-label={t('feynmanReadInSource')}
                     onClick={() => onOpenInReader(node.text)}
-                    className="p-1 rounded bg-surface-primary/80 border border-border-subtle text-text-primary"
+                    className="p-1 rounded bg-surface-primary/80 border border-border-subtle text-text-secondary"
                   >
                     <BookOpen className="w-3 h-3" aria-hidden />
                   </button>
@@ -317,7 +317,7 @@ export function ArgumentMap({
                   type="button"
                   aria-label={`${t('debateEditNode')} — ${typeLabel}`}
                   onClick={() => startEdit(node)}
-                  className="p-1 rounded bg-surface-primary/80 border border-border-subtle text-text-primary"
+                  className="p-1 rounded bg-surface-primary/80 border border-border-subtle text-text-secondary"
                 >
                   <Pencil className="w-3 h-3" aria-hidden />
                 </button>
@@ -325,7 +325,7 @@ export function ArgumentMap({
                   type="button"
                   aria-label={t('debateAddSupport')}
                   onClick={() => addNode(node.id, 'support')}
-                  className="p-1 rounded bg-surface-primary/80 border border-border-subtle text-text-primary"
+                  className="p-1 rounded bg-surface-primary/80 border border-border-subtle text-text-secondary"
                 >
                   <Plus className="w-3 h-3" aria-hidden />
                 </button>
@@ -364,7 +364,7 @@ export function ArgumentMap({
         className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border-subtle bg-surface-card px-3 py-2"
         data-testid="debate-tree-toolbar"
       >
-        <span className="flex min-w-0 flex-1 items-center gap-2 text-sm font-semibold text-text-primary">
+        <span className="flex min-w-0 flex-1 items-center gap-2 type-meta font-semibold text-text-secondary">
           <GitCommit className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
           <span className="truncate">
             {t('debateTree')}
@@ -393,7 +393,7 @@ export function ArgumentMap({
           alwaysCollapse
           data-testid="debate-suggested-counters-chrome"
         >
-          <div className="flex flex-wrap gap-1.5 px-3 py-2 type-caption text-text-primary">
+          <div className="flex flex-wrap gap-1.5 px-3 py-2 type-caption text-text-secondary">
             {counterSuggestions.map((s, i) => (
               <button
                 key={i}
@@ -426,8 +426,8 @@ export function ArgumentMap({
                 className={cn(
                   'rounded-lg border px-2.5 py-1.5 type-caption font-medium leading-snug',
                   e.kind === 'rebuts'
-                    ? 'border-accent-rose/45 bg-accent-rose/10 text-text-primary'
-                    : 'border-accent-emerald/45 bg-accent-emerald/10 text-text-primary',
+                    ? 'border-accent-rose/45 bg-accent-rose/10 text-text-secondary'
+                    : 'border-accent-emerald/45 bg-accent-emerald/10 text-text-secondary',
                 )}
               >
                 <span className="font-semibold">{e.label ?? e.kind}</span>

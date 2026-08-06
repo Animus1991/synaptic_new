@@ -55,7 +55,7 @@ export function WorkspaceStepRail({
         className={cn(
           'flex items-center gap-1.5 px-2.5 py-1 rounded-full type-caption font-medium shrink-0 transition-all',
           currentStep === i
-            ? 'bg-accent-cyan/15 text-text-primary'
+            ? 'bg-accent-cyan/15 text-text-secondary'
             : i < currentStep
               ? 'text-accent-emerald hover:bg-surface-hover'
               : 'text-text-muted hover:text-text-secondary hover:bg-surface-hover',
@@ -65,7 +65,7 @@ export function WorkspaceStepRail({
           className={cn(
             'w-4 h-4 rounded-full border type-caption flex items-center justify-center relative',
             currentStep === i
-              ? 'border-accent-cyan text-text-primary bg-accent-cyan/10'
+              ? 'border-accent-cyan text-text-secondary bg-accent-cyan/10'
               : i < currentStep
                 ? 'border-accent-emerald text-accent-emerald bg-accent-emerald/10'
                 : 'border-text-muted/30',

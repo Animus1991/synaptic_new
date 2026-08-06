@@ -216,21 +216,21 @@ export function DashboardPanel({
                 type="button"
                 onClick={onRunNextAction}
                 data-testid="workspace-dashboard-next-action-btn"
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium ws-empty-cta-secondary shrink-0"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl type-caption font-medium ws-empty-cta-secondary shrink-0"
               >
                 {nextActionLabel(nextAction.primary, lang)} <ArrowRight className="w-3 h-3" />
               </button>
             }
           >
             <p className="type-caption text-text-tertiary">{t('dashboardSuggestedNextSubtitle')}</p>
-            <p className="mt-1 text-xs line-clamp-2">{nextAction.reason}</p>
+            <p className="mt-1 type-caption line-clamp-2">{nextAction.reason}</p>
           </UxCallout>
         )}
 
         {/* Wave E12 — KPI strip + one focus action; exports demoted to menu */}
         <div className="mb-2 flex flex-wrap items-center gap-2" data-testid="dashboard-kpi-row">
           {session.weakSpotCount > 0 && (
-            <span className="rounded-lg border border-accent-rose/40 bg-accent-rose/12 px-2 py-1 type-caption font-semibold text-text-primary">
+            <span className="rounded-lg border border-accent-rose/40 bg-accent-rose/12 px-2 py-1 type-caption font-semibold text-text-secondary">
               {session.weakSpotCount} {t('panelWeakCount')}
             </span>
           )}
@@ -243,7 +243,7 @@ export function DashboardPanel({
             <button
               type="button"
               onClick={onOpenSuggestedTool}
-              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption font-medium text-text-primary hover:bg-brand-600/15"
+              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-brand-600/15"
               data-testid="dashboard-suggest-tool"
             >
               <Target className="w-3 h-3" />
@@ -271,7 +271,7 @@ export function DashboardPanel({
             <button
               type="button"
               onClick={handleExportHtml}
-              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted"
               data-testid="dashboard-export-html"
             >
               <Download className="w-3 h-3" />
@@ -280,7 +280,7 @@ export function DashboardPanel({
             <button
               type="button"
               onClick={handlePrintPdf}
-              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted"
               data-testid="dashboard-export-pdf"
             >
               <Printer className="w-3 h-3" />
@@ -289,7 +289,7 @@ export function DashboardPanel({
             <button
               type="button"
               onClick={handleExportJson}
-              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted"
               data-testid="dashboard-export-json"
             >
               JSON

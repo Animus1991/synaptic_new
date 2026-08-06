@@ -109,7 +109,7 @@ export function LearningRadarChart({ dimensions, title }: { dimensions: RadarDim
 
   return (
     <div className="ux-card flex flex-col items-center" data-testid="learning-radar-chart">
-      <h3 className="text-sm font-semibold text-text-primary mb-4 self-start flex items-center gap-2">
+      <h3 className="type-meta font-semibold text-text-primary mb-4 self-start flex items-center gap-2">
         <TrendingUp className="w-4 h-4 text-text-secondary" />
         {title}
       </h3>
@@ -148,7 +148,7 @@ export function LearningRadarChart({ dimensions, title }: { dimensions: RadarDim
 export function LearnerInsightCards({ insights, title }: { insights: ProgressInsight[]; title: string }) {
   return (
     <div className="ux-card" data-testid="learner-insight-cards">
-      <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
+      <h3 className="type-meta font-semibold text-text-primary mb-4 flex items-center gap-2">
         <Brain className="w-4 h-4 text-text-secondary" />
         {title}
       </h3>
@@ -163,8 +163,8 @@ export function LearnerInsightCards({ insights, title }: { insights: ProgressIns
               'border-border-subtle bg-surface-hover/40',
             )}
           >
-            <p className="text-sm font-medium text-text-primary">{ins.insight}</p>
-            <p className="text-xs text-text-tertiary mt-1">{ins.evidence}</p>
+            <p className="type-body font-medium text-text-primary">{ins.insight}</p>
+            <p className="type-caption text-text-tertiary mt-1">{ins.evidence}</p>
           </div>
         ))}
       </div>

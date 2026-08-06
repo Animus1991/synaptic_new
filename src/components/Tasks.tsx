@@ -316,7 +316,7 @@ export function Tasks({
               </button>
             </div>
             {streak > 0 && (
-              <div className="flex items-center gap-2 text-sm text-text-secondary">
+              <div className="flex items-center gap-2 type-meta text-text-secondary">
                 <Flame className="w-4 h-4 text-accent-amber" aria-hidden />
                 <span className="font-medium">{c.streakDays(streak)}</span>
               </div>
@@ -330,7 +330,7 @@ export function Tasks({
           className="flex items-start gap-2 rounded-xl border border-border-subtle bg-surface-secondary/50 px-3 py-2"
           data-testid="tasks-entry-hint"
         >
-          <p className="flex-1 text-sm text-text-secondary leading-snug">{c.entryHint}</p>
+          <p className="flex-1 type-body text-text-secondary leading-snug">{c.entryHint}</p>
           <button
             type="button"
             onClick={dismissEntryHint}
@@ -345,11 +345,11 @@ export function Tasks({
 
       {focusCourseId && focusCourseName && (
         <div className="flex flex-wrap items-center gap-2">
-          {courseScoped && <span className="text-xs text-text-secondary">{c.courseScopeLabel(focusCourseName)}</span>}
+          {courseScoped && <span className="type-caption text-text-secondary">{c.courseScopeLabel(focusCourseName)}</span>}
           <button
             type="button"
             onClick={() => setShowAllCourses((v) => !v)}
-            className="text-xs font-medium text-text-secondary hover:text-text-primary underline-offset-2 hover:underline"
+            className="type-caption font-medium text-text-secondary hover:text-text-primary underline-offset-2 hover:underline"
           >
             {courseScoped ? c.showAllCourses : c.courseScopeLabel(focusCourseName)}
           </button>
@@ -360,8 +360,8 @@ export function Tasks({
       <BlueprintSurface hint className="p-3" data-testid="tasks-daily-goal">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <p className="text-sm font-semibold text-text-primary">{c.tasksComplete(doneCount, totalCount)}</p>
-            <p className="text-xs text-text-tertiary">{c.totalMinutes(totalMin)} · {c.minRemaining(remainingMin)}</p>
+            <p className="type-meta font-semibold text-text-primary">{c.tasksComplete(doneCount, totalCount)}</p>
+            <p className="type-caption text-text-tertiary">{c.totalMinutes(totalMin)} · {c.minRemaining(remainingMin)}</p>
           </div>
           <div className="text-right">
             <p className="text-lg font-bold tabular-nums text-text-primary">{progressPct}%</p>
@@ -380,17 +380,17 @@ export function Tasks({
           role="status"
           aria-live="polite"
         >
-          <p className="text-xs font-semibold text-text-secondary">
+          <p className="type-caption font-semibold text-text-secondary">
             {c.sessionActiveBanner(sessionLabel(activeSessionType), sessionCurrentIndex, sessionTotal)}
           </p>
           {activeTask && (
-            <p className="text-sm text-text-primary truncate">
+            <p className="type-body text-text-primary truncate">
               <span className="type-micro uppercase tracking-wide text-text-secondary mr-2"><AllCapsLabel>{c.sessionRunningNow}</AllCapsLabel></span>
               {activeTask.title}
             </p>
           )}
           {nextQueuedTask && nextQueuedTask.id !== activeTaskId && (
-            <p className="text-xs text-text-tertiary truncate">{c.sessionUpNext(nextQueuedTask.title)}</p>
+            <p className="type-caption text-text-tertiary truncate">{c.sessionUpNext(nextQueuedTask.title)}</p>
           )}
           <p className="type-micro text-text-muted">{c.sessionAutoAdvanceHint}</p>
         </div>
@@ -455,7 +455,7 @@ export function Tasks({
 
       {studyPlan.length > 0 && (
         <div className="flex flex-wrap gap-2" data-testid="tasks-study-plan-blocks">
-          <span className="text-xs font-semibold text-text-secondary self-center">{c.studyPlanTitle}</span>
+          <span className="type-caption font-semibold text-text-secondary self-center">{c.studyPlanTitle}</span>
           {studyPlan.map((block) => (
             <button
               key={block.label}
@@ -510,7 +510,7 @@ export function Tasks({
               testId="tasks-danger-zone"
               className="mb-1 py-2 tasks-danger-zone"
             >
-              <p className="text-sm leading-snug text-text-secondary">{c.dangerZoneBody(daysToExam)}</p>
+              <p className="type-body leading-snug text-text-secondary">{c.dangerZoneBody(daysToExam)}</p>
             </UxCallout>
           )}
           {showInsightStrip && (
@@ -529,14 +529,14 @@ export function Tasks({
                 <div className="tasks-insight-card ux-banner-warn rounded-xl border bg-accent-amber/5 p-3 space-y-1.5">
                   <div className="flex items-center gap-1.5">
                     <TrendingUp className="w-3.5 h-3.5 ux-banner-warn-accent shrink-0" aria-hidden />
-                    <p className="ux-banner-warn-accent text-xs font-semibold tracking-wide">
+                    <p className="ux-banner-warn-accent type-caption font-semibold tracking-wide">
                       {c.almostThereTitle}
                     </p>
                   </div>
-                  <p className="text-xs text-text-tertiary leading-snug">{c.almostThereHint}</p>
+                  <p className="type-caption text-text-tertiary leading-snug">{c.almostThereHint}</p>
                   <ul className="space-y-1">
                     {almostKnownPreview.map((item) => (
-                      <li key={item.concept} className="flex items-center justify-between gap-2 text-xs">
+                      <li key={item.concept} className="flex items-center justify-between gap-2 type-caption">
                         <span className="truncate font-medium text-text-primary">{item.concept}</span>
                         <span className="ux-banner-warn-accent tabular-nums font-semibold shrink-0 type-caption">{Math.round(item.mastery)}%</span>
                       </li>
@@ -546,7 +546,7 @@ export function Tasks({
                     <button
                       type="button"
                       onClick={() => onFocusWeakArea(almostKnownPreview[0].concept)}
-                      className="inline-flex items-center gap-1 min-h-8 text-xs font-semibold text-text-secondary hover:text-text-primary"
+                      className="inline-flex items-center gap-1 min-h-8 type-caption font-semibold text-text-secondary hover:text-text-primary"
                     >
                       {c.almostThereCta} <ArrowRight className="w-3 h-3" aria-hidden />
                     </button>
@@ -557,15 +557,15 @@ export function Tasks({
                 <div className="tasks-insight-card rounded-xl border border-brand-500/20 bg-brand-600/5 p-3 space-y-1.5">
                   <div className="flex items-center gap-1.5">
                     <Zap className="w-3.5 h-3.5 text-text-secondary shrink-0" aria-hidden />
-                    <p className="text-xs font-semibold tracking-wide text-text-secondary">
+                    <p className="type-caption font-semibold tracking-wide text-text-secondary">
                       {c.recallReminderTitle}
                     </p>
                   </div>
-                  <p className="text-xs text-text-secondary leading-snug">{c.recallReminderBody}</p>
+                  <p className="type-caption text-text-secondary leading-snug">{c.recallReminderBody}</p>
                   <button
                     type="button"
                     onClick={() => (onStartQuiz ? onStartQuiz() : onStartSession?.('10min'))}
-                    className="inline-flex items-center gap-1 min-h-8 text-xs font-semibold text-text-secondary hover:text-text-primary"
+                    className="inline-flex items-center gap-1 min-h-8 type-caption font-semibold text-text-secondary hover:text-text-primary"
                   >
                     {c.recallReminderCta} <ArrowRight className="w-3 h-3" aria-hidden />
                   </button>
@@ -628,8 +628,8 @@ export function Tasks({
                       <TaskActionIcon task={task} size="sm" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-text-primary truncate">{task.title}</p>
-                      <div className="flex items-center gap-2 mt-0.5 text-xs text-text-tertiary flex-wrap">
+                      <p className="type-body font-medium text-text-primary truncate">{task.title}</p>
+                      <div className="flex items-center gap-2 mt-0.5 type-caption text-text-tertiary flex-wrap">
                         <span>{task.courseName}</span>
                         <span>·</span>
                         <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{task.estimatedMinutes} min</span>
@@ -686,7 +686,7 @@ export function Tasks({
                               <AllCapsLabel>{c.highPriority}</AllCapsLabel>
                             </p>
                           )}
-                          <p className="text-sm text-text-secondary leading-relaxed">{task.description}</p>
+                          <p className="type-body text-text-secondary leading-relaxed">{task.description}</p>
                           {task.isSpacedRepetition && task.category === 'review' && onReviewRating && (
                             <div className="space-y-2 pt-0.5">
                               <p className="type-caption text-text-muted">{c.fsrsReviewHint}</p>
@@ -740,8 +740,8 @@ export function Tasks({
                 <div key={area.concept} className="ux-card">
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <p className="text-sm font-semibold text-text-primary">{area.concept}</p>
-                      <p className="text-xs text-text-tertiary mt-0.5">
+                      <p className="type-meta font-semibold text-text-primary">{area.concept}</p>
+                      <p className="type-caption text-text-tertiary mt-0.5">
                         {courseNameById[area.courseId] ?? area.courseId} · {c.recentErrors(errors)}
                       </p>
                     </div>
@@ -749,7 +749,7 @@ export function Tasks({
                       <TrendIcon className={cn('w-4 h-4', trendColor)} aria-hidden />
                       <div>
                         <p className={cn('text-lg font-bold tabular-nums', masteryColor)}>{Math.round(area.mastery)}%</p>
-                        <p className="text-xs text-text-tertiary">{c.masteryLabel}</p>
+                        <p className="type-caption text-text-tertiary">{c.masteryLabel}</p>
                       </div>
                     </div>
                   </div>
@@ -778,7 +778,7 @@ export function Tasks({
         <div className="space-y-3" id="tasks-panel-reviews" data-testid="tasks-panel-reviews" role="tabpanel" aria-labelledby="tasks-tab-reviews">
           {!srBannerDismissed && (reviewTasks.length > 0 || fsrsQueue.length > 0) && (
             <div
-              className="ux-card ux-chip-info border-brand-500/20 text-sm flex items-start gap-2 p-3"
+              className="ux-card ux-chip-info border-brand-500/20 type-body flex items-start gap-2 p-3"
               data-testid="tasks-sr-banner"
             >
               <Calendar className="w-4 h-4 shrink-0 mt-0.5" aria-hidden />
@@ -803,8 +803,8 @@ export function Tasks({
             return (
             <div key={task.id} className="ux-card flex items-center gap-4">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-text-primary">{task.title}</p>
-                <p className="text-xs text-text-tertiary mt-1">{task.courseName} · {task.estimatedMinutes} min</p>
+                <p className="type-body font-medium text-text-primary">{task.title}</p>
+                <p className="type-caption text-text-tertiary mt-1">{task.courseName} · {task.estimatedMinutes} min</p>
               </div>
               {typeof intervalDays === 'number' && (
                 <span className="shrink-0 rounded-md border border-border-subtle bg-surface-secondary/60 px-2 py-1 type-caption font-semibold tabular-nums text-text-secondary">
@@ -838,7 +838,7 @@ export function Tasks({
       {tab === 'mistakes' && (
         <div className="space-y-4" id="tasks-panel-mistakes" data-testid="tasks-panel-mistakes" role="tabpanel" aria-labelledby="tasks-tab-mistakes">
           {openMistakes.length > 0 && (
-          <div className="tasks-mistake-banner ux-card border-accent-amber/25 bg-accent-amber/[0.04] text-sm text-text-secondary flex items-start gap-2 p-3">
+          <div className="tasks-mistake-banner ux-card border-accent-amber/25 bg-accent-amber/[0.04] type-body text-text-secondary flex items-start gap-2 p-3">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-accent-amber" aria-hidden />
             <p className="leading-snug">{c.mistakeBanner}</p>
           </div>
@@ -852,21 +852,21 @@ export function Tasks({
                 <div key={mistake.id} className="ux-card space-y-3">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-text-primary">{mistake.concept}</p>
-                      <p className="text-xs text-text-tertiary">{ago <= 1 ? c.yesterday : c.daysAgo(ago)}</p>
+                      <p className="type-meta font-semibold text-text-primary">{mistake.concept}</p>
+                      <p className="type-caption text-text-tertiary">{ago <= 1 ? c.yesterday : c.daysAgo(ago)}</p>
                     </div>
                     <XCircle className="w-4 h-4 text-accent-rose shrink-0" />
                   </div>
                   {mistake.wrongAnswer && (
                     <div className="p-3 rounded-xl border border-accent-rose/20 bg-accent-rose/5">
-                      <p className="text-xs font-medium text-accent-rose mb-1">{c.yourMistake}</p>
-                      <p className="text-xs text-text-secondary">{mistake.wrongAnswer || mistake.questionSummary}</p>
+                      <p className="type-caption font-medium text-accent-rose mb-1">{c.yourMistake}</p>
+                      <p className="type-caption text-text-secondary">{mistake.wrongAnswer || mistake.questionSummary}</p>
                     </div>
                   )}
                   {mistake.correctAnswer && (
                     <div className="p-3 rounded-xl border border-accent-emerald/20 bg-accent-emerald/5">
-                      <p className="text-xs font-medium text-accent-emerald mb-1">{c.correctUnderstanding}</p>
-                      <p className="text-xs text-text-secondary">{mistake.correctAnswer}</p>
+                      <p className="type-caption font-medium text-accent-emerald mb-1">{c.correctUnderstanding}</p>
+                      <p className="type-caption text-text-secondary">{mistake.correctAnswer}</p>
                     </div>
                   )}
                   <div className="flex flex-wrap gap-2">

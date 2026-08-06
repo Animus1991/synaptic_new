@@ -109,7 +109,7 @@ export function WorkspaceToolHeader({
           className={cn(
             /* Wave E2 — quiet ghost control (not a filled GUIDE chip) */
             'ws-tool-guide-btn relative z-10 inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-0.5 rounded-md type-caption text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary sm:min-w-0 sm:gap-1 sm:px-2 sm:py-1.5',
-            !collapsed && 'bg-surface-secondary text-text-primary',
+            !collapsed && 'bg-surface-secondary text-text-secondary',
           )}
         >
           <HelpCircle className="h-3.5 w-3.5" aria-hidden />
@@ -151,14 +151,14 @@ export function WorkspaceToolHeader({
               <p className="ws-caption flex flex-1 items-start gap-1.5 rounded-lg ws-info-strip px-2 py-1.5 text-text-secondary">
                 <Sparkles className="mt-0.5 h-3 w-3 shrink-0 text-text-tertiary" aria-hidden />
                 <span>
-                  <span className="font-semibold text-text-primary">{t('toolWhyLabel')}</span>
+                  <span className="font-semibold text-text-secondary">{t('toolWhyLabel')}</span>
                   {why}
                 </span>
               </p>
               <p className="ws-caption flex flex-1 items-start gap-1.5 rounded-lg bg-surface-primary/60 px-2 py-1.5 text-text-secondary">
                 <Target className="mt-0.5 h-3 w-3 shrink-0 text-text-tertiary" aria-hidden />
                 <span>
-                  <span className="font-semibold text-text-primary">{t('toolYoullGetLabel')}</span>
+                  <span className="font-semibold text-text-secondary">{t('toolYoullGetLabel')}</span>
                   {produces}
                 </span>
               </p>

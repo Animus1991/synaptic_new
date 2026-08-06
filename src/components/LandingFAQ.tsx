@@ -35,13 +35,13 @@ export function LandingFAQ() {
               <button
                 type="button"
                 onClick={() => setOpen(isOpen ? null : i)}
-                className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium text-text-primary hover:bg-surface-hover transition-colors"
+                className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left type-meta font-medium text-text-primary hover:bg-surface-hover transition-colors"
               >
                 {t(item.q)}
                 {isOpen ? <CaretUp className="w-4 h-4 shrink-0" /> : <CaretDown className="w-4 h-4 shrink-0" />}
               </button>
               {isOpen && (
-                <p className="px-4 pb-4 text-sm text-text-secondary leading-relaxed">{t(item.a)}</p>
+                <p className="px-4 pb-4 type-body text-text-secondary leading-relaxed">{t(item.a)}</p>
               )}
             </div>
           );

@@ -251,7 +251,7 @@ export function Settings({
                       'settings-ide-nav-item shrink-0 rounded-md px-2.5 py-1.5 text-left type-caption font-medium text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary lg:w-full',
                       isActive && 'is-active',
                     )
-                  : 'platform-pill shrink-0 px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary',
+                  : 'platform-pill shrink-0 px-3 py-1.5 type-caption font-medium text-text-secondary hover:text-text-primary',
               )}
               onClick={() => {
                 if (isMinimal) setActiveSection(section.id);
@@ -303,7 +303,7 @@ export function Settings({
 
       <SettingsSection id="settings-source" title={c.sectionSourceContent} icon={<Shield className="w-5 h-5 text-accent-emerald" />} delay={0.25}>
         <ToggleRow label={c.labelSourceMode} options={c.sourceModeOptions} value={settings.sourceMode} onChange={v => onUpdate({ sourceMode: v as UserSettings['sourceMode'] })} />
-        <p className="text-xs text-text-muted mt-1 px-1">
+        <p className="type-caption text-text-muted mt-1 px-1">
           {c.sourceModeHint}
         </p>
       </SettingsSection>
@@ -311,27 +311,27 @@ export function Settings({
       <SettingsSection id="settings-goals" title={c.sectionStudyGoals} icon={<Calendar className="w-5 h-5 text-accent-rose" />} delay={0.3}>
         <div className="space-y-3">
           <div>
-            <label className="text-sm text-text-secondary block mb-1">{c.labelDailyStudyGoal}</label>
+            <label className="type-meta text-text-secondary block mb-1">{c.labelDailyStudyGoal}</label>
             <div className="flex items-center gap-3">
               {[15, 30, 45, 60, 90].map(m => (
                 <button key={m} onClick={() => onUpdate({ dailyGoalMinutes: m })}
-                  className={cn('px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
+                  className={cn('px-3 py-1.5 rounded-lg type-caption font-medium transition-all',
                     settings.dailyGoalMinutes === m ? 'bg-surface-secondary text-text-primary border border-border-default' : 'border border-border-subtle text-text-tertiary'
                   )}>{m}m</button>
               ))}
             </div>
           </div>
           <div>
-            <label className="text-sm text-text-secondary block mb-1">{c.labelExamDate}</label>
+            <label className="type-meta text-text-secondary block mb-1">{c.labelExamDate}</label>
             <input type="date" value={settings.examDate || ''} onChange={e => onUpdate({ examDate: e.target.value })}
-              className="px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50" />
+              className="px-4 py-2 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50" />
           </div>
         </div>
       </SettingsSection>
 
       <SettingsSection id="settings-ai" title={c.sectionAiLlm} icon={<Brain className="w-5 h-5 text-text-secondary" />} delay={0.32}>
         <div className="rounded-xl border border-border-subtle/70 bg-surface-hover/40 px-3 py-2 space-y-1" data-testid="ai-economics-panel">
-          <p className="text-xs font-semibold text-text-primary">{c.aiEconomicsTitle}</p>
+          <p className="type-caption font-semibold text-text-primary">{c.aiEconomicsTitle}</p>
           <p className="type-caption text-text-muted leading-relaxed">{c.aiEconomicsBody}</p>
           <p className="type-micro text-text-muted">{c.proxyMeteringNote}</p>
           {settings.authToken && (
@@ -341,17 +341,17 @@ export function Settings({
           )}
         </div>
         <div>
-          <label className="text-xs text-text-secondary block mb-2">{c.labelOpenAiKey}</label>
+          <label className="type-caption text-text-secondary block mb-2">{c.labelOpenAiKey}</label>
           <input
             type="password"
             value={settings.openaiApiKey ?? ''}
             onChange={(e) => onUpdate({ openaiApiKey: e.target.value || undefined })}
             placeholder={c.placeholderOpenAiKey}
-            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
+            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50"
           />
         </div>
         <div>
-          <p className="text-xs text-text-secondary mb-2">{c.modelTierLabel}</p>
+          <p className="type-caption text-text-secondary mb-2">{c.modelTierLabel}</p>
           <div className="flex flex-wrap gap-2" data-testid="ai-model-tier-presets">
             {AI_MODEL_TIER_PRESETS.map((preset) => {
               const active = inferModelTier(settings.llmModel) === preset.id;
@@ -366,7 +366,7 @@ export function Settings({
                   data-testid={`ai-model-tier-${preset.id}`}
                   onClick={() => onUpdate({ llmModel: preset.model })}
                   className={cn(
-                    'px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors',
+                    'px-3 py-1.5 rounded-lg type-caption font-medium border transition-colors',
                     active
                       ? 'bg-surface-secondary text-text-primary border-border-default'
                       : 'border-border-subtle text-text-tertiary hover:border-brand-500/30',
@@ -380,16 +380,16 @@ export function Settings({
           </div>
         </div>
         <div>
-          <label className="text-xs text-text-secondary block mb-2">{c.labelModel}</label>
+          <label className="type-caption text-text-secondary block mb-2">{c.labelModel}</label>
           <input
             type="text"
             value={settings.llmModel ?? 'gpt-4o-mini'}
             onChange={(e) => onUpdate({ llmModel: e.target.value || undefined })}
-            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
+            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50"
           />
         </div>
         <div>
-          <p className="text-xs text-text-secondary mb-2">{c.baseUrlPresetsLabel}</p>
+          <p className="type-caption text-text-secondary mb-2">{c.baseUrlPresetsLabel}</p>
           <div className="flex flex-wrap gap-2 mb-2" data-testid="ai-base-url-presets">
             {AI_BASE_URL_PRESETS.map((preset) => {
               const label =
@@ -422,7 +422,7 @@ export function Settings({
                     onUpdate(settingsPatchForBaseUrlPreset(id));
                   }}
                   className={cn(
-                    'px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors',
+                    'px-3 py-1.5 rounded-lg type-caption font-medium border transition-colors',
                     active
                       ? 'bg-surface-secondary text-text-primary border-border-default'
                       : 'border-border-subtle text-text-tertiary hover:border-brand-500/30',
@@ -438,13 +438,13 @@ export function Settings({
               {c.sopheaPresetHint}
             </p>
           )}
-          <label className="text-xs text-text-secondary block mb-2">{c.labelApiBaseUrl}</label>
+          <label className="type-caption text-text-secondary block mb-2">{c.labelApiBaseUrl}</label>
           <input
             type="url"
             value={settings.llmBaseUrl ?? ''}
             onChange={(e) => onUpdate({ llmBaseUrl: e.target.value || undefined })}
             placeholder={c.placeholderApiBaseUrl}
-            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
+            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50"
           />
         </div>
         <div>
@@ -457,18 +457,18 @@ export function Settings({
           <p className="type-caption text-text-muted mt-1 leading-relaxed">{c.disableThinkingHint}</p>
         </div>
         <div>
-          <label className="text-xs text-text-secondary block mb-2">{c.labelManagedProxyUrl}</label>
+          <label className="type-caption text-text-secondary block mb-2">{c.labelManagedProxyUrl}</label>
           <input
             type="url"
             value={settings.llmProxyUrl ?? ''}
             onChange={(e) => onUpdate({ llmProxyUrl: e.target.value || undefined })}
             placeholder={c.placeholderManagedProxyUrl}
-            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary focus:outline-none focus:border-brand-500/50"
+            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50"
           />
           <p className="type-caption text-text-muted mt-1.5">{c.managedProxyHint}</p>
         </div>
         <ToggleRow label={c.labelUseLlm} options={c.useLlmOptions} value={settings.useLlm !== false ? 'true' : 'false'} onChange={v => onUpdate({ useLlm: v === 'true' })} />
-        <p className="text-xs text-text-muted mt-1 px-1">
+        <p className="type-caption text-text-muted mt-1 px-1">
           {c.llmOfflineHint}
         </p>
         <ToggleRow
@@ -477,21 +477,21 @@ export function Settings({
           value={settings.agentTtsEnabled ? 'true' : 'false'}
           onChange={(v) => onUpdate({ agentTtsEnabled: v === 'true' })}
         />
-        <p className="text-xs text-text-muted mt-1 px-1">{c.agentTtsHint}</p>
+        <p className="type-caption text-text-muted mt-1 px-1">{c.agentTtsHint}</p>
         <ToggleRow
           label={c.labelDailyCheckInNotif}
           options={c.dailyCheckInNotifOptions}
           value={settings.dailyCheckInNotifications !== false ? 'true' : 'false'}
           onChange={(v) => onUpdate({ dailyCheckInNotifications: v === 'true' })}
         />
-        <p className="text-xs text-text-muted mt-1 px-1">{c.dailyCheckInNotifHint}</p>
+        <p className="type-caption text-text-muted mt-1 px-1">{c.dailyCheckInNotifHint}</p>
         <div className="mt-2">
-          <label className="text-xs text-text-secondary block mb-1.5">{c.labelDailyCheckInHour}</label>
+          <label className="type-caption text-text-secondary block mb-1.5">{c.labelDailyCheckInHour}</label>
           <select
             data-testid="settings-checkin-hour"
             value={settings.dailyCheckInReminderHour ?? 9}
             onChange={(e) => onUpdate({ dailyCheckInReminderHour: Number(e.target.value) })}
-            className="w-full px-3 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary"
+            className="w-full px-3 py-2 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary"
           >
             {Array.from({ length: 24 }, (_, h) => (
               <option key={h} value={h}>{`${String(h).padStart(2, '0')}:00`}</option>
@@ -504,9 +504,9 @@ export function Settings({
           value={settings.autoStartAfterCheckIn !== false ? 'true' : 'false'}
           onChange={(v) => onUpdate({ autoStartAfterCheckIn: v === 'true' })}
         />
-        <p className="text-xs text-text-muted mt-1 px-1">{c.autoStartCheckInHint}</p>
+        <p className="type-caption text-text-muted mt-1 px-1">{c.autoStartCheckInHint}</p>
         <ToggleRow label={c.labelUseVisionOcr} options={c.visionOcrOptions} value={settings.useVisionOcr !== false ? 'true' : 'false'} onChange={v => onUpdate({ useVisionOcr: v === 'true' })} />
-        <p className="text-xs text-text-muted mt-1 px-1">
+        <p className="type-caption text-text-muted mt-1 px-1">
           {c.visionOcrHint}
         </p>
         <p className="type-caption text-accent-amber mt-1 px-1" data-testid="ai-vision-cost-note">
@@ -517,7 +517,7 @@ export function Settings({
       <SettingsSection id="settings-account" title={c.sectionAccountSync} icon={<KeyRound className="w-5 h-5 text-accent-teal" />} delay={0.34}>
         {settings.authToken && (
           <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span className="text-xs px-2 py-1 rounded-lg bg-surface-hover border border-border-subtle">
+            <span className="type-caption px-2 py-1 rounded-lg bg-surface-hover border border-border-subtle">
               {c.planLabel} <strong className="text-text-secondary">{settings.authPlan ?? 'free'}</strong>
             </span>
             {(settings.authPlan ?? 'free') === 'free' && (
@@ -525,7 +525,7 @@ export function Settings({
                 <button
                   type="button"
                   data-testid="upgrade-pro"
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-600 text-white"
+                  className="px-3 py-1.5 rounded-lg type-caption font-medium bg-brand-600 text-white"
                   onClick={() => void startCheckout('pro')}
                 >
                   {c.upgradePro}
@@ -533,7 +533,7 @@ export function Settings({
                 <button
                   type="button"
                   data-testid="upgrade-team"
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium border border-brand-500/40 text-text-secondary"
+                  className="px-3 py-1.5 rounded-lg type-caption font-medium border border-brand-500/40 text-text-secondary"
                   onClick={() => void startCheckout('team')}
                 >
                   {c.upgradeTeam}
@@ -543,7 +543,7 @@ export function Settings({
             {onRefreshPlan && (
               <button
                 type="button"
-                className="px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle text-text-secondary"
+                className="px-3 py-1.5 rounded-lg type-caption font-medium border border-border-subtle text-text-secondary"
                 onClick={async () => {
                   try {
                     await onRefreshPlan();
@@ -559,13 +559,13 @@ export function Settings({
           </div>
         )}
         <div>
-          <label className="text-xs text-text-secondary block mb-2">{c.labelProxyBaseUrl}</label>
+          <label className="type-caption text-text-secondary block mb-2">{c.labelProxyBaseUrl}</label>
           <input
             type="url"
             value={settings.authProxyBase ?? settings.llmProxyUrl?.replace(/\/v1\/?$/, '') ?? ''}
             onChange={(e) => onUpdate({ authProxyBase: e.target.value || undefined })}
             placeholder={c.placeholderProxyBaseUrl}
-            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary"
+            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary"
           />
         </div>
         <div className="grid sm:grid-cols-2 gap-3">
@@ -574,20 +574,20 @@ export function Settings({
             value={authEmail}
             onChange={(e) => setAuthEmail(e.target.value)}
             placeholder={c.placeholderEmail}
-            className="px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm"
+            className="px-4 py-2 rounded-xl bg-surface-input border border-border-subtle type-body"
           />
           <input
             type="password"
             value={authPassword}
             onChange={(e) => setAuthPassword(e.target.value)}
             placeholder={c.placeholderPassword}
-            className="px-4 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm"
+            className="px-4 py-2 rounded-xl bg-surface-input border border-border-subtle type-body"
           />
         </div>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            className="px-4 py-2 rounded-xl text-sm font-medium bg-brand-600 text-white"
+            className="px-4 py-2 rounded-xl type-meta font-medium bg-brand-600 text-white"
             onClick={async () => {
               try {
                 const session = await authLogin(authEmail, authPassword, settings);
@@ -601,7 +601,7 @@ export function Settings({
           </button>
           <button
             type="button"
-            className="px-4 py-2 rounded-xl text-sm font-medium border border-border-subtle"
+            className="px-4 py-2 rounded-xl type-meta font-medium border border-border-subtle"
             onClick={async () => {
               try {
                 const session = await authRegister(authEmail, authPassword, settings);
@@ -615,7 +615,7 @@ export function Settings({
           </button>
           <button
             type="button"
-            className="px-4 py-2 rounded-xl text-sm font-medium border border-border-subtle inline-flex items-center gap-2"
+            className="px-4 py-2 rounded-xl type-meta font-medium border border-border-subtle inline-flex items-center gap-2"
             data-testid="settings-google-sign-in"
             onClick={() => {
               window.location.href = googleAuthStartUrl(
@@ -630,7 +630,7 @@ export function Settings({
           {settings.authToken && (
             <button
               type="button"
-              className="px-4 py-2 rounded-xl text-sm font-medium border border-border-subtle"
+              className="px-4 py-2 rounded-xl type-meta font-medium border border-border-subtle"
               onClick={() =>
                 onUpdate({
                   authToken: undefined,
@@ -647,7 +647,7 @@ export function Settings({
           {settings.authToken && onPullLibrary && (
             <button
               type="button"
-              className="px-4 py-2 rounded-xl text-sm font-medium border border-border-subtle"
+              className="px-4 py-2 rounded-xl type-meta font-medium border border-border-subtle"
               onClick={async () => {
                 try {
                   await onPullLibrary();
@@ -663,7 +663,7 @@ export function Settings({
           {settings.authToken && (
             <button
               type="button"
-              className="px-4 py-2 rounded-xl text-sm font-medium border border-accent-teal/40 text-accent-teal"
+              className="px-4 py-2 rounded-xl type-meta font-medium border border-accent-teal/40 text-accent-teal"
               onClick={async () => {
                 try {
                   const lib = loadLibrarySync();
@@ -680,7 +680,7 @@ export function Settings({
           {settings.authToken && onPullSession && (
             <button
               type="button"
-              className="px-4 py-2 rounded-xl text-sm font-medium border border-border-subtle"
+              className="px-4 py-2 rounded-xl type-meta font-medium border border-border-subtle"
               onClick={async () => {
                 try {
                   await onPullSession();
@@ -696,7 +696,7 @@ export function Settings({
           {settings.authToken && onPushSession && (
             <button
               type="button"
-              className="px-4 py-2 rounded-xl text-sm font-medium border border-accent-teal/40 text-accent-teal"
+              className="px-4 py-2 rounded-xl type-meta font-medium border border-accent-teal/40 text-accent-teal"
               onClick={async () => {
                 try {
                   await onPushSession();
@@ -711,7 +711,7 @@ export function Settings({
           )}
         </div>
         {settings.authEmail && (
-          <p className="text-xs text-text-secondary">{c.loggedIn} {settings.authEmail}</p>
+          <p className="type-caption text-text-secondary">{c.loggedIn} {settings.authEmail}</p>
         )}
         {settings.authToken && (
           <RagIndexProgressBanner
@@ -723,7 +723,7 @@ export function Settings({
         )}
         {settings.authToken && (
           <div className="mt-3 pt-3 border-t border-border-subtle space-y-2" data-testid="settings-sessions">
-            <p className="text-xs font-semibold text-text-primary">{c.sectionSessions}</p>
+            <p className="type-caption font-semibold text-text-primary">{c.sectionSessions}</p>
             <p className="type-caption text-text-muted">{c.sessionsHint}</p>
             {sessions.length === 0 ? (
               <p className="type-caption text-text-muted">{c.sessionsEmpty}</p>
@@ -769,7 +769,7 @@ export function Settings({
               <button
                 type="button"
                 data-testid="sessions-revoke-others"
-                className="px-3 py-2 rounded-xl text-xs font-medium border border-border-subtle text-text-secondary"
+                className="px-3 py-2 rounded-xl type-caption font-medium border border-border-subtle text-text-secondary"
                 onClick={async () => {
                   if (!settings.authToken || !settings.authSessionId) return;
                   try {
@@ -793,7 +793,7 @@ export function Settings({
         )}
         {settings.authToken && (
           <div className="mt-3 pt-3 border-t border-border-subtle space-y-2">
-            <p className="text-xs font-semibold text-text-primary">{t('gdprExportData')}</p>
+            <p className="type-caption font-semibold text-text-primary">{t('gdprExportData')}</p>
             <p className="type-caption text-text-muted">{t('gdprExportHint')}</p>
             <p className="type-caption">
               <a
@@ -810,7 +810,7 @@ export function Settings({
               <button
                 type="button"
                 data-testid="gdpr-export-account"
-                className="px-3 py-2 rounded-xl text-xs font-medium border border-border-subtle text-text-secondary hover:border-brand-500/30"
+                className="px-3 py-2 rounded-xl type-caption font-medium border border-border-subtle text-text-secondary hover:border-brand-500/30"
                 onClick={async () => {
                   if (!settings.authToken) return;
                   try {
@@ -837,13 +837,13 @@ export function Settings({
               value={deleteConfirmEmail}
               onChange={(e) => setDeleteConfirmEmail(e.target.value)}
               placeholder={settings.authEmail ?? 'email@example.com'}
-              className="w-full px-3 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm"
+              className="w-full px-3 py-2 rounded-xl bg-surface-input border border-border-subtle type-body"
             />
             <button
               type="button"
               data-testid="gdpr-delete-account"
               disabled={!deleteConfirmEmail.trim()}
-              className="px-3 py-2 rounded-xl text-xs font-medium border border-accent-rose/30 text-accent-rose hover:bg-accent-rose/10 disabled:opacity-50"
+              className="px-3 py-2 rounded-xl type-caption font-medium border border-accent-rose/30 text-accent-rose hover:bg-accent-rose/10 disabled:opacity-50"
               onClick={async () => {
                 if (!settings.authToken || !settings.authEmail) return;
                 if (deleteConfirmEmail.trim().toLowerCase() !== settings.authEmail.toLowerCase()) {
@@ -872,7 +872,7 @@ export function Settings({
             </button>
           </div>
         )}
-        {authStatus && <p className="text-xs text-text-muted">{authStatus}</p>}
+        {authStatus && <p className="type-caption text-text-muted">{authStatus}</p>}
       </SettingsSection>
 
       <SettingsSection
@@ -919,14 +919,14 @@ export function Settings({
           <button
             type="button"
             onClick={() => { downloadBackup(); setBackupStatus(c.backupDownloaded); }}
-            className="px-3 py-2 rounded-xl text-xs font-medium bg-surface-secondary text-text-primary border border-border-default hover:bg-brand-600/30"
+            className="px-3 py-2 rounded-xl type-caption font-medium bg-surface-secondary text-text-primary border border-border-default hover:bg-brand-600/30"
           >
             {c.exportBackup}
           </button>
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="px-3 py-2 rounded-xl text-xs font-medium border border-border-subtle text-text-secondary hover:border-brand-500/30"
+            className="px-3 py-2 rounded-xl type-caption font-medium border border-border-subtle text-text-secondary hover:border-brand-500/30"
           >
             {c.importBackup}
           </button>
@@ -938,7 +938,7 @@ export function Settings({
                 setBackupStatus(c.formatCleared(n));
               }
             }}
-            className="px-3 py-2 rounded-xl text-xs font-medium border border-accent-rose/30 text-accent-rose hover:bg-accent-rose/10"
+            className="px-3 py-2 rounded-xl type-caption font-medium border border-accent-rose/30 text-accent-rose hover:bg-accent-rose/10"
           >
             {c.clearLocalData}
           </button>
@@ -955,12 +955,12 @@ export function Settings({
           }}
         />
         {backupStatus && (
-          <p className="text-xs text-text-secondary px-1">{backupStatus}</p>
+          <p className="type-caption text-text-secondary px-1">{backupStatus}</p>
         )}
       </SettingsSection>
 
       <SettingsSection id="settings-developer" title={c.sectionDeveloper} icon={<Gauge className="w-5 h-5 text-accent-amber" />} delay={0.39}>
-        <p className="text-xs text-text-secondary">{c.developerHint}</p>
+        <p className="type-caption text-text-secondary">{c.developerHint}</p>
         <WorkspaceTTIPanel />
         <div className="pt-2 border-t border-border-subtle space-y-2" data-testid="settings-notebooklm-parity">
           <ToggleRow
@@ -985,12 +985,12 @@ export function Settings({
         </div>
         {onReplayProductTour && (
           <div className="pt-2 border-t border-border-subtle">
-            <p className="text-xs text-text-secondary mb-2">{t('tourReplayHint')}</p>
+            <p className="type-caption text-text-secondary mb-2">{t('tourReplayHint')}</p>
             <button
               type="button"
               onClick={onReplayProductTour}
               data-testid="settings-replay-product-tour"
-              className="px-3 py-2 rounded-lg text-xs font-medium border border-border-subtle hover:bg-surface-hover transition-colors"
+              className="px-3 py-2 rounded-lg type-caption font-medium border border-border-subtle hover:bg-surface-hover transition-colors"
             >
               {t('tourReplay')}
             </button>
@@ -1001,7 +1001,7 @@ export function Settings({
       </div>
 
       <div className={cn('platform-panel-soft', isMinimal && 'settings-ide-footer')}>
-        <p className="text-xs text-text-tertiary leading-relaxed flex items-start gap-2">
+        <p className="type-caption text-text-tertiary leading-relaxed flex items-start gap-2">
           <Zap className="w-4 h-4 text-text-secondary shrink-0 mt-0.5" />
           {c.footerNote}
         </p>
@@ -1021,7 +1021,7 @@ function SettingsSection({ id, title, icon, children, delay }: { id: string; tit
     >
       <h3
         className={cn(
-          'ws-serif text-sm font-medium flex items-center gap-2 mb-4 text-text-primary',
+          'ws-serif type-meta font-medium flex items-center gap-2 mb-4 text-text-primary',
           isMinimal && 'settings-ide-section-title',
         )}
       >
@@ -1058,11 +1058,11 @@ function ToggleRow({ label, options, value, onChange }: { label: string; options
   }
   return (
     <div>
-      <label className="text-xs text-text-secondary block mb-2">{label}</label>
+      <label className="type-caption text-text-secondary block mb-2">{label}</label>
       <div className="flex flex-wrap gap-2">
         {options.map(opt => (
           <button key={opt.value} onClick={() => onChange(opt.value)}
-            className={cn('px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
+            className={cn('px-3 py-1.5 rounded-lg type-caption font-medium transition-all',
               value === opt.value ? 'bg-surface-secondary text-text-primary border border-border-default' : 'border border-border-subtle text-text-tertiary hover:text-text-secondary'
             )}>{opt.label}</button>
         ))}
@@ -1140,7 +1140,7 @@ function ThemePickerRow({
 
   return (
     <div data-testid="settings-theme-picker">
-      <label className="text-xs text-text-secondary block mb-2">{label}</label>
+      <label className="type-caption text-text-secondary block mb-2">{label}</label>
       {hint && (
         <p className="type-caption leading-snug mb-2" data-testid="settings-theme-hint">
           {hint}
@@ -1175,7 +1175,7 @@ function SliderRow({ label, leftLabel, rightLabel, value, onChange, min = 0, max
   }
   return (
     <div>
-      <label className="text-xs text-text-secondary block mb-2">{label}</label>
+      <label className="type-caption text-text-secondary block mb-2">{label}</label>
       <div className="flex items-center gap-3">
         <span className="type-micro text-text-muted w-20 text-right">{leftLabel}</span>
         <input type="range" min={min} max={max} value={value} onChange={e => onChange(Number(e.target.value))} className="flex-1" />

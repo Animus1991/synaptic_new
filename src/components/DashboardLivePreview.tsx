@@ -114,7 +114,7 @@ export function DashboardLivePreview({
             <p className="type-micro font-semibold uppercase tracking-[0.08em] text-text-secondary">
               <AllCapsLabel>{t('dashboardLivePreviewEyebrow')}</AllCapsLabel>
             </p>
-            <h2 className="mt-1 truncate text-sm font-semibold text-text-primary">{headline}</h2>
+            <h2 className="mt-1 truncate type-meta font-semibold text-text-primary">{headline}</h2>
             <p className="mt-0.5 type-caption text-text-tertiary line-clamp-1">{meta}</p>
           </div>
           {onOpenWorkspace && (
@@ -123,7 +123,7 @@ export function DashboardLivePreview({
               onClick={onOpenWorkspace}
               data-testid="dashboard-resume-workspace"
               {...workspaceEntryPrefetchHandlers()}
-              className="dashboard-continue-hero flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-700 px-3.5 py-2 text-xs font-semibold text-white transition-all hover:bg-brand-800"
+              className="dashboard-continue-hero flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-700 px-3.5 py-2 type-caption font-semibold text-white transition-all hover:bg-brand-800"
             >
               {t('dashboardResumeContinue')} <ArrowRight className="h-3 w-3" />
             </button>
@@ -144,7 +144,7 @@ export function DashboardLivePreview({
         <div className="min-w-0">
           <p className="dashboard-live-preview-eyebrow"><AllCapsLabel>{t('dashboardLivePreviewEyebrow')}</AllCapsLabel></p>
           <h2 className="dashboard-preview-title mt-2">{headline}</h2>
-          <p className="mt-1 text-sm text-text-secondary">{t('dashboardResumeSubtitle')}</p>
+          <p className="mt-1 type-body text-text-secondary">{t('dashboardResumeSubtitle')}</p>
         </div>
         {onOpenWorkspace && (
           <button
@@ -152,7 +152,7 @@ export function DashboardLivePreview({
             onClick={onOpenWorkspace}
             data-testid="dashboard-resume-workspace"
             {...workspaceEntryPrefetchHandlers()}
-            className="dashboard-continue-hero flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-700 px-4 py-2 text-xs font-semibold text-white transition-all hover:bg-brand-800"
+            className="dashboard-continue-hero flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-700 px-4 py-2 type-caption font-semibold text-white transition-all hover:bg-brand-800"
           >
             {t('dashboardResumeContinue')} <ArrowRight className="h-3 w-3" />
           </button>
@@ -174,12 +174,12 @@ export function DashboardLivePreview({
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-semibold text-text-primary">{step.title}</h3>
+                  <h3 className="type-meta font-semibold text-text-primary">{step.title}</h3>
                   <span className="dashboard-live-preview-status">
                     <AllCapsLabel>{active ? t('dashboardLivePreviewActive') : t('dashboardLivePreviewQueued')}</AllCapsLabel>
                   </span>
                 </div>
-                <p className="mt-2 text-sm leading-6 text-text-secondary">{step.body}</p>
+                <p className="mt-2 type-body leading-6 text-text-secondary">{step.body}</p>
                 <div className="dashboard-live-preview-progress-track" aria-hidden>
                   <div
                     className={cn('dashboard-live-preview-progress-bar', active && 'dashboard-live-preview-progress-bar-active')}
@@ -193,7 +193,7 @@ export function DashboardLivePreview({
       </div>
 
       {live.nextAction && (
-        <p className="mt-4 text-xs text-text-tertiary line-clamp-2">
+        <p className="mt-4 type-caption text-text-tertiary line-clamp-2">
           {t('dashboardNextColon')}{' '}
           <span className="font-medium text-text-primary">
             {nextActionLabel(live.nextAction.primary, lang)}

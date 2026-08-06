@@ -23,7 +23,7 @@ export function CohortNotebookLmHeatmap({ analytics, lang }: Props) {
   return (
     <div className="space-y-3 pt-3 border-t border-border-subtle/50" data-testid="notebooklm-cohort-heatmap">
       <div>
-        <p className="text-xs font-medium text-text-primary">{title}</p>
+        <p className="type-caption font-medium text-text-primary">{title}</p>
         <p className="type-micro text-text-muted mt-0.5">
           {el
             ? 'Εισαγωγές NLM ανά μαθητή (synced library).'

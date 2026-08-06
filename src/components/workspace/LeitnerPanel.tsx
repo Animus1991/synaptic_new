@@ -174,7 +174,7 @@ export function LeitnerPanel({
                 onClick={() => setInterleaved((v) => !v)}
                 className={`min-h-9 rounded-lg border px-2.5 py-1 type-caption font-medium transition-colors ${
                   interleaved
-                    ? 'border-brand-500/40 bg-brand-500/10 text-text-primary'
+                    ? 'border-brand-500/40 bg-brand-500/10 text-text-secondary'
                     : 'border-border-subtle text-text-muted hover:text-text-secondary'
                 }`}
                 data-testid="leitner-interleave-toggle"
@@ -189,7 +189,7 @@ export function LeitnerPanel({
                 onClick={() => setTypeFilter('all')}
                 className={`rounded-lg border px-2 py-1 type-caption font-medium transition-colors ${
                   typeFilter === 'all'
-                    ? 'border-brand-500/40 bg-brand-500/10 text-text-primary'
+                    ? 'border-brand-500/40 bg-brand-500/10 text-text-secondary'
                     : 'border-border-subtle text-text-muted hover:text-text-secondary'
                 }`}
               >
@@ -205,7 +205,7 @@ export function LeitnerPanel({
                     onClick={() => setTypeFilter(type)}
                     className={`rounded-lg border px-2 py-1 type-caption font-medium transition-colors ${
                       typeFilter === type
-                        ? 'border-brand-500/40 bg-surface-secondary text-text-primary'
+                        ? 'border-brand-500/40 bg-surface-secondary text-text-secondary'
                         : 'border-border-subtle text-text-muted hover:text-text-secondary'
                     }`}
                     data-testid={`leitner-type-${type}`}
@@ -223,7 +223,7 @@ export function LeitnerPanel({
                     key={card.front}
                     type="button"
                     onClick={() => onOpenInReader?.(card.front)}
-                    className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-0.5 type-caption text-text-primary hover:opacity-90"
+                    className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-0.5 type-caption text-text-secondary hover:opacity-90"
                   >
                     {card.front.slice(0, 48)}{card.front.length > 48 ? '…' : ''}
                   </button>

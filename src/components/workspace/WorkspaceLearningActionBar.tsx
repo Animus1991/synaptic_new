@@ -88,7 +88,7 @@ export function WorkspaceLearningActionBar({
                     : 'border border-brand-500/35 bg-brand-500/10 hover:bg-brand-500/15',
                 )}
               >
-                <span className="flex items-center gap-1.5 text-sm font-semibold text-text-primary">
+                <span className="flex items-center gap-1.5 type-meta font-semibold text-text-secondary">
                   {isReprocess && <Sparkles className="h-3.5 w-3.5 shrink-0 opacity-90" aria-hidden />}
                   {nextActionLabel(recommendation.primary, lang)}
                 </span>

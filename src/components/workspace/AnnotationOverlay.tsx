@@ -557,7 +557,7 @@ export function AnnotationOverlay({
             onClick={() => { setFilterTerm(null); setFilterCategory(null); }}
             className={cn(
               'ws-touch-floor shrink-0 rounded-lg px-2 py-1 type-caption font-medium',
-              !filterTerm && !filterCategory ? 'ws-chip-brand text-text-primary' : 'text-text-secondary',
+              !filterTerm && !filterCategory ? 'ws-chip-brand text-text-secondary' : 'text-text-secondary',
             )}
             data-testid="annotation-filter-all"
           >
@@ -638,11 +638,11 @@ export function AnnotationOverlay({
                   isReviewTarget && 'ring-1 ring-accent-amber/60 bg-accent-amber/10',
                   isFlaggedLine && !isReviewTarget && 'border-l-2 border-dashed border-accent-amber/50',
                   remapPanelOpen && remapReviewId && 'hover:ring-1 hover:ring-accent-emerald/40',
-                  isHeading && 'font-bold text-text-primary text-sm mt-2',
+                  isHeading && 'font-bold text-text-primary type-body mt-2',
                   isEmpty && 'h-3',
                 )}
               >
-                {pinHere && <Pin className="absolute -left-1 w-2.5 h-2.5 text-text-secondary0" aria-hidden />}
+                {pinHere && <Pin className="absolute -left-1 w-2.5 h-2.5 text-text-secondary" aria-hidden />}
                 <span data-annotation-line-text className="whitespace-pre-wrap">
                   {renderLineText(line, lineAnns)}
                 </span>
@@ -650,7 +650,7 @@ export function AnnotationOverlay({
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); onOpenInReader(line.trim()); }}
-                    className="absolute right-1 top-0.5 hidden p-0.5 rounded text-text-primary hover:bg-surface-hover [@media(hover:hover)]:group-hover:block"
+                    className="absolute right-1 top-0.5 hidden p-0.5 rounded text-text-secondary hover:bg-surface-hover [@media(hover:hover)]:group-hover:block"
                     title={t('panelOpenReader')}
                     aria-label={t('panelOpenReader')}
                   >
@@ -658,7 +658,7 @@ export function AnnotationOverlay({
                   </button>
                 )}
                 {lineAnns.some((a) => a.focusTerm) && (
-                  <span className="ml-1 type-caption text-text-primary opacity-80">
+                  <span className="ml-1 type-caption text-text-secondary opacity-80">
                     #{lineAnns.find((a) => a.focusTerm)?.focusTerm}
                   </span>
                 )}
@@ -669,7 +669,7 @@ export function AnnotationOverlay({
                 )}
                 {lineAnns.some((a) => a.category === 'exam-relevant') && (
                   <span className="ml-1 inline-flex" title={categoryLabel('exam-relevant', t)}>
-                    <FileText className="w-2.5 h-2.5 text-text-primary" aria-hidden />
+                    <FileText className="w-2.5 h-2.5 text-text-muted" aria-hidden />
                   </span>
                 )}
               </div>
@@ -715,10 +715,10 @@ export function AnnotationOverlay({
             transition={emphasizedTransition}
             className="absolute bottom-0 left-0 right-0 p-3 glass-strong border-t border-border-subtle z-10"
           >
-            <p className="text-xs font-semibold mb-2 inline-flex items-center gap-1.5">
-              <MessageSquare className="w-3.5 h-3.5 text-text-secondary0" />
+            <p className="type-caption font-semibold mb-2 inline-flex items-center gap-1.5">
+              <MessageSquare className="w-3.5 h-3.5 text-text-secondary" />
               {t('addComment')} (line {addingAt + 1})
-              {tagDraft && <span className="text-text-primary font-normal ml-1">· #{tagDraft}</span>}
+              {tagDraft && <span className="text-text-secondary font-normal ml-1">· #{tagDraft}</span>}
             </p>
             <div className="flex gap-2">
               <input
@@ -727,10 +727,10 @@ export function AnnotationOverlay({
                 autoFocus
                 placeholder={t('annoMarginNotePlaceholder')}
                 onKeyDown={(e) => e.key === 'Enter' && confirmComment()}
-                className="flex-1 px-3 py-2 rounded-lg bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50"
+                className="flex-1 px-3 py-2 rounded-lg bg-surface-input border border-border-subtle type-body text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50"
               />
-              <button type="button" onClick={confirmComment} className="px-3 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium rounded-lg">OK</button>
-              <button type="button" onClick={() => setAddingAt(null)} className="px-3 py-2 text-text-muted hover:text-text-secondary text-xs rounded-lg">
+              <button type="button" onClick={confirmComment} className="px-3 py-2 bg-brand-600 hover:bg-brand-500 text-white type-caption font-medium rounded-lg">OK</button>
+              <button type="button" onClick={() => setAddingAt(null)} className="px-3 py-2 text-text-muted hover:text-text-secondary type-caption rounded-lg">
                 <X className="w-4 h-4" />
               </button>
             </div>

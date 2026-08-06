@@ -23,10 +23,10 @@ type Props = {
 
 function questionProps(question: string, onQuestionSelect?: (q: string) => void) {
   if (!onQuestionSelect) {
-    return { className: 'text-sm mb-3' };
+    return { className: 'type-body mb-3' };
   }
   return {
-    className: 'text-sm mb-3 rounded-lg border border-transparent px-1 py-0.5 cursor-pointer hover:border-accent-cyan/30 hover:bg-accent-cyan/5 transition-colors',
+    className: 'type-body mb-3 rounded-lg border border-transparent px-1 py-0.5 cursor-pointer hover:border-accent-cyan/30 hover:bg-accent-cyan/5 transition-colors',
     role: 'button' as const,
     tabIndex: 0,
     'data-testid': 'quiz-question-select',
@@ -78,8 +78,8 @@ export function WorkspaceQuiz({
           data-testid="workspace-quiz-empty"
         >
           <HelpCircle className="mx-auto mb-2 h-6 w-6 text-text-secondary" aria-hidden />
-          <p className="text-sm font-medium text-text-secondary">{quizDef.question}</p>
-          <p className="mx-auto mt-1.5 max-w-xs text-xs text-text-muted">{t('wsQuizEmptyHint')}</p>
+          <p className="type-meta font-medium text-text-secondary">{quizDef.question}</p>
+          <p className="mx-auto mt-1.5 max-w-xs type-caption text-text-muted">{t('wsQuizEmptyHint')}</p>
         </div>
       );
     }
@@ -99,7 +99,7 @@ export function WorkspaceQuiz({
               onComplete(i === quizDef.correctIndex);
             }}
             className={cn(
-              'ux-quiz-option w-full text-left p-2.5 sm:p-3 rounded-lg border text-sm mb-1.5 transition-all flex items-start gap-2.5',
+              'ux-quiz-option w-full text-left p-2.5 sm:p-3 rounded-lg border type-body mb-1.5 transition-all flex items-start gap-2.5',
               mcAnswer === i
                 ? i === quizDef.correctIndex
                   ? 'border-accent-emerald/50 bg-accent-emerald/10 text-accent-emerald'
@@ -116,7 +116,7 @@ export function WorkspaceQuiz({
           </button>
         ))}
         {mcAnswer !== null && (
-          <p className={cn('text-xs mt-2', passed ? 'text-accent-emerald' : 'text-accent-rose')}>
+          <p className={cn('type-caption mt-2', passed ? 'text-accent-emerald' : 'text-accent-rose')}>
             {passed ? t('quizWkCorrectContinue') : t('quizWkReviewMaterial')}
           </p>
         )}
@@ -139,24 +139,24 @@ export function WorkspaceQuiz({
           <QuizIrtBadge irt={irt} lang={lang} responseCount={irtResponseCount} />
         )}
         <p {...questionProps(sa.question, onQuestionSelect)}>{sa.question}</p>
-        {sa.hint && <p className="text-xs text-text-muted">{sa.hint}</p>}
+        {sa.hint && <p className="type-caption text-text-muted">{sa.hint}</p>}
         <input
           type="text"
           value={shortText}
           onChange={(e) => { setShortText(e.target.value); setShortChecked(null); }}
-          className="ux-tier-b-input w-full rounded-lg border border-border-subtle bg-surface-primary px-3 py-2 text-sm"
+          className="ux-tier-b-input w-full rounded-lg border border-border-subtle bg-surface-primary px-3 py-2 type-body"
           placeholder={t('quizWkYourAnswer')}
         />
         <button
           type="button"
           onClick={check}
           disabled={!shortText.trim()}
-          className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm disabled:opacity-40"
+          className="px-4 py-2 rounded-lg bg-brand-600 text-white type-meta font-medium disabled:opacity-40"
         >
           {t('quizWkCheck')}
         </button>
         {shortChecked !== null && (
-          <p className={cn('text-xs', shortChecked ? 'text-accent-emerald' : 'text-accent-rose')}>
+          <p className={cn('type-caption', shortChecked ? 'text-accent-emerald' : 'text-accent-rose')}>
             {shortChecked ? t('quizWkCorrectShort') : t('quizWkTryAgain')}
           </p>
         )}
@@ -184,19 +184,19 @@ export function WorkspaceQuiz({
         <p {...questionProps(ord.question, onQuestionSelect)}>{ord.question}</p>
         <ul className="space-y-2">
           {order.map((itemIdx, pos) => (
-            <li key={itemIdx} className="ux-quiz-option flex items-center gap-2 p-2 rounded-lg border border-border-subtle bg-surface-card text-sm">
+            <li key={itemIdx} className="ux-quiz-option flex items-center gap-2 p-2 rounded-lg border border-border-subtle bg-surface-card type-body">
               <span className="text-text-muted w-5">{pos + 1}.</span>
               <span className="flex-1">{ord.items[itemIdx]}</span>
-              <button type="button" onClick={() => move(pos, -1)} className="px-2 py-0.5 text-xs rounded border border-white/10">↑</button>
-              <button type="button" onClick={() => move(pos, 1)} className="px-2 py-0.5 text-xs rounded border border-white/10">↓</button>
+              <button type="button" onClick={() => move(pos, -1)} className="px-2 py-0.5 type-caption rounded border border-white/10">↑</button>
+              <button type="button" onClick={() => move(pos, 1)} className="px-2 py-0.5 type-caption rounded border border-white/10">↓</button>
             </li>
           ))}
         </ul>
-        <button type="button" onClick={checkOrder} className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm">
+        <button type="button" onClick={checkOrder} className="px-4 py-2 rounded-lg bg-brand-600 text-white type-meta font-medium">
           {t('quizWkCheckOrder')}
         </button>
         {orderChecked !== null && (
-          <p className={cn('text-xs', orderChecked ? 'text-accent-emerald' : 'text-accent-rose')}>
+          <p className={cn('type-caption', orderChecked ? 'text-accent-emerald' : 'text-accent-rose')}>
             {orderChecked ? '✓' : '✗'} {orderChecked ? t('quizWkCorrectOrder') : t('quizWkWrongOrder')}
           </p>
         )}
@@ -216,7 +216,7 @@ export function WorkspaceQuiz({
         <p {...questionProps(match.question, onQuestionSelect)}>{match.question}</p>
         <div className="grid gap-2">
           {match.left.map((left, li) => (
-            <div key={li} className="flex items-center gap-2 text-sm">
+            <div key={li} className="flex items-center gap-2 type-body">
               <span className="ux-tier-b-panel flex-1 p-2 rounded-lg bg-surface-card border border-border-subtle">{left}</span>
               <select
                 value={matches[li] ?? ''}
@@ -230,7 +230,7 @@ export function WorkspaceQuiz({
                   });
                   setMatchChecked(null);
                 }}
-                className="ux-tier-b-input flex-1 rounded-lg border border-border-subtle bg-surface-primary px-2 py-2 text-sm"
+                className="ux-tier-b-input flex-1 rounded-lg border border-border-subtle bg-surface-primary px-2 py-2 type-body"
               >
                 <option value="">{t('quizWkSelectOption')}</option>
                 {shuffledRight.map(({ label, orig }) => (
@@ -244,12 +244,12 @@ export function WorkspaceQuiz({
           type="button"
           onClick={checkMatch}
           disabled={Object.keys(matches).length < match.left.length}
-          className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm disabled:opacity-40"
+          className="px-4 py-2 rounded-lg bg-brand-600 text-white type-meta font-medium disabled:opacity-40"
         >
           {t('quizWkCheckMatches')}
         </button>
         {matchChecked !== null && (
-          <p className={cn('text-xs', matchChecked ? 'text-accent-emerald' : 'text-accent-rose')}>
+          <p className={cn('type-caption', matchChecked ? 'text-accent-emerald' : 'text-accent-rose')}>
             {matchChecked ? '✓' : '✗'} {matchChecked ? t('quizWkMatchCorrect') : t('quizWkMatchIncorrect')}
           </p>
         )}

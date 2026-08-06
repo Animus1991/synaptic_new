@@ -35,7 +35,7 @@ export function SectionHeader({
         </p>
       ) : null}
       <h2 className="font-semibold tracking-tight text-text-primary">{title}</h2>
-      {subtitle ? <p className="max-w-2xl text-sm leading-5 text-text-secondary">{subtitle}</p> : null}
+      {subtitle ? <p className="max-w-2xl type-body leading-5 text-text-secondary">{subtitle}</p> : null}
     </div>
   );
   if (!animate) return body;
@@ -91,7 +91,7 @@ export function UxCallout({
         {icon ? <span className="mt-0.5 shrink-0 [&>svg]:h-5 [&>svg]:w-5" aria-hidden>{icon}</span> : null}
         <div className="min-w-0">
           {title ? <p className="ux-callout-title">{title}</p> : null}
-          <div className="text-sm leading-6">{children}</div>
+          <div className="type-body leading-6">{children}</div>
         </div>
       </div>
       {action ? <div className="shrink-0 self-center sm:self-start">{action}</div> : null}
@@ -177,11 +177,11 @@ export function SessionLauncherCard({
         <Icon className="h-4 w-4" aria-hidden />
       </span>
       <span className="min-w-0 flex-1 text-left">
-        <span className="block text-sm font-semibold text-text-primary">{label}</span>
+        <span className="block type-meta font-semibold text-text-primary">{label}</span>
         <span className="mt-1 block type-caption uppercase tracking-[0.06em] text-text-tertiary">
           <AllCapsLabel>{durationTag}</AllCapsLabel>
         </span>
-        <span className="mt-1.5 block text-xs leading-5 text-text-secondary">{desc}</span>
+        <span className="mt-1.5 block type-caption leading-5 text-text-secondary">{desc}</span>
         {taskHint ? (
           <span className="mt-1 block type-caption text-text-tertiary">{taskHint}</span>
         ) : null}
@@ -347,7 +347,7 @@ export function InfoStack({
           testId="info-stack-items"
           className="info-stack-items"
           chipClassName={cn(
-            'info-stack-item !max-w-none text-xs sm:text-sm',
+            'info-stack-item !max-w-none type-caption',
             onItemClick && 'info-stack-item--interactive',
           )}
           moreClassName="info-stack-item info-stack-more"
@@ -367,7 +367,7 @@ export function InfoStack({
             testId="info-stack-pills"
             className="info-stack-pills"
             chipClassName={cn(
-              'info-stack-pill !max-w-[14rem] text-xs',
+              'info-stack-pill !max-w-[14rem] type-caption',
               onSecondaryClick && 'info-stack-pill--interactive',
             )}
             moreClassName="info-stack-pill info-stack-more"
@@ -429,14 +429,14 @@ export function MiniAlert({
 }) {
   return (
     <div className={cn('mini-alert', tone === 'amber' ? 'mini-alert-amber' : 'mini-alert-violet', className)}>
-      <div className="text-sm font-semibold">{title}</div>
-      <div className="mt-2 text-sm leading-6">{body}</div>
+      <div className="type-meta font-semibold">{title}</div>
+      <div className="mt-2 type-body leading-6">{body}</div>
       {actionLabel && onAction && (
         <button
           type="button"
           onClick={onAction}
           data-testid="mini-alert-action"
-          className="mt-2 text-sm font-semibold text-text-primary hover:underline"
+          className="mt-2 type-meta font-semibold text-text-primary hover:underline"
         >
           {actionLabel}
         </button>

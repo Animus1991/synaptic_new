@@ -102,7 +102,7 @@ export function NotificationsPanel({
           )}
         />
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-medium text-text-primary leading-relaxed">
+          <p className="type-caption font-medium text-text-primary leading-relaxed">
             {alert.title}
           </p>
           <p className="type-micro text-text-muted mt-0.5 line-clamp-2">
@@ -132,7 +132,7 @@ export function NotificationsPanel({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle">
-          <span className="inline-flex items-center gap-1.5 text-sm font-semibold">
+          <span className="inline-flex items-center gap-1.5 type-meta font-semibold">
             {consoleMode ? <Terminal className="w-3.5 h-3.5 text-text-muted" aria-hidden /> : null}
             {consoleMode ? t('workspaceStatusConsole') : t('notifications')}
           </span>
@@ -176,7 +176,7 @@ export function NotificationsPanel({
                   <div className="flex items-start gap-2">
                     <Zap className="w-3.5 h-3.5 shrink-0 mt-0.5 text-text-secondary" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs font-medium text-text-primary leading-relaxed">
+                      <p className="type-caption font-medium text-text-primary leading-relaxed">
                         {appToastMessage}
                       </p>
                       {onDismissAppToast && (
@@ -205,7 +205,7 @@ export function NotificationsPanel({
               </p>
             )}
             {recent.length === 0 ? (
-              <p className="text-xs text-text-muted text-center py-8">{t('noActivity')}</p>
+              <p className="type-caption text-text-muted text-center py-8">{t('noActivity')}</p>
             ) : (
               recent.map((a) => {
                 const unread = isActivityUnread(a, unreadBaseline.current);
@@ -222,7 +222,7 @@ export function NotificationsPanel({
                     <div className="flex items-start gap-2">
                       <Zap className={cn('w-3.5 h-3.5 shrink-0 mt-0.5', a.xp ? 'text-accent-amber' : 'text-text-secondary')} />
                       <div className="min-w-0 flex-1">
-                        <p className={cn('text-xs font-medium leading-relaxed', unread && 'text-text-primary')}>
+                        <p className={cn('type-caption font-medium leading-relaxed', unread && 'text-text-primary')}>
                           {a.description}
                         </p>
                         <p className="type-micro text-text-muted mt-0.5 font-mono">

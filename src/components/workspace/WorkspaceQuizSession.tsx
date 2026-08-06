@@ -180,7 +180,7 @@ export function WorkspaceQuizSession({
 
   if (items.length === 0) {
     return (
-      <p className="text-sm text-text-muted">
+      <p className="type-meta text-text-muted">
         {t('quizSessNoQuestions')}
       </p>
     );
@@ -194,8 +194,8 @@ export function WorkspaceQuizSession({
     const wrongItems = session.items.filter((_item, i) => session.correctFlags[i] === false);
     return (
       <div className="ux-tier-b-tool ux-tier-b-quiz-session space-y-3" data-testid="quiz-session-complete">
-        <p className="text-sm font-semibold text-accent-emerald ink-allow-accent">{summary.headline}</p>
-        <p className="text-xs text-text-secondary" data-testid="quiz-session-summary-detail">{summary.detail}</p>
+        <p className="type-meta font-semibold text-accent-emerald ink-allow-accent">{summary.headline}</p>
+        <p className="type-caption text-text-secondary" data-testid="quiz-session-summary-detail">{summary.detail}</p>
         {attemptHistory.length > 0 && (
           <p className="type-caption text-text-muted" data-testid="quiz-attempt-history-hint">
             {t('quizAttemptHistoryHint').replace('{count}', String(attemptHistory.length))}
@@ -371,7 +371,7 @@ export function WorkspaceQuizSession({
         />
       ) : (
         <div className="space-y-3">
-          <p className={cn('text-xs ink-allow-accent', lastCorrect ? 'text-accent-emerald' : 'text-accent-rose')}>
+          <p className={cn('type-caption ink-allow-accent', lastCorrect ? 'text-accent-emerald' : 'text-accent-rose')}>
             {lastCorrect ? t('quizSessCorrectConfidence') : t('quizSessReviewConfidence')}
           </p>
           {lastCorrect === false && (
@@ -407,7 +407,7 @@ export function WorkspaceQuizSession({
                   className="rounded-lg border border-border-subtle bg-surface-secondary/40 px-2.5 py-2 space-y-1"
                   data-testid="quiz-error-diagnosis"
                 >
-                  <p className="type-caption font-semibold text-text-primary">
+                  <p className="type-caption font-semibold text-text-secondary">
                     {t('quizErrorDiagnosisTitle')}
                     {diagnosis ? (
                       <span className="ml-1.5 font-normal text-text-secondary">
@@ -455,7 +455,7 @@ export function WorkspaceQuizSession({
             </div>
           )}
           <div className="ux-tier-b-panel rounded-xl border border-border-subtle bg-surface-primary/50 p-3" data-testid="quiz-confidence-rating">
-            <p className="type-caption font-medium text-text-muted mb-2">
+            <p className="type-caption font-medium text-text-secondary mb-2">
               {t('quizSessConfidenceScale')}
             </p>
             <div className="flex gap-1">
@@ -466,9 +466,9 @@ export function WorkspaceQuizSession({
                   data-testid={`quiz-confidence-${n}`}
                   onClick={() => setConfidence(n)}
                   className={cn(
-                    'flex-1 py-1.5 rounded-lg text-xs font-medium border',
+                    'flex-1 py-1.5 rounded-lg type-caption font-medium border',
                     confidence === n
-                      ? 'border-brand-500 bg-brand-600/20 text-text-primary'
+                      ? 'border-brand-500 bg-brand-600/20 text-text-secondary'
                       : 'border-border-subtle text-text-muted',
                   )}
                 >
@@ -481,7 +481,7 @@ export function WorkspaceQuizSession({
             type="button"
             data-testid="quiz-session-confirm"
             onClick={confirmAndAdvance}
-            className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm"
+            className="px-4 py-2 rounded-lg bg-brand-600 text-white type-meta font-medium"
           >
             {session.currentIndex + 1 >= session.items.length ? t('quizSessFinishSession') : t('quizSessNextQuestion')}
           </button>

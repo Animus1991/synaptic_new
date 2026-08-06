@@ -37,7 +37,7 @@ export function WorkspaceToolAgentChipBar({ tool, lang, concept, onChip, classNa
           type="button"
           data-testid={`workspace-agent-chip-${tool}-${chip.id}`}
           onClick={() => onChip(chip.buildPrompt(concept, lang), chip.intent)}
-          className="ux-agent-chip gap-1 px-2.5 py-1 type-caption font-medium min-h-[28px] border-accent-cyan/30 bg-accent-cyan/10 text-text-primary hover:opacity-90"
+          className="ux-agent-chip gap-1 px-2.5 py-1 type-caption font-medium min-h-[28px] border-accent-cyan/30 bg-accent-cyan/10 text-text-secondary hover:opacity-90"
         >
           <Sparkles className="h-3 w-3" aria-hidden />
           {t(chip.labelKey)}

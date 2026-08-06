@@ -4,6 +4,7 @@ import { bandColorVar, masteryColorForValue, accentHighlightVar } from '../../li
 import type { MasteryBand } from '../../lib/pedagogy';
 import { conceptTypeGlyph } from '../../lib/conceptTypeIcons';
 import { BlueprintSurface } from '../ui/BlueprintSurface';
+import { useI18n } from '../../lib/i18n';
 
 interface ConceptNode {
   id: string;
@@ -45,12 +46,14 @@ export function ConceptGraph({
   width = 700,
   height = 400,
   onOpenConcept,
-  openConceptLabel = 'Study in workspace',
+  openConceptLabel,
 }: ConceptGraphProps) {
+  const { t } = useI18n();
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
   const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]));
+  const resolvedOpenConceptLabel = openConceptLabel ?? t('cognitiveReader');
 
   return (
     <BlueprintSurface className="relative overflow-hidden" style={{ width: '100%', maxWidth: width }}>
@@ -149,17 +152,17 @@ export function ConceptGraph({
       </svg>
 
       {/* Legend */}
-      <div className="flex items-center justify-center gap-4 py-3 border-t border-border-subtle">
+      <div className="flex items-center justify-center gap-3 py-3 border-t border-border-subtle flex-wrap px-2">
         {(
           [
-            ['strong', 'Strong ≥80%'],
-            ['proficient', 'Proficient ≥60%'],
-            ['developing', 'Developing ≥40%'],
-            ['weak', 'Weak <40%'],
+            ['strong', t('strong')],
+            ['proficient', t('proficient')],
+            ['developing', t('developing')],
+            ['weak', t('weakLabel')],
           ] as [MasteryBand, string][]
         ).map(([band, label]) => (
-          <span key={label} className="flex items-center gap-1.5 type-micro text-text-muted">
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: bandColorVar(band) }} />
+          <span key={band} className="flex items-center gap-1.5 type-caption text-text-muted">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: bandColorVar(band) }} />
             {label}
           </span>
         ))}
@@ -170,7 +173,7 @@ export function ConceptGraph({
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute bottom-12 left-4 right-4 p-3 rounded-xl glass-strong text-xs"
+          className="absolute bottom-12 left-4 right-4 p-3 rounded-xl glass-strong type-caption"
         >
           <div className="flex items-center gap-2 mb-1">
             <span>{typeIcons[nodeMap[selectedNode].type]}</span>
@@ -188,7 +191,7 @@ export function ConceptGraph({
               onClick={() => onOpenConcept(nodeMap[selectedNode].label)}
               className="mt-2 w-full rounded-lg bg-brand-600/15 px-3 py-1.5 type-caption font-medium text-text-secondary hover:bg-brand-600/25 transition-colors"
             >
-              {openConceptLabel}
+              {resolvedOpenConceptLabel}
             </button>
           )}
         </motion.div>

@@ -63,7 +63,7 @@ export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
 
       {open && (
         <div className="px-4 pb-4 space-y-3 border-t border-border-subtle/50 pt-3">
-          <p className="text-sm text-text-muted">{ui.calendarHint}</p>
+          <p className="type-body text-text-muted">{ui.calendarHint}</p>
 
           <div className="flex flex-wrap gap-2">
             {(['all', 'assignments', 'exams'] as const).map((preset) => (
@@ -89,13 +89,13 @@ export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
           </div>
 
           {entries.length === 0 ? (
-            <p className="text-sm text-text-muted">{ui.calendarEmpty}</p>
+            <p className="type-body text-text-muted">{ui.calendarEmpty}</p>
           ) : (
             <ul className="space-y-2 max-h-80 overflow-y-auto">
               {entries.map((entry) => (
                 <li
                   key={entry.id}
-                  className="rounded-xl border border-border-subtle/60 bg-surface-card/60 p-3 text-sm"
+                  className="rounded-xl border border-border-subtle/60 bg-surface-card/60 p-3 type-body"
                   data-testid={`student-calendar-entry-${entry.id}`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
@@ -117,12 +117,12 @@ export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
                       </div>
                       <p className="font-medium text-text-primary">{entry.title}</p>
                       {entry.subtitle && (
-                        <p className="text-xs text-text-secondary line-clamp-2">{entry.subtitle}</p>
+                        <p className="type-caption text-text-secondary line-clamp-2">{entry.subtitle}</p>
                       )}
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       {entry.score != null && (
-                        <span className="text-xs font-medium">{entry.score}%</span>
+                        <span className="type-caption font-medium">{entry.score}%</span>
                       )}
                       {entry.status && (
                         <span

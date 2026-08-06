@@ -22,7 +22,7 @@ export function CollabDeviceLocalBanner({ lang, surface }: Props) {
     >
       <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-amber" aria-hidden />
       <div className="min-w-0 space-y-0.5">
-        <p className="type-caption font-semibold text-text-primary">
+        <p className="type-caption font-semibold text-text-secondary">
           {t('collabDeviceLocalBadge', lang)}
         </p>
         <p className="type-caption text-text-secondary leading-snug">

@@ -69,10 +69,10 @@ export function WorkspaceBootShell({
             {!error && <div className="absolute inset-0 animate-pulse rounded-2xl bg-brand-600/5" />}
             {error ? (
               <>
-                <p className="relative z-10 text-sm font-semibold text-red-400">
+                <p className="relative z-10 type-meta font-semibold text-red-400">
                   {t('bootShellFailed', lang)}
                 </p>
-                <p className="relative z-10 max-w-md text-xs font-mono text-text-muted break-all">{error}</p>
+                <p className="relative z-10 max-w-md type-caption font-mono text-text-muted break-all">{error}</p>
                 <div className="relative z-10 flex flex-wrap items-center justify-center gap-2 pt-1">
                   <button
                     type="button"
@@ -85,7 +85,7 @@ export function WorkspaceBootShell({
                       try { sessionStorage.removeItem('sw-chunk-reload-attempt'); } catch { /* ignore */ }
                       window.location.reload();
                     }}
-                    className="rounded-md border border-brand-500/40 bg-brand-600/15 px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-brand-600/25"
+                    className="rounded-md border border-brand-500/40 bg-brand-600/15 px-3 py-1.5 type-caption font-medium text-text-secondary hover:bg-brand-600/25"
                   >
                     {t('tryAgain', lang)}
                   </button>
@@ -96,7 +96,7 @@ export function WorkspaceBootShell({
                       try { sessionStorage.removeItem('sw-chunk-reload-attempt'); } catch { /* ignore */ }
                       window.location.reload();
                     }}
-                    className="rounded-md border border-border-subtle px-3 py-1.5 text-xs font-medium text-text-secondary hover:bg-surface-hover"
+                    className="rounded-md border border-border-subtle px-3 py-1.5 type-caption font-medium text-text-secondary hover:bg-surface-hover"
                   >
                     {t('reloadPage', lang)}
                   </button>
@@ -105,9 +105,9 @@ export function WorkspaceBootShell({
 
             ) : (
               <>
-                <p className="relative z-10 text-sm font-medium text-text-secondary">{label}</p>
+                <p className="relative z-10 type-meta font-medium text-text-secondary">{label}</p>
                 {showSlowHint && (
-                  <p className="relative z-10 max-w-sm text-xs text-text-muted">{slowHint}</p>
+                  <p className="relative z-10 max-w-sm type-caption text-text-muted">{slowHint}</p>
                 )}
               </>
             )}

@@ -220,7 +220,7 @@ export function LeitnerBox({
       )}
       {/* Wave E5 — compact title + overflow for Quiz / Anki import-export */}
       <div className="mb-2 flex items-center gap-2">
-        <h3 className="flex min-w-0 flex-1 items-center gap-2 text-sm font-semibold text-text-primary">
+        <h3 className="flex min-w-0 flex-1 items-center gap-2 type-meta font-semibold text-text-secondary">
           <Layers className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
           <span className="truncate">{concept || t('leitnerBox')}</span>
           {dueCount > 0 && (
@@ -255,7 +255,7 @@ export function LeitnerBox({
               type="button"
               data-testid="leitner-open-quiz"
               onClick={onOpenQuiz}
-              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+              className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted"
             >
               {t('quiz')}
             </button>
@@ -311,7 +311,7 @@ export function LeitnerBox({
               <div className="mb-2 flex flex-wrap items-center gap-1.5">
                 {card && (
                   <span
-                    className="inline-block rounded-lg border border-border-subtle bg-surface-secondary px-2 py-0.5 type-caption font-medium text-text-primary"
+                    className="inline-block rounded-lg border border-border-subtle bg-surface-secondary px-2 py-0.5 type-caption font-medium text-text-secondary"
                     data-testid="leitner-card-type"
                   >
                     {leitnerCardTypeLabel(inferLeitnerCardType(card), lang)}
@@ -319,7 +319,7 @@ export function LeitnerBox({
                 )}
                 {card?.source && (
                   <span
-                    className="inline-block rounded-lg border border-brand-500/25 bg-brand-600/10 px-2 py-0.5 type-caption font-medium text-text-primary"
+                    className="inline-block rounded-lg border border-brand-500/25 bg-brand-600/10 px-2 py-0.5 type-caption font-medium text-text-secondary"
                     data-testid="leitner-card-source"
                   >
                     {leitnerCardSourceLabel(card.source, lang)}
@@ -336,12 +336,12 @@ export function LeitnerBox({
               {card?.occlusion ? (
                 <LeitnerOcclusionFace occlusion={card.occlusion} flipped={flipped} />
               ) : (
-                <p className="text-sm font-medium leading-relaxed">{flipped ? card!.back : card!.front}</p>
+                <p className="type-body font-medium leading-relaxed">{flipped ? card!.back : card!.front}</p>
               )}
             </button>
           </div>
           {finished && (
-            <p className="mt-4 text-center text-sm font-medium text-accent-emerald">
+            <p className="mt-4 text-center type-meta font-medium text-accent-emerald">
               {t('reviewLogged')}
             </p>
           )}
@@ -350,7 +350,7 @@ export function LeitnerBox({
               type="button"
               data-testid="leitner-quiz-this-card"
               onClick={() => onQuizCard(card.front)}
-              className="mt-2 w-full rounded-lg border border-border-subtle bg-surface-secondary py-2 type-caption font-medium text-text-primary hover:opacity-90"
+              className="mt-2 w-full rounded-lg border border-border-subtle bg-surface-secondary py-2 type-caption font-medium text-text-secondary hover:opacity-90"
             >
               {t('leitnerQuizThisCard')}
             </button>
@@ -370,7 +370,7 @@ export function LeitnerBox({
                   key={rating}
                   type="button"
                   onClick={() => rate(rating)}
-                  className={cn('min-h-11 rounded-lg border py-2 text-xs font-medium transition-all hover:opacity-90 touch-manipulation', color)}
+                  className={cn('min-h-11 rounded-lg border py-2 type-caption font-medium transition-all hover:opacity-90 touch-manipulation', color)}
                 >
                   {t(key)}
                 </button>
@@ -391,7 +391,7 @@ export function LeitnerBox({
                 cardOrder: deck.map((c) => c.front),
               });
             }}
-            className="mt-3 flex items-center justify-center gap-1 text-xs text-text-tertiary hover:text-text-secondary"
+            className="mt-3 flex items-center justify-center gap-1 type-caption text-text-secondary hover:text-text-secondary"
           >
             <RotateCcw className="h-3 w-3" aria-hidden /> {t('resetDeck')}
           </button>

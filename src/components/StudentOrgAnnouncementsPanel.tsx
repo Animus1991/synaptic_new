@@ -47,7 +47,7 @@ export function StudentOrgAnnouncementsPanel({ announcements, classOptions, ui, 
 
       {open && (
         <div className="px-4 pb-4 space-y-3 border-t border-border-subtle/50 pt-3">
-          <p className="text-sm text-text-muted">{ui.announcementsHint}</p>
+          <p className="type-body text-text-muted">{ui.announcementsHint}</p>
 
           {classOptions.length > 1 && (
             <div className="flex flex-wrap gap-2">
@@ -84,13 +84,13 @@ export function StudentOrgAnnouncementsPanel({ announcements, classOptions, ui, 
           )}
 
           {filtered.length === 0 ? (
-            <p className="text-sm text-text-muted">{ui.announcementsEmpty}</p>
+            <p className="type-body text-text-muted">{ui.announcementsEmpty}</p>
           ) : (
             <ul className="space-y-2 max-h-80 overflow-y-auto">
               {filtered.map((item) => (
                 <li
                   key={item.id}
-                  className="rounded-xl border border-border-subtle/60 bg-surface-card/60 p-3 text-sm"
+                  className="rounded-xl border border-border-subtle/60 bg-surface-card/60 p-3 type-body"
                   data-testid={`student-announcement-${item.id}`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
@@ -104,7 +104,7 @@ export function StudentOrgAnnouncementsPanel({ announcements, classOptions, ui, 
                         </span>
                       </div>
                       <p className="font-medium text-text-primary">{item.title}</p>
-                      <p className="text-xs text-text-secondary whitespace-pre-wrap">{item.body}</p>
+                      <p className="type-body text-text-secondary whitespace-pre-wrap">{item.body}</p>
                     </div>
                   </div>
                 </li>

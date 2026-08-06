@@ -88,7 +88,7 @@ export function AnnotationToolbar({
   return (
     <div className="ws-panel-toolbar" data-testid="annotation-toolbar">
       <div className="ws-panel-toolbar-row">
-        <FileText className="h-3.5 w-3.5 shrink-0 text-text-primary" aria-hidden />
+        <FileText className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
         <span className="type-caption shrink-0 font-semibold text-text-secondary">{sourceViewerLabel}</span>
         {sharedCount > 0 && (
           <span className="ws-chip-warn rounded px-1.5 py-0.5 type-caption">

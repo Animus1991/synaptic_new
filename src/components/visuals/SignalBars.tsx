@@ -25,11 +25,11 @@ export function SignalBars({ signals }: SignalBarsProps) {
           transition={{ delay: i * 0.08 }}
         >
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs font-medium flex items-center gap-1.5">
+            <span className="type-caption font-medium flex items-center gap-1.5">
               <UiIcon id={s.icon} size="xs" className="text-text-secondary shrink-0" />
               {s.label}
             </span>
-            <span className="text-xs font-bold" style={{ color: s.color }}>{s.value}%</span>
+            <span className="type-caption font-bold" style={{ color: s.color }}>{s.value}%</span>
           </div>
           {/* Wave P-2 C08 — SignalBars (Accuracy / Self-Reliance / Practice Volume /
               Retrieval Strength on Dashboard readiness card) track uses --viz-bar-track

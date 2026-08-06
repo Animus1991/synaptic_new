@@ -47,7 +47,7 @@ export function ColorCodingReferencePanel({ className }: { className?: string })
         animate={false}
       />
 
-      <p className="mt-4 text-sm leading-6 text-text-secondary">{t('colorRefIntro')}</p>
+      <p className="mt-4 type-body leading-6 text-text-secondary">{t('colorRefIntro')}</p>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {COLOR_CODING_ENTRIES.map((entry) => (
@@ -59,19 +59,19 @@ export function ColorCodingReferencePanel({ className }: { className?: string })
                 aria-hidden
               />
               <div className="min-w-0">
-                <div className="text-sm font-semibold text-text-primary">{t(NAME_KEYS[entry.id])}</div>
+                <div className="type-meta font-semibold text-text-primary">{t(NAME_KEYS[entry.id])}</div>
                 <div className="type-micro text-text-muted">{t(entry.wcagKey)}</div>
               </div>
             </div>
-            <p className="mt-3 text-sm leading-6 text-text-secondary">{t(USE_KEYS[entry.id])}</p>
-            <p className="mt-2 text-xs leading-5 text-text-tertiary italic">{t(COG_KEYS[entry.id])}</p>
+            <p className="mt-3 type-body leading-6 text-text-secondary">{t(USE_KEYS[entry.id])}</p>
+            <p className="mt-2 type-caption leading-5 text-text-tertiary italic">{t(COG_KEYS[entry.id])}</p>
           </div>
         ))}
       </div>
 
       <div className="ux-color-ref-rule mt-5">
-        <span className="text-sm font-semibold text-text-primary">{t('colorRefRuleTitle')}</span>
-        <p className="mt-2 text-sm leading-6 text-text-secondary">{t('colorRefRuleBody')}</p>
+        <span className="type-meta font-semibold text-text-primary">{t('colorRefRuleTitle')}</span>
+        <p className="mt-2 type-body leading-6 text-text-secondary">{t('colorRefRuleBody')}</p>
         <div className="ux-color-ref-rule-bar mt-3" aria-hidden>
           <span className="ux-color-ref-rule-seg ux-color-ref-rule-bg" />
           <span className="ux-color-ref-rule-seg ux-color-ref-rule-structure" />

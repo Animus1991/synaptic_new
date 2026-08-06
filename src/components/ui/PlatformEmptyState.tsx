@@ -40,7 +40,7 @@ export function PlatformEmptyState({
         <Icon className="h-7 w-7 text-text-tertiary" aria-hidden />
       </div>
       <h3 className="ws-serif text-xl font-medium tracking-tight text-text-primary mb-2 max-w-lg leading-snug">{title}</h3>
-      <p className="text-sm text-text-secondary mb-7 max-w-md leading-relaxed">{description}</p>
+      <p className="type-body text-text-secondary mb-7 max-w-md leading-relaxed">{description}</p>
       <div className="flex flex-wrap items-center justify-center gap-3">
         {actionLabel && onAction && (
           <PrimaryCTA onClick={onAction}>

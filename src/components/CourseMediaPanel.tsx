@@ -89,7 +89,7 @@ export function CourseMediaPanel({
         className="w-full flex items-center gap-2 text-left mb-2"
       >
         <Volume2 className="w-4 h-4 text-accent-violet shrink-0" />
-        <span className="text-sm font-semibold text-text-primary flex-1">
+        <span className="type-meta font-semibold text-text-primary flex-1">
           {el ? 'Media — NotebookLM audio' : 'Media — NotebookLM audio'}
         </span>
         {open ? <ChevronUp className="w-4 h-4 text-text-muted" /> : <ChevronDown className="w-4 h-4 text-text-muted" />}
@@ -120,14 +120,14 @@ export function CourseMediaPanel({
                 ? '[0:00] Εισαγωγή\nΚείμενο…\n\n[2:15] Θέμα 1\n…'
                 : '[0:00] Introduction\nText…\n\n[2:15] Topic one\n…'
             }
-            className="w-full rounded-lg border border-border-subtle bg-surface-input px-2 py-1.5 text-xs text-text-primary placeholder:text-text-muted resize-y min-h-[72px]"
+            className="w-full rounded-lg border border-border-subtle bg-surface-input px-2 py-1.5 type-body text-text-primary placeholder:text-text-muted resize-y min-h-[72px]"
             data-testid="course-media-import-text"
           />
           <button
             type="button"
             disabled={busy || !text.trim()}
             onClick={handleImport}
-            className="px-3 py-1.5 rounded-lg bg-accent-violet/90 text-white text-xs font-medium disabled:opacity-50"
+            className="px-3 py-1.5 rounded-lg bg-accent-violet/90 text-white type-caption font-medium disabled:opacity-50"
             data-testid="course-media-import-submit"
           >
             {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin inline" /> : el ? 'Εισαγωγή transcript' : 'Import transcript'}
@@ -156,7 +156,7 @@ export function CourseMediaPanel({
                 type="button"
                 disabled={uploadBusy || !canUploadAudio}
                 onClick={() => audioInputRef.current?.click()}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-accent-violet/30 text-xs font-medium text-accent-violet hover:bg-accent-violet/10 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-accent-violet/30 type-caption font-medium text-accent-violet hover:bg-accent-violet/10 disabled:opacity-50"
                 data-testid="course-media-upload-audio"
                 title={canUploadAudio ? undefined : el ? 'Σύνδεση απαιτείται' : 'Sign-in required'}
               >
@@ -208,7 +208,7 @@ export function CourseMediaPanel({
                       <button
                         type="button"
                         onClick={() => onAddAudioToFsrs(activeFile.id!, courseId)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent-emerald/90 text-white text-xs font-medium"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent-emerald/90 text-white type-caption font-medium"
                         data-testid="course-media-add-audio-fsrs"
                       >
                         <Brain className="w-3.5 h-3.5" />

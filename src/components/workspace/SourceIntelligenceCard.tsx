@@ -33,7 +33,7 @@ export function SourceIntelligenceCard({
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center rounded-full px-2 py-1 type-caption font-semibold bg-accent-cyan/12 text-text-primary">
+            <span className="inline-flex items-center rounded-full px-2 py-1 type-caption font-semibold bg-accent-cyan/12 text-text-secondary">
               Source Intelligence
             </span>
             <span className={`type-caption font-semibold ${bandColor}`}>
@@ -46,7 +46,7 @@ export function SourceIntelligenceCard({
               </span>
             )}
           </div>
-          <p className="mt-1 text-xs text-text-secondary max-w-2xl">
+          <p className="mt-1 type-caption text-text-secondary max-w-2xl">
             {report.bestToolReason}
           </p>
           {structure && structure.sections.length > 0 && (
@@ -75,7 +75,7 @@ export function SourceIntelligenceCard({
             onClick={onOpenRecommendedTool}
             className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 type-caption font-medium text-text-secondary hover:border-accent-cyan/40 hover:text-text-primary transition-colors"
           >
-            <Sparkles className="w-3.5 h-3.5 text-text-primary" />
+            <Sparkles className="w-3.5 h-3.5 text-text-secondary" />
             Open {toolLabel}
           </button>
         </div>

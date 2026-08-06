@@ -74,9 +74,9 @@ export function DashboardHubPopupBody({
   };
 
   const primaryBtn =
-    'inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-medium hover:bg-brand-500 transition-colors';
+    'inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 text-white type-meta font-medium hover:bg-brand-500 transition-colors';
   const ghostBtn =
-    'inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-border-subtle text-sm text-text-secondary hover:bg-surface-hover transition-colors';
+    'inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-border-subtle type-meta text-text-secondary hover:bg-surface-hover transition-colors';
 
   const launchAfterClose = (fn?: () => void) => {
     onClose();
@@ -87,7 +87,7 @@ export function DashboardHubPopupBody({
     return (
       <div className="space-y-5">
         <div>
-          <label className="text-xs font-medium text-text-tertiary block mb-2">
+          <label className="type-caption font-medium text-text-tertiary block mb-2">
             {t('dashboardHeroPopupExamDateLabel')}
           </label>
           <input
@@ -95,10 +95,10 @@ export function DashboardHubPopupBody({
             data-testid="hub-exam-date-input"
             value={examDate ?? ''}
             onChange={(e) => onExamDateChange?.(e.target.value || undefined)}
-            className="w-full px-3 py-2 rounded-xl bg-surface-input border border-border-subtle text-sm"
+            className="w-full px-3 py-2 rounded-xl bg-surface-input border border-border-subtle type-body"
           />
           {examDate && daysUntil(examDate) !== null && (
-            <p className="mt-1.5 text-xs text-text-secondary">
+            <p className="mt-1.5 type-caption text-text-secondary">
               {t('dashboardHeroDaysToExam').replace('{count}', String(daysUntil(examDate)))}
             </p>
           )}
@@ -106,20 +106,20 @@ export function DashboardHubPopupBody({
 
         {onPersonalStudyDatesChange && (
           <div className="rounded-xl border border-border-subtle p-3 space-y-3">
-            <p className="text-xs font-semibold text-text-primary">{t('dashboardHeroPopupAddMilestone')}</p>
+            <p className="type-caption font-semibold text-text-primary">{t('dashboardHeroPopupAddMilestone')}</p>
             <div className="grid gap-2 sm:grid-cols-[1fr_auto_auto]">
               <input
                 type="text"
                 value={draftLabel}
                 onChange={(e) => setDraftLabel(e.target.value)}
                 placeholder={t('dashboardHeroPopupMilestonePlaceholder')}
-                className="px-3 py-2 rounded-lg bg-surface-input border border-border-subtle text-sm"
+                className="px-3 py-2 rounded-lg bg-surface-input border border-border-subtle type-body"
               />
               <input
                 type="date"
                 value={draftDate}
                 onChange={(e) => setDraftDate(e.target.value)}
-                className="px-3 py-2 rounded-lg bg-surface-input border border-border-subtle text-sm"
+                className="px-3 py-2 rounded-lg bg-surface-input border border-border-subtle type-body"
               />
               <button type="button" onClick={addPersonalDate} className={ghostBtn}>
                 {t('dashboardHeroPopupAdd')}
@@ -128,7 +128,7 @@ export function DashboardHubPopupBody({
             {personalStudyDates.length > 0 && (
               <ul className="space-y-2">
                 {personalStudyDates.map((d) => (
-                  <li key={d.id} className="flex items-center gap-2 text-xs">
+                  <li key={d.id} className="flex items-center gap-2 type-caption">
                     <span className="text-text-muted shrink-0">{d.date}</span>
                     <span className="flex-1 truncate text-text-primary">{d.label}</span>
                     <button type="button" onClick={() => removePersonalDate(d.id)} aria-label={t('delete')}>
@@ -142,12 +142,12 @@ export function DashboardHubPopupBody({
         )}
 
         <div>
-          <p className="text-xs font-semibold text-text-primary mb-2">{t('dashboardHeroPopupTimeline')}</p>
+          <p className="type-caption font-semibold text-text-primary mb-2">{t('dashboardHeroPopupTimeline')}</p>
           <ul className="space-y-2 max-h-48 overflow-y-auto">
             {timeline.map((item) => {
               if (item.kind === 'exam') {
                 return (
-                  <li key="exam" className="text-xs rounded-lg border border-brand-500/20 bg-brand-500/5 px-3 py-2">
+                  <li key="exam" className="type-caption rounded-lg border border-brand-500/20 bg-brand-500/5 px-3 py-2">
                     <span className="font-medium text-text-secondary">{t('dashboardHeroPopupYourExam')}</span>
                     <span className="text-text-muted ml-2">{item.date}</span>
                   </li>
@@ -155,14 +155,14 @@ export function DashboardHubPopupBody({
               }
               if (item.kind === 'personal') {
                 return (
-                  <li key={item.id} className="text-xs rounded-lg border border-border-subtle px-3 py-2">
+                  <li key={item.id} className="type-caption rounded-lg border border-border-subtle px-3 py-2">
                     <span className="font-medium text-text-primary">{item.label}</span>
                     <span className="text-text-muted ml-2">{item.date}</span>
                   </li>
                 );
               }
               return (
-                <li key={item.entry.id} className="text-xs rounded-lg border border-border-subtle/80 px-3 py-2">
+                <li key={item.entry.id} className="type-caption rounded-lg border border-border-subtle/80 px-3 py-2">
                   <span className="text-text-muted">{item.entry.date}</span>
                   <span className="ml-2 text-text-primary">{t(item.entry.titleKey as never)}</span>
                 </li>
@@ -189,7 +189,7 @@ export function DashboardHubPopupBody({
   if (actionId === 'wallpaper') {
     return (
       <div className="space-y-4">
-        <p className="text-sm text-text-secondary">{t('dashboardHeroPopupWallpaperBody')}</p>
+        <p className="type-body text-text-secondary">{t('dashboardHeroPopupWallpaperBody')}</p>
         <div
           className="h-36 rounded-xl border border-border-subtle bg-surface-card overflow-hidden"
           style={
@@ -231,7 +231,7 @@ export function DashboardHubPopupBody({
   if (actionId === 'upload') {
     return (
       <div className="space-y-4">
-        <p className="text-sm text-text-secondary">{t('dashboardHeroPopupUploadBody')}</p>
+        <p className="type-body text-text-secondary">{t('dashboardHeroPopupUploadBody')}</p>
         <button
           type="button"
           data-testid="hub-popup-open-upload"
@@ -248,7 +248,7 @@ export function DashboardHubPopupBody({
   if (actionId === 'session') {
     return (
       <div className="space-y-3">
-        <p className="text-sm text-text-secondary">{t('dashboardHeroPopupSessionBody')}</p>
+        <p className="type-body text-text-secondary">{t('dashboardHeroPopupSessionBody')}</p>
         <div className="grid gap-2">
           {(['10min', '25min', 'review'] as SessionType[]).map((session) => (
             <button
@@ -273,7 +273,7 @@ export function DashboardHubPopupBody({
   if (actionId === 'reviews') {
     return (
       <div className="space-y-4">
-        <p className="text-sm text-text-secondary">
+        <p className="type-body text-text-secondary">
           {reviewsDue > 0
             ? t('dashboardHeroPopupReviewsDue').replace('{count}', String(reviewsDue))
             : t('dashboardHeroPopupReviewsClear')}
@@ -297,7 +297,7 @@ export function DashboardHubPopupBody({
         {workspaceLive ? (
           <DashboardLivePreview live={workspaceLive} lang={lang} onOpenWorkspace={onOpenWorkspace} />
         ) : (
-          <p className="text-sm text-text-secondary">{t('dashboardHeroPopupWorkspaceEmpty')}</p>
+          <p className="type-body text-text-secondary">{t('dashboardHeroPopupWorkspaceEmpty')}</p>
         )}
         <button
           type="button"

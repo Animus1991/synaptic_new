@@ -38,8 +38,8 @@ export function SubjectDrillDown({ tile, onClose, onStudyConcept }: Props) {
         <div className="flex items-start justify-between gap-2 border-b border-border-subtle px-4 py-3">
           <div className="min-w-0">
             <p className="type-micro font-semibold uppercase tracking-wide text-text-tertiary"><AllCapsLabel>{title}</AllCapsLabel></p>
-            <h3 className="text-sm font-semibold text-text-primary truncate">{tile.title}</h3>
-            <p className="text-xs text-text-secondary mt-0.5 tabular-nums">{tile.mastery}% mastery</p>
+            <h3 className="type-meta font-semibold text-text-primary truncate">{tile.title}</h3>
+            <p className="type-caption text-text-secondary mt-0.5 tabular-nums">{tile.mastery}% mastery</p>
           </div>
           <button
             type="button"
@@ -53,7 +53,7 @@ export function SubjectDrillDown({ tile, onClose, onStudyConcept }: Props) {
         </div>
         <ul className="overflow-y-auto p-3 space-y-2">
           {topics.length === 0 ? (
-            <li className="text-xs text-text-tertiary px-1">
+            <li className="type-caption text-text-tertiary px-1">
               {lang === 'el' ? 'Δεν υπάρχουν θέματα ακόμα.' : 'No topics yet.'}
             </li>
           ) : (
@@ -64,7 +64,7 @@ export function SubjectDrillDown({ tile, onClose, onStudyConcept }: Props) {
                 data-testid={`subject-drill-topic-${topic.id}`}
               >
                 <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <p className="text-xs font-medium text-text-primary truncate">{topic.title}</p>
+                  <p className="type-caption font-medium text-text-primary truncate">{topic.title}</p>
                   <span className="type-micro tabular-nums text-text-secondary shrink-0">{Math.round(topic.mastery)}%</span>
                 </div>
                 <CompactProgressBar pct={topic.mastery} />

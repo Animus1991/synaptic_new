@@ -49,7 +49,7 @@ export default function MermaidDiagramInner({ code }: { code: string }) {
     );
   }
   if (!svg) {
-    return <div className="my-2 text-xs text-text-muted">Rendering diagram…</div>;
+    return <div className="my-2 type-caption text-text-muted">Rendering diagram…</div>;
   }
   return <div className="my-3 flex justify-center overflow-x-auto" dangerouslySetInnerHTML={{ __html: svg }} />;
 }

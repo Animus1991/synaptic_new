@@ -80,20 +80,20 @@ export function NoteAnalysisView({
         icon={FlaskConical}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" onClick={onBack} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border-subtle text-sm text-text-secondary hover:text-text-primary">
+            <button type="button" onClick={onBack} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border-subtle type-meta text-text-secondary hover:text-text-primary">
               <ArrowLeft className="w-4 h-4" />
               {c.backToLibrary}
             </button>
             <button
               type="button"
               onClick={onOpenWorkspace}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl ws-fab text-sm font-medium"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl ws-fab type-meta font-medium"
               {...workspaceEntryPrefetchHandlers()}
             >
               <Play className="w-4 h-4" />
               {c.openWorkspace}
             </button>
-            <button type="button" onClick={onOpenCourse} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-secondary text-text-primary border border-border-subtle text-sm font-medium hover:bg-brand-600/25">
+            <button type="button" onClick={onOpenCourse} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-secondary text-text-primary border border-border-subtle type-meta font-medium hover:bg-brand-600/25">
               {c.generateCourse}
               <ArrowRight className="w-4 h-4" />
             </button>
@@ -103,11 +103,11 @@ export function NoteAnalysisView({
 
       <div className="grid gap-4 lg:grid-cols-3 mb-6" data-testid="note-analysis-summary">
         <div className="ux-card">
-          <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2"><AllCapsLabel>{c.summarySourceHealth}</AllCapsLabel></p>
+          <p className="type-caption font-semibold text-text-tertiary uppercase tracking-wide mb-2"><AllCapsLabel>{c.summarySourceHealth}</AllCapsLabel></p>
           <p className="text-base font-semibold text-text-primary">{snapshot.summary.sourceHealth}</p>
-          <p className="text-xs text-text-secondary mt-2">{snapshot.summary.sourceHealthDetail}</p>
+          <p className="type-caption text-text-secondary mt-2">{snapshot.summary.sourceHealthDetail}</p>
           <div className="mt-3 pt-3 border-t border-border-subtle">
-            <p className="text-xs text-text-tertiary">{c.materialProcessingReadiness}</p>
+            <p className="type-caption text-text-tertiary">{c.materialProcessingReadiness}</p>
             <p className="text-lg font-bold font-mono text-text-primary mt-1" data-testid="note-analysis-readiness">
               {snapshot.readiness.score != null ? `${snapshot.readiness.score}%` : c.readinessInsufficient}
             </p>
@@ -115,14 +115,14 @@ export function NoteAnalysisView({
           </div>
         </div>
         <div className="ux-card">
-          <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2"><AllCapsLabel>{c.summaryStructure}</AllCapsLabel></p>
+          <p className="type-caption font-semibold text-text-tertiary uppercase tracking-wide mb-2"><AllCapsLabel>{c.summaryStructure}</AllCapsLabel></p>
           <p className="text-base font-semibold text-text-primary">{snapshot.summary.structure}</p>
-          <p className="text-xs text-text-secondary mt-2">{snapshot.summary.structureDetail}</p>
+          <p className="type-caption text-text-secondary mt-2">{snapshot.summary.structureDetail}</p>
           <div className="mt-3 grid grid-cols-2 gap-2">
             {snapshot.extractedItems.slice(0, 4).map((item) => (
               <div key={item.label}>
                 <p className="type-micro text-text-muted">{item.label}</p>
-                <p className="text-sm font-semibold" data-testid={`note-analysis-metric-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                <p className="type-meta font-semibold" data-testid={`note-analysis-metric-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
                   {item.displayValue}
                 </p>
               </div>
@@ -130,13 +130,13 @@ export function NoteAnalysisView({
           </div>
         </div>
         <div className="ux-card flex flex-col">
-          <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-2"><AllCapsLabel>{c.summaryNextStep}</AllCapsLabel></p>
-          <p className="text-sm text-text-secondary flex-1">{snapshot.summary.nextStep}</p>
+          <p className="type-caption font-semibold text-text-tertiary uppercase tracking-wide mb-2"><AllCapsLabel>{c.summaryNextStep}</AllCapsLabel></p>
+          <p className="type-body text-text-secondary flex-1">{snapshot.summary.nextStep}</p>
           <button
             type="button"
             data-testid="note-analysis-next-action"
             onClick={() => runIssueAction(snapshot.summary.nextStepAction)}
-            className="mt-3 self-start px-4 py-2 rounded-xl bg-brand-600 text-white text-sm font-medium hover:bg-brand-500"
+            className="mt-3 self-start px-4 py-2 rounded-xl bg-brand-600 text-white type-meta font-medium hover:bg-brand-500"
           >
             {actionLabel(snapshot.summary.nextStepAction)}
           </button>
@@ -145,7 +145,7 @@ export function NoteAnalysisView({
 
       <button
         type="button"
-        className="mb-4 text-sm text-text-secondary hover:text-text-primary"
+        className="mb-4 type-meta text-text-secondary hover:text-text-primary"
         aria-expanded={showDetails}
         data-testid="note-analysis-explore-details"
         onClick={() => setShowDetails((v) => !v)}
@@ -167,7 +167,7 @@ export function NoteAnalysisView({
               data-testid={`note-analysis-stage-${stageId}`}
               onClick={() => setActiveStage(stageId)}
               className={cn(
-                'flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-medium transition-all',
+                'flex items-center gap-2 px-3 py-2 rounded-xl border type-caption font-medium transition-all',
                 active ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle' : 'border-border-subtle text-text-tertiary hover:border-brand-500/25',
               )}
             >
@@ -188,7 +188,7 @@ export function NoteAnalysisView({
             { label: c.detectedSubject, value: snapshot.subject },
           ].map((item) => (
             <div key={item.label} className="ux-card">
-              <p className="text-xs text-text-tertiary mb-1">{item.label}</p>
+              <p className="type-caption text-text-tertiary mb-1">{item.label}</p>
               <p className="text-lg font-semibold text-text-primary">{item.value}</p>
             </div>
           ))}
@@ -206,16 +206,16 @@ export function NoteAnalysisView({
                 </div>
                 <div>
                   <p className="text-lg font-bold text-text-primary">{item.displayValue}</p>
-                  <p className="text-xs text-text-tertiary">{item.label}</p>
+                  <p className="type-caption text-text-tertiary">{item.label}</p>
                 </div>
               </div>
             ))}
           </div>
 
           <div className="ux-card">
-            <h3 className="text-sm font-semibold text-text-primary mb-3">{c.detectedIssues}</h3>
+            <h3 className="type-meta font-semibold text-text-primary mb-3">{c.detectedIssues}</h3>
             {snapshot.issues.length === 0 ? (
-              <p className="text-sm text-text-secondary flex items-center gap-2">
+              <p className="type-body text-text-secondary flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-accent-emerald" />
                 {c.noIssues}
               </p>
@@ -231,20 +231,20 @@ export function NoteAnalysisView({
                     >
                       <AlertTriangle className={cn('w-4 h-4 shrink-0 mt-0.5', issue.severity === 'error' ? 'text-accent-rose' : issue.severity === 'warning' ? 'text-accent-amber' : 'text-text-secondary')} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-text-primary">{issue.title}</p>
+                        <p className="type-meta font-medium text-text-primary">{issue.title}</p>
                         {expandedIssue === i && (
-                          <p className="text-xs text-text-secondary mt-2">{issue.detail}</p>
+                          <p className="type-caption text-text-secondary mt-2">{issue.detail}</p>
                         )}
                       </div>
                     </button>
                     {expandedIssue === i && (
                       <div className="px-3 pb-3 border-t border-border-subtle pt-2 mx-3 space-y-2">
-                        <p className="text-xs text-text-secondary">{issue.recommendation}</p>
+                        <p className="type-caption text-text-secondary">{issue.recommendation}</p>
                         <button
                           type="button"
                           data-testid={`note-analysis-issue-action-${i}`}
                           onClick={() => runIssueAction(issue.action)}
-                          className="text-xs font-medium text-text-secondary hover:text-text-primary"
+                          className="type-caption font-medium text-text-secondary hover:text-text-primary"
                         >
                           → {actionLabel(issue.action)}
                         </button>
@@ -261,7 +261,7 @@ export function NoteAnalysisView({
       {/* Stage 2.5 — Algorithm Transparency */}
       {activeStage === 2.5 && (
         <div className="space-y-4">
-          <p className="text-sm text-text-secondary">{c.algorithmTransparency}</p>
+          <p className="type-body text-text-secondary">{c.algorithmTransparency}</p>
 
           <CollapsibleChromeSection
             title={t('chromeNoteExtras', lang)}
@@ -280,8 +280,8 @@ export function NoteAnalysisView({
 
           {snapshot.bm25Terms.length > 0 && (
             <div className="ux-card overflow-x-auto">
-              <h3 className="text-sm font-semibold text-text-primary mb-3">{c.bm25Ranking}</h3>
-              <table className="w-full text-xs">
+              <h3 className="type-meta font-semibold text-text-primary mb-3">{c.bm25Ranking}</h3>
+              <table className="w-full type-caption">
                 <thead>
                   <tr className="text-text-tertiary border-b border-border-subtle">
                     <th className="text-left py-2 pr-4">#</th>
@@ -308,10 +308,10 @@ export function NoteAnalysisView({
 
           {snapshot.textRankSentences.length > 0 && (
             <div className="ux-card">
-              <h3 className="text-sm font-semibold text-text-primary mb-3">{c.textRankSentences}</h3>
+              <h3 className="type-meta font-semibold text-text-primary mb-3">{c.textRankSentences}</h3>
               <div className="space-y-2">
                 {snapshot.textRankSentences.map((s, i) => (
-                  <div key={i} className={cn('p-3 rounded-xl border text-xs', s.selected ? 'border-brand-500/30 bg-brand-600/5' : 'border-border-subtle')}>
+                  <div key={i} className={cn('p-3 rounded-xl border type-caption', s.selected ? 'border-brand-500/30 bg-brand-600/5' : 'border-border-subtle')}>
                     <div className="flex items-center justify-between gap-2 mb-1">
                       <span className="font-mono text-text-secondary">{s.score.toFixed(2)}</span>
                       {s.selected && <span className="ux-chip-info px-2 py-0.5 rounded-full type-micro">Selected</span>}
@@ -325,16 +325,16 @@ export function NoteAnalysisView({
 
           {snapshot.keyphrases.length > 0 && (
             <div className="ux-card">
-              <h3 className="text-sm font-semibold text-text-primary mb-3">{c.keyphraseRankings}</h3>
+              <h3 className="type-meta font-semibold text-text-primary mb-3">{c.keyphraseRankings}</h3>
               <div className="space-y-1.5">
                 {snapshot.keyphrases.map((kp, i) => (
                   <div key={kp.phrase} className="flex items-center gap-3">
-                    <span className="text-xs font-mono text-text-muted w-4">{i + 1}</span>
+                    <span className="type-caption font-mono text-text-muted w-4">{i + 1}</span>
                     <div className="flex-1 ux-progress-track h-1.5">
                       <div className="ux-progress-fill h-full" style={{ width: `${Math.min(100, kp.score * 100)}%` }} />
                     </div>
-                    <span className="text-xs text-text-primary min-w-[8rem] truncate">{kp.phrase}</span>
-                    <span className="text-xs font-mono text-text-secondary">{kp.score.toFixed(2)}</span>
+                    <span className="type-caption text-text-primary min-w-[8rem] truncate">{kp.phrase}</span>
+                    <span className="type-caption font-mono text-text-secondary">{kp.score.toFixed(2)}</span>
                   </div>
                 ))}
               </div>
@@ -346,11 +346,11 @@ export function NoteAnalysisView({
       {/* Stage 3 — Knowledge Graph */}
       {activeStage === 3 && (
         <div className="ux-card">
-          <h3 className="text-sm font-semibold text-text-primary mb-4">{c.knowledgeGraph}</h3>
+          <h3 className="type-meta font-semibold text-text-primary mb-4">{c.knowledgeGraph}</h3>
           {snapshot.graphNodes.length > 0 ? (
             <ConceptGraph nodes={snapshot.graphNodes} edges={snapshot.graphEdges} width={720} height={380} />
           ) : (
-            <p className="text-sm text-text-secondary">{c.noIssues}</p>
+            <p className="type-body text-text-secondary">{c.noIssues}</p>
           )}
         </div>
       )}
@@ -358,7 +358,7 @@ export function NoteAnalysisView({
       {/* Stage 4 — Course Architecture */}
       {activeStage === 4 && (
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-text-primary">{c.courseArchitecture}</h3>
+          <h3 className="type-meta font-semibold text-text-primary">{c.courseArchitecture}</h3>
           {snapshot.modules.map((mod) => (
             <div key={mod.id} className="ux-card">
               <button
@@ -367,8 +367,8 @@ export function NoteAnalysisView({
                 onClick={() => setExpandedModule(expandedModule === mod.id ? null : mod.id)}
               >
                 <div>
-                  <p className="text-sm font-semibold text-text-primary">{mod.title}</p>
-                  <p className="text-xs text-text-tertiary mt-0.5">
+                  <p className="type-meta font-semibold text-text-primary">{mod.title}</p>
+                  <p className="type-caption text-text-tertiary mt-0.5">
                     {mod.lessonCount} lessons · {mod.minutes} min · {mod.concepts} concepts
                   </p>
                 </div>
@@ -377,7 +377,7 @@ export function NoteAnalysisView({
               {expandedModule === mod.id && (
                 <ul className="mt-3 pt-3 border-t border-border-subtle space-y-1">
                   {mod.lessons.map((lesson) => (
-                    <li key={lesson} className="text-xs text-text-secondary">· {lesson}</li>
+                    <li key={lesson} className="type-caption text-text-secondary">· {lesson}</li>
                   ))}
                 </ul>
               )}
@@ -390,7 +390,7 @@ export function NoteAnalysisView({
       {activeStage === 5 && (
         <div className="space-y-4">
           {snapshot.qaMetrics.length === 0 ? (
-            <p className="text-sm text-text-secondary ux-card" data-testid="note-analysis-qa-empty">{c.qaInsufficientData}</p>
+            <p className="type-body text-text-secondary ux-card" data-testid="note-analysis-qa-empty">{c.qaInsufficientData}</p>
           ) : (
             <div className="grid sm:grid-cols-2 gap-4">
               {snapshot.qaMetrics.map((metric) => {
@@ -400,7 +400,7 @@ export function NoteAnalysisView({
                 return (
                   <div key={metric.id} className="ux-card" data-testid={`note-analysis-qa-${metric.id}`}>
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-sm font-semibold text-text-primary">{metric.label}</p>
+                      <p className="type-meta font-semibold text-text-primary">{metric.label}</p>
                       {displayScore != null && (
                         <p className="text-xl font-bold font-mono text-text-primary">{displayScore}%</p>
                       )}
@@ -410,7 +410,7 @@ export function NoteAnalysisView({
                         <div className="ux-progress-fill" style={{ width: `${displayScore}%` }} />
                       </div>
                     )}
-                    <p className="text-xs text-text-tertiary">{metric.detail}</p>
+                    <p className="type-caption text-text-tertiary">{metric.detail}</p>
                   </div>
                 );
               })}

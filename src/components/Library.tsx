@@ -328,7 +328,7 @@ export function Library({
       <div className="space-y-1.5">
         {userSettings && shouldShowDemo(userSettings) && (
           <p
-            className="text-xs text-text-secondary px-0.5"
+            className="type-caption text-text-secondary px-0.5"
             data-testid="library-demo-sandbox-hint"
           >
             {t('libraryDemoSandboxHint', userLanguage)}
@@ -336,7 +336,7 @@ export function Library({
         )}
         {userSettings && canAutoSyncLibrary(userSettings) && (
           <p
-            className="text-xs text-text-muted px-0.5"
+            className="type-caption text-text-muted px-0.5"
             data-testid="library-sync-signed-in-hint"
           >
             {t('librarySyncSignedInHint', userLanguage)}
@@ -394,7 +394,7 @@ export function Library({
                   data-testid="library-tip-banner"
                   className="flex items-start justify-between gap-3 rounded-xl border border-dashed border-brand-500/35 bg-surface-card/40 px-3 py-2"
                 >
-                  <p className="text-xs text-text-secondary">
+                  <p className="type-caption text-text-secondary">
                     <span className="font-semibold text-text-secondary">{t('libraryTipLabel', userLanguage)}</span>{' '}
                     {t('libraryEntryHint', userLanguage)}
                   </p>
@@ -431,7 +431,7 @@ export function Library({
             aria-label={t('libSearchAria', userLanguage)}
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-10 py-2.5 rounded-md bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/40 transition-colors"
+            className="w-full pl-10 pr-10 py-2.5 rounded-md bg-surface-input border border-border-subtle type-body text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/40 transition-colors"
           />
           {search && (
             <button
@@ -456,7 +456,7 @@ export function Library({
                   aria-pressed={active}
                   data-testid={`library-filter-${f}`}
                   className={cn(
-                    'platform-pill px-3 py-1.5 rounded-md text-xs transition-colors border text-text-primary',
+                    'platform-pill px-3 py-1.5 rounded-md type-caption transition-colors border text-text-primary',
                     active ? 'platform-pill-active' : '',
                     f === 'attention' && active ? 'border-accent-amber/50 bg-accent-amber/10 text-accent-amber' : '',
                   )}
@@ -471,7 +471,7 @@ export function Library({
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
               aria-label={t('libSortLabel', userLanguage)}
               data-testid="library-sort"
-              className="h-8 rounded-md border border-border-subtle bg-surface-input px-2 text-xs text-text-primary focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/40"
+              className="h-8 rounded-md border border-border-subtle bg-surface-input px-2 type-caption text-text-primary focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/40"
             >
               <option value="recent">{t('libSortRecent', userLanguage)}</option>
               <option value="progress">{t('libSortProgress', userLanguage)}</option>
@@ -520,10 +520,10 @@ export function Library({
                 className="ux-library-drop-zone ux-prompt-bar-surface mb-2 flex w-full flex-col items-center gap-2 px-6 py-8 text-center text-text-secondary hover:text-text-primary transition-colors"
               >
                 <Upload className="h-8 w-8 text-text-secondary" aria-hidden />
-                <span className="text-sm font-medium">
+                <span className="type-meta font-medium">
                   {t('libDropZoneTitle', userLanguage)}
                 </span>
-                <span className="text-xs text-text-muted">
+                <span className="type-caption text-text-muted">
                   {t('libDropZoneFormats', userLanguage)}
                 </span>
               </button>
@@ -656,7 +656,7 @@ export function Library({
                     className="ux-library-drop-zone ux-library-drop-zone--compact ux-prompt-bar-surface flex w-full flex-row items-center justify-center gap-3 px-4 py-2.5 text-text-secondary hover:text-text-primary transition-colors"
                   >
                     <Upload className="h-5 w-5 text-text-secondary shrink-0" aria-hidden />
-                    <span className="text-sm font-medium">{t('libDropZoneCompactTitle', userLanguage)}</span>
+                    <span className="type-meta font-medium">{t('libDropZoneCompactTitle', userLanguage)}</span>
                   </button>
                 )}
               </div>
@@ -845,8 +845,8 @@ function CourseCard({
         </div>
       </div>
 
-      <h3 className="text-sm font-semibold mb-1 text-text-primary group-hover:text-text-primary transition-colors" data-testid="library-course-title">{course.title}</h3>
-      <p className="text-xs text-text-tertiary mb-3 line-clamp-2">{course.description}</p>
+      <h3 className="type-meta font-semibold mb-1 text-text-primary group-hover:text-text-primary transition-colors" data-testid="library-course-title">{course.title}</h3>
+      <p className="type-caption text-text-tertiary mb-3 line-clamp-2">{course.description}</p>
       {course.recognitionSummary && !isGenerating && (
         <p className="type-micro text-text-muted mb-2">
           {t('recognitionReportTitle', userLanguage)}:{' '}
@@ -867,7 +867,7 @@ function CourseCard({
         </p>
       )}
 
-      <div className="flex flex-wrap items-center gap-3 text-xs text-text-tertiary mb-2.5">
+      <div className="flex flex-wrap items-center gap-3 type-caption text-text-tertiary mb-2.5">
         <span className="flex items-center gap-1">
           <BookOpen className="w-3.5 h-3.5" />
           {course.totalLessons} {t('libLessons', userLanguage)}
@@ -918,7 +918,7 @@ function CourseCard({
               onClick();
             }}
             data-testid={`library-open-course-${course.id}`}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-700 text-white px-2 py-1.5 text-xs font-semibold hover:bg-brand-600 transition-colors ux-solid-brand-cta"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-700 text-white px-2 py-1.5 type-caption font-semibold hover:bg-brand-600 transition-colors ux-solid-brand-cta"
           >
             {t('libOpenCourse', userLanguage)}
           </button>
@@ -930,7 +930,7 @@ function CourseCard({
                 onOpenNotebookShell(course.id);
               }}
               data-testid={`library-notebook-shell-${course.id}`}
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1.5 text-xs font-medium text-text-secondary hover:bg-brand-500/10 transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1.5 type-caption font-medium text-text-secondary hover:bg-brand-500/10 transition-colors"
             >
               <BookOpen className="w-3.5 h-3.5" />
               {t('libNotebookShellShort', userLanguage)}
@@ -993,7 +993,7 @@ function CourseCard({
         </span>
       </div>
       {course.conceptCount > 0 && (
-        <div className="mt-2 flex items-center gap-3 text-xs text-text-muted">
+        <div className="mt-2 flex items-center gap-3 type-caption text-text-muted">
           <span>{course.conceptCount} {t('libConcepts', userLanguage)}</span>
           <span>{course.glossaryCount} {t('libTerms', userLanguage)}</span>
           <span>{course.exerciseCount} {t('libExercises', userLanguage)}</span>
@@ -1091,7 +1091,7 @@ function CourseListItem({
         <CourseIcon icon={course.icon} size="lg" colorClassName="text-text-secondary shrink-0" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-sm text-text-primary transition-colors truncate" data-testid="library-course-title">{course.title}</h3>
+            <h3 className="font-semibold type-meta text-text-primary transition-colors truncate" data-testid="library-course-title">{course.title}</h3>
             {isOldPipeline && !isGenerating && (
               <span
                 className="inline-flex items-center gap-1 rounded-full border border-accent-amber/30 bg-accent-amber/10 px-1.5 py-0.5 type-caption font-medium text-accent-amber"
@@ -1102,7 +1102,7 @@ function CourseListItem({
               </span>
             )}
           </div>
-          <p className="mt-0.5 text-xs font-medium text-text-secondary">{course.subject} · {course.totalLessons} {t('libLessons', userLanguage)} · {course.estimatedHours}h{pendingTasks > 0 ? ` · ${pendingTasks} ${t('libCardTasks', userLanguage)}` : ''}{dueReviews > 0 ? ` · ${dueReviews} ${t('libCardReviews', userLanguage)}` : ''}</p>
+          <p className="mt-0.5 type-caption font-medium text-text-secondary">{course.subject} · {course.totalLessons} {t('libLessons', userLanguage)} · {course.estimatedHours}h{pendingTasks > 0 ? ` · ${pendingTasks} ${t('libCardTasks', userLanguage)}` : ''}{dueReviews > 0 ? ` · ${dueReviews} ${t('libCardReviews', userLanguage)}` : ''}</p>
           {quality && (
             <p className={cn(
               'type-caption mt-1 truncate',
@@ -1126,7 +1126,7 @@ function CourseListItem({
               />
             </div>
           </div>
-          <span className="text-sm font-medium w-12 text-right text-text-primary">{course.mastery}%</span>
+          <span className="type-meta font-medium w-12 text-right text-text-primary">{course.mastery}%</span>
         </div>
         <ChevronRight className="w-4 h-4 shrink-0 text-text-secondary" />
       </button>
@@ -1274,10 +1274,10 @@ function FileItem({
           <Icon className="w-5 h-5 text-text-secondary" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="library-file-name text-sm font-medium truncate">
+          <p className="library-file-name type-meta font-medium truncate">
             {pathDense && course ? `${course.title}/${file.name}` : file.name}
           </p>
-          <p className="library-file-meta text-xs text-text-tertiary mt-0.5">
+          <p className="library-file-meta type-caption text-text-tertiary mt-0.5">
             {pathDense
               ? pathMeta
               : (
@@ -1304,17 +1304,17 @@ function FileItem({
               <div className="w-16 rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                 <div className="h-1.5 rounded-full bg-brand-500 transition-all" style={{ width: `${file.progress}%` }} />
               </div>
-              <span className="text-xs text-text-tertiary">{Math.round(file.progress || 0)}%</span>
+              <span className="type-caption text-text-tertiary">{Math.round(file.progress || 0)}%</span>
             </div>
           )}
           {file.status === 'processing' && (
-            <span className="flex items-center gap-1 text-xs text-accent-amber">
+            <span className="flex items-center gap-1 type-caption text-accent-amber">
               <Loader2 className="w-3 h-3 animate-spin" />
               {t('libAnalyzing', userLanguage)}
             </span>
           )}
           {file.status === 'analyzed' && (
-            <span className="flex items-center gap-1 text-xs text-accent-emerald">
+            <span className="flex items-center gap-1 type-caption text-accent-emerald">
               <Sparkles className="w-3 h-3" />
               {t('libReady', userLanguage)}
             </span>
@@ -1322,7 +1322,7 @@ function FileItem({
           {isError && (
             <span
               data-testid={`library-file-error-${file.id}`}
-              className="flex items-center gap-1 text-xs text-accent-rose"
+              className="flex items-center gap-1 type-caption text-accent-rose"
             >
               <AlertCircle className="w-3 h-3" />
               {t('libError', userLanguage)}

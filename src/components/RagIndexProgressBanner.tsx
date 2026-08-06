@@ -89,7 +89,7 @@ export function RagIndexProgressBanner({
     return (
       <div
         className={cn(
-          'rounded-xl border border-border-subtle bg-surface-primary/40 px-3 py-2 text-xs text-text-secondary',
+          'rounded-xl border border-border-subtle bg-surface-primary/40 px-3 py-2 type-caption text-text-secondary',
           className,
         )}
         data-testid="rag-index-idle"
@@ -105,7 +105,7 @@ export function RagIndexProgressBanner({
     return (
       <div
         className={cn(
-          'rounded-xl border border-accent-teal/30 bg-accent-teal/5 px-3 py-2 text-xs',
+          'rounded-xl border border-accent-teal/30 bg-accent-teal/5 px-3 py-2 type-caption',
           className,
         )}
         data-testid="rag-index-ready"
@@ -148,7 +148,7 @@ export function RagIndexProgressBanner({
       role="status"
     >
       <div className={cn(
-        'flex items-center gap-2 text-xs font-medium text-text-primary',
+        'flex items-center gap-2 type-caption font-medium text-text-primary',
         consoleStrip && variant === 'banner' ? 'mb-1' : 'mb-1.5',
       )}>
         {failed ? (

@@ -13,7 +13,7 @@ export function ErrorNotebook({ mistakes, onResolve }: Props) {
 
   return (
     <BlueprintSurface className="p-5 platform-banner-danger">
-      <h3 className="text-sm font-semibold flex items-center gap-2 mb-4 platform-banner-title">
+      <h3 className="type-meta font-semibold flex items-center gap-2 mb-4 platform-banner-title">
         <BookX className="w-4 h-4 shrink-0" />
         Error notebook — {mistakes.length} open mistake{mistakes.length !== 1 ? 's' : ''}
       </h3>
@@ -22,8 +22,8 @@ export function ErrorNotebook({ mistakes, onResolve }: Props) {
           <div key={m.id} className="p-3 rounded-xl bg-surface-card border border-border-subtle">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-text-primary">{m.concept}</p>
-                <p className="text-xs text-text-secondary mt-1 leading-relaxed">{m.questionSummary}</p>
+                <p className="type-caption font-semibold text-text-primary">{m.concept}</p>
+                <p className="type-caption text-text-secondary mt-1 leading-relaxed">{m.questionSummary}</p>
                 {m.wrongAnswer && (
                   <p className="type-micro text-accent-rose mt-1.5 font-medium">Your answer: {m.wrongAnswer}</p>
                 )}

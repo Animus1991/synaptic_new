@@ -48,7 +48,7 @@ export function WhiteboardDiagramCoach({
         className="flex w-full items-center justify-between gap-2 px-4 py-2 text-left hover:bg-surface-hover/40"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <LayoutTemplate className="w-3.5 h-3.5 text-text-primary shrink-0" />
+          <LayoutTemplate className="w-3.5 h-3.5 text-text-secondary shrink-0" />
           <span className="type-caption font-semibold text-text-secondary truncate">
             {t('wbDiagramCoach')}
             {' · '}
@@ -114,11 +114,11 @@ export function WhiteboardDiagramCoach({
                         : 'border-border-subtle text-text-muted hover:bg-surface-hover/50',
                     )}
                   >
-                    <span className="font-mono text-text-primary shrink-0">{step.order}</span>
+                    <span className="font-mono text-text-secondary shrink-0">{step.order}</span>
                     <span>
                       <span className="font-medium text-text-secondary">{step.label}</span>
                       <span
-                        className="ml-1 rounded border border-brand-500/25 px-1 py-0 type-caption text-text-primary"
+                        className="ml-1 rounded border border-brand-500/25 px-1 py-0 type-caption text-text-secondary"
                         data-testid={`whiteboard-coach-tool-${step.order}`}
                       >
                         {step.toolHint}
@@ -147,7 +147,7 @@ export function WhiteboardDiagramCoach({
                 type="button"
                 data-testid="whiteboard-coach-ask-step"
                 onClick={() => onAskAgent('step', activeStep)}
-                className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/25 px-2 py-0.5 type-caption text-text-primary hover:bg-accent-cyan/10"
+                className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/25 px-2 py-0.5 type-caption text-text-secondary hover:bg-accent-cyan/10"
               >
                 <Sparkles className="w-3 h-3" />
                 {t('wbAgentStep').replace('{order}', String(activeStep.order))}

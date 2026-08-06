@@ -23,7 +23,7 @@ export function ConceptMasteryBars({ concepts, maxItems = 8, className }: Props)
         return (
           <div key={c.concept} className="proximity-track" data-mastery-band={band}>
             {/* OPT-K9b — label + % sit together; bar uses same tight track */}
-            <div className="proximity-row flex flex-wrap items-baseline gap-x-3 gap-y-0.5 text-xs mb-1">
+            <div className="proximity-row flex flex-wrap items-baseline gap-x-3 gap-y-0.5 type-caption mb-1">
               <span className="proximity-row-label text-text-secondary truncate">{c.concept}</span>
               {/* OPT-K90 — ink owns labels; bar fill carries quiet band hue */}
               <span className="font-medium shrink-0 tabular-nums text-text-secondary">

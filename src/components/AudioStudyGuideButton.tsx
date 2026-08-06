@@ -104,7 +104,7 @@ export function AudioStudyGuideButton({ course, lang, settings, className }: Pro
         onClick={toggle}
         data-testid="audio-study-guide-btn"
         className={cn(
-          'inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm border transition-colors',
+          'inline-flex items-center gap-2 px-3 py-2 rounded-xl type-meta border transition-colors',
           playing
             ? 'border-brand-500/50 bg-surface-secondary text-text-primary border border-border-subtle'
             : 'border-border-subtle hover:bg-surface-hover text-text-secondary',

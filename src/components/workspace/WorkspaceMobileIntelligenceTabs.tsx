@@ -49,7 +49,7 @@ export function WorkspaceMobileIntelligenceTabs({ active, onChange, lang = 'en',
             className={cn(
               'shrink-0 snap-start rounded-full border px-3 py-2 min-h-11 type-caption font-medium transition-colors touch-manipulation',
               selected
-                ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle'
+                ? 'border-brand-500/40 bg-surface-secondary text-text-secondary'
                 : 'border-white/10 bg-surface-card text-text-secondary hover:text-text-primary active:bg-surface-hover',
             )}
           >

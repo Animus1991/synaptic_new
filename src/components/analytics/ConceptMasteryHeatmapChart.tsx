@@ -45,7 +45,7 @@ export function ConceptMasteryHeatmapChart({
         data-testid="concept-mastery-heatmap-empty"
       >
         <Grid3X3 className="w-8 h-8 text-text-tertiary mb-2" />
-        <p className="text-sm text-text-muted">{emptyLabel}</p>
+        <p className="type-body text-text-muted">{emptyLabel}</p>
       </div>
     );
   }
@@ -59,14 +59,14 @@ export function ConceptMasteryHeatmapChart({
 
   return (
     <div className="ux-card blueprint-surface" data-testid="concept-mastery-heatmap">
-      <h3 className="text-sm font-semibold text-text-primary mb-1 flex items-center gap-2">
+      <h3 className="type-meta font-semibold text-text-primary mb-1 flex items-center gap-2">
         <Grid3X3 className="w-4 h-4 text-text-secondary" />
         {title}
       </h3>
-      <p className="text-xs text-text-tertiary mb-4">{hint}</p>
+      <p className="type-caption text-text-tertiary mb-4">{hint}</p>
 
       {hover && (
-        <div className="mb-3 inline-flex items-center gap-3 rounded-2xl border border-border-subtle bg-surface-card/60 px-4 py-2 text-sm">
+        <div className="mb-3 inline-flex items-center gap-3 rounded-2xl border border-border-subtle bg-surface-card/60 px-4 py-2 type-body">
           <span
             className="h-3 w-3 rounded shrink-0"
             style={{ backgroundColor: masteryColorForValue(hover.mastery) }}
@@ -89,7 +89,7 @@ export function ConceptMasteryHeatmapChart({
           </div>
           {concepts.map((concept, rowIdx) => (
             <div key={concept} className="mb-1 flex items-center">
-              <div className="w-28 shrink-0 truncate pr-2 text-xs text-text-secondary" title={concept}>
+              <div className="w-28 shrink-0 truncate pr-2 type-caption text-text-secondary" title={concept}>
                 {concept}
               </div>
               {dayLabels.map((daysAgo, colIdx) => {

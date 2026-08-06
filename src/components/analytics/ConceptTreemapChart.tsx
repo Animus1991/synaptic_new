@@ -46,18 +46,18 @@ export function ConceptTreemapChart({
     return (
       <div className="ux-card blueprint-surface flex flex-col items-center justify-center min-h-[220px] text-center" data-testid="concept-treemap-empty">
         <Map className="w-8 h-8 text-text-tertiary mb-2" />
-        <p className="text-sm text-text-muted">{emptyLabel}</p>
+        <p className="type-body text-text-muted">{emptyLabel}</p>
       </div>
     );
   }
 
   return (
     <div className="ux-card blueprint-surface" data-testid="concept-treemap">
-      <h3 className="text-sm font-semibold text-text-primary mb-1 flex items-center gap-2">
+      <h3 className="type-meta font-semibold text-text-primary mb-1 flex items-center gap-2">
         <Map className="w-4 h-4 text-text-secondary" />
         {title}
       </h3>
-      <p className="text-xs text-text-tertiary mb-4">{hint}</p>
+      <p className="type-caption text-text-tertiary mb-4">{hint}</p>
 
       <div className="flex flex-wrap gap-2 rounded-xl border border-border-subtle bg-surface-primary/40 p-3">
         {blocks.map((block) => {
@@ -75,7 +75,7 @@ export function ConceptTreemapChart({
               )}
               style={{ flexBasis: `${Math.max(28, pct * 1.4)}%`, flexGrow: 1 }}
             >
-              <div className="text-sm font-semibold text-text-primary line-clamp-2">{block.label}</div>
+              <div className="type-meta font-semibold text-text-primary line-clamp-2">{block.label}</div>
               <div className="mt-1 type-micro text-text-tertiary">
                 {masteryLabel} {block.mastery}% · {weightLabel} {Math.round(pct)}%
               </div>
@@ -100,13 +100,13 @@ export function ConceptTreemapChart({
       </div>
 
       {active && (
-        <div className="mt-3 rounded-xl border border-border-subtle bg-surface-secondary/50 p-3 text-sm text-text-secondary">
+        <div className="mt-3 rounded-xl border border-border-subtle bg-surface-secondary/50 p-3 type-body text-text-secondary">
           <span className="font-semibold text-text-primary">{active.label}</span>
           {' — '}
           {weightLabel} {Math.round((active.value / totalWeight) * 100)}%, {masteryLabel.toLowerCase()} {active.mastery}%.
           <span className="block mt-1">{treemapAdvice(active.mastery, lang)}</span>
           {active.prereqs.length > 0 && (
-            <span className="block mt-1 text-xs text-text-muted">
+            <span className="block mt-1 type-caption text-text-muted">
               {prereqLabel}: {active.prereqs.join(', ')}
             </span>
           )}

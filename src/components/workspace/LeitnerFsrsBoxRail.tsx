@@ -37,9 +37,9 @@ export function LeitnerFsrsBoxRail({ counts, total, activeIndex = null, onSelect
           >
             <span className={cn('leitner-box-rail-dot', meta.dotClass)} aria-hidden />
             <span className="min-w-0 flex-1 text-left">
-              <span className="flex items-center justify-between gap-2 text-sm">
-                <span className="font-semibold text-text-primary">{t(meta.key)}</span>
-                <span className="text-xs text-text-muted">{count}</span>
+              <span className="flex items-center justify-between gap-2 type-meta">
+                <span className="font-semibold text-text-secondary">{t(meta.key)}</span>
+                <span className="type-caption text-text-muted">{count}</span>
               </span>
               <span className="mt-0.5 block type-caption text-text-muted">{t(meta.scheduleKey)}</span>
             </span>

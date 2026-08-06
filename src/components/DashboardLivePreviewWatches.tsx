@@ -11,12 +11,12 @@ export function DashboardLivePreviewWatches({ className }: { className?: string 
       <p className="dashboard-live-preview-eyebrow"><AllCapsLabel>{t('dashboardPreviewWatchesEyebrow')}</AllCapsLabel></p>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
-          <p className="text-sm font-semibold text-text-primary">{t('dashboardPreviewWatchesNotesTitle')}</p>
-          <p className="mt-2 text-sm leading-6 text-text-secondary">{t('dashboardPreviewWatchesNotesBody')}</p>
+          <p className="type-meta font-semibold text-text-primary">{t('dashboardPreviewWatchesNotesTitle')}</p>
+          <p className="mt-2 type-body leading-6 text-text-secondary">{t('dashboardPreviewWatchesNotesBody')}</p>
         </div>
         <div>
-          <p className="text-sm font-semibold text-text-primary">{t('dashboardPreviewWatchesBehaviorTitle')}</p>
-          <p className="mt-2 text-sm leading-6 text-text-secondary">{t('dashboardPreviewWatchesBehaviorBody')}</p>
+          <p className="type-meta font-semibold text-text-primary">{t('dashboardPreviewWatchesBehaviorTitle')}</p>
+          <p className="mt-2 type-body leading-6 text-text-secondary">{t('dashboardPreviewWatchesBehaviorBody')}</p>
         </div>
       </div>
     </div>

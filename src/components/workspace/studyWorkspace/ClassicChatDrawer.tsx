@@ -22,8 +22,8 @@ export function ClassicChatDrawer({ model }: ClassicChatDrawerProps) {
   const header = (
     <header className="workspace-glass-panel flex items-center justify-between gap-2 border-b border-border-subtle px-3 py-2 shrink-0 bg-surface-card">
       <div className="flex items-center gap-2 min-w-0">
-        <MessageSquare className="h-4 w-4 shrink-0 text-text-primary" aria-hidden />
-        <span className="text-xs font-semibold text-text-primary truncate">{title}</span>
+        <MessageSquare className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
+        <span className="type-caption font-semibold text-text-secondary truncate">{title}</span>
       </div>
       {onCloseInlineAgent && (
         <button

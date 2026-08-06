@@ -32,7 +32,7 @@ export function ActivityFeed({ activities, maxItems = 6 }: Props) {
   const { t, lang } = useI18n();
 
   if (activities.length === 0) {
-    return <p className="text-xs text-text-tertiary text-center py-2">{t('activityFeedEmpty')}</p>;
+    return <p className="type-caption text-text-tertiary text-center py-2">{t('activityFeedEmpty')}</p>;
   }
 
   return (
@@ -51,7 +51,7 @@ export function ActivityFeed({ activities, maxItems = 6 }: Props) {
             <div className={`w-7 h-7 rounded-lg ${config.bg} flex items-center justify-center shrink-0`}>
               <Icon className={`w-3.5 h-3.5 ${config.color}`} />
             </div>
-            <p className="text-xs text-text-secondary flex-1 truncate">{item.description}</p>
+            <p className="type-caption text-text-secondary flex-1 truncate">{item.description}</p>
             <div className="flex items-center gap-2 shrink-0">
               {item.xp != null && <span className="type-micro text-accent-amber font-medium">+{item.xp}</span>}
               <span className="type-micro text-text-muted">{formatRelativeTime(item.timestamp, lang)}</span>

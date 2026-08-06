@@ -219,7 +219,7 @@ export function DashboardActionHub({
                   </h1>
                 )}
                 {greetingSubtitle && (
-                  <div className="ux-page-subtitle mt-1 text-sm line-clamp-2 sm:line-clamp-none">{greetingSubtitle}</div>
+                  <div className="ux-page-subtitle mt-1 type-body line-clamp-2 sm:line-clamp-none">{greetingSubtitle}</div>
                 )}
               </div>
               {headerActions && (
@@ -273,10 +273,10 @@ export function DashboardActionHub({
                     <p className={cn('type-micro font-semibold uppercase tracking-[0.08em]', onHero ? 'text-white/80' : 'text-text-secondary')}>
                       <AllCapsLabel>{t('dashboardLivePreviewEyebrow')}</AllCapsLabel>
                     </p>
-                    <p className={cn('mt-1 text-sm font-medium', onHero ? 'text-white' : 'text-text-primary')}>
+                    <p className={cn('mt-1 type-meta font-medium', onHero ? 'text-white' : 'text-text-primary')}>
                       {t('dashboardHeroHubSideTitle')}
                     </p>
-                    <p className={cn('mt-0.5 text-xs leading-relaxed', onHero ? 'text-white/75' : 'text-text-secondary')}>
+                    <p className={cn('mt-0.5 type-caption leading-relaxed', onHero ? 'text-white/75' : 'text-text-secondary')}>
                       {t('dashboardHeroHubSideBody')}
                     </p>
                   </div>
@@ -286,7 +286,7 @@ export function DashboardActionHub({
                       onClick={onOpenWorkspace}
                       data-testid="dashboard-resume-workspace"
                       className={cn(
-                        'dashboard-continue-hero shrink-0 self-start sm:self-center rounded-md border px-3 py-2 text-xs font-semibold transition-colors min-h-10 inline-flex items-center justify-center',
+                        'dashboard-continue-hero shrink-0 self-start sm:self-center rounded-md border px-3 py-2 type-caption font-semibold transition-colors min-h-10 inline-flex items-center justify-center',
                         onHero
                           ? 'border-white/20 bg-white/10 text-white hover:bg-white/15'
                           : hubQuiet
@@ -347,7 +347,7 @@ export function DashboardActionHub({
                             role="menuitem"
                             data-testid={`dashboard-hero-overflow-${action.id}`}
                             onClick={() => handleCardClick(action.id)}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-text-primary hover:bg-surface-hover/50"
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption text-text-primary hover:bg-surface-hover/50"
                           >
                             <Icon className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
                             <span className="min-w-0 flex-1 truncate">{t(action.chipLabelKey)}</span>

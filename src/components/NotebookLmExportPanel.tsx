@@ -64,7 +64,7 @@ export function NotebookLmExportPanel({
       className={cn('p-4', className)}
       data-testid="notebooklm-export-panel"
     >
-      <p className="text-sm font-semibold text-text-primary mb-1">
+      <p className="type-meta font-semibold text-text-primary mb-1">
         {el ? 'Εξαγωγή → NotebookLM' : 'Export → NotebookLM'}
       </p>
       <p className="type-micro text-text-secondary mb-3">
@@ -79,7 +79,7 @@ export function NotebookLmExportPanel({
             type="button"
             disabled={busy != null}
             onClick={() => void handleExport(opt.kind)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 text-xs font-medium text-text-primary dark:text-text-secondary hover:bg-brand-500/10 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 type-caption font-medium text-text-primary dark:text-text-secondary hover:bg-brand-500/10 disabled:opacity-50"
             data-testid={`notebooklm-export-${opt.kind}`}
           >
             {busy === opt.kind ? (

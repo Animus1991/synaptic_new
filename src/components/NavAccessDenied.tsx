@@ -13,15 +13,15 @@ export function NavAccessDenied({ onGoDashboard, onOpenSettings }: Props) {
       data-testid="nav-access-denied"
     >
       <h2 className="text-lg font-medium text-text-primary">{t('navAccessDeniedTitle')}</h2>
-      <p className="text-sm text-text-secondary">{t('navAccessDeniedBody')}</p>
+      <p className="type-body text-text-secondary">{t('navAccessDeniedBody')}</p>
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
-        <button type="button" onClick={onGoDashboard} className="px-4 py-2 ws-fab rounded-xl text-sm font-medium">
+        <button type="button" onClick={onGoDashboard} className="px-4 py-2 ws-fab rounded-xl type-meta font-medium">
           {t('dashboard')}
         </button>
         <button
           type="button"
           onClick={onOpenSettings}
-          className="px-4 py-2 rounded-xl text-sm font-medium border border-border-subtle hover:bg-surface-hover"
+          className="px-4 py-2 rounded-xl type-meta font-medium border border-border-subtle hover:bg-surface-hover"
         >
           {t('settings')}
         </button>

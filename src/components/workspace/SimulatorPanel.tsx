@@ -74,7 +74,7 @@ export function SimulatorPanel({
         className={cn(
           'ws-touch-floor min-h-9 rounded-lg px-3 py-1.5 type-caption font-medium',
           mainTab === 'simulator'
-            ? 'border border-border-subtle bg-surface-secondary text-text-primary'
+            ? 'border border-border-subtle bg-surface-secondary text-text-secondary'
             : 'text-text-secondary hover:bg-surface-hover',
         )}
       >
@@ -87,7 +87,7 @@ export function SimulatorPanel({
         className={cn(
           'ws-touch-floor min-h-9 rounded-lg px-3 py-1.5 type-caption font-medium',
           mainTab === 'exam-prep'
-            ? 'border border-border-subtle bg-surface-secondary text-text-primary'
+            ? 'border border-border-subtle bg-surface-secondary text-text-secondary'
             : 'text-text-secondary hover:bg-surface-hover',
         )}
       >
@@ -195,7 +195,7 @@ export function SimulatorPanel({
           )}
           {session.numericCues.length > 0 && (
             <div className="relative min-w-[8rem] max-w-[14rem] flex-1">
-              <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-secondary" aria-hidden />
+              <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted" aria-hidden />
               <input
                 type="search"
                 value={filterQuery}
@@ -220,7 +220,7 @@ export function SimulatorPanel({
               data-testid="simulator-start-timed-practice"
               onClick={() => onStartTimedPractice(session.suggestedExamPractice)}
               title={`${t('panelTimedBlock')}: ${examPracticeLabel(session.suggestedExamPractice, lang)}`}
-              className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center gap-1.5 rounded-lg border border-accent-amber/35 bg-accent-amber/10 px-2 type-caption font-medium text-text-primary hover:bg-accent-amber/15 sm:min-w-0 sm:px-2.5"
+              className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center gap-1.5 rounded-lg border border-accent-amber/35 bg-accent-amber/10 px-2 type-caption font-medium text-text-secondary hover:bg-accent-amber/15 sm:min-w-0 sm:px-2.5"
             >
               <Timer className="h-3.5 w-3.5 text-accent-amber" aria-hidden />
               <span className="hidden sm:inline">{t('panelTimedBlock')}</span>

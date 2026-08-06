@@ -209,13 +209,13 @@ export function LessonView({
             type="button"
             onClick={onOpenAgent}
             aria-label={t('agentBtn')}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border border-border-subtle hover:border-brand-500/40 hover:bg-surface-hover transition-colors min-h-9"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md type-caption font-medium border border-border-subtle hover:border-brand-500/40 hover:bg-surface-hover transition-colors min-h-9"
           >
             <Sparkles className="w-3.5 h-3.5 text-text-secondary" />
             <span className="hidden xs:inline">{t('agentBtn')}</span>
           </button>
           <span
-            className="ws-num text-xs text-accent-amber font-medium px-2 py-1 rounded border border-accent-amber/20 bg-accent-amber/5"
+            className="ws-num type-caption text-accent-amber font-medium px-2 py-1 rounded border border-accent-amber/20 bg-accent-amber/5"
             aria-label={`${xpReward} XP`}
           >
             +{xpReward} XP
@@ -329,7 +329,7 @@ export function LessonView({
             disabled={currentStep === 0}
             aria-label={t('previous')}
             className={cn(
-              'inline-flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition-colors min-h-10',
+              'inline-flex items-center gap-1 px-3 py-2 rounded-md type-meta font-medium transition-colors min-h-10',
               currentStep === 0
                 ? 'text-text-muted cursor-not-allowed'
                 : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover',
@@ -354,7 +354,7 @@ export function LessonView({
             disabled={!canAdvance()}
             aria-label={isLast ? t('finish') : t('next')}
             className={cn(
-              'inline-flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition-colors min-h-10',
+              'inline-flex items-center gap-1 px-3 py-2 rounded-md type-meta font-medium transition-colors min-h-10',
               canAdvance()
                 ? 'text-text-primary bg-surface-secondary border border-brand-500/30 hover:bg-brand-600/25'
                 : 'text-text-muted cursor-not-allowed border border-border-subtle/40',
@@ -370,7 +370,7 @@ export function LessonView({
             <button
               type="button"
               onClick={onStartNextTask}
-              className="w-full py-2.5 rounded-md text-sm font-medium border border-brand-500/30 text-text-primary hover:bg-brand-600/10 transition-colors min-h-11"
+              className="w-full py-2.5 rounded-md type-meta font-medium border border-brand-500/30 text-text-primary hover:bg-brand-600/10 transition-colors min-h-11"
             >
               {t('lessonViewNextTask')}
             </button>

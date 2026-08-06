@@ -354,7 +354,7 @@ function OverviewTab({
             }}
           >
             <GitBranch className="w-4 h-4 text-text-secondary shrink-0" aria-hidden />
-            <span className="flex-1 text-sm font-medium text-text-primary">{t('analyticsFlowBanner')}</span>
+            <span className="flex-1 type-meta font-medium text-text-primary">{t('analyticsFlowBanner')}</span>
             <ChevronRight className="w-4 h-4 text-text-muted shrink-0" aria-hidden />
           </button>
         </div>
@@ -371,7 +371,7 @@ function OverviewTab({
             <ReadinessRing value={learnerModel.overallMastery} size={200} sublabel={t('analyticsReadinessSublabel')} />
           </div>
         ) : (
-          <div className="platform-panel-lg flex flex-col items-center justify-center text-center text-sm text-text-muted min-h-[200px]">
+          <div className="platform-panel-lg flex flex-col items-center justify-center text-center type-body text-text-muted min-h-[200px]">
             <Target className="w-8 h-8 text-text-tertiary mb-2" />
             <p>{t('analyticsResearchEmpty')}</p>
           </div>
@@ -379,7 +379,7 @@ function OverviewTab({
         {hasRetentionData ? (
           <RetentionCurve dataPoints={retentionPoints} />
         ) : (
-          <div className="platform-panel-lg flex flex-col items-center justify-center text-center text-sm text-text-muted min-h-[200px]">
+          <div className="platform-panel-lg flex flex-col items-center justify-center text-center type-body text-text-muted min-h-[200px]">
             <Activity className="w-8 h-8 text-text-tertiary mb-2" />
             <p>{t('analyticsResearchEmpty')}</p>
           </div>
@@ -457,7 +457,7 @@ function OverviewTab({
         data-testid="analytics-overview-mastery-row"
       >
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-2.5"><TrendingUp className="w-4 h-4 text-accent-emerald" />{t('analyticsWeeklyTrend')}</h3>
+          <h3 className="type-meta font-semibold flex items-center gap-2 mb-2.5"><TrendingUp className="w-4 h-4 text-accent-emerald" />{t('analyticsWeeklyTrend')}</h3>
           <div className="flex items-end gap-1.5 h-28" data-testid="analytics-weekly-trend">
             {weekly.map((val, i) => (
               <div key={i} className="analytics-weekly-col flex h-full flex-1 flex-col items-center justify-end gap-1 min-h-0">
@@ -482,7 +482,7 @@ function OverviewTab({
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="platform-panel-md">
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-2.5"><Calendar className="w-4 h-4 text-accent-teal" />{t('analyticsStudyHeatmap')}</h3>
+          <h3 className="type-meta font-semibold flex items-center gap-2 mb-2.5"><Calendar className="w-4 h-4 text-accent-teal" />{t('analyticsStudyHeatmap')}</h3>
           {/* Wave P-C03 — heatmap driven by --color-heatmap-scale-{0..4} tokens.
               Retires ad-hoc bg-surface-hover / bg-brand-* classes that collapsed
               to invisible ~1.1:1 contrast on spectrum + warm-light cards. Sepia
@@ -516,7 +516,7 @@ function OverviewTab({
         </motion.div>
 
         <div className="platform-panel-md">
-          <h3 className="text-sm font-semibold mb-2.5 flex items-center gap-2">
+          <h3 className="type-meta font-semibold mb-2.5 flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-text-secondary" />
             {t('analyticsCoursesColumn')}
           </h3>
@@ -524,7 +524,7 @@ function OverviewTab({
             {courses.filter(c => c.status !== 'generating').slice(0, 6).map(course => (
               <div key={course.id} className="flex items-center gap-2">
                 <CourseIcon icon={course.icon} size="sm" colorClassName="text-text-secondary shrink-0" />
-                <span className="text-xs text-text-secondary flex-1 truncate">{course.title}</span>
+                <span className="type-caption text-text-secondary flex-1 truncate">{course.title}</span>
                 {/* Wave P-2 C08 — Courses column progress track uses --viz-bar-track
                     (theme-tuned ≥3:1 vs card) instead of bg-surface-hover which
                     collapsed to ~1.1:1 on spectrum + warm-light. */}
@@ -540,7 +540,7 @@ function OverviewTab({
           </div>
         </div>
         <div className="platform-panel-md">
-          <h3 className="text-sm font-semibold mb-2.5 flex items-center gap-2">
+          <h3 className="type-meta font-semibold mb-2.5 flex items-center gap-2">
             <Brain className="w-4 h-4 text-accent-cyan" />
             {t('analyticsConceptsColumn')}
           </h3>
@@ -549,7 +549,7 @@ function OverviewTab({
               .slice(0, 6)
               .map((skill) => (
                 <div key={skill.concept} className="flex items-center gap-2">
-                  <span className="text-xs text-text-secondary flex-1 truncate">{skill.concept}</span>
+                  <span className="type-caption text-text-secondary flex-1 truncate">{skill.concept}</span>
                   {/* Wave P-2 C08 — Concepts column progress track uses --viz-bar-track. */}
                   <div className="w-16 rounded-full h-1.5 shrink-0" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
                     <div
@@ -566,7 +566,7 @@ function OverviewTab({
           </div>
         </div>
         <div className="platform-panel-md">
-          <h3 className="text-sm font-semibold mb-2.5 flex items-center gap-2">
+          <h3 className="type-meta font-semibold mb-2.5 flex items-center gap-2">
             <Eye className="w-4 h-4 text-accent-amber" />
             {t('analyticsCalibrationColumn')}
           </h3>
@@ -577,7 +577,7 @@ function OverviewTab({
               return (
                 <div key={i} className="space-y-1">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs text-text-secondary truncate">{point.concept}</span>
+                    <span className="type-caption text-text-secondary truncate">{point.concept}</span>
                     {/* Wave P-3 C15 — over/under labels use --color-calibration-*
                         tokens (theme-tuned ≥4.5:1 on white cards). */}
                     <span
@@ -608,7 +608,7 @@ function OverviewTab({
               );
             })}
             {learnerModel.confidenceCalibration.length === 0 && (
-              <p className="text-xs text-text-muted py-4 text-center">{t('analyticsResearchEmpty')}</p>
+              <p className="type-caption text-text-muted py-4 text-center">{t('analyticsResearchEmpty')}</p>
             )}
           </div>
         </div>
@@ -759,7 +759,7 @@ function OverviewTab({
         >
           <FlaskConical className="w-4 h-4 text-text-secondary shrink-0" aria-hidden />
           <span className="min-w-0 flex-1">
-            <span className="block text-sm font-medium text-text-primary">{t('analyticsVisualLabFooter')}</span>
+            <span className="block type-meta font-medium text-text-primary">{t('analyticsVisualLabFooter')}</span>
             <span className="block type-micro text-text-muted truncate">{t('analyticsVisualLabFooterHint')}</span>
           </span>
           <ChevronRight
@@ -822,7 +822,7 @@ function MasteryTab({
           />
         </motion.div>
       ) : (
-        <div className="platform-panel-xl text-center text-sm text-text-secondary">
+        <div className="platform-panel-xl text-center type-body text-text-secondary">
           {t('analyticsMasteryMapEmpty')}
         </div>
       )}
@@ -859,7 +859,7 @@ function MasteryTab({
 
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="platform-panel-md">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><CheckCircle2 className="w-4 h-4 text-accent-emerald" />{t('analyticsStrongAreas')}</h3>
+        <h3 className="type-meta font-semibold flex items-center gap-2 mb-4"><CheckCircle2 className="w-4 h-4 text-accent-emerald" />{t('analyticsStrongAreas')}</h3>
         <div className="space-y-3">
           {learnerModel.strongAreas.map(a => (
             <SkillBar key={a.concept} concept={a.concept} mastery={a.mastery} retention={a.retentionPrediction} count={a.practiceCount} color="emerald" />
@@ -867,7 +867,7 @@ function MasteryTab({
         </div>
       </motion.div>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="platform-panel-md">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><XCircle className="w-4 h-4 text-accent-rose" />{t('analyticsWeakAreas')}</h3>
+        <h3 className="type-meta font-semibold flex items-center gap-2 mb-4"><XCircle className="w-4 h-4 text-accent-rose" />{t('analyticsWeakAreas')}</h3>
         <div className="space-y-3">
           {learnerModel.weakAreas.map(a => (
             <SkillBar key={a.concept} concept={a.concept} mastery={a.mastery} retention={a.retentionPrediction} count={a.practiceCount} color="rose" />
@@ -875,7 +875,7 @@ function MasteryTab({
         </div>
       </motion.div>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="ux-banner-warn rounded-panel border border-accent-amber/20 bg-accent-amber/5 p-5">
-        <h3 className="ux-banner-warn-accent text-sm font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-4 h-4" aria-hidden />{t('analyticsAlmostKnown')}</h3>
+        <h3 className="ux-banner-warn-accent type-meta font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-4 h-4" aria-hidden />{t('analyticsAlmostKnown')}</h3>
         <div className="space-y-3">
           {learnerModel.almostKnown.map(a => (
             <SkillBar key={a.concept} concept={a.concept} mastery={a.mastery} retention={a.retentionPrediction} count={a.practiceCount} color="amber" />
@@ -883,17 +883,17 @@ function MasteryTab({
         </div>
       </motion.div>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="platform-panel-md">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Brain className="w-4 h-4 text-accent-rose" />{t('analyticsActiveMisconceptions')}</h3>
+        <h3 className="type-meta font-semibold flex items-center gap-2 mb-4"><Brain className="w-4 h-4 text-accent-rose" />{t('analyticsActiveMisconceptions')}</h3>
         <div className="space-y-3">
           {learnerModel.misconceptions.map(m => (
             <div key={m.id} className="p-3 rounded-xl bg-accent-rose/5 border border-accent-rose/20">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-medium text-accent-rose">{m.concept}</span>
+                <span className="type-meta font-medium text-accent-rose">{m.concept}</span>
                 <span className={cn('type-micro px-2 py-0.5 rounded-full font-medium', m.corrected ? 'bg-accent-emerald/10 text-accent-emerald' : 'bg-accent-rose/10 text-accent-rose')}>
                   {m.corrected ? t('analyticsMisconceptionCorrected') : t('analyticsMisconceptionActive')}
                 </span>
               </div>
-              <p className="text-xs text-text-secondary">{m.description}</p>
+              <p className="type-caption text-text-secondary">{m.description}</p>
               <p className="type-micro text-accent-teal mt-1.5 flex items-center gap-1"><Zap className="w-3 h-3" />{m.suggestedFix}</p>
             </div>
           ))}
@@ -933,10 +933,10 @@ function BehaviorTab({
     <div className={cn(isMinimal ? 'hub-section-stack' : 'space-y-4')}>
       <StudyBehaviorCharts activities={activities} />
       {inference.inferenceConfidence === 'low' && (
-        <p className="text-xs text-accent-amber">{t('analyticsBehaviorLowConfidence')}</p>
+        <p className="type-caption text-accent-amber">{t('analyticsBehaviorLowConfidence')}</p>
       )}
       {inference.inferenceConfidence !== 'low' && (
-        <p className="text-xs text-text-tertiary">{t('analyticsBehaviorInferred')}</p>
+        <p className="type-caption text-text-tertiary">{t('analyticsBehaviorInferred')}</p>
       )}
       {isMinimal ? (
         <HubSection data-testid="analytics-behavior-metrics">
@@ -960,20 +960,20 @@ function BehaviorTab({
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-4 h-4 text-accent-orange" />{t('analyticsErrorPatterns')}</h3>
+        <h3 className="type-meta font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-4 h-4 text-accent-orange" />{t('analyticsErrorPatterns')}</h3>
         <div className="space-y-3">
           {learnerModel.errorPatterns.map((p, i) => (
             <div key={i} className="p-4 rounded-xl bg-surface-primary/50 border border-border-subtle">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">{p.type}</span>
+                <span className="type-meta font-medium">{p.type}</span>
                 <span className={cn('type-micro px-2 py-0.5 rounded-full font-medium capitalize',
                   p.category === 'calculation' ? 'bg-accent-amber/10 text-accent-amber' :
                   p.category === 'conceptual' ? 'bg-accent-rose/10 text-accent-rose' :
                   'bg-accent-cyan/10 text-accent-cyan'
                 )}>{errorCategoryLabel(p.category, t)}</span>
               </div>
-              <p className="text-xs text-text-tertiary">{p.frequency} {t('analyticsErrorOccurrences')}: {p.concepts.join(', ')}</p>
-              <p className="text-xs text-accent-teal mt-1.5 flex items-center gap-1"><Zap className="w-3 h-3" />{p.suggestedRemedy}</p>
+              <p className="type-caption text-text-tertiary">{p.frequency} {t('analyticsErrorOccurrences')}: {p.concepts.join(', ')}</p>
+              <p className="type-caption text-accent-teal mt-1.5 flex items-center gap-1"><Zap className="w-3 h-3" />{p.suggestedRemedy}</p>
             </div>
           ))}
         </div>
@@ -993,12 +993,12 @@ function BehaviorTab({
         </HubSection>
       ) : (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="platform-panel-md" data-testid="analytics-adaptive-model-vars">
-          <h3 className="text-sm font-semibold mb-4">{t('analyticsAdaptiveModelVars')}</h3>
+          <h3 className="type-meta font-semibold mb-4">{t('analyticsAdaptiveModelVars')}</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {modelVars.map((item) => (
               <div key={item.labelKey} className="p-3 rounded-xl bg-surface-primary/50 border border-border-subtle text-center">
                 <p className="type-micro text-text-muted mb-1">{t(item.labelKey)}</p>
-                <p className="text-sm font-semibold capitalize">{item.value}</p>
+                <p className="type-meta font-semibold capitalize">{item.value}</p>
               </div>
             ))}
           </div>
@@ -1043,8 +1043,8 @@ function InsightsTab({
       )}
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-panel border border-brand-500/20 bg-brand-500/5 p-5">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-4"><Lightbulb className="w-4 h-4 text-text-secondary" />{t('analyticsInsightsLearnedTitle')}</h3>
-        <p className="text-xs text-text-tertiary mb-4">{t('analyticsInsightsLearnedHint')}</p>
+        <h3 className="type-meta font-semibold flex items-center gap-2 mb-4"><Lightbulb className="w-4 h-4 text-text-secondary" />{t('analyticsInsightsLearnedTitle')}</h3>
+        <p className="type-caption text-text-tertiary mb-4">{t('analyticsInsightsLearnedHint')}</p>
         <div className="space-y-3">
           {(learnerModel.interactionInsights.length > 0 ? learnerModel.interactionInsights : tips.slice(0, 2)).map((insight, i) => (
             <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
@@ -1052,15 +1052,15 @@ function InsightsTab({
               <div className="w-6 h-6 rounded-full bg-brand-500/10 flex items-center justify-center shrink-0 mt-0.5">
                 <Lightbulb className="w-3 h-3 text-text-secondary" />
               </div>
-              <p className="text-sm text-text-secondary leading-relaxed">{insight}</p>
+              <p className="type-body text-text-secondary leading-relaxed">{insight}</p>
             </motion.div>
           ))}
         </div>
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
-        <h3 className="text-sm font-semibold mb-3">{t('analyticsAdaptiveRecommendations')}</h3>
-        <div className="space-y-2 text-sm text-text-secondary">
+        <h3 className="type-meta font-semibold mb-3">{t('analyticsAdaptiveRecommendations')}</h3>
+        <div className="space-y-2 type-body text-text-secondary">
           {tips.length > 0 ? tips.map((tip, i) => (
             <p key={i}>‶ {tip}</p>
           )) : (
@@ -1121,7 +1121,7 @@ function ResearchTab({
 
   return (
     <div className={cn(isMinimal ? 'hub-section-stack' : 'space-y-4')}>
-      <p className="text-sm text-text-secondary">{t('analyticsResearchSubtitle')}</p>
+      <p className="type-body text-text-secondary">{t('analyticsResearchSubtitle')}</p>
 
       {isMinimal ? (
         <HubSection data-testid="analytics-research-metrics">
@@ -1138,16 +1138,16 @@ function ResearchTab({
       )}
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="platform-panel-md">
-        <h3 className="text-sm font-semibold flex items-center gap-2 mb-1">
+        <h3 className="type-meta font-semibold flex items-center gap-2 mb-1">
           <FlaskConical className="w-4 h-4 text-text-secondary" />
           {t('analyticsResearchBktTitle')}
         </h3>
-        <p className="text-xs text-text-tertiary mb-4">{t('analyticsResearchBktHint')}</p>
+        <p className="type-caption text-text-tertiary mb-4">{t('analyticsResearchBktHint')}</p>
         {!hasData ? (
-          <p className="text-sm text-text-secondary">{t('analyticsResearchEmpty')}</p>
+          <p className="type-body text-text-secondary">{t('analyticsResearchEmpty')}</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-xs">
+            <table className="w-full type-caption">
               <thead>
                 <tr className="text-text-muted border-b border-border-subtle">
                   <th className="text-left py-2 pr-3">{t('analyticsResearchConcept')}</th>
@@ -1173,17 +1173,17 @@ function ResearchTab({
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="platform-panel-md">
-        <h3 className="text-sm font-semibold mb-4">{t('analyticsResearchForgetting')}</h3>
+        <h3 className="type-meta font-semibold mb-4">{t('analyticsResearchForgetting')}</h3>
         <RetentionCurve dataPoints={metrics.forgettingCurve} />
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
-        <h3 className="text-sm font-semibold mb-2">{t('analyticsResearchExport')}</h3>
-        <p className="text-xs text-text-tertiary mb-4">{t('analyticsResearchExportHint')}</p>
+        <h3 className="type-meta font-semibold mb-2">{t('analyticsResearchExport')}</h3>
+        <p className="type-caption text-text-tertiary mb-4">{t('analyticsResearchExportHint')}</p>
         <button
           type="button"
           onClick={handleExport}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-brand-600 hover:bg-brand-500 text-white transition-all"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl type-meta font-medium bg-brand-600 hover:bg-brand-500 text-white transition-all"
         >
           <Download className="w-4 h-4" />
           {t('analyticsResearchExport')}
@@ -1238,8 +1238,8 @@ function SkillBar({ concept, mastery, retention, count, color }: { concept: stri
   return (
     <div>
       <div className="flex justify-between items-center mb-1">
-        <span className="text-sm font-medium">{concept}</span>
-        <span className={cn('text-xs font-medium', `text-accent-${color}`)}>{mastery}%</span>
+        <span className="type-meta font-medium">{concept}</span>
+        <span className={cn('type-caption font-medium', `text-accent-${color}`)}>{mastery}%</span>
       </div>
       {/* Wave P-2 C08 — SkillBar (research view) track uses --viz-bar-track. */}
       <div className="w-full rounded-full h-2" style={{ backgroundColor: 'var(--viz-bar-track)' }}>

@@ -52,7 +52,7 @@ export function PluginMarketplacePanel() {
             >
               <Zap className="w-4 h-4 text-text-secondary mt-0.5 shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-text-primary">{plugin.name}</p>
+                <p className="type-meta font-medium text-text-primary">{plugin.name}</p>
                 <p className="type-caption text-text-muted">{plugin.description ?? plugin.id}</p>
                 <div className="mt-1.5 flex flex-wrap gap-1">
                   {hooks.map((label) => (

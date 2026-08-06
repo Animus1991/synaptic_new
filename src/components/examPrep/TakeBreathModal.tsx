@@ -80,7 +80,7 @@ export function TakeBreathModal({ open, onClose, presetId = 'calm-30' }: Props) 
           </button>
         </div>
 
-        <p className="text-sm text-text-secondary mb-6">{t('wellnessBreathSubtitle')}</p>
+        <p className="type-body text-text-secondary mb-6">{t('wellnessBreathSubtitle')}</p>
 
         <div className="flex flex-col items-center py-8">
           <div
@@ -94,7 +94,7 @@ export function TakeBreathModal({ open, onClose, presetId = 'calm-30' }: Props) 
           >
             <div className="text-center">
               <p className="text-2xl font-bold font-mono">{secondsLeft}</p>
-              <p className="text-xs text-text-muted mt-1">{t(phaseLabelKey(currentPhase) as never)}</p>
+              <p className="type-caption text-text-muted mt-1">{t(phaseLabelKey(currentPhase) as never)}</p>
             </div>
           </div>
           <p className="type-micro text-text-muted mt-4">
@@ -107,14 +107,14 @@ export function TakeBreathModal({ open, onClose, presetId = 'calm-30' }: Props) 
             type="button"
             onClick={() => setRunning(!running)}
             data-testid="take-breath-start"
-            className="flex-1 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-medium hover:bg-brand-500"
+            className="flex-1 py-2.5 rounded-xl bg-brand-600 text-white type-meta font-medium hover:bg-brand-500"
           >
             {running ? t('wellnessBreathPause') : t('wellnessBreathStart')}
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2.5 rounded-xl border border-border-subtle text-sm text-text-secondary hover:bg-surface-hover"
+            className="px-4 py-2.5 rounded-xl border border-border-subtle type-meta text-text-secondary hover:bg-surface-hover"
           >
             {t('wellnessBreathClose')}
           </button>

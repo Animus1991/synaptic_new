@@ -176,7 +176,7 @@ export function DashboardAlertGrid({
                 <p className="type-micro font-semibold uppercase tracking-wide text-text-secondary">
                   <AllCapsLabel>{slot.title}</AllCapsLabel>
                 </p>
-                <p className="text-xs text-text-primary mt-0.5 line-clamp-2">{slot.body}</p>
+                <p className="type-caption text-text-primary mt-0.5 line-clamp-2">{slot.body}</p>
               </div>
               {slot.onClick && <ArrowRight className="w-3.5 h-3.5 text-text-muted shrink-0 mt-0.5" aria-hidden />}
             </div>

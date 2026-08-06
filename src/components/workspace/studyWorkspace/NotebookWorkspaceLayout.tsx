@@ -247,7 +247,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
           >
             <span className="flex items-center gap-2 min-w-0">
               <Sparkles className="h-4 w-4 shrink-0 text-text-secondary" />
-              <span className="text-xs font-medium text-text-primary truncate">
+              <span className="type-caption font-medium text-text-secondary truncate">
                 {tx('Οδηγός πηγής', 'Source guide')}
               </span>
             </span>
@@ -291,7 +291,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                     )}
                     <NotebookSourceThumbnail file={source.file} label={source.label} settings={userSettings} />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-xs font-medium">{source.label}</span>
+                      <span className="block truncate type-caption font-medium">{source.label}</span>
                       {source.meta && (
                         <span className="block type-caption text-text-secondary">{source.meta}</span>
                       )}
@@ -335,7 +335,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
       ) : (
         <div className="flex h-full flex-col items-center justify-center gap-3 px-4 text-center">
           <FileText className="h-8 w-8 text-text-muted" aria-hidden />
-          <p className="text-xs text-text-secondary">
+          <p className="type-caption text-text-secondary">
             {tx(
               'Δεν υπάρχουν πηγές ακόμα. Πρόσθεσε υλικό για να ξεκινήσεις.',
               'No sources yet. Add material to get started.',
@@ -344,7 +344,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
           <button
             type="button"
             onClick={() => handleToolUpload?.()}
-            className="flex items-center gap-1.5 rounded-full bg-brand-600 px-3.5 py-1.5 text-xs font-medium text-white hover:bg-brand-700 transition-colors"
+            className="flex items-center gap-1.5 rounded-full bg-brand-600 px-3.5 py-1.5 type-caption font-medium text-white hover:bg-brand-700 transition-colors"
           >
             <Plus className="h-3.5 w-3.5" />
             {tx('Προσθήκη πηγής', 'Add source')}
@@ -399,10 +399,10 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
           <Sparkles className="h-8 w-8 text-text-tertiary" aria-hidden />
           <div className="space-y-1">
-            <p className="text-sm font-semibold text-text-primary">
+            <p className="type-meta font-semibold text-text-secondary">
               {tx('Ρώτησε τον AI βοηθό', 'Ask the AI assistant')}
             </p>
-            <p className="text-xs text-text-secondary max-w-sm">
+            <p className="type-caption text-text-secondary max-w-sm">
               {tx(
                 'Ο βοηθός απαντά με βάση τις πηγές σου, με παραπομπές στο σημείο του κειμένου.',
                 'The assistant answers based on your sources, with citations back to the text.',
@@ -413,7 +413,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
             type="button"
             onClick={handleOpenAgent}
             data-testid="notebook-chat-launcher"
-            className="flex items-center gap-1.5 rounded-full bg-brand-600 px-4 py-2 text-xs font-medium text-white hover:bg-brand-700 transition-colors"
+            className="flex items-center gap-1.5 rounded-full bg-brand-600 px-4 py-2 type-caption font-medium text-white hover:bg-brand-700 transition-colors"
           >
             <Sparkles className="h-3.5 w-3.5" />
             {tx('Άνοιγμα συνομιλίας', 'Open chat')}
@@ -514,7 +514,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               >
                 <Icon className="h-4 w-4" />
               </span>
-              <span className="text-xs font-medium text-text-primary leading-tight">
+              <span className="type-caption font-medium text-text-secondary leading-tight">
                 {workspaceToolLabel(id, lang)}
               </span>
               {genState === 'running' && (
@@ -571,9 +571,9 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
           data-testid={`notebook-tab-${id}`}
           aria-current={mobileTab === id ? 'page' : undefined}
           className={cn(
-            'flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium transition-colors',
+            'flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 type-caption font-medium transition-colors',
             mobileTab === id
-              ? 'text-text-primary bg-surface-secondary'
+              ? 'text-text-secondary bg-surface-secondary'
               : 'text-text-muted hover:text-text-primary hover:bg-surface-hover',
           )}
         >
@@ -610,7 +610,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                   data-testid="notebook-sources-panel"
                 >
                   <header className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0">
-                    <h2 className="text-sm font-semibold text-text-primary">
+                    <h2 className="type-meta font-semibold text-text-secondary">
                       <AllCapsLabel>{notebookCalm ? tx('Αρχεία', 'Files') : tx('Πηγές', 'Sources')}</AllCapsLabel>
                     </h2>
                     <button type="button" onClick={addSource} data-testid="notebook-add-source" className="flex items-center gap-1 rounded-full border border-border-subtle px-2.5 py-1 type-micro font-medium text-text-secondary">
@@ -628,7 +628,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                   data-testid="notebook-chat-panel"
                 >
                   <header className="border-b border-border-subtle px-4 py-3 shrink-0">
-                    <h2 className="text-sm font-semibold text-text-primary">
+                    <h2 className="type-meta font-semibold text-text-secondary">
                       <AllCapsLabel>{notebookCalm ? 'AI' : tx('Συνομιλία', 'Chat')}</AllCapsLabel>
                     </h2>
                   </header>
@@ -641,7 +641,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                   data-testid="notebook-studio-panel"
                 >
                   <header className="border-b border-border-subtle px-4 py-3 shrink-0">
-                    <h2 className="text-sm font-semibold text-text-primary">
+                    <h2 className="type-meta font-semibold text-text-secondary">
                       <AllCapsLabel>{notebookCalm ? tx('Εργαλεία', 'Tools') : 'Studio'}</AllCapsLabel>
                     </h2>
                   </header>
@@ -658,7 +658,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               type="button"
               onClick={() => setStudioToolOpen(false)}
               data-testid="notebook-studio-rail-back"
-              className="flex items-center justify-center gap-1 rounded-lg border border-border-subtle bg-surface-card py-2 text-xs text-text-secondary"
+              className="flex items-center justify-center gap-1 rounded-lg border border-border-subtle bg-surface-card py-2 type-caption text-text-secondary"
             >
               <LayoutGrid className="h-4 w-4" />
               {tx('Πίσω στο Studio', 'Back to Studio')}
@@ -698,7 +698,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
             data-testid="notebook-sources-panel"
           >
             <header className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0">
-              <h2 className="text-sm font-semibold text-text-primary">
+              <h2 className="type-meta font-semibold text-text-secondary">
                 <AllCapsLabel>{notebookCalm ? tx('Αρχεία', 'Files') : tx('Πηγές', 'Sources')}</AllCapsLabel>
               </h2>
               <button type="button" onClick={addSource} data-testid="notebook-add-source" className="flex items-center gap-1 rounded-full border border-border-subtle px-2.5 py-1 type-micro font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors">
@@ -723,7 +723,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0"
               title={chatGrounding}
             >
-              <h2 className="text-sm font-semibold text-text-primary">
+              <h2 className="type-meta font-semibold text-text-secondary">
                 <AllCapsLabel>{notebookCalm ? 'AI' : tx('Συνομιλία', 'Chat')}</AllCapsLabel>
               </h2>
               <span className="type-micro text-text-muted truncate">{chatGrounding}</span>
@@ -747,7 +747,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                 className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0"
                 title={tx('Εργαλεία με βοήθεια AI', 'AI-assisted tools')}
               >
-                <h2 className="text-sm font-semibold text-text-primary">
+                <h2 className="type-meta font-semibold text-text-secondary">
                   <AllCapsLabel>{notebookCalm ? tx('Εργαλεία', 'Tools') : 'Studio'}</AllCapsLabel>
                 </h2>
                 <span className="type-micro text-text-muted">{tx('Εργαλεία με βοήθεια AI', 'AI-assisted tools')}</span>

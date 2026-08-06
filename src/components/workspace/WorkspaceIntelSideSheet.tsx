@@ -106,7 +106,7 @@ export function WorkspaceIntelSideSheet({
             data-testid="workspace-intel-side-sheet"
           >
             <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3 shrink-0">
-              <span className="text-sm font-semibold">
+              <span className="type-meta font-semibold">
                 {t('sourceIntelTitle')}
               </span>
               <button type="button" onClick={onClose} className="rounded-lg p-1.5 hover:bg-surface-hover text-text-muted">

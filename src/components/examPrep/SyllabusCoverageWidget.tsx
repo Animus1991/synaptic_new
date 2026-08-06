@@ -60,7 +60,7 @@ export function SyllabusCoverageWidget({
             </button>
           )}
         </div>
-        <p className="text-xs font-medium text-text-primary truncate">{snapshot.courseTitle}</p>
+        <p className="type-caption font-medium text-text-primary truncate">{snapshot.courseTitle}</p>
         <div className="flex items-baseline gap-2">
           <span className="text-lg font-bold tabular-nums text-text-primary">{pct}%</span>
           <span className="type-micro text-text-muted">
@@ -116,7 +116,7 @@ export function SyllabusCoverageWidget({
       iconClassName="text-text-secondary"
     >
       <div className="space-y-4">
-        <div className="flex flex-wrap items-center gap-3 text-xs">
+        <div className="flex flex-wrap items-center gap-3 type-caption">
           <span className="font-semibold text-text-primary">{snapshot.courseTitle}</span>
           {snapshot.daysToExam !== null ? (
             <span className="inline-flex items-center gap-1 ws-chip-warn rounded-full px-2 py-0.5 font-medium">
@@ -188,7 +188,7 @@ export function SyllabusCoverageWidget({
           <button
             type="button"
             onClick={() => onSelectCourse(primary)}
-            className="text-xs text-text-primary font-medium hover:underline"
+            className="type-caption text-text-primary font-medium hover:underline"
             data-testid="coverage-open-course"
           >
             {t('coverageTrackerOpenCourse')}
@@ -204,7 +204,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
       <p className="type-micro text-text-muted">{label}</p>
-      <p className="text-sm font-semibold text-text-primary">{value}</p>
+      <p className="type-meta font-semibold text-text-primary">{value}</p>
     </div>
   );
 }

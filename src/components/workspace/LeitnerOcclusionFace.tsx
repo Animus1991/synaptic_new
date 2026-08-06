@@ -35,7 +35,7 @@ export function LeitnerOcclusionFace({ occlusion, flipped }: Props) {
         )}
         {flipped && (
           <div className="absolute inset-0 flex items-center justify-center p-2">
-            <span className="text-sm font-semibold text-text-primary">{hiddenLabel}</span>
+            <span className="type-meta font-semibold text-text-primary">{hiddenLabel}</span>
           </div>
         )}
       </div>

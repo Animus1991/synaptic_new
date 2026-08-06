@@ -47,10 +47,10 @@ export function OfflineShellBanner() {
           <div className="flex items-start gap-2.5 w-full max-w-none">
             <WifiSlash className="w-5 h-5 text-accent-amber shrink-0 mt-0.5" aria-hidden />
             <div className="min-w-0">
-              <p className="text-sm font-medium text-text-primary">{t('pwaOfflineTitle')}</p>
-              <p className="text-xs text-text-secondary mt-0.5">{t('pwaOfflineHint')}</p>
+              <p className="type-meta font-medium text-text-primary">{t('pwaOfflineTitle')}</p>
+              <p className="type-caption text-text-secondary mt-0.5">{t('pwaOfflineHint')}</p>
               {pendingSync > 0 && (
-                <p className="text-xs text-accent-amber mt-1" data-testid="offline-sync-pending">
+                <p className="type-caption text-accent-amber mt-1" data-testid="offline-sync-pending">
                   {t('offlineSyncPending').replace('{count}', String(pendingSync))}
                 </p>
               )}
@@ -71,7 +71,7 @@ export function OfflineShellBanner() {
           >
             <div className="flex items-center gap-2 rounded-xl border border-accent-emerald/35 bg-surface-secondary/95 backdrop-blur px-4 py-2.5 shadow-lg">
               <CheckCircle className="w-5 h-5 text-accent-emerald shrink-0" weight="fill" aria-hidden />
-              <p className="text-sm text-text-primary">{t('pwaBackOnline')}</p>
+              <p className="type-body text-text-primary">{t('pwaBackOnline')}</p>
             </div>
           </motion.div>
         )}

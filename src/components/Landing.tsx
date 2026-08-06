@@ -102,7 +102,7 @@ export function Landing({ onGetStarted, onSeeDemo, onLanguageChange }: LandingPr
           >
             <div className="h-px w-12 bg-brand-500" />
             <span
-              className="landing-eyebrow ux-semi-mono-eyebrow text-xs font-medium text-brand-700"
+              className="landing-eyebrow ux-semi-mono-eyebrow type-caption font-medium text-brand-700"
             >
               <AllCapsLabel>{content.badge}</AllCapsLabel>
             </span>
@@ -191,7 +191,7 @@ export function Landing({ onGetStarted, onSeeDemo, onLanguageChange }: LandingPr
             transition={{ duration: 0.6, delay: 0.5 }}
             className="landing-trust-row mt-10"
           >
-            <div className="landing-trust-items flex flex-wrap gap-x-8 gap-y-3 text-text-tertiary text-sm">
+            <div className="landing-trust-items flex flex-wrap gap-x-8 gap-y-3 text-text-tertiary type-body">
             {content.trust.map(item => (
               <span key={item} className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-brand-400 landing-trust-check" />
@@ -210,7 +210,7 @@ export function Landing({ onGetStarted, onSeeDemo, onLanguageChange }: LandingPr
               className="xl:col-span-5 2xl:col-span-4 hidden xl:block"
             >
               <div className="landing-hero-card rounded-2xl border border-border-subtle bg-surface-card/50 p-6 2xl:p-8 backdrop-blur-sm">
-                <p className="text-xs font-semibold text-brand-700 mb-4" style={mono}>
+                <p className="type-caption font-semibold text-brand-700 mb-4" style={mono}>
                   {t('landingBuiltFor')}
                 </p>
                 <div className="grid grid-cols-1 gap-2.5">
@@ -290,7 +290,7 @@ export function Landing({ onGetStarted, onSeeDemo, onLanguageChange }: LandingPr
                     {step.num}
                   </div>
                   <h3 className="text-lg font-semibold text-text-primary mb-2">{step.title}</h3>
-                  <p className="text-sm text-text-tertiary leading-relaxed">{step.desc}</p>
+                  <p className="type-body text-text-tertiary leading-relaxed">{step.desc}</p>
                 </motion.div>
               ))}
             </div>
@@ -336,10 +336,10 @@ export function Landing({ onGetStarted, onSeeDemo, onLanguageChange }: LandingPr
                       <div className="w-8 h-px bg-border-strong group-hover:bg-brand-500 transition-colors" />
                       <Icon className="w-4 h-4 text-brand-400" />
                     </div>
-                    <h4 className="text-sm font-semibold text-text-primary">
+                    <h4 className="type-meta font-semibold text-text-primary">
                       {f.title}
                     </h4>
-                    <p className="text-xs text-text-tertiary leading-relaxed">{f.desc}</p>
+                    <p className="type-caption text-text-tertiary leading-relaxed">{f.desc}</p>
                   </motion.div>
                 );
               })}
@@ -375,13 +375,13 @@ export function Landing({ onGetStarted, onSeeDemo, onLanguageChange }: LandingPr
                   transition={{ delay: 0.06 * i }}
                   className="bg-surface-primary p-6 hover:bg-surface-card transition-colors"
                 >
-                  <div className="flex items-start gap-2 mb-3 text-xs text-text-muted" style={mono}>
+                  <div className="flex items-start gap-2 mb-3 type-caption text-text-muted" style={mono}>
                     <X className="w-3 h-3 mt-px text-accent-rose shrink-0" />
                     <span>{item.wrong.replace(/^[^\p{L}\p{N}]+/u, '').trim()}</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="w-4 h-4 mt-0.5 text-brand-400 shrink-0" />
-                    <p className="text-sm font-medium text-text-primary leading-relaxed">{item.right.replace(/^[^\p{L}\p{N}]+/u, '').trim()}</p>
+                    <p className="type-meta font-medium text-text-primary leading-relaxed">{item.right.replace(/^[^\p{L}\p{N}]+/u, '').trim()}</p>
                   </div>
                 </motion.div>
               ))}

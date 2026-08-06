@@ -22,7 +22,7 @@ export function BibliographyBlock({
     >
       <div className="mb-3 flex items-center gap-2">
         <Library className="h-4 w-4 shrink-0 text-accent-violet" />
-        <h3 className="text-sm font-semibold text-text-primary">{heading}</h3>
+        <h3 className="type-meta font-semibold text-text-secondary">{heading}</h3>
       </div>
       <ol className={cn('list-decimal space-y-2 pl-5 type-meta leading-relaxed text-text-secondary')}>
         {items.map((item, i) => (

@@ -22,7 +22,7 @@ export function PostExamNextStepsPanel({ examDate }: Props) {
       icon={GraduationCap}
       data-testid="post-exam-next-steps"
     >
-      <p className="text-xs text-text-secondary mb-4">{t('examPrepNextStepsSubtitle')}</p>
+      <p className="type-body text-text-secondary mb-4">{t('examPrepNextStepsSubtitle')}</p>
       <ul className="dashboard-course-grid grid grid-cols-1 sm:grid-cols-2 gap-3">
         {links.map((link) => (
           <li key={link.id}>
@@ -34,7 +34,7 @@ export function PostExamNextStepsPanel({ examDate }: Props) {
               data-testid={`next-step-${link.id}`}
             >
               {/* OPT-K9b — arrow sits with title, not stretched across card */}
-              <p className="proximity-row text-sm font-semibold text-text-primary">
+              <p className="proximity-row type-meta font-semibold text-text-primary">
                 <span className="proximity-row-label">{t(link.titleKey as never)}</span>
                 <ArrowRight className="w-3 h-3 text-text-muted shrink-0" />
               </p>

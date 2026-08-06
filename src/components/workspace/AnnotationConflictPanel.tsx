@@ -54,10 +54,10 @@ export function AnnotationConflictPanel({
           <h3 id="annotation-conflict-title" className="ux-section-header m-0">
             {copy.title}
           </h3>
-          <p className="text-sm opacity-80 mt-1 mb-0">{copy.body}</p>
+          <p className="type-body opacity-80 mt-1 mb-0">{copy.body}</p>
         </div>
         {onDismissAll ? (
-          <button type="button" className="ux-secondary-cta text-xs" onClick={onDismissAll}>
+          <button type="button" className="ux-secondary-cta type-caption" onClick={onDismissAll}>
             {copy.dismiss}
           </button>
         ) : null}
@@ -70,9 +70,9 @@ export function AnnotationConflictPanel({
           data-testid="annotation-conflict-keep-local"
           onClick={() => pick('local')}
         >
-          <div className="text-xs uppercase tracking-wide opacity-60"><AllCapsLabel>{copy.local}</AllCapsLabel></div>
-          <div className="text-sm mt-1 whitespace-pre-wrap">{current.local.text}</div>
-          <div className="text-xs opacity-50 mt-2">
+          <div className="type-caption uppercase tracking-wide opacity-60"><AllCapsLabel>{copy.local}</AllCapsLabel></div>
+          <div className="type-body mt-1 whitespace-pre-wrap">{current.local.text}</div>
+          <div className="type-caption opacity-50 mt-2">
             L{current.local.lineStart + 1} · rev {current.local.revision ?? 0}
           </div>
         </button>
@@ -82,16 +82,16 @@ export function AnnotationConflictPanel({
           data-testid="annotation-conflict-keep-remote"
           onClick={() => pick('remote')}
         >
-          <div className="text-xs uppercase tracking-wide opacity-60"><AllCapsLabel>{copy.remote}</AllCapsLabel></div>
-          <div className="text-sm mt-1 whitespace-pre-wrap">{current.remote.text}</div>
-          <div className="text-xs opacity-50 mt-2">
+          <div className="type-caption uppercase tracking-wide opacity-60"><AllCapsLabel>{copy.remote}</AllCapsLabel></div>
+          <div className="type-body mt-1 whitespace-pre-wrap">{current.remote.text}</div>
+          <div className="type-caption opacity-50 mt-2">
             L{current.remote.lineStart + 1} · rev {current.remote.revision ?? 0}
           </div>
         </button>
       </div>
 
       {remainingCount > 1 ? (
-        <p className="text-xs opacity-60 mt-2 mb-0">{copy.more}</p>
+        <p className="type-caption opacity-60 mt-2 mb-0">{copy.more}</p>
       ) : null}
     </div>
   );

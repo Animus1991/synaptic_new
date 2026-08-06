@@ -21,7 +21,7 @@ function Metric({
   return (
     <div className="rounded-lg border border-border-subtle bg-surface-hover/50 px-3 py-2">
       <p className="type-micro uppercase tracking-wide text-text-muted"><AllCapsLabel>{label}</AllCapsLabel></p>
-      <p className="text-sm font-semibold text-text-primary tabular-nums">{value}</p>
+      <p className="type-meta font-semibold text-text-primary tabular-nums">{value}</p>
     </div>
   );
 }
@@ -55,7 +55,7 @@ export function RecognitionReportPanel({
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold text-text-secondary">
+          <p className="type-caption font-semibold text-text-secondary">
             {t('recognitionReportTitle', language)}
           </p>
           <p className="type-caption text-text-muted mt-0.5">

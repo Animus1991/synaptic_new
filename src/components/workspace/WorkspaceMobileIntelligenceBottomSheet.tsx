@@ -76,7 +76,7 @@ export function WorkspaceMobileIntelligenceBottomSheet({
                 <span className="h-1 w-10 rounded-full bg-border-subtle" aria-hidden />
               </div>
               <div className="flex items-center justify-between px-3 pb-2 shrink-0">
-                <p className="text-xs font-semibold text-text-primary">
+                <p className="type-caption font-semibold text-text-secondary">
                   {t('studyIntelligence')}
                 </p>
                 <button

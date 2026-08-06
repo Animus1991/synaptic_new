@@ -82,7 +82,7 @@ function ModeRow({
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
-          <span className={cn('text-xs font-medium', active ? 'text-text-primary' : 'text-text-secondary')}>
+          <span className={cn('type-caption font-medium', active ? 'text-text-primary' : 'text-text-secondary')}>
             {m.label}
           </span>
           {visual.badge && (
@@ -168,7 +168,7 @@ export function AgentModeSidebar({
     >
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 border-b border-border-subtle">
-          <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-3">
+          <p className="type-caption font-semibold text-text-tertiary uppercase tracking-wider mb-3">
             <AllCapsLabel>{tutorModeHeading}</AllCapsLabel>
           </p>
 
@@ -236,7 +236,7 @@ export function AgentModeSidebar({
 
         {onChangeSourceMode && (
           <div className="p-4 border-b border-border-subtle">
-            <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-3">
+            <p className="type-caption font-semibold text-text-tertiary uppercase tracking-wider mb-3">
               <AllCapsLabel>{sourceModeHeading}</AllCapsLabel>
             </p>
             {sourceModeOptions.map((opt) => {
@@ -266,7 +266,7 @@ export function AgentModeSidebar({
                     )}
                   />
                   <div>
-                    <p className="text-xs font-medium text-text-primary">{opt.label}</p>
+                    <p className="type-caption font-medium text-text-primary">{opt.label}</p>
                     <p className="type-micro text-text-tertiary">{opt.desc}</p>
                   </div>
                 </button>
@@ -322,7 +322,7 @@ export function AgentModeCatalogGrid({
               >
                 <Icon className="w-3.5 h-3.5" style={{ color: visual.color }} />
               </div>
-              <p className="text-xs font-medium text-text-primary">{m.label}</p>
+              <p className="type-caption font-medium text-text-primary">{m.label}</p>
               <p className="type-micro text-text-tertiary line-clamp-2">{m.desc}</p>
             </button>
           );
@@ -368,7 +368,7 @@ export function AgentModeCatalogGrid({
                   <div className="agent-mode-icon w-7 h-7 rounded-lg flex items-center justify-center mb-1.5 border border-border-subtle bg-transparent text-text-secondary">
                     <Icon className="w-3.5 h-3.5" />
                   </div>
-                  <p className="text-xs font-medium text-text-primary">{m.label}</p>
+                  <p className="type-caption font-medium text-text-primary">{m.label}</p>
                 </button>
               );
             })}

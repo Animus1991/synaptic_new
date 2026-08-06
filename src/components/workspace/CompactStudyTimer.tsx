@@ -38,7 +38,7 @@ export function CompactStudyTimer({ lang, className }: Props) {
   return (
     <div
       className={cn(
-        'inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border border-border-subtle bg-surface-card text-text-secondary text-xs font-mono tabular-nums transition-colors',
+        'inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border border-border-subtle bg-surface-card text-text-secondary type-caption font-mono tabular-nums transition-colors',
         running && 'border-brand-500/30 text-text-secondary',
         className,
       )}

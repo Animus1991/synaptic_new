@@ -22,7 +22,7 @@ export function CohortTopicMasteryHeatmap({ analytics, lang }: Props) {
 
   return (
     <div className="space-y-3 pt-3 border-t border-border-subtle/50" data-testid="topic-mastery-heatmap">
-      <p className="text-xs font-medium text-text-primary">{title}</p>
+      <p className="type-caption font-medium text-text-primary">{title}</p>
       {heatmaps.map((hm) => (
         <div key={hm.classId} className="space-y-1">
           <p className="type-micro text-text-muted truncate">{hm.className}</p>

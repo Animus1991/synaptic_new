@@ -1107,7 +1107,7 @@ export function Agent({
                 <button
                   onClick={() => setShowModes(!showModes)}
                   className={cn(
-                    'lg:hidden flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-surface-hover border border-border-subtle transition-all',
+                    'lg:hidden flex items-center gap-1 px-2 py-0.5 rounded-md type-caption font-medium bg-surface-hover border border-border-subtle transition-all',
                     quietModes ? 'hover:border-border-default' : 'hover:border-brand-500/30',
                   )}
                 >
@@ -1115,12 +1115,12 @@ export function Agent({
                   {currentMode.label}
                   <ChevronDown className={cn('w-3 h-3 transition-transform', showModes && 'rotate-180')} />
                 </button>
-                <span className="hidden lg:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-surface-hover border border-border-subtle text-text-secondary">
+                <span className="hidden lg:inline-flex items-center gap-1 px-2 py-0.5 rounded-md type-caption font-medium bg-surface-hover border border-border-subtle text-text-secondary">
                   <currentMode.icon className={cn('w-3 h-3', quietModes ? 'text-text-secondary' : currentMode.color)} />
                   {currentMode.label}
                 </span>
               </div>
-              <p className="text-xs text-text-tertiary">
+              <p className="type-caption text-text-tertiary">
                 {llmReady ? ui.llmConnected : ui.offlineMode}
                 {sourceExcerpt ? ui.sourceAttached : ''}
               </p>
@@ -1137,7 +1137,7 @@ export function Agent({
                 setPinnedFileId(null);
               }}
               className={cn(
-                'text-xs bg-surface-input border border-border-subtle rounded-lg px-2 py-1.5 text-text-secondary focus:outline-none',
+                'type-caption bg-surface-input border border-border-subtle rounded-lg px-2 py-1.5 text-text-secondary focus:outline-none',
                 quietModes ? 'focus:border-border-default' : 'focus:border-brand-500/50',
               )}
             >
@@ -1173,7 +1173,7 @@ export function Agent({
             </button>
             {showSourceSettings && (
               <div
-                className="absolute right-0 top-full mt-1 z-20 w-64 rounded-xl border border-border-subtle bg-surface-card p-3 text-xs space-y-2"
+                className="absolute right-0 top-full mt-1 z-20 w-64 rounded-xl border border-border-subtle bg-surface-card p-3 type-caption space-y-2"
                 style={{ boxShadow: 'var(--elev-popover)' }}
               >
                 <p className="font-medium text-text-secondary">{ui.sourceSettingsTitle}</p>
@@ -1375,7 +1375,7 @@ export function Agent({
             <div className="min-w-0">
               <p
                 className={cn(
-                  'text-xs font-semibold truncate',
+                  'type-caption font-semibold truncate',
                   quietModes ? 'text-text-primary' : 'text-text-secondary',
                 )}
               >
@@ -1389,7 +1389,7 @@ export function Agent({
               {xpReward !== undefined && (
                 <span
                   className={cn(
-                    'text-xs font-medium',
+                    'type-caption font-medium',
                     quietModes ? 'text-text-secondary' : 'text-accent-amber',
                   )}
                 >
@@ -1400,7 +1400,7 @@ export function Agent({
                 <button
                   onClick={onCompleteTask}
                   className={cn(
-                    'px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
+                    'px-3 py-1.5 rounded-lg type-caption font-medium transition-all',
                     quietModes
                       ? 'bg-surface-secondary border border-border-default text-text-primary hover:bg-surface-hover'
                       : 'bg-brand-600 hover:bg-brand-500 text-white',
@@ -1450,7 +1450,7 @@ export function Agent({
                         type="button"
                         onClick={() => onChangeSourceMode(opt.id)}
                         className={cn(
-                          'w-full text-left px-3 py-2 rounded-xl text-xs transition-all',
+                          'w-full text-left px-3 py-2 rounded-xl type-caption transition-all',
                           activeSourceMode === opt.id
                             ? quietModes
                               ? 'bg-surface-secondary text-text-primary border border-border-default'
@@ -1486,8 +1486,8 @@ export function Agent({
                   className={cn('w-6 h-6 mx-auto', quietModes ? 'text-text-secondary' : 'text-text-secondary')}
                   aria-hidden
                 />
-                <p className="text-sm font-medium text-text-primary">{ui.title}</p>
-                <p className="text-xs text-text-secondary px-4">
+                <p className="type-meta font-medium text-text-primary">{ui.title}</p>
+                <p className="type-caption text-text-secondary px-4">
                   {llmReady ? ui.inputPlaceholder : ui.offlineMode}
                 </p>
                 <div className="flex flex-wrap justify-center gap-2 pt-2" data-testid="agent-try-chips">
@@ -1534,7 +1534,7 @@ export function Agent({
               />
               {(pathTryChips.length > 0 || contextualSuggestions.length > 0) && (
                 <div className="max-w-xl mx-auto" data-testid="agent-try-chips">
-                  <p className="text-xs text-text-tertiary mb-3 text-center">{contextualPrompts.emptySuggestionsHeading}</p>
+                  <p className="type-caption text-text-tertiary mb-3 text-center">{contextualPrompts.emptySuggestionsHeading}</p>
                   <div className="flex flex-wrap justify-center gap-2">
                     {pathTryChips.length > 0
                       ? pathTryChips.map((chip) => (
@@ -1588,7 +1588,7 @@ export function Agent({
             />
           ))}
           {isThinking && (
-            <div className="agent-thinking flex gap-3 px-1 py-2 text-sm text-text-muted">
+            <div className="agent-thinking flex gap-3 px-1 py-2 type-body text-text-muted">
               <Sparkles
                 className={cn(
                   'w-4 h-4 animate-pulse shrink-0 mt-0.5',
@@ -1607,7 +1607,7 @@ export function Agent({
               className="pt-4"
             >
               <CollapsibleChromeSection title={t('chromeQuickActions')} data-testid="agent-quick-actions-chrome">
-                <p className="text-xs text-text-tertiary mb-3 px-1">{ui.quickActionsHeading}</p>
+                <p className="type-caption text-text-tertiary mb-3 px-1">{ui.quickActionsHeading}</p>
                 <div className="flex flex-wrap gap-2 px-1 pb-2">
                   {contextualSuggestions.map(action => (
                     <button
@@ -1651,7 +1651,7 @@ export function Agent({
                 rows={1}
                 disabled={isThinking}
                 className={cn(
-                  'w-full rounded-xl bg-surface-input border border-border-subtle text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none resize-none',
+                  'w-full rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary placeholder:text-text-tertiary focus:outline-none resize-none',
                   embedded ? 'px-3 py-2' : 'px-4 py-3',
                   quietModes ? 'focus:border-border-default' : 'focus:border-brand-500/50',
                 )}
@@ -1715,7 +1715,7 @@ export function Agent({
                   </span>
                 </button>
                 {showAttachPicker && (
-                  <div className="absolute right-0 bottom-full mb-1 z-20 w-64 max-h-48 overflow-y-auto rounded-xl border border-border-subtle bg-surface-card shadow-lg p-2 text-xs">
+                  <div className="absolute right-0 bottom-full mb-1 z-20 w-64 max-h-48 overflow-y-auto rounded-xl border border-border-subtle bg-surface-card shadow-lg p-2 type-caption">
                     <p className="px-2 py-1 font-medium text-text-secondary">{ui.attachFileTitle}</p>
                     {analyzedFiles.length === 0 ? (
                       <p className="px-2 py-2 text-text-muted">{ui.noAnalyzedFiles}</p>
@@ -1822,7 +1822,7 @@ function CitationList({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-text-primary transition-colors"
+        className="flex items-center gap-1.5 type-caption text-text-tertiary hover:text-text-primary transition-colors"
       >
         <FileText className="w-3 h-3" />
         {citations.length} {citations.length === 1 ? ui.citationSingular : ui.citationPlural} · {ui.citationToggle}
@@ -1899,7 +1899,7 @@ function MessageBubble({
     return (
       <div className="text-center">
         <span
-          className="agent-system-status text-xs px-3 py-1.5 rounded-full inline-block max-w-full border border-border-default bg-surface-tertiary text-text-secondary font-medium"
+          className="agent-system-status type-caption px-3 py-1.5 rounded-full inline-block max-w-full border border-border-default bg-surface-tertiary text-text-secondary font-medium"
           data-testid="agent-system-status"
         >
           {message.content}
@@ -1921,7 +1921,7 @@ function MessageBubble({
       )}
 
       <div className={cn(
-        'agent-message-bubble max-w-[85%] sm:max-w-[75%] rounded-xl px-4 py-3 text-sm leading-relaxed',
+        'agent-message-bubble max-w-[85%] sm:max-w-[75%] rounded-xl px-4 py-3 type-body leading-relaxed',
         isUser
           ? 'agent-message-bubble-user agent-user-bubble text-white rounded-tr-md'
           : 'agent-message-bubble-assistant bg-surface-card border border-border-subtle text-text-primary rounded-tl-md',
@@ -1984,7 +1984,7 @@ function MessageBubble({
           <CitationList citations={message.citations} onGoToSource={onGoToSource} lang={lang} ui={ui} />
         ) : message.sourceReference ? (
           <div className={cn(
-            'agent-message-meta mt-2 pt-2 border-t flex items-center gap-1.5 text-xs',
+            'agent-message-meta mt-2 pt-2 border-t flex items-center gap-1.5 type-caption',
             isUser ? 'border-white/20 text-white/70' : 'border-border-subtle text-text-tertiary',
           )}>
             <FileText className="w-3 h-3" />
@@ -2057,7 +2057,7 @@ function MessageBubble({
         )}
 
         {message.confidence !== undefined && message.confidence < 0.8 && (
-          <div className="mt-1.5 flex items-center gap-1 text-xs text-accent-amber">
+          <div className="mt-1.5 flex items-center gap-1 type-caption text-accent-amber">
             <AlertTriangle className="w-3 h-3" />
             <span>{ui.lowConfidence}</span>
           </div>

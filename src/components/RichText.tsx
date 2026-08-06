@@ -230,7 +230,7 @@ function parseBlocks(text: string): Block[] {
 const HEADING_CLASS: Record<number, string> = {
   1: 'text-lg font-bold mt-3 mb-1.5',
   2: 'text-base font-bold mt-3 mb-1',
-  3: 'text-sm font-semibold mt-2 mb-1',
+  3: 'type-meta font-semibold mt-2 mb-1',
 };
 
 export function RichText({ text, className }: { text: string; className?: string }) {

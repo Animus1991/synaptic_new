@@ -120,7 +120,7 @@ export function TimerPanel({
         {/* Wave E10 — one shared preset status chip (not pomodoro + exam soup) */}
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span
-            className="rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption font-medium text-text-primary"
+            className="rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption font-medium text-text-secondary"
             data-testid="timer-suggested-preset"
             title={`${PRESET_LABELS[session.suggestedPreset][lang]} · ${examPracticeLabel(examPractice, lang)}`}
           >
@@ -183,7 +183,7 @@ export function TimerPanel({
             {filterMatches.slice(0, 4).map((log, i) => (
               <span
                 key={`${log.at}-${i}`}
-                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 type-caption text-text-primary"
+                className="rounded-full border border-accent-cyan/25 bg-accent-cyan/8 px-2 py-0.5 type-caption text-text-secondary"
               >
                 {log.label.slice(0, 40)}{log.label.length > 40 ? '…' : ''} · {log.minutes}m
               </span>

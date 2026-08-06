@@ -157,7 +157,7 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
                 onKeyDown={onKey}
                 placeholder={placeholder ?? 'Type a command, tool, or layout…'}
                 data-testid="command-palette-input"
-                className="command-palette-input flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-muted focus:outline-none"
+                className="command-palette-input flex-1 bg-transparent type-body text-text-primary placeholder:text-text-muted focus:outline-none"
               />
               <button
                 type="button"
@@ -171,7 +171,7 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
 
             <div className="max-h-[60vh] overflow-y-auto p-2">
               {flat.length === 0 ? (
-                <div className="px-3 py-8 text-center text-sm text-text-muted">No matches</div>
+                <div className="px-3 py-8 text-center type-meta text-text-muted">No matches</div>
               ) : (
                 grouped.map(([group, list]) => (
                   <div key={group || 'default'} className="mb-1 last:mb-0">
@@ -190,9 +190,9 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
                           onMouseEnter={() => setActive(idx)}
                           onClick={() => runItem(it)}
                           className={cn(
-                            'command-palette-item flex w-full items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors',
+                            'command-palette-item flex w-full items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left type-body transition-colors',
                             isActive
-                              ? 'bg-brand-500/15 text-text-primary'
+                              ? 'bg-brand-500/15 text-text-secondary'
                               : 'text-text-secondary hover:bg-white/5',
                           )}
                         >

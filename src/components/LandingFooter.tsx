@@ -19,14 +19,14 @@ export function LandingFooter({ tagline }: LandingFooterProps) {
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="h-px w-6 bg-brand-500" aria-hidden />
-          <span className="landing-display text-sm tracking-tight text-text-secondary">
+          <span className="landing-display type-meta tracking-tight text-text-secondary">
             Synapse<span className="text-brand-500">.</span>
           </span>
         </div>
 
         <nav
           aria-label={t('landingFooterLegalNav')}
-          className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs"
+          className="flex flex-wrap items-center gap-x-5 gap-y-2 type-caption"
         >
           <a
             href={privacyPolicyUrl()}
@@ -56,7 +56,7 @@ export function LandingFooter({ tagline }: LandingFooterProps) {
         </nav>
       </div>
 
-      <p className="text-xs text-text-muted mt-6" style={{ fontFamily: 'var(--font-mono)' }}>
+      <p className="type-caption text-text-muted mt-6" style={{ fontFamily: 'var(--font-mono)' }}>
         {tagline}
       </p>
     </footer>

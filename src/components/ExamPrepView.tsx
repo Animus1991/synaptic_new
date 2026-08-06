@@ -172,8 +172,8 @@ export function ExamPrepView({
             <X className="w-5 h-5 text-text-secondary" />
           </button>
           <div>
-            <p className="text-sm font-semibold">{sessionTitle}</p>
-            <p className="text-xs text-text-tertiary flex items-center gap-1">
+            <p className="type-meta font-semibold">{sessionTitle}</p>
+            <p className="type-caption text-text-tertiary flex items-center gap-1">
               <GraduationCap className="w-3 h-3 text-accent-rose" />
               {examCourse} · {t('examPrepTimedSimulation')}
             </p>
@@ -183,7 +183,7 @@ export function ExamPrepView({
           {isActive && (
             <span
               className={cn(
-                'flex items-center gap-1 text-xs font-mono font-semibold px-2 py-1 rounded-lg',
+                'flex items-center gap-1 type-caption font-mono font-semibold px-2 py-1 rounded-lg',
                 timeLeft <= 30 ? 'bg-accent-rose/15 text-accent-rose' : 'bg-surface-hover text-text-secondary',
               )}
             >
@@ -192,18 +192,18 @@ export function ExamPrepView({
             </span>
           )}
           {(isActive || isReview) && (
-            <span className="hidden sm:inline-flex items-center gap-1 text-xs text-text-tertiary px-2 py-1 rounded-lg bg-surface-hover">
+            <span className="hidden sm:inline-flex items-center gap-1 type-caption text-text-tertiary px-2 py-1 rounded-lg bg-surface-hover">
               <Target className="w-3.5 h-3.5" />
               {t('examPrepAnswered').replace('{answered}', String(answeredCount)).replace('{total}', String(examQuestions.length))}
             </span>
           )}
           <button
             onClick={onOpenAgent}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle hover:border-brand-500/30 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg type-caption font-medium border border-border-subtle hover:border-brand-500/30 transition-all"
           >
             <Sparkles className="w-3.5 h-3.5 text-text-secondary" /> {t('askAgentShort')}
           </button>
-          <span className="text-xs text-accent-amber font-medium">+{xpReward} XP</span>
+          <span className="type-caption text-accent-amber font-medium">+{xpReward} XP</span>
         </div>
       </div>
 
@@ -215,7 +215,7 @@ export function ExamPrepView({
             </div>
             <div className="text-center">
               <h2 className="text-xl font-semibold">{examTopic}</h2>
-              <p className="text-sm text-text-secondary mt-2">
+              <p className="type-body text-text-secondary mt-2">
                 {examCourse} · {t('examPrepSubtitleFlow')}
               </p>
             </div>
@@ -231,14 +231,14 @@ export function ExamPrepView({
                   <div key={item.label} className="ux-card text-center">
                     <Icon className="w-5 h-5 text-text-secondary mx-auto mb-2" />
                     <p className="ux-kpi-value">{item.value}</p>
-                    <p className="text-xs text-text-tertiary mt-0.5">{item.label}</p>
+                    <p className="type-caption text-text-tertiary mt-0.5">{item.label}</p>
                   </div>
                 );
               })}
             </div>
 
             <div className="ux-card space-y-3">
-              <p className="text-sm font-semibold text-text-primary">{t('examPrepModeHeading')}</p>
+              <p className="type-meta font-semibold text-text-primary">{t('examPrepModeHeading')}</p>
               {([
                 {
                   id: 'standard' as const,
@@ -267,15 +267,15 @@ export function ExamPrepView({
                     examMode === modeOption.id ? 'bg-brand-400' : 'bg-surface-hover',
                   )} />
                   <div>
-                    <p className="text-sm font-medium text-text-primary">{modeOption.label}</p>
-                    <p className="text-xs text-text-tertiary">{modeOption.desc}</p>
+                    <p className="type-meta font-medium text-text-primary">{modeOption.label}</p>
+                    <p className="type-caption text-text-tertiary">{modeOption.desc}</p>
                   </div>
                 </button>
               ))}
             </div>
 
             <CollapsibleChromeSection title={t('chromeExamTip')} data-testid="exam-prep-tip-chrome">
-              <div className="rounded-xl border border-accent-amber/20 bg-accent-amber/5 text-xs text-accent-amber p-4">
+              <div className="rounded-xl border border-accent-amber/20 bg-accent-amber/5 type-caption text-accent-amber p-4">
                 <p>{t('examPrepTipBody')}</p>
               </div>
             </CollapsibleChromeSection>
@@ -283,7 +283,7 @@ export function ExamPrepView({
             <div className="flex justify-center">
               <button
                 onClick={startExam}
-                className="px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-2xl text-sm font-medium transition-all"
+                className="px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-2xl type-meta font-medium transition-all"
               >
                 {t('examPrepBegin')}
               </button>
@@ -295,7 +295,7 @@ export function ExamPrepView({
       {(phase === 'active' || phase === 'review') && currentQuestion && currentAnswer && (
         <div className="flex-1 flex overflow-hidden">
           <div className="hidden sm:flex w-56 shrink-0 flex-col border-r border-border-subtle bg-surface-secondary/20 p-3 gap-3 overflow-y-auto">
-            <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider"><AllCapsLabel>{t('examPrepStatQuestions')}</AllCapsLabel></p>
+            <p className="type-caption font-semibold text-text-tertiary uppercase tracking-wider"><AllCapsLabel>{t('examPrepStatQuestions')}</AllCapsLabel></p>
             <div className="grid grid-cols-4 gap-2">
               {examQuestions.map((_, i) => {
                 const answer = answers[i];
@@ -308,7 +308,7 @@ export function ExamPrepView({
                     type="button"
                     onClick={() => navigateTo(i)}
                     className={cn(
-                      'w-9 h-9 rounded-lg text-xs font-semibold tabular-nums relative transition-all',
+                      'w-9 h-9 rounded-lg type-caption font-semibold tabular-nums relative transition-all',
                       selected
                         ? 'bg-brand-600 text-white'
                         : correct
@@ -348,7 +348,7 @@ export function ExamPrepView({
               )}
             >
               <div className="flex items-center justify-between gap-3 flex-wrap">
-                <div className="flex items-center gap-2 text-xs text-text-tertiary flex-wrap">
+                <div className="flex items-center gap-2 type-caption text-text-tertiary flex-wrap">
                   <span>{t('examPrepQuestionOf').replace('{current}', String(currentQ + 1)).replace('{total}', String(examQuestions.length))}</span>
                   <span className="rounded-full bg-brand-600/10 text-text-secondary px-2 py-0.5">
                     {currentAnswer.answer !== null ? t('examPrepLegendAnswered') : t('examPrepStatusPending')}
@@ -364,7 +364,7 @@ export function ExamPrepView({
                     <button
                       type="button"
                       onClick={() => setShowExplanations((value) => !value)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-subtle text-xs text-text-secondary hover:border-brand-500/25"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-subtle type-caption text-text-secondary hover:border-brand-500/25"
                     >
                       {showExplanations ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                       {showExplanations ? t('examPrepHideExplanations') : t('examPrepShowExplanations')}
@@ -374,7 +374,7 @@ export function ExamPrepView({
                     <button
                       type="button"
                       onClick={handleSubmit}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white type-caption font-medium"
                     >
                       {t('examPrepSubmit')}
                     </button>
@@ -391,11 +391,11 @@ export function ExamPrepView({
 
               <div className="ux-card">
                 <div className="flex items-center gap-3 mb-4 flex-wrap">
-                  <span className="text-xs font-mono text-text-tertiary">Q{currentQ + 1}</span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-surface-hover text-text-secondary">
+                  <span className="type-caption font-mono text-text-tertiary">Q{currentQ + 1}</span>
+                  <span className="type-caption px-2 py-0.5 rounded-full bg-surface-hover text-text-secondary">
                     {t('examPrepChoices').replace('{count}', String(currentQuestion.options.length))}
                   </span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-brand-600/10 text-text-secondary ml-auto">
+                  <span className="type-caption px-2 py-0.5 rounded-full bg-brand-600/10 text-text-secondary ml-auto">
                     {t('examPrepTargetPace').replace('{seconds}', String(Math.round(durationSeconds / Math.max(examQuestions.length, 1))))}
                   </span>
                   {!isReview && (
@@ -403,7 +403,7 @@ export function ExamPrepView({
                       type="button"
                       onClick={() => toggleFlag(currentQ)}
                       className={cn(
-                        'inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs transition-all',
+                        'inline-flex items-center gap-1 px-2 py-0.5 rounded-lg type-caption transition-all',
                         currentAnswer.flagged ? 'text-accent-amber bg-accent-amber/15' : 'text-text-tertiary hover:text-text-primary',
                       )}
                     >
@@ -440,7 +440,7 @@ export function ExamPrepView({
                         )}
                       >
                         <span className={cn(
-                          'w-8 h-8 rounded-xl flex items-center justify-center text-sm font-semibold shrink-0',
+                          'w-8 h-8 rounded-xl flex items-center justify-center type-meta font-semibold shrink-0',
                           isCorrect
                             ? 'bg-accent-emerald text-white'
                             : isWrongSelected
@@ -451,7 +451,7 @@ export function ExamPrepView({
                         )}>
                           {isCorrect ? '✓' : isWrongSelected ? '✗' : String.fromCharCode(65 + i)}
                         </span>
-                        <span className="text-sm leading-relaxed text-current">{opt}</span>
+                        <span className="type-body leading-relaxed text-current">{opt}</span>
                       </button>
                     );
                   })}
@@ -460,7 +460,7 @@ export function ExamPrepView({
 
               {isReview && showExplanations && (
                 <div className={cn(
-                  'rounded-2xl border p-4 text-sm leading-relaxed',
+                  'rounded-2xl border p-4 type-body leading-relaxed',
                   currentAnswer.answer === currentQuestion.correctIndex
                     ? 'border-accent-emerald/30 bg-accent-emerald/5'
                     : 'border-accent-amber/30 bg-accent-amber/5',
@@ -489,7 +489,7 @@ export function ExamPrepView({
                   type="button"
                   onClick={() => navigateTo(Math.max(0, currentQ - 1))}
                   disabled={currentQ === 0}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border-subtle text-sm text-text-secondary disabled:opacity-40"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border-subtle type-meta text-text-secondary disabled:opacity-40"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   {t('examPrepPrevious')}
@@ -499,7 +499,7 @@ export function ExamPrepView({
                   <button
                     type="button"
                     onClick={() => navigateTo(currentQ + 1)}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white type-meta font-medium"
                   >
                     {t('examPrepNext')}
                     <ArrowRight className="w-4 h-4" />
@@ -508,7 +508,7 @@ export function ExamPrepView({
                   <button
                     type="button"
                     onClick={() => setPhase('results')}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white type-meta font-medium"
                   >
                     {t('examPrepViewResults')}
                     <ArrowRight className="w-4 h-4" />
@@ -519,7 +519,7 @@ export function ExamPrepView({
                     onClick={handleSubmit}
                     disabled={!allAnswered}
                     className={cn(
-                      'px-4 py-2 rounded-xl text-sm font-medium transition-all',
+                      'px-4 py-2 rounded-xl type-meta font-medium transition-all',
                       allAnswered
                         ? 'bg-accent-rose/90 hover:bg-accent-rose text-white'
                         : 'bg-surface-hover text-text-muted cursor-not-allowed',
@@ -531,7 +531,7 @@ export function ExamPrepView({
               </div>
 
               {timeLeft <= 30 && timeLeft > 0 && isActive && (
-                <p className="text-xs text-accent-rose flex items-center gap-1 justify-center">
+                <p className="type-caption text-accent-rose flex items-center gap-1 justify-center">
                   <AlertTriangle className="w-3.5 h-3.5" /> {t('examPrepTimeWarning')}
                 </p>
               )}
@@ -549,7 +549,7 @@ export function ExamPrepView({
               <p className="text-2xl font-bold text-text-primary mt-2 tabular-nums">
                 {t('examPrepCorrectCount').replace('{score}', String(score)).replace('{total}', String(examQuestions.length))}
               </p>
-              <p className="text-sm text-text-secondary mt-1">
+              <p className="type-body text-text-secondary mt-1">
                 {score === examQuestions.length
                   ? t('examPrepPerfect')
                   : score >= Math.ceil(examQuestions.length / 2)
@@ -573,14 +573,14 @@ export function ExamPrepView({
                   <div key={item.label} className="ux-card text-center">
                     <Icon className={cn('w-4 h-4 mx-auto mb-2', item.tone)} />
                     <p className={cn('ux-kpi-value', item.tone)}>{item.value}</p>
-                    <p className="text-xs text-text-tertiary">{item.label}</p>
+                    <p className="type-caption text-text-tertiary">{item.label}</p>
                   </div>
                 );
               })}
             </div>
 
             <div className="ux-card">
-              <p className="text-sm font-semibold mb-4">{t('examPrepQuestionReview')}</p>
+              <p className="type-meta font-semibold mb-4">{t('examPrepQuestionReview')}</p>
               <div className="space-y-3">
                 {examQuestions.map((question, i) => {
                   const answer = answers[i];
@@ -614,12 +614,12 @@ export function ExamPrepView({
                         {correct ? (
                           <CheckCircle2 className="w-4 h-4 text-accent-emerald" />
                         ) : (
-                          <span className="text-xs font-semibold text-text-tertiary">{i + 1}</span>
+                          <span className="type-caption font-semibold text-text-tertiary">{i + 1}</span>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-text-primary truncate">Q{i + 1}: {question.question}</p>
-                        <p className="text-xs text-text-tertiary">
+                        <p className="type-meta font-medium text-text-primary truncate">Q{i + 1}: {question.question}</p>
+                        <p className="type-caption text-text-tertiary">
                           {answer.answer === null ? t('examPrepLegendNotAttempted') : t('examPrepSelected').replace('{letter}', String.fromCharCode(65 + answer.answer))}
                           {answer.flagged ? ` · ${t('examPrepFlagged')}` : ''}
                         </p>
@@ -633,11 +633,11 @@ export function ExamPrepView({
 
             {moduleBreakdown.length > 0 && (
               <div className="ux-card">
-                <p className="text-sm font-semibold mb-4">{t('examPrepBreakdown')}</p>
+                <p className="type-meta font-semibold mb-4">{t('examPrepBreakdown')}</p>
                 <div className="space-y-3">
                   {moduleBreakdown.map((bucket) => (
                     <div key={bucket.label}>
-                      <div className="flex items-center justify-between text-sm mb-1">
+                      <div className="flex items-center justify-between type-meta mb-1">
                         <span className="text-text-secondary">{bucket.label}</span>
                         <span className="font-mono text-text-primary">{bucket.correct}/{bucket.total} ({bucket.pct}%)</span>
                       </div>
@@ -654,7 +654,7 @@ export function ExamPrepView({
               <button
                 type="button"
                 onClick={resetExam}
-                className="px-4 py-2 rounded-xl border border-border-subtle text-sm text-text-secondary hover:border-brand-500/25"
+                className="px-4 py-2 rounded-xl border border-border-subtle type-meta text-text-secondary hover:border-brand-500/25"
               >
                 {t('examPrepRetake')}
               </button>
@@ -667,14 +667,14 @@ export function ExamPrepView({
                     setShowExplanations(true);
                     setPhase('review');
                   }}
-                  className="px-4 py-2 rounded-xl border border-border-subtle text-sm text-text-secondary hover:border-brand-500/25"
+                  className="px-4 py-2 rounded-xl border border-border-subtle type-meta text-text-secondary hover:border-brand-500/25"
                 >
                   {t('examPrepReviewAnswers')}
                 </button>
                 <button
                   type="button"
                   onClick={handleFinish}
-                  className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium"
+                  className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white type-meta font-medium"
                 >
                   {t('examPrepComplete')}
                 </button>

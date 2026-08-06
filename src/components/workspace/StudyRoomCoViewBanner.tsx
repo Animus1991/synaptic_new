@@ -28,7 +28,7 @@ export function StudyRoomCoViewBanner({
   return (
     <div
       className={cn(
-        'flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-b text-xs',
+        'flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-b type-caption',
         mode === 'leading'
           ? 'border-brand-500/30 bg-brand-500/10 text-text-primary'
           : 'border-border-subtle bg-surface-secondary/90 text-text-secondary',
@@ -39,7 +39,7 @@ export function StudyRoomCoViewBanner({
       <div className="flex items-center gap-2 min-w-0">
         <Users className="h-3.5 w-3.5 shrink-0" aria-hidden />
         <div className="min-w-0">
-          <p className="font-medium text-text-primary truncate">{tr('studyRoomCoViewTitle')}</p>
+          <p className="font-medium truncate">{tr('studyRoomCoViewTitle')}</p>
           <p className="type-caption text-text-muted truncate">{status}</p>
         </div>
       </div>

@@ -54,7 +54,7 @@ export function DashboardHubPopupShell({ open, actionId, title, onClose, childre
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-border-subtle shrink-0">
-              <h2 id="dashboard-hub-popup-title" className="text-sm font-semibold text-text-primary">
+              <h2 id="dashboard-hub-popup-title" className="type-meta font-semibold text-text-primary">
                 {title}
               </h2>
               <button

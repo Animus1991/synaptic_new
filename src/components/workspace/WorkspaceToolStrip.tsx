@@ -59,7 +59,7 @@ export function WorkspaceToolStrip({
         className={cn(
           'ux-workspace-tool-tab inline-flex shrink-0 items-center gap-1 rounded-lg border px-2 py-1 type-micro font-medium transition-colors',
           active
-            ? 'border-brand-400/45 bg-surface-secondary text-text-primary border border-border-subtle font-semibold'
+            ? 'border-brand-400/45 bg-surface-secondary text-text-secondary'
             : 'border-transparent text-text-muted hover:border-border-subtle hover:bg-surface-hover hover:text-text-secondary',
         )}
       >
@@ -90,7 +90,7 @@ export function WorkspaceToolStrip({
             className={cn(
               'inline-flex items-center gap-0.5 rounded-lg border px-2 py-1 type-micro font-medium transition-colors',
               secondaryActive || moreOpen
-                ? 'border-brand-400/45 bg-surface-secondary text-text-primary border border-border-subtle font-semibold'
+                ? 'border-brand-400/45 bg-surface-secondary text-text-secondary'
                 : 'border-transparent text-text-muted hover:bg-surface-hover hover:text-text-secondary',
             )}
           >
@@ -112,7 +112,7 @@ export function WorkspaceToolStrip({
                   }}
                   className={cn(
                     'flex w-full items-center gap-2 px-3 py-1.5 text-left type-micro hover:bg-surface-hover',
-                    activeTool === id ? 'bg-surface-secondary text-text-primary border border-border-subtle font-semibold' : 'text-text-secondary',
+                    activeTool === id ? 'bg-surface-secondary text-text-secondary border border-border-subtle font-semibold' : 'text-text-secondary',
                   )}
                 >
                   <Icon className="h-3.5 w-3.5 shrink-0" />

@@ -31,12 +31,12 @@ export function CalibrationChip({ score, direction }: Props) {
     <BlueprintSurface className="p-4">
       {/* OPT-K9b — score sits beside status chip, not far-right of ultrawide well */}
       <div className="proximity-row flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <span className={cn('proximity-row-label text-xs px-2.5 py-1 rounded-full', meta.chip)}>
+        <span className={cn('proximity-row-label type-caption px-2.5 py-1 rounded-full', meta.chip)}>
           {meta.text}
         </span>
         <span className="text-lg font-bold text-text-primary ws-num tabular-nums shrink-0">{score}/100</span>
       </div>
-      <p className="proximity-track text-xs text-text-secondary mt-2 leading-relaxed">{meta.hint}</p>
+      <p className="proximity-track type-caption text-text-secondary mt-2 leading-relaxed">{meta.hint}</p>
     </BlueprintSurface>
   );
 }

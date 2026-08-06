@@ -68,7 +68,7 @@ export function OrgAuditExportPanel({ orgId, settings, lang }: Props) {
         aria-expanded={open}
         data-testid="org-audit-export-toggle"
       >
-        <span className="flex items-center gap-2 text-xs font-medium text-text-primary">
+        <span className="flex items-center gap-2 type-caption font-medium text-text-primary">
           <Shield className="w-3.5 h-3.5 text-text-primary0" />
           {ui.title}
         </span>

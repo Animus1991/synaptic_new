@@ -102,7 +102,7 @@ export function AssignmentCanonPanel({
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <p className="text-xs font-semibold text-text-primary">
+          <p className="type-caption font-semibold text-text-primary">
             <AllCapsLabel>{tr('collabCanonTitle')}</AllCapsLabel>
           </p>
           <p className="type-micro text-text-muted mt-0.5">{tr('collabCanonHint')}</p>
@@ -149,7 +149,7 @@ export function AssignmentCanonPanel({
               }}
               rows={4}
               readOnly={!isSteward}
-              className="ws-field-input text-xs resize-y min-h-[5rem]"
+              className="ws-field-input type-body resize-y min-h-[5rem]"
               data-testid="assignment-canon-editor"
             />
           </label>
@@ -158,14 +158,14 @@ export function AssignmentCanonPanel({
             value={proposalDraft}
             onChange={(e) => setProposalDraft(e.target.value)}
             rows={3}
-            className="ws-field-input text-xs resize-y"
+            className="ws-field-input type-body resize-y"
             placeholder={tr('collabProposePlaceholder')}
             data-testid="assignment-section-proposal-draft"
           />
           <input
             value={summary}
             onChange={(e) => setSummary(e.target.value)}
-            className="ws-field-input text-xs"
+            className="ws-field-input type-body"
             placeholder={tr('collabProposalSummary')}
           />
           <label className="flex items-center gap-2 type-micro text-text-secondary">
@@ -175,7 +175,7 @@ export function AssignmentCanonPanel({
           <button
             type="button"
             disabled={!proposalDraft.trim() || !cap.allowed}
-            className="ws-empty-cta-secondary text-xs min-h-11 disabled:opacity-50"
+            className="ws-empty-cta-secondary type-caption min-h-11 disabled:opacity-50"
             data-testid="assignment-section-proposal-submit"
             onClick={() => {
               if (!active || !proposalDraft.trim()) return;
@@ -237,7 +237,7 @@ export function AssignmentCanonPanel({
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
-          className="ws-empty-cta-secondary text-xs min-h-11"
+          className="ws-empty-cta-secondary type-caption min-h-11"
           data-testid="assignment-canon-export"
           onClick={() => {
             const md = exportCanonMarkdown(doc);
@@ -258,7 +258,7 @@ export function AssignmentCanonPanel({
           <input
             value={successorName}
             onChange={(e) => setSuccessorName(e.target.value)}
-            className="ws-field-input text-xs flex-1 min-w-[8rem]"
+            className="ws-field-input type-body flex-1 min-w-[8rem]"
             placeholder={tr('collabSuccessorPlaceholder')}
             data-testid="assignment-successor-name"
           />

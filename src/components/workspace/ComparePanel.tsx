@@ -173,7 +173,7 @@ export function ComparePanel({
             term: selectedRow[0],
             text: buildCompareSelectionContext(selectedRow, concept, session.sectionLabel).text,
           })}
-          className="mb-2 inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5 type-caption font-medium text-text-primary hover:opacity-90"
+          className="mb-2 inline-flex items-center gap-1 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5 type-caption font-medium text-text-secondary hover:opacity-90"
         >
           {t('compareExplainDiff')}
         </button>
@@ -206,7 +206,7 @@ export function ComparePanel({
             type="button"
             data-testid="compare-ai-diff"
             onClick={() => onAiDiff(selectedRow[0], selectedRow[1] || concept)}
-            className="rounded-full border border-border-default bg-surface-tertiary px-2.5 py-1 type-caption font-medium text-text-primary hover:bg-surface-hover"
+            className="rounded-full border border-border-default bg-surface-tertiary px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover"
           >
             {t('compareAiDiff')}
           </button>

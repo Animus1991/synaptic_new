@@ -47,7 +47,7 @@ export function NotificationToastStack() {
           >
             <div className="flex items-start gap-2">
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-text-primary">{n.title}</p>
+                <p className="type-meta font-medium text-text-primary">{n.title}</p>
                 {n.body && <p className="type-caption text-text-secondary mt-0.5">{n.body}</p>}
               </div>
               <button

@@ -33,7 +33,7 @@ export function SessionQueueBar({
         <Play className="w-3.5 h-3.5 text-text-secondary shrink-0" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-1">
-            <p className="text-xs font-semibold text-text-secondary truncate">
+            <p className="type-caption font-semibold text-text-secondary truncate">
               {sessionLabel(sessionType)} · Task {currentIndex} of {total}
             </p>
             <button

@@ -117,8 +117,8 @@ export function AnalyticsVisualLabPanel({
               mode === item.id && 'visual-lab-mode-tab-active',
             )}
           >
-            <span className="text-sm font-semibold text-text-primary">{t(item.titleKey)}</span>
-            <span className="mt-1 block text-xs leading-5 text-text-secondary">{t(item.subtitleKey)}</span>
+            <span className="type-meta font-semibold text-text-primary">{t(item.titleKey)}</span>
+            <span className="mt-1 block type-caption leading-5 text-text-secondary">{t(item.subtitleKey)}</span>
           </button>
         ))}
       </div>
@@ -132,7 +132,7 @@ export function AnalyticsVisualLabPanel({
             </div>
             <span className="visual-lab-mode-badge">{t('visualLabDecorativeBadge')}</span>
           </div>
-          <p className="text-sm leading-6 text-text-secondary">{t(active.hintKey)}</p>
+          <p className="type-body leading-6 text-text-secondary">{t(active.hintKey)}</p>
           <div className="visual-lab-board-frame ux-canvas-frame mt-4">
             <VisualLabModeBoard
               mode={mode}
@@ -150,7 +150,7 @@ export function AnalyticsVisualLabPanel({
         <div className="space-y-4">
           <div className="visual-lab-side-panel">
             <p className="dashboard-live-preview-eyebrow"><AllCapsLabel>{t('visualLabGuidanceEyebrow')}</AllCapsLabel></p>
-            <div className="mt-4 space-y-3 text-sm leading-6 text-text-secondary">
+            <div className="mt-4 space-y-3 type-body leading-6 text-text-secondary">
               <p>{t('visualLabGuidance1')}</p>
               <p>{t('visualLabGuidance2')}</p>
               <p>{t('visualLabGuidance3')}</p>
@@ -164,10 +164,10 @@ export function AnalyticsVisualLabPanel({
               {SOURCE_VISUAL_TILES.map((tile) => (
                 <div key={tile.id} className="visual-lab-mapping-tile">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm font-semibold text-text-primary">{t(tile.labelKey)}</span>
+                    <span className="type-meta font-semibold text-text-primary">{t(tile.labelKey)}</span>
                     <span className="visual-lab-mapping-symbol">{tile.symbol}</span>
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-text-secondary">{t(tile.visualKey)}</p>
+                  <p className="mt-2 type-body leading-6 text-text-secondary">{t(tile.visualKey)}</p>
                 </div>
               ))}
             </div>

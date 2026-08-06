@@ -805,7 +805,7 @@ export default function App() {
             </div>
             <div className="flex w-[42%] min-w-0 flex-col bg-surface-primary overflow-hidden">
               <div className="flex shrink-0 items-center justify-between border-b border-border-subtle bg-surface-card px-3 py-2 gap-2">
-                <span className="text-xs font-semibold text-text-primary truncate">{store.selectedCourse.title}</span>
+                <span className="type-caption font-semibold text-text-primary truncate">{store.selectedCourse.title}</span>
                 <button
                   type="button"
                   onClick={store.exitWorkspaceCourseSplit}
@@ -848,7 +848,7 @@ export default function App() {
             </div>
             <div className="flex w-[42%] min-w-0 flex-col bg-surface-primary">
               <div className="flex shrink-0 items-center justify-between border-b border-border-subtle bg-surface-card px-3 py-2">
-                <span className="text-xs font-semibold text-text-secondary">Synapse Agent</span>
+                <span className="type-caption font-semibold text-text-secondary">Synapse Agent</span>
                 <button
                   type="button"
                   onClick={store.exitWorkspaceAgentSplit}

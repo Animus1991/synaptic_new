@@ -243,13 +243,13 @@ export function CommandPalette({
             aria-expanded="true"
             aria-controls="command-palette-list"
             aria-autocomplete="list"
-            className="command-palette-input flex-1 bg-transparent text-sm outline-none placeholder:text-text-muted"
+            className="command-palette-input flex-1 bg-transparent type-body outline-none placeholder:text-text-muted"
           />
           <kbd className="type-micro px-1.5 py-0.5 rounded border border-border-subtle text-text-muted">ESC</kbd>
         </div>
         <div id="command-palette-list" role="listbox" className="max-h-72 overflow-y-auto p-2">
           {orderedActions.length === 0 ? (
-            <p className="text-xs text-text-muted text-center py-6">{t('noMatches')}</p>
+            <p className="type-caption text-text-muted text-center py-6">{t('noMatches')}</p>
           ) : orderedActions.map((a, i) => (
             <button
               key={`${a.type}-${i}`}
@@ -264,7 +264,7 @@ export function CommandPalette({
               }
               onClick={() => run(a)}
               className={cn(
-                'command-palette-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm',
+                'command-palette-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left type-body',
                 'hover:bg-surface-hover transition-colors',
               )}
             >

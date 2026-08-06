@@ -81,7 +81,7 @@ export function WorkspaceToolCrossLinkBar({
             data-testid="crosslink-ask-agent"
             onClick={onAskAgent}
             aria-label={t('askAgentShort')}
-            className="ws-eyebrow inline-flex items-center gap-1 rounded-md border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-1 type-caption text-text-primary hover:opacity-90 transition-colors min-h-[32px]"
+            className="ws-eyebrow inline-flex items-center gap-1 rounded-md border border-accent-cyan/30 bg-accent-cyan/10 px-2 py-1 type-caption text-text-secondary hover:opacity-90 transition-colors min-h-[32px]"
           >
             <Sparkles className="h-3 w-3" aria-hidden />
             <AllCapsLabel>Agent</AllCapsLabel>

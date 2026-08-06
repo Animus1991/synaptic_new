@@ -192,21 +192,21 @@ export function InteractiveSimulator({
       return (
         <div className="flex h-full flex-col overflow-hidden">
           <div className="flex items-center justify-between border-b border-border-subtle bg-surface-card px-4 py-2.5 shrink-0">
-            <span className="flex items-center gap-2 text-sm font-semibold">
-              <SlidersHorizontal className="w-4 h-4 text-text-primary" />
+            <span className="flex items-center gap-2 type-meta font-semibold">
+              <SlidersHorizontal className="w-4 h-4 text-text-secondary" />
               {t('parametricSandbox')}
             </span>
-            <span className="rounded border border-border-subtle bg-surface-secondary text-text-primary">
+            <span className="rounded border border-border-subtle bg-surface-secondary text-text-secondary">
               {t('fromNotesBadge')}
             </span>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            <p className="text-xs text-text-tertiary">
+            <p className="type-caption text-text-secondary">
               {t('sandboxAdjustHint')}
             </p>
             {coursePresets.mode === 'parametric' && coursePresets.scenarios.length > 0 && (
               <div data-testid="simulator-course-presets">
-                <p className="mb-1.5 text-xs font-medium text-text-tertiary">{t('presets')}</p>
+                <p className="mb-1.5 type-caption font-medium text-text-muted">{t('presets')}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {coursePresets.scenarios.map((p) => (
                     <button
@@ -217,7 +217,7 @@ export function InteractiveSimulator({
                       className={cn(
                         'ws-touch-floor min-h-9 rounded-lg border px-2.5 py-1.5 type-caption transition-all',
                         activeParametricPreset === p.id
-                          ? 'border-border-default bg-surface-secondary font-medium text-text-primary'
+                          ? 'border-border-default bg-surface-secondary font-medium text-text-secondary'
                           : 'border-border-subtle bg-surface-primary/50 text-text-secondary hover:border-border-default hover:text-text-primary',
                       )}
                     >
@@ -232,7 +232,7 @@ export function InteractiveSimulator({
                 type="button"
                 data-testid="simulator-send-whiteboard"
                 onClick={sendGraphToWhiteboard}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border-subtle bg-surface-secondary text-text-primary hover:bg-brand-600/15"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border-subtle bg-surface-secondary text-text-secondary hover:bg-brand-600/15"
               >
                 <PenLine className="w-3 h-3" />
                 {t('scratchOpenWhiteboard')}
@@ -242,10 +242,10 @@ export function InteractiveSimulator({
               <div key={cue.id} className="rounded-xl border border-border-subtle bg-surface-card p-4">
                 <div className="mb-2 flex justify-between items-start gap-2">
                   <div>
-                    <p className="text-xs font-semibold text-text-primary">{cue.label}</p>
+                    <p className="type-caption font-semibold text-text-primary">{cue.label}</p>
                     <p className="type-caption text-text-muted mt-0.5 line-clamp-2">{cue.context}</p>
                   </div>
-                  <span className="font-mono text-sm text-text-secondary shrink-0">
+                  <span className="font-mono type-meta text-text-secondary shrink-0">
                     {(cueValues[cue.id] ?? cue.baseline).toFixed(cue.unit === '%' ? 0 : 1)}
                     {cue.unit === '%' ? '%' : cue.unit ? ` ${cue.unit}` : ''}
                   </span>
@@ -304,8 +304,8 @@ export function InteractiveSimulator({
     return (
       <div className="flex h-full flex-col overflow-hidden">
         <div className="flex items-center justify-between border-b border-border-subtle bg-surface-card px-4 py-2.5 shrink-0">
-          <span className="flex items-center gap-2 text-sm font-semibold">
-            <SlidersHorizontal className="w-4 h-4 text-text-primary" />
+          <span className="flex items-center gap-2 type-meta font-semibold">
+            <SlidersHorizontal className="w-4 h-4 text-text-secondary" />
             {t('parametricSandbox')}
           </span>
         </div>
@@ -318,7 +318,7 @@ export function InteractiveSimulator({
             onUpload={onUpload}
           />
           {insight && (
-            <div className="mt-4 w-full max-w-2xl rounded-xl border border-accent-cyan/25 bg-accent-cyan/5 p-4 text-left text-xs text-text-secondary leading-relaxed">
+            <div className="mt-4 w-full max-w-2xl rounded-xl border border-accent-cyan/25 bg-accent-cyan/5 p-4 text-left type-caption text-text-secondary leading-relaxed">
               {insight}
             </div>
           )}
@@ -330,7 +330,7 @@ export function InteractiveSimulator({
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border-subtle bg-surface-card px-3 py-1.5">
-        <span className="flex min-w-0 items-center gap-2 text-sm font-semibold text-text-primary">
+        <span className="flex min-w-0 items-center gap-2 type-meta font-semibold text-text-secondary">
           <SlidersHorizontal className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
           <span className="truncate">{t('parametricSandbox')}</span>
         </span>
@@ -348,7 +348,7 @@ export function InteractiveSimulator({
                 type="button"
                 data-testid="simulator-send-whiteboard"
                 onClick={sendGraphToWhiteboard}
-                className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2 type-caption text-text-primary hover:border-border-default"
+                className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2 type-caption text-text-secondary hover:border-border-default"
                 aria-label={t('scratchOpenWhiteboard')}
                 title={t('scratchOpenWhiteboard')}
               >
@@ -367,7 +367,7 @@ export function InteractiveSimulator({
                 className={cn(
                   'ws-touch-floor min-h-9 rounded-lg border px-2.5 py-1.5 type-caption transition-all',
                   activeEconScenario === p.id
-                    ? 'border-border-default bg-surface-secondary font-medium text-text-primary'
+                    ? 'border-border-default bg-surface-secondary font-medium text-text-secondary'
                     : 'border-border-subtle bg-surface-primary/50 text-text-secondary hover:border-border-default hover:text-text-primary',
                 )}
               >
@@ -415,7 +415,7 @@ export function InteractiveSimulator({
         </svg>
 
         <div className="mb-4 flex gap-4 type-caption font-medium">
-          <span className="flex items-center gap-1.5 text-text-primary">
+          <span className="flex items-center gap-1.5 text-text-secondary">
             <span
               className="h-3.5 w-3.5 rounded-sm border"
               style={{
@@ -426,34 +426,34 @@ export function InteractiveSimulator({
             />
             {t('consumerSurplus')}
           </span>
-          <span className="flex items-center gap-1.5 text-text-primary">
+          <span className="flex items-center gap-1.5 text-text-secondary">
             <span className="h-3.5 w-3.5 rounded-sm border border-brand-500/50 bg-brand-600/25" aria-hidden />
             {t('producerSurplus')}
           </span>
         </div>
 
         <div className="mb-3 w-full max-w-sm rounded-xl border border-border-subtle bg-surface-primary/50 p-3">
-          <p className="mb-1 type-caption font-semibold text-text-primary">{t('equilibriumFormulas')}</p>
-          <p className="font-mono text-sm text-text-secondary">P* = (100 + ΔD − ΔS) / 2</p>
-          <p className="font-mono text-sm text-text-secondary">Q* = P* + ΔS</p>
+          <p className="mb-1 type-caption font-semibold text-text-secondary">{t('equilibriumFormulas')}</p>
+          <p className="font-mono type-meta text-text-secondary">P* = (100 + ΔD − ΔS) / 2</p>
+          <p className="font-mono type-meta text-text-secondary">Q* = P* + ΔS</p>
         </div>
 
         <div className="w-full max-w-sm space-y-4 rounded-xl border border-border-subtle bg-surface-card p-4">
           <div>
             <div className="mb-2 flex justify-between">
-              <label htmlFor="sim-demand-shift" className="text-xs font-semibold text-accent-emerald">{t('demandShock')}</label>
-              <span className="font-mono text-xs text-text-tertiary">{demandShift > 0 ? '+' : ''}{demandShift}</span>
+              <label htmlFor="sim-demand-shift" className="type-caption font-semibold text-accent-emerald">{t('demandShock')}</label>
+              <span className="font-mono type-caption text-text-muted">{demandShift > 0 ? '+' : ''}{demandShift}</span>
             </div>
             <input id="sim-demand-shift" type="range" min={-40} max={40} value={demandShift} onChange={(e) => { setDemandShift(Number(e.target.value)); onEngage?.(); }} className="w-full" style={{ accentColor: '#34d399' }} />
           </div>
           <div>
             <div className="mb-2 flex justify-between">
-              <label htmlFor="sim-supply-shift" className="text-xs font-semibold text-text-primary">{t('supplyShock')}</label>
-              <span className="font-mono text-xs text-text-tertiary">{supplyShift > 0 ? '+' : ''}{supplyShift}</span>
+              <label htmlFor="sim-supply-shift" className="type-caption font-semibold text-text-secondary">{t('supplyShock')}</label>
+              <span className="font-mono type-caption text-text-muted">{supplyShift > 0 ? '+' : ''}{supplyShift}</span>
             </div>
             <input id="sim-supply-shift" type="range" min={-40} max={40} value={supplyShift} onChange={(e) => { setSupplyShift(Number(e.target.value)); onEngage?.(); }} className="w-full" style={{ accentColor: '#818cf8' }} />
           </div>
-          <div className="flex items-center justify-between border-t border-border-subtle pt-3 font-mono text-sm">
+          <div className="flex items-center justify-between border-t border-border-subtle pt-3 font-mono type-meta">
             <span>P* = <strong>{eqP.toFixed(1)}</strong></span>
             <ArrowRight className="w-4 h-4 text-text-muted" />
             <span>Q* = <strong>{eqQ.toFixed(1)}</strong></span>
@@ -461,7 +461,7 @@ export function InteractiveSimulator({
         </div>
 
         <div className={cn(
-          'mt-4 w-full max-w-sm rounded-lg border p-3.5 text-sm',
+          'mt-4 w-full max-w-sm rounded-lg border p-3.5 type-meta',
           challengeMet ? 'border-accent-emerald/40 bg-accent-emerald/10 text-accent-emerald' : 'border-accent-amber/35 bg-accent-amber/8 text-text-secondary',
         )}>
           <div className="mb-1 flex items-center gap-2 font-semibold">
@@ -473,7 +473,7 @@ export function InteractiveSimulator({
           ) : (
             <>
               <p>{t('challengeAdjust')}{CHALLENGE_TOLERANCE} of {CHALLENGE_TARGET_P}.</p>
-              <p className="mt-1 text-xs text-text-tertiary">{t('challengeHint')}</p>
+              <p className="mt-1 type-caption text-text-secondary">{t('challengeHint')}</p>
             </>
           )}
         </div>

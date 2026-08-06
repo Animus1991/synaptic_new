@@ -51,7 +51,7 @@ export function StudyRoomSharedNotes({
           value={text}
           onChange={(e) => updateText(e.target.value)}
           rows={4}
-          className="ws-field-input text-xs resize-y min-h-[5rem]"
+          className="ws-field-input type-caption resize-y min-h-[5rem]"
           placeholder={tr('studyRoomSharedNotesPlaceholder')}
           data-testid="study-room-shared-notes-input"
         />

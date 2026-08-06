@@ -23,7 +23,7 @@ type Props = {
 };
 
 const fieldClass =
-  'w-full rounded-lg border border-border-subtle bg-surface-secondary px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:border-brand-500 focus:outline-none';
+  'w-full rounded-lg border border-border-subtle bg-surface-secondary px-3 py-2 type-body text-text-primary placeholder:text-text-muted focus:border-brand-500 focus:outline-none';
 
 /** Study Room lobby — create/join a collaborative co-reading session, then enter the Study Hub. */
 export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
@@ -172,7 +172,7 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
         <div className="space-y-4 lg:col-span-3">
           <Card tone="brand" padding="lg">
             <SectionHeading title={t('studyRoomHubWhatTitle')} icon={Users} size="lg" />
-            <p className="mt-3 text-sm leading-relaxed text-text-secondary">{t('studyRoomHubWhatBody')}</p>
+            <p className="mt-3 type-body leading-relaxed text-text-secondary">{t('studyRoomHubWhatBody')}</p>
             <span
               className={`mt-4 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 type-caption font-medium ${
                 isLocal
@@ -197,8 +197,8 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
                   <span className="grid h-9 w-9 place-items-center rounded-lg border border-border-subtle bg-surface-card text-brand-500">
                     <Icon className="h-4 w-4" />
                   </span>
-                  <p className="mt-2.5 text-sm font-semibold leading-snug text-text-primary">{title}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-text-muted">{desc}</p>
+                  <p className="mt-2.5 type-meta font-semibold leading-snug text-text-primary">{title}</p>
+                  <p className="mt-1 type-caption leading-relaxed text-text-muted">{desc}</p>
                 </li>
               ))}
             </ul>
@@ -209,12 +209,12 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
             <ol className="mt-4 space-y-3">
               {steps.map(({ title, body }, i) => (
                 <li key={title} className="flex items-start gap-3">
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-brand-500/10 text-sm font-bold text-brand-500">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-brand-500/10 type-meta font-bold text-brand-500">
                     {i + 1}
                   </span>
                   <div>
-                    <p className="text-sm font-semibold leading-snug text-text-primary">{title}</p>
-                    <p className="mt-0.5 text-xs leading-relaxed text-text-muted">{body}</p>
+                    <p className="type-meta font-semibold leading-snug text-text-primary">{title}</p>
+                    <p className="mt-0.5 type-caption leading-relaxed text-text-muted">{body}</p>
                   </div>
                 </li>
               ))}
@@ -227,7 +227,7 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
           <div className="lg:sticky lg:top-4 space-y-3">
             {error && (
               <div
-                className="rounded-lg border border-accent-rose/30 bg-accent-rose/10 px-3 py-2 text-xs text-accent-rose"
+                className="rounded-lg border border-accent-rose/30 bg-accent-rose/10 px-3 py-2 type-caption text-accent-rose"
                 role="alert"
               >
                 {error}
@@ -237,21 +237,21 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
             {room ? (
               <Card padding="lg" className="space-y-4" data-testid="study-room-hub-active">
                 <SectionHeading title={t('studyRoomHubInRoom')} icon={Users} />
-                <div className="rounded-lg border border-border-subtle bg-surface-secondary/60 px-3 py-2 text-sm">
+                <div className="rounded-lg border border-border-subtle bg-surface-secondary/60 px-3 py-2 type-body">
                   <p className="truncate font-semibold text-text-primary">{room.name}</p>
-                  <p className="text-xs text-text-muted">
+                  <p className="type-caption text-text-muted">
                     {room.members.length} {t('studyRoomMembersOnline')}
                     {room.localOnly ? t('studyRoomLocalSuffix') : ''}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-sm font-semibold text-text-primary">{t('studyRoomHubInviteTitle')}</p>
+                  <p className="type-meta font-semibold text-text-primary">{t('studyRoomHubInviteTitle')}</p>
                   <p className="mb-2 type-caption leading-relaxed text-text-muted">
                     {copied ? t('studyRoomCopied') : t('studyRoomInviteExplain')}
                   </p>
                   <div className="flex items-center gap-2">
-                    <code className="flex-1 rounded-lg border border-border-subtle bg-surface-secondary px-3 py-2 font-mono text-sm text-text-primary">
+                    <code className="flex-1 rounded-lg border border-border-subtle bg-surface-secondary px-3 py-2 font-mono type-body text-text-primary">
                       {room.inviteCode}
                     </code>
                     <button
@@ -267,12 +267,12 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
                 </div>
 
                 <div>
-                  <p className="mb-1.5 text-sm font-semibold text-text-primary">{t('studyRoomHubMembersHere')}</p>
+                  <p className="mb-1.5 type-meta font-semibold text-text-primary">{t('studyRoomHubMembersHere')}</p>
                   <ul className="space-y-1.5" data-testid="study-room-hub-members">
                     {room.members.map((m) => (
                       <li
                         key={m.id}
-                        className={`rounded-lg border px-3 py-1.5 text-xs ${
+                        className={`rounded-lg border px-3 py-1.5 type-caption ${
                           m.id === memberId
                             ? 'border-brand-500/30 bg-brand-500/5 text-text-primary'
                             : 'border-border-subtle text-text-secondary'
@@ -331,7 +331,7 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
                     void handleCreate();
                   }}
                 >
-                  <p className="mb-2 text-sm font-semibold text-text-primary">{t('studyRoomHubCreateTitle')}</p>
+                  <p className="mb-2 type-meta font-semibold text-text-primary">{t('studyRoomHubCreateTitle')}</p>
                   <PrimaryCTA
                     type="submit"
                     disabled={busy}
@@ -352,7 +352,7 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
 
                 {/* Step 2b: join */}
                 <div>
-                  <p className="mb-2 text-sm font-semibold text-text-primary">{t('studyRoomHubJoinTitle')}</p>
+                  <p className="mb-2 type-meta font-semibold text-text-primary">{t('studyRoomHubJoinTitle')}</p>
                   <label className="block">
                     <span className="mb-1 block type-caption font-medium uppercase tracking-wide text-text-muted">
                       {t('studyRoomInviteCode')}

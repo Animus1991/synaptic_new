@@ -33,7 +33,7 @@ export function ProactiveAgentAlertStrip({ alerts, onRun }: Props) {
         <BlueprintSurface className="p-3 space-y-2.5 border border-accent-amber/20 bg-accent-amber/5">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-accent-amber" weight="fill" />
-            <p className="text-sm font-semibold text-text-primary">{t('proactiveAlertStripTitle')}</p>
+            <p className="type-meta font-semibold text-text-primary">{t('proactiveAlertStripTitle')}</p>
           </div>
           <div className="flex flex-col gap-2">
             {alerts.map((alert) => {
@@ -58,7 +58,7 @@ export function ProactiveAgentAlertStrip({ alerts, onRun }: Props) {
                     )}
                   />
                   <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-1 text-xs font-semibold text-text-primary">
+                    <span className="flex items-center gap-1 type-caption font-semibold text-text-primary">
                       {alert.title}
                       <ArrowRight className="w-3 h-3 opacity-70 group-hover:translate-x-0.5 transition-transform" />
                     </span>

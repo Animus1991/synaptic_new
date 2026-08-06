@@ -91,7 +91,7 @@ export function WorkspaceSourceStatusBar({
       >
         <AlertTriangle className="h-4 w-4 shrink-0 text-accent-amber" aria-hidden />
         <span className="ws-source-alert-header-text min-w-0 flex-1 text-left">
-          <span className="block type-caption font-medium text-text-primary" data-testid="source-status-score">
+          <span className="block type-caption font-medium text-text-secondary" data-testid="source-status-score">
             {t('sourceQualityLabel')}
             {typeof score === 'number' && (
               <>
@@ -173,7 +173,7 @@ export function WorkspaceSourceStatusBar({
 
           {(showMigration || showPre24Greek) && (
             <div className="mt-2 px-3.5 type-caption text-text-secondary" data-testid="source-status-migration-affected">
-              <p className="font-medium text-text-primary">{t('sourceMigrationAffectedTitle')}</p>
+              <p className="font-medium text-text-secondary">{t('sourceMigrationAffectedTitle')}</p>
               <ul className="mt-1 list-disc space-y-0.5 pl-4 text-text-muted">
                 <li>{t('sourceMigrationAffectedOcr')}</li>
                 <li>{t('sourceMigrationAffectedTables')}</li>

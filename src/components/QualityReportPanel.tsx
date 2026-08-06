@@ -34,12 +34,12 @@ export function QualityReportPanel({ report, lang, compact = false, className }:
     >
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <p className="text-xs font-semibold text-text-primary">{t('qualityReportTitle', lang)}</p>
-          <p className="mt-1 text-sm text-text-secondary">
+          <p className="type-caption font-semibold text-text-primary">{t('qualityReportTitle', lang)}</p>
+          <p className="mt-1 type-body text-text-secondary">
             {report.passes ? t('qualityReportPassed', lang) : t('qualityReportNeedsReview', lang)}
           </p>
         </div>
-        <span className="text-xs font-semibold text-text-muted">
+        <span className="type-caption font-semibold text-text-muted">
           {report.overallScore}/100
         </span>
       </div>
@@ -72,7 +72,7 @@ export function QualityReportPanel({ report, lang, compact = false, className }:
       </div>
 
       {report.recommendations.length > 0 && (
-        <ul className="mt-3 space-y-1 text-xs text-text-secondary list-disc pl-4">
+        <ul className="mt-3 space-y-1 type-caption text-text-secondary list-disc pl-4">
           {report.recommendations.map((rec) => (
             <li key={rec}>{rec}</li>
           ))}

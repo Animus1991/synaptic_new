@@ -25,18 +25,18 @@ export function KnowledgeFlowSankeyChart({ links, title, hint, emptyLabel, hasDa
     return (
       <div className="ux-card blueprint-surface flex flex-col items-center justify-center min-h-[220px] text-center" data-testid="knowledge-flow-sankey-empty">
         <GitBranch className="w-8 h-8 text-text-tertiary mb-2" />
-        <p className="text-sm text-text-muted">{emptyLabel}</p>
+        <p className="type-body text-text-muted">{emptyLabel}</p>
       </div>
     );
   }
 
   return (
     <div className="ux-card blueprint-surface" data-testid="knowledge-flow-sankey">
-      <h3 className="text-sm font-semibold text-text-primary mb-1 flex items-center gap-2">
+      <h3 className="type-meta font-semibold text-text-primary mb-1 flex items-center gap-2">
         <GitBranch className="w-4 h-4 text-text-secondary" />
         {title}
       </h3>
-      <p className="text-xs text-text-tertiary mb-4">{hint}</p>
+      <p className="type-caption text-text-tertiary mb-4">{hint}</p>
       <div className="overflow-x-auto rounded-xl border border-border-subtle bg-surface-primary/40 p-3">
         <svg viewBox="0 0 1000 240" className="h-[280px] w-full min-w-[640px]" role="img" aria-label={title}>
           {links.map((link) => {
@@ -115,15 +115,15 @@ export function MasteryWaterfallChart({
   if (!hasData || cumulative.length === 0) {
     return (
       <div className="ux-card blueprint-surface flex flex-col items-center justify-center min-h-[220px] text-center" data-testid="mastery-waterfall-empty">
-        <p className="text-sm text-text-muted">{emptyLabel}</p>
+        <p className="type-body text-text-muted">{emptyLabel}</p>
       </div>
     );
   }
 
   return (
     <div className="ux-card blueprint-surface" data-testid="mastery-waterfall">
-      <h3 className="text-sm font-semibold text-text-primary mb-1">{title}</h3>
-      <p className="text-xs text-text-tertiary mb-4">{hint}</p>
+      <h3 className="type-meta font-semibold text-text-primary mb-1">{title}</h3>
+      <p className="type-caption text-text-tertiary mb-4">{hint}</p>
       <div className="overflow-x-auto rounded-xl border border-border-subtle bg-surface-primary/40 p-3">
         <svg viewBox="0 0 780 280" className="h-[280px] w-full min-w-[520px]" role="img" aria-label={title}>
           {cumulative.map((step, i) => {
@@ -195,7 +195,7 @@ export function MasteryWaterfallChart({
           <div
             key={s.label}
             className={cn(
-              'rounded-xl border p-3 text-xs',
+              'rounded-xl border p-3 type-body',
               s.delta >= 0 ? 'border-accent-emerald/25 bg-accent-emerald/5' : 'border-accent-rose/25 bg-accent-rose/5',
             )}
           >

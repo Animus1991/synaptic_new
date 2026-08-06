@@ -776,7 +776,7 @@ export function CognitiveReader({
                 key={`seg-${i}`}
                 id={`reader-seg-${i}`}
                 className={cn(
-                  'scroll-mt-4 border-b pb-1 pt-2 text-sm font-semibold',
+                  'scroll-mt-4 border-b pb-1 pt-2 type-body font-semibold',
                   heatmapMode === 'learning' && learningHeat
                     ? readerHeatmapLevelClass(learningHeat.level)
                     : suspicious
@@ -940,7 +940,7 @@ export function CognitiveReader({
   return (
     <div className="ux-tier-b-tool ux-tier-b-reader flex h-full flex-col overflow-hidden" data-testid="cognitive-reader">
       <div className="ux-tier-b-toolbar flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border-subtle bg-surface-card px-4 py-2">
-        <span className="flex items-center gap-2 text-xs font-semibold">
+        <span className="flex items-center gap-2 type-caption font-semibold">
           <Type className="w-3.5 h-3.5 text-text-secondary" />
           {t('cognitiveReader')}
           {annotations.length > 0 && (
@@ -1155,7 +1155,7 @@ export function CognitiveReader({
               type="button"
               data-testid="reader-define-btn"
               aria-pressed="true"
-              className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-1 type-caption font-medium text-text-primary"
+              className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-1 type-caption font-medium text-text-secondary"
             >
               {t('readerDefine')}
             </button>
@@ -1167,7 +1167,7 @@ export function CognitiveReader({
                   onTermFocus(glossaryPopover.term);
                   setGlossaryPopover(null);
                 }}
-                className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-1 type-caption font-medium text-text-primary"
+                className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-1 type-caption font-medium text-text-secondary"
               >
                 {t('readerFocusInText')}
               </button>
@@ -1293,7 +1293,7 @@ export function CognitiveReader({
           <button
             type="button"
             onClick={() => handleReaderSelectionAction('ask-agent')}
-            className="shrink-0 inline-flex items-center gap-1 rounded-lg border border-accent-cyan/40 bg-accent-cyan/15 px-2 py-1 type-caption font-medium text-text-primary"
+            className="shrink-0 inline-flex items-center gap-1 rounded-lg border border-accent-cyan/40 bg-accent-cyan/15 px-2 py-1 type-caption font-medium text-text-secondary"
           >
             <Sparkles className="h-3 w-3" />
             {t('readerAskAgentChip')}
@@ -1407,7 +1407,7 @@ export function CognitiveReader({
               onScroll={onCompanionScroll}
               className="min-h-0 overflow-y-auto bg-surface-secondary/40 p-4 md:p-6"
             >
-              <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 type-caption font-semibold text-text-primary backdrop-blur-sm">
+              <p className="sticky top-0 z-10 mb-2 bg-surface-primary/90 py-1 type-caption font-semibold text-text-secondary backdrop-blur-sm">
                 {translationMode === 'full'
                   ? t('readerTranslationCol')
                   : t('readerGlossaryCompanion')}
@@ -1422,7 +1422,7 @@ export function CognitiveReader({
                     onClick={() => scrollToParagraph(i)}
                     onKeyDown={(e) => { if (e.key === 'Enter') scrollToParagraph(i); }}
                     className={cn(
-                      'rounded-lg border border-border-subtle/50 bg-surface-card/40 p-2 text-sm text-text-primary scroll-mt-4 cursor-pointer hover:bg-surface-hover/30',
+                      'rounded-lg border border-border-subtle/50 bg-surface-card/40 p-2 type-body text-text-primary scroll-mt-4 cursor-pointer hover:bg-surface-hover/30',
                       dyslexia && 'leading-loose tracking-wide',
                       focusTerm && pair.source.toLowerCase().includes(focusTerm.toLowerCase()) && 'ring-1 ring-brand-600/35',
                     )}
@@ -1478,7 +1478,7 @@ export function CognitiveReader({
           )}
           {renderStructuredBody()}
           {heatmapMode === 'learning' && !highlight && (
-            <div className="mx-auto mt-6 flex max-w-xl items-start gap-2 rounded-lg border border-accent-rose/20 bg-accent-rose/5 p-3 text-xs text-accent-rose" data-testid="reader-learning-heatmap-legend">
+            <div className="mx-auto mt-6 flex max-w-xl items-start gap-2 rounded-lg border border-accent-rose/20 bg-accent-rose/5 p-3 type-caption text-accent-rose" data-testid="reader-learning-heatmap-legend">
               <Sparkles className="w-4 h-4 shrink-0" />
               <span>
                 {t('readerLearningHeatLegend')}
@@ -1486,7 +1486,7 @@ export function CognitiveReader({
             </div>
           )}
           {heatmapMode === 'complexity' && !highlight && (
-            <div className="mx-auto mt-6 flex max-w-xl items-start gap-2 rounded-lg border border-accent-amber/20 bg-accent-amber/5 p-3 text-xs text-accent-amber">
+            <div className="mx-auto mt-6 flex max-w-xl items-start gap-2 rounded-lg border border-accent-amber/20 bg-accent-amber/5 p-3 type-caption text-accent-amber">
               <Sparkles className="w-4 h-4 shrink-0" />
               <span>{t('readerDenseTermHint')}</span>
             </div>
@@ -1522,12 +1522,12 @@ export function CognitiveReader({
             value={noteDraft}
             onChange={(e) => setNoteDraft(e.target.value)}
             placeholder={t('readerOptionalMarginNote')}
-            className="w-full px-3 py-1.5 rounded-lg bg-surface-input border border-border-subtle text-xs"
+            className="w-full px-3 py-1.5 rounded-lg bg-surface-input border border-border-subtle type-caption text-text-primary"
             onKeyDown={(e) => e.key === 'Enter' && confirmAnnotation()}
           />
           <div className="flex gap-2 justify-end">
-            <button type="button" onClick={() => setPendingNote(null)} className="text-xs text-text-muted">{t('cancel')}</button>
-            <button type="button" onClick={confirmAnnotation} className="text-xs font-medium text-text-primary">{t('save')}</button>
+            <button type="button" onClick={() => setPendingNote(null)} className="type-caption text-text-muted">{t('cancel')}</button>
+            <button type="button" onClick={confirmAnnotation} className="type-caption font-medium text-text-secondary">{t('save')}</button>
           </div>
         </div>
       )}

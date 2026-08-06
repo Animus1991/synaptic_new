@@ -544,7 +544,7 @@ export function StudyWhiteboard({
           {scratchpadImport && (
             <div className="p-3 rounded-xl border border-accent-cyan/30 bg-accent-cyan/5 space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-text-primary">
+                <div className="flex items-center gap-1.5 type-caption font-semibold text-text-secondary">
                   <Calculator className="w-3.5 h-3.5" />
                   {t('wbFromScratchpad')}
                 </div>
@@ -584,8 +584,8 @@ export function StudyWhiteboard({
               </button>
             </div>
           )}
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary">
-            <BookOpen className="w-3.5 h-3.5 text-text-primary" />
+          <div className="flex items-center gap-1.5 type-caption font-semibold text-text-secondary">
+            <BookOpen className="w-3.5 h-3.5 text-text-secondary" />
             {t('wbFromNotes')}
           </div>
           {referenceFormulas.map((f) => (
@@ -613,7 +613,7 @@ export function StudyWhiteboard({
       <div className="flex min-h-0 flex-1 flex-col min-w-0">
       <div className="shrink-0 border-b border-border-subtle px-3 py-2">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold">Study Whiteboard</h3>
+          <h3 className="type-meta font-semibold">Study Whiteboard</h3>
           {crdt && (
             <span
               className={cn(
@@ -649,7 +649,7 @@ export function StudyWhiteboard({
             onClick={() => setTool(id)}
             className={cn(
               'ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg transition-colors',
-              tool === id ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-muted hover:bg-surface-hover',
+              tool === id ? 'bg-surface-secondary text-text-secondary border border-border-subtle' : 'text-text-muted hover:bg-surface-hover',
               activeLayerLocked && 'opacity-40 cursor-not-allowed',
             )}
           >
@@ -668,7 +668,7 @@ export function StudyWhiteboard({
             onClick={() => setTool(id)}
             className={cn(
               'ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg transition-colors',
-              tool === id ? 'bg-surface-secondary text-text-primary border border-border-subtle' : 'text-text-muted hover:bg-surface-hover',
+              tool === id ? 'bg-surface-secondary text-text-secondary border border-border-subtle' : 'text-text-muted hover:bg-surface-hover',
               activeLayerLocked && 'opacity-40 cursor-not-allowed',
             )}
           >
@@ -704,7 +704,7 @@ export function StudyWhiteboard({
             title={t('wbExplainDiagram')}
             disabled={doc.strokes.length === 0}
             onClick={handleExplainDiagram}
-            className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border border-border-subtle text-text-primary hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
+            className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Bot className="w-3.5 h-3.5" aria-hidden />
           </button>
@@ -720,7 +720,7 @@ export function StudyWhiteboard({
             data-testid="whiteboard-layers-toggle"
             aria-pressed={showLayers}
             onClick={() => setShowLayers((v) => !v)}
-            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted"
           >
             {t('wbToggleLayersPanel')}
           </button>
@@ -729,21 +729,21 @@ export function StudyWhiteboard({
             data-testid="whiteboard-latex-stamps"
             aria-pressed={showStamps}
             onClick={() => setShowStamps((v) => !v)}
-            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted"
           >
             LaTeX
           </button>
           <button
             type="button"
             onClick={clearActiveLayer}
-            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted"
           >
             {t('wbClearActiveLayer')}
           </button>
           <button
             type="button"
             onClick={save}
-            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted"
           >
             {t('wbSaveBoard')}
           </button>
@@ -751,7 +751,7 @@ export function StudyWhiteboard({
             type="button"
             data-testid="whiteboard-export-png"
             onClick={exportPng}
-            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted"
           >
             {t('wbExportPng')}
           </button>
@@ -759,7 +759,7 @@ export function StudyWhiteboard({
             type="button"
             data-testid="whiteboard-export-svg"
             onClick={exportSvg}
-            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-primary hover:bg-surface-muted"
+            className="block w-full px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-muted"
           >
             {t('wbExportSvg')}
           </button>

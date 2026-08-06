@@ -147,13 +147,13 @@ export function LessonContent({
         {learningBar}
         {theoryRecap && (
           <div className="p-3 rounded-xl bg-surface-card border border-border-subtle space-y-2">
-            <span className="type-caption text-text-primary font-semibold">{t('wsLensTheoryHint')}</span>
-            <div className="text-sm text-text-secondary leading-relaxed">
+            <span className="type-caption text-text-secondary font-semibold">{t('wsLensTheoryHint')}</span>
+            <div className="type-body text-text-secondary leading-relaxed">
               <RichText text={theoryRecap} />
             </div>
           </div>
         )}
-        <span className="type-caption text-text-primary font-semibold">{t('quiz')}</span>
+        <span className="type-caption text-text-secondary font-semibold">{t('quiz')}</span>
         <h2 className="text-xl font-bold">{t('knowledgeCheck')}</h2>
         <div className="p-3 rounded-xl bg-surface-card border border-border-subtle">
           {quizSessionItems && quizSessionItems.length > 0 && quizSessionScopeKey ? (
@@ -170,7 +170,7 @@ export function LessonContent({
             <WorkspaceQuiz quizDef={quizDef} lang={lang} irt={quizIrt} onComplete={onQuizComplete} />
           )}
           {quizPassed && (
-             <p className="text-xs mt-2 text-accent-emerald">✓ {t('canFinish')}</p>
+             <p className="type-caption mt-2 text-accent-emerald">✓ {t('canFinish')}</p>
           )}
         </div>
         {toolBar}
@@ -187,7 +187,7 @@ export function LessonContent({
     return (
       <div className="space-y-4">
         {learningBar}
-        <span className="type-caption text-text-primary font-semibold">
+        <span className="type-caption text-text-secondary font-semibold">
           {t('wbFromNotes')}
         </span>
         <h2 className="text-xl font-bold">{stepTitle ?? concept}</h2>
@@ -195,7 +195,7 @@ export function LessonContent({
           <span className="type-caption text-text-muted">{stepType}</span>
         )}
         <div
-          className="text-sm text-text-secondary leading-relaxed"
+          className="type-body text-text-secondary leading-relaxed"
           onMouseUp={onSelectionAction ? captureSelection : undefined}
         >
           <RichText text={displayChunk} />
@@ -204,7 +204,7 @@ export function LessonContent({
           <button
             type="button"
             onClick={() => onOpenTool('quiz')}
-            className="inline-flex items-center gap-1 rounded-lg border border-brand-400/45 bg-brand-100/80 px-3 py-1.5 text-xs font-semibold text-text-primary hover:bg-brand-100 transition-colors"
+            className="inline-flex items-center gap-1 rounded-lg border border-brand-400/45 bg-brand-100/80 px-3 py-1.5 type-caption font-semibold text-text-primary hover:bg-brand-100 transition-colors"
             data-testid="lesson-practice-cta"
           >
             {t('wsPracticePanelCta')}
@@ -221,7 +221,7 @@ export function LessonContent({
           />
         )}
         {genStatus === 'loading' && (
-          <span className="inline-flex items-center gap-1 type-caption px-1.5 py-0.5 rounded bg-surface-secondary text-text-primary border border-border-subtle font-medium animate-pulse">
+          <span className="inline-flex items-center gap-1 type-caption px-1.5 py-0.5 rounded bg-surface-secondary text-text-secondary border border-border-subtle font-medium animate-pulse">
             <Sparkles className="w-2.5 h-2.5" /> {t('generatingFromSources')}
           </span>
         )}
@@ -232,9 +232,9 @@ export function LessonContent({
 
   return (
     <div className="space-y-4 text-center py-8">
-      <p className="text-sm text-text-secondary">{emptyMessage}</p>
+      <p className="type-body text-text-secondary">{emptyMessage}</p>
       {!hasSource && onUpload && (
-        <button type="button" onClick={onUpload} className="mt-2 px-4 py-2 rounded-xl text-sm font-medium bg-brand-600 text-white hover:bg-brand-500">
+        <button type="button" onClick={onUpload} className="mt-2 px-4 py-2 rounded-xl type-meta font-medium bg-brand-600 text-white hover:bg-brand-500">
           {t('uploadMaterial')}
         </button>
       )}

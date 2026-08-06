@@ -2056,9 +2056,9 @@
   gap: 0.5rem;
 }
 .ux-pomodoro-mode-card-title {
-  font-size: 0.8125rem;
+  font-size: var(--type-meta);
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--color-text-secondary);
 }
 .ux-pomodoro-mode-card-duration {
   font-size: var(--type-micro); /* UIUX-AUDIT-2026-08: 0.625rem → 11px (--type-micro floor) */
@@ -2067,9 +2067,9 @@
   color: var(--color-text-muted);
 }
 .ux-pomodoro-mode-card-desc {
-  font-size: 0.6875rem;
+  font-size: var(--type-caption);
   line-height: 1.45;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
 }
 [data-theme="blueprint"] .ux-pomodoro-shell {
   border-radius: var(--radius-2xl); /* UIUX-AUDIT-2026-08: was hardcoded 1.75rem → --radius-2xl */

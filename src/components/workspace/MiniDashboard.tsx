@@ -153,7 +153,7 @@ export function MiniDashboard({
                       className="rotate-90 origin-center" fill={band.color} fontSize={16} fontWeight="800">{readiness}%</text>
                   </svg>
                   <div>
-                    <p className="text-xs font-semibold">{band.label}</p>
+                    <p className="type-caption font-semibold">{band.label}</p>
                     <p className="type-caption text-text-muted">{t('examReadiness')}</p>
                     <p className="type-caption text-text-muted mt-1">{conceptsMastered}/{totalConcepts} {t('concepts')}</p>
                   </div>
@@ -163,12 +163,12 @@ export function MiniDashboard({
                 <div className="grid grid-cols-3 gap-1.5">
                   <StatPill icon={<Zap className="w-3 h-3 text-accent-amber" />} label={t('streak')} value={`${streak}d`} />
                   <StatPill icon={<RotateCcw className="w-3 h-3 text-accent-teal" />} label={t('due')} value={`${reviewsDue}`} />
-                  <StatPill icon={<Brain className="w-3 h-3 text-text-primary" />} label={t('weak')} value={`${weakSpots.length}`} />
+                  <StatPill icon={<Brain className="w-3 h-3 text-text-secondary" />} label={t('weak')} value={`${weakSpots.length}`} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-1.5">
                   <StatPill icon={<Clock className="w-3 h-3 text-accent-emerald" />} label={t('studyToday')} value={`${studyTimeToday}m`} />
-                  <StatPill icon={<Clock className="w-3 h-3 text-text-primary" />} label={t('studyThisWeek')} value={`${studyTimeWeek}m`} />
+                  <StatPill icon={<Clock className="w-3 h-3 text-text-secondary" />} label={t('studyThisWeek')} value={`${studyTimeWeek}m`} />
                 </div>
 
                 {/* Always show — empty well was screenshot P0 when week>0 but daily series missing */}
@@ -288,7 +288,7 @@ export function MiniDashboard({
                               type="button"
                               title={action.hint}
                               onClick={() => onRemediateWeakSpot(concept, action.id)}
-                              className="rounded-full border border-brand-500/30 bg-brand-500/10 px-1.5 py-0.5 type-caption font-medium text-text-primary hover:bg-brand-500/20"
+                              className="rounded-full border border-brand-500/30 bg-brand-500/10 px-1.5 py-0.5 type-caption font-medium text-text-secondary hover:bg-brand-500/20"
                             >
                               {action.label}
                             </button>
@@ -315,7 +315,7 @@ export function MiniDashboard({
                     <div className="w-5 h-5 rounded-md bg-surface-hover flex items-center justify-center shrink-0">
                       {a.type === 'review' ? <RotateCcw className="w-3 h-3 text-accent-amber" />
                         : a.type === 'practice' ? <Target className="w-3 h-3 text-accent-teal" />
-                        : <BookOpen className="w-3 h-3 text-text-primary" />}
+                        : <BookOpen className="w-3 h-3 text-text-secondary" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="type-caption font-medium truncate">{a.label}</p>

@@ -232,7 +232,7 @@ export function StudyWorkspaceLessonPanel({ model }: StudyWorkspaceLessonPanelPr
                       onClick={() => currentStep > 0 && setCurrentStep(currentStep - 1)}
                       disabled={currentStep === 0}
                       className={cn(
-                        'text-xs',
+                        'type-caption',
                         currentStep === 0 ? 'text-text-muted' : 'text-text-secondary hover:text-text-primary',
                       )}
                     >
@@ -244,7 +244,7 @@ export function StudyWorkspaceLessonPanel({ model }: StudyWorkspaceLessonPanelPr
                     <button
                       type="button"
                       onClick={handleStepNext}
-                      className="flex items-center gap-1 text-xs font-medium text-text-primary hover:text-text-primary"
+                      className="flex items-center gap-1 type-caption font-medium text-text-secondary hover:text-text-primary"
                     >
                       {currentStep === STEPS.length - 1 ? t('finish') : t('next')}{' '}
                       <ChevronRight className="w-3 h-3" />

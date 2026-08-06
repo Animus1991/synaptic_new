@@ -430,7 +430,7 @@ export function TeacherDashboard({
             {!isMinimal && <Users className="w-5 h-5 text-text-secondary" />}
             {ui.title}
           </h1>
-          <p className="text-sm text-text-secondary mt-1">{ui.subtitle}</p>
+          <p className="type-body text-text-secondary mt-1">{ui.subtitle}</p>
           {data?.syncedAt && (
             <p className="type-micro text-text-muted mt-1">
               {ui.lastSynced}: {formatDateTime(data.syncedAt, lang)}
@@ -442,7 +442,7 @@ export function TeacherDashboard({
           onClick={() => void load()}
           disabled={loading}
           data-testid="teacher-refresh"
-          className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border-subtle text-sm hover:border-border-default transition-colors"
+          className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border-subtle type-meta hover:border-border-default transition-colors"
         >
           <RefreshCw className={cn('w-4 h-4', loading && 'animate-spin')} />
           {ui.refresh}
@@ -450,14 +450,14 @@ export function TeacherDashboard({
       </div>
 
       {error && (
-        <div className="rounded-xl border border-accent-rose/30 bg-accent-rose/10 px-4 py-3 text-sm text-accent-rose ink-allow-accent" role="alert">
+        <div className="rounded-xl border border-accent-rose/30 bg-accent-rose/10 px-4 py-3 type-body text-accent-rose ink-allow-accent" role="alert">
           {error}
         </div>
       )}
 
       {signedIn && (
         <div
-          className="ux-flow-panel rounded-xl bg-surface-card/60 px-4 py-3 text-xs text-text-secondary space-y-2"
+          className="ux-flow-panel rounded-xl bg-surface-card/60 px-4 py-3 type-caption text-text-secondary space-y-2"
           data-testid="teacher-cohort-roadmap"
         >
           <p>{ui.cohortRoadmap}</p>
@@ -466,23 +466,23 @@ export function TeacherDashboard({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-border-subtle/50" data-testid="teacher-cohort-analytics">
               <div>
                 <p className="type-micro text-text-muted">{ui.cohortStudents}</p>
-                <p className="text-sm font-semibold text-text-primary">{orgAnalytics.totalStudents}</p>
+                <p className="type-meta font-semibold text-text-primary">{orgAnalytics.totalStudents}</p>
               </div>
               <div>
                 <p className="type-micro text-text-muted">{ui.cohortCompletion}</p>
-                <p className="text-sm font-semibold text-text-primary">
+                <p className="type-meta font-semibold text-text-primary">
                   {orgAnalytics.completionRate != null ? `${Math.round(orgAnalytics.completionRate * 100)}%` : '—'}
                 </p>
               </div>
               <div>
                 <p className="type-micro text-text-muted">{ui.cohortAvgMastery}</p>
-                <p className="text-sm font-semibold text-text-primary">
+                <p className="type-meta font-semibold text-text-primary">
                   {orgAnalytics.avgMastery != null ? `${Math.round(orgAnalytics.avgMastery)}%` : '—'}
                 </p>
               </div>
               <div>
                 <p className="type-micro text-text-muted">{ui.cohortAvgScore}</p>
-                <p className="text-sm font-semibold text-text-primary">
+                <p className="type-meta font-semibold text-text-primary">
                   {orgAnalytics.avgScore != null ? `${Math.round(orgAnalytics.avgScore)}%` : '—'}
                 </p>
               </div>
@@ -499,7 +499,7 @@ export function TeacherDashboard({
       )}
 
       {!signedIn && (
-        <div className="ux-flow-panel p-6 text-sm text-text-secondary flex gap-3 items-start">
+        <div className="ux-flow-panel p-6 type-body text-text-secondary flex gap-3 items-start">
           <Shield className="w-5 h-5 text-text-secondary shrink-0" />
           <div className="space-y-2">
             <p className="font-medium text-text-primary">{ui.signInRequired}</p>
@@ -509,7 +509,7 @@ export function TeacherDashboard({
                 type="button"
                 data-testid="teacher-open-settings"
                 onClick={onOpenSettings}
-                className="text-xs font-medium text-text-secondary hover:text-text-primary"
+                className="type-caption font-medium text-text-secondary hover:text-text-primary"
               >
                 {ui.openSettingsCta}
               </button>
@@ -528,7 +528,7 @@ export function TeacherDashboard({
               <Users className="w-4 h-4 text-text-secondary" />
               {ui.classRosters}
             </h2>
-            <p className="text-xs text-text-muted mt-1">{ui.classRostersHint}</p>
+            <p className="type-caption text-text-muted mt-1">{ui.classRostersHint}</p>
           </div>
 
           <div className="flex flex-wrap gap-2 items-end">
@@ -538,21 +538,21 @@ export function TeacherDashboard({
               onChange={(e) => setClassNameInput(e.target.value)}
               placeholder={ui.classNamePlaceholder}
               data-testid="teacher-class-name"
-              className="flex-1 min-w-[140px] px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary text-sm"
+              className="flex-1 min-w-[140px] px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary type-body"
             />
             <button
               type="button"
               onClick={() => void handleCreateClass()}
               disabled={classBusy || !classNameInput.trim()}
               data-testid="teacher-create-class"
-              className="px-3 py-2 rounded-xl bg-brand-600 text-white text-sm font-medium disabled:opacity-50"
+              className="px-3 py-2 rounded-xl bg-brand-600 text-white type-meta font-medium disabled:opacity-50"
             >
               {ui.createClass}
             </button>
           </div>
 
           {classes.length === 0 ? (
-            <p className="text-xs text-text-muted">{ui.noClasses}</p>
+            <p className="type-caption text-text-muted">{ui.noClasses}</p>
           ) : (
             <div className="flex flex-wrap gap-2">
               {classes.map((cls) => (
@@ -562,7 +562,7 @@ export function TeacherDashboard({
                   data-testid={`teacher-class-tab-${cls.id}`}
                   onClick={() => handleSelectClass(cls.id)}
                   className={cn(
-                    'px-3 py-1.5 rounded-lg text-xs border transition-colors',
+                    'px-3 py-1.5 rounded-lg type-caption border transition-colors',
                     selectedClassId === cls.id
                       ? 'border-border-default bg-surface-secondary text-text-primary'
                       : 'border-border-subtle hover:border-border-default',
@@ -584,7 +584,7 @@ export function TeacherDashboard({
                   onChange={(e) => setStudentEmail(e.target.value)}
                   placeholder={ui.studentEmailPlaceholder}
                   data-testid="teacher-student-email"
-                  className="flex-1 min-w-[160px] px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary text-sm"
+                  className="flex-1 min-w-[160px] px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary type-body"
                 />
                 <input
                   type="text"
@@ -592,24 +592,24 @@ export function TeacherDashboard({
                   onChange={(e) => setStudentName(e.target.value)}
                   placeholder={ui.studentNamePlaceholder}
                   data-testid="teacher-student-name"
-                  className="flex-1 min-w-[140px] px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary text-sm"
+                  className="flex-1 min-w-[140px] px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary type-body"
                 />
                 <button
                   type="button"
                   onClick={() => void handleAddStudent()}
                   disabled={classBusy || !studentEmail.trim()}
                   data-testid="teacher-add-student"
-                  className="px-3 py-2 rounded-xl border border-border-subtle text-text-secondary text-sm font-medium disabled:opacity-50"
+                  className="px-3 py-2 rounded-xl border border-border-subtle text-text-secondary type-meta font-medium disabled:opacity-50"
                 >
                   {ui.addStudent}
                 </button>
               </div>
 
               {roster.length === 0 ? (
-                <p className="text-xs text-text-muted">{ui.noStudents}</p>
+                <p className="type-caption text-text-muted">{ui.noStudents}</p>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
+                  <table className="w-full type-caption">
                     <thead>
                       <tr className="text-text-muted border-b border-border-subtle">
                         <th className="text-left py-2 pr-3">{ui.colStudent}</th>
@@ -647,7 +647,7 @@ export function TeacherDashboard({
               <div className="pt-4 border-t border-border-subtle" data-testid="teacher-lti-roster">
                 <button
                   type="button"
-                  className="w-full flex items-center justify-between text-sm font-semibold"
+                  className="w-full flex items-center justify-between type-meta font-semibold"
                   onClick={() => setLtiRosterOpen((v) => !v)}
                 >
                   <span>{ui.ltiRosterTitle}</span>
@@ -670,14 +670,14 @@ export function TeacherDashboard({
                         onChange={(e) => setLtiContextInput(e.target.value)}
                         placeholder={ui.ltiRosterContextPlaceholder}
                         data-testid="teacher-lti-context-id"
-                        className="flex-1 min-w-[180px] px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary text-sm"
+                        className="flex-1 min-w-[180px] px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary type-body"
                       />
                       <button
                         type="button"
                         onClick={() => void handleLinkLtiContext()}
                         disabled={classBusy || !ltiContextInput.trim()}
                         data-testid="teacher-lti-link-context"
-                        className="px-3 py-2 rounded-xl border border-border-subtle text-text-secondary text-sm"
+                        className="px-3 py-2 rounded-xl border border-border-subtle text-text-secondary type-meta"
                       >
                         {ui.ltiRosterLink}
                       </button>
@@ -686,7 +686,7 @@ export function TeacherDashboard({
                         onClick={() => void handleSyncLtiRoster()}
                         disabled={classBusy || !ltiContextInput.trim()}
                         data-testid="teacher-lti-roster-sync"
-                        className="px-3 py-2 rounded-xl bg-brand-600 text-white text-sm font-medium disabled:opacity-50"
+                        className="px-3 py-2 rounded-xl bg-brand-600 text-white type-meta font-medium disabled:opacity-50"
                       >
                         {ui.ltiRosterSync}
                       </button>
@@ -701,7 +701,7 @@ export function TeacherDashboard({
               </div>
 
               <div className="space-y-3 pt-4 border-t border-border-subtle" data-testid="teacher-announcements">
-                <h3 className="text-sm font-semibold">{ui.announcements}</h3>
+                <h3 className="type-meta font-semibold">{ui.announcements}</h3>
                 <p className="type-caption text-text-muted">{ui.announcementsHint}</p>
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -722,7 +722,7 @@ export function TeacherDashboard({
                       setAnnouncementBody(draft.body);
                       setError(null);
                     }}
-                    className="px-3 py-1.5 rounded-xl border border-border-subtle text-xs font-medium text-text-secondary hover:bg-surface-hover disabled:opacity-50"
+                    className="px-3 py-1.5 rounded-xl border border-border-subtle type-caption font-medium text-text-secondary hover:bg-surface-hover disabled:opacity-50"
                   >
                     {ui.draftWeakAnnouncement}
                   </button>
@@ -741,7 +741,7 @@ export function TeacherDashboard({
                         prompt: buildCohortDraftPolishPrompt(draft, lang),
                       });
                     }}
-                    className="px-3 py-1.5 rounded-xl border border-border-subtle text-xs font-medium text-text-secondary hover:border-border-default disabled:opacity-50"
+                    className="px-3 py-1.5 rounded-xl border border-border-subtle type-caption font-medium text-text-secondary hover:border-border-default disabled:opacity-50"
                   >
                     {ui.polishAnnouncementAgent}
                   </button>
@@ -754,7 +754,7 @@ export function TeacherDashboard({
                     onChange={(e) => setAnnouncementTitle(e.target.value)}
                     placeholder={ui.announcementTitlePlaceholder}
                     data-testid="teacher-announcement-title"
-                    className="w-full px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary text-sm"
+                    className="w-full px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary type-body"
                   />
                   <textarea
                     value={announcementBody}
@@ -762,26 +762,26 @@ export function TeacherDashboard({
                     placeholder={ui.announcementBodyPlaceholder}
                     rows={3}
                     data-testid="teacher-announcement-body"
-                    className="w-full px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary text-sm resize-y min-h-[72px]"
+                    className="w-full px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary type-body resize-y min-h-[72px]"
                   />
                   <button
                     type="button"
                     onClick={() => void handleCreateAnnouncement()}
                     disabled={classBusy || !announcementTitle.trim() || !announcementBody.trim()}
                     data-testid="teacher-create-announcement"
-                    className="px-3 py-2 rounded-xl bg-brand-600 text-white text-sm font-medium disabled:opacity-50"
+                    className="px-3 py-2 rounded-xl bg-brand-600 text-white type-meta font-medium disabled:opacity-50"
                   >
                     {ui.createAnnouncement}
                   </button>
                 </div>
                 {announcements.length === 0 ? (
-                  <p className="text-xs text-text-muted">{ui.noAnnouncements}</p>
+                  <p className="type-caption text-text-muted">{ui.noAnnouncements}</p>
                 ) : (
                   <ul className="space-y-2">
                     {announcements.map((row) => (
                       <li
                         key={row.id}
-                        className="rounded-xl border border-border-subtle/60 p-3 text-xs"
+                        className="rounded-xl border border-border-subtle/60 p-3 type-caption"
                         data-testid={`teacher-announcement-row-${row.id}`}
                       >
                         <div className="flex flex-wrap items-start justify-between gap-2">
@@ -808,7 +808,7 @@ export function TeacherDashboard({
               </div>
 
               <div className="space-y-3 pt-4 border-t border-border-subtle" data-testid="teacher-assignments">
-                <h3 className="text-sm font-semibold">{ui.assignments}</h3>
+                <h3 className="type-meta font-semibold">{ui.assignments}</h3>
                 <p className="type-caption text-text-muted">{ui.assignmentsHint}</p>
                 <div className="flex flex-wrap gap-2 items-end">
                   <input
@@ -817,7 +817,7 @@ export function TeacherDashboard({
                     onChange={(e) => setAssignmentTitle(e.target.value)}
                     placeholder={ui.assignmentTitlePlaceholder}
                     data-testid="teacher-assignment-title"
-                    className="flex-1 min-w-[160px] px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary text-sm"
+                    className="flex-1 min-w-[160px] px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary type-body"
                   />
                   <input
                     type="date"
@@ -825,23 +825,23 @@ export function TeacherDashboard({
                     onChange={(e) => setAssignmentDue(e.target.value)}
                     placeholder={ui.assignmentDuePlaceholder}
                     data-testid="teacher-assignment-due"
-                    className="px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary text-sm"
+                    className="px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary type-body"
                   />
                   <button
                     type="button"
                     onClick={() => void handleCreateAssignment()}
                     disabled={classBusy || !assignmentTitle.trim()}
                     data-testid="teacher-create-assignment"
-                    className="px-3 py-2 rounded-xl bg-brand-600 text-white text-sm font-medium disabled:opacity-50"
+                    className="px-3 py-2 rounded-xl bg-brand-600 text-white type-meta font-medium disabled:opacity-50"
                   >
                     {ui.createAssignment}
                   </button>
                 </div>
                 {assignments.length === 0 ? (
-                  <p className="text-xs text-text-muted">{ui.noAssignments}</p>
+                  <p className="type-caption text-text-muted">{ui.noAssignments}</p>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-xs">
+                    <table className="w-full type-caption">
                       <thead>
                         <tr className="text-text-muted border-b border-border-subtle">
                           <th className="text-left py-2 pr-3">{ui.colTitle}</th>
@@ -909,13 +909,13 @@ export function TeacherDashboard({
 
               <div className="space-y-3 pt-4 border-t border-border-subtle" data-testid="teacher-gradebook">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="text-sm font-semibold">{ui.gradebook}</h3>
+                  <h3 className="type-meta font-semibold">{ui.gradebook}</h3>
                   {selectedClassId && settings.authToken && (
                     <div className="flex items-center gap-3">
                       <button
                         type="button"
                         data-testid="teacher-export-gradebook"
-                        className="text-xs text-text-secondary hover:underline"
+                        className="type-caption text-text-secondary hover:underline"
                         onClick={() => {
                           void downloadGradebookCsv(settings.authToken!, settings, selectedClassId).then((blob) => {
                             const url = URL.createObjectURL(blob);
@@ -932,7 +932,7 @@ export function TeacherDashboard({
                       <button
                         type="button"
                         data-testid="teacher-lti-passback"
-                        className="text-xs text-text-secondary hover:underline"
+                        className="type-caption text-text-secondary hover:underline"
                         onClick={() => {
                           void ltiPassbackClassGrades(
                             settings.authToken!,
@@ -955,10 +955,10 @@ export function TeacherDashboard({
                   <p className="type-micro text-text-secondary" data-testid="teacher-lti-passback-msg">{ltiPassbackMsg}</p>
                 )}
                 {roster.length === 0 || assignments.length === 0 ? (
-                  <p className="text-xs text-text-muted">{ui.gradebookEmpty}</p>
+                  <p className="type-caption text-text-muted">{ui.gradebookEmpty}</p>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-xs min-w-[480px]">
+                    <table className="w-full type-caption min-w-[480px]">
                       <thead>
                         <tr className="text-text-muted border-b border-border-subtle">
                           <th className="text-left py-2 pr-3 sticky left-0 bg-surface-card">{ui.colStudent}</th>
@@ -1012,7 +1012,7 @@ export function TeacherDashboard({
       {loading && !data && (
         <div className="ux-flow-panel ux-shimmer-panel p-8" data-testid="teacher-dashboard-loading" role="status" aria-live="polite">
           <UxShimmerPanel lines={5} />
-          <p className="mt-4 text-center text-sm text-text-muted">{ui.loading}</p>
+          <p className="mt-4 text-center type-body text-text-muted">{ui.loading}</p>
         </div>
       )}
 
@@ -1031,7 +1031,7 @@ export function TeacherDashboard({
                 <Zap className="w-4 h-4 text-text-secondary" />
                 {ui.llmUsageMonth} · {data.usage.month}
               </h2>
-              <span className="text-xs text-text-muted">
+              <span className="type-caption text-text-muted">
                 {data.account.email} · {data.account.plan} {ui.planLabel}
               </span>
             </div>
@@ -1046,7 +1046,7 @@ export function TeacherDashboard({
                 aria-valuemax={100}
               />
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center type-caption">
               <div><p className="text-lg font-bold">{data.usage.requests}</p><p className="text-text-muted">{ui.requests}</p></div>
               <div><p className="text-lg font-bold">{data.usage.promptTokens.toLocaleString(locale)}</p><p className="text-text-muted">Prompt</p></div>
               <div><p className="text-lg font-bold">{data.usage.completionTokens.toLocaleString(locale)}</p><p className="text-text-muted">Completion</p></div>
@@ -1059,12 +1059,12 @@ export function TeacherDashboard({
               <BookOpen className="w-4 h-4 text-text-secondary" />
               {ui.courseRoster}
             </h2>
-            <p className="text-xs text-text-muted mb-4">{ui.courseRosterHint}</p>
+            <p className="type-caption text-text-muted mb-4">{ui.courseRosterHint}</p>
             {data.courses.length === 0 ? (
-              <p className="text-sm text-text-muted">{ui.noServerCourses}</p>
+              <p className="type-body text-text-muted">{ui.noServerCourses}</p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-xs" data-testid="teacher-course-roster">
+                <table className="w-full type-caption" data-testid="teacher-course-roster">
                   <thead>
                     <tr className="text-left text-text-muted border-b border-border-subtle">
                       <th className="pb-2 pr-3 font-medium">{ui.colTitle}</th>
@@ -1113,8 +1113,8 @@ export function TeacherDashboard({
               <PenLine className="w-4 h-4 text-text-secondary" />
               {ui.publishing}
             </h2>
-            <p className="text-xs text-text-muted mb-3">{ui.publishingHint}</p>
-            <div className="flex flex-wrap gap-3 text-xs mb-4">
+            <p className="type-caption text-text-muted mb-3">{ui.publishingHint}</p>
+            <div className="flex flex-wrap gap-3 type-caption mb-4">
               <span className="px-2.5 py-1 rounded-lg bg-surface-hover border border-border-subtle">
                 <strong>{data.publishing.annotationCount}</strong> {ui.annotations}
               </span>
@@ -1123,9 +1123,9 @@ export function TeacherDashboard({
               </span>
             </div>
             {data.publishing.recent.length === 0 ? (
-              <p className="text-sm text-text-muted">{ui.noAnnotations}</p>
+              <p className="type-body text-text-muted">{ui.noAnnotations}</p>
             ) : (
-              <ul className="space-y-2 text-xs">
+              <ul className="space-y-2 type-caption">
                 <li className="type-micro text-text-muted font-medium">{ui.recentAnnotations}</li>
                 {data.publishing.recent.map((ann) => (
                   <li key={ann.id} className="flex justify-between gap-2 border-b border-border-subtle/50 pb-1.5">
@@ -1168,9 +1168,9 @@ export function TeacherDashboard({
             <BarChart3 className="w-4 h-4 text-text-secondary" />
             {ui.localSession}
           </h2>
-          <p className="text-xs text-text-muted mb-4">{ui.localSessionHint}</p>
+          <p className="type-caption text-text-muted mb-4">{ui.localSessionHint}</p>
           {learnerModel && (
-            <div className="flex flex-wrap gap-3 text-xs mb-4">
+            <div className="flex flex-wrap gap-3 type-caption mb-4">
               <span className="px-2.5 py-1 rounded-lg bg-surface-secondary border border-border-subtle text-text-secondary">
                 <strong>{learnerModel.streakDays}</strong> {ui.streakDays}
               </span>
@@ -1183,8 +1183,8 @@ export function TeacherDashboard({
               </span>
             </div>
           )}
-          <h3 className="text-xs font-semibold text-text-tertiary mb-2">{ui.learningEvents}</h3>
-          <div className="flex flex-wrap gap-2 mb-4 text-xs">
+          <h3 className="type-caption font-semibold text-text-tertiary mb-2">{ui.learningEvents}</h3>
+          <div className="flex flex-wrap gap-2 mb-4 type-caption">
             {Object.entries(localEvents).map(([type, count]) => (
               <span key={type} className="px-2 py-1 rounded-lg bg-surface-hover border border-border-subtle">
                 {type}: <strong>{count}</strong>
@@ -1194,7 +1194,7 @@ export function TeacherDashboard({
               <span className="text-text-muted">{ui.noEvents}</span>
             )}
           </div>
-          <ul className="space-y-2 text-xs text-text-secondary">
+          <ul className="space-y-2 type-caption text-text-secondary">
             {recentEvents.map((e) => (
               <li key={e.id} className="flex justify-between gap-2 border-b border-border-subtle/50 pb-1">
                 <span className="font-medium text-text-secondary">{e.type}</span>
@@ -1231,7 +1231,7 @@ function StatCard({
     <div className="ux-flow-panel p-4">
       <Icon className="w-5 h-5 text-text-secondary mb-2" />
       <p className="ux-stat-value">{value}</p>
-      <p className="text-xs text-text-muted">{label} · {sub}</p>
+      <p className="type-caption text-text-muted">{label} · {sub}</p>
     </div>
   );
 }
@@ -1240,7 +1240,7 @@ function FeaturePill({ on, label }: { on: boolean; label: string }) {
   return (
     <span
       className={cn(
-        'text-xs px-2.5 py-1 rounded-full border',
+        'type-caption px-2.5 py-1 rounded-full border',
         on ? 'border-accent-emerald/40 bg-accent-emerald/10 text-accent-emerald ink-allow-accent' : 'border-border-subtle text-text-muted',
       )}
     >

@@ -43,18 +43,18 @@ export function LearningTimelineChart({
         data-testid="learning-timeline-empty"
       >
         <Calendar className="w-8 h-8 text-text-tertiary mb-2" />
-        <p className="text-sm text-text-muted">{emptyLabel}</p>
+        <p className="type-body text-text-muted">{emptyLabel}</p>
       </BlueprintSurface>
     );
   }
 
   return (
     <BlueprintSurface data-testid="learning-timeline">
-      <h3 className="text-sm font-semibold text-text-primary mb-1 flex items-center gap-2">
+      <h3 className="type-meta font-semibold text-text-primary mb-1 flex items-center gap-2">
         <Calendar className="w-4 h-4 text-text-secondary" />
         {title}
       </h3>
-      <p className="text-xs text-text-tertiary mb-4">{hint}</p>
+      <p className="type-caption text-text-tertiary mb-4">{hint}</p>
 
       <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-4">
         <div className="relative ml-6 border-l-2 border-border-subtle pl-5">
@@ -81,12 +81,12 @@ export function LearningTimelineChart({
                   )}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm font-semibold line-clamp-1">{event.label}</span>
+                    <span className="type-meta font-semibold line-clamp-1">{event.label}</span>
                     <div className="flex items-center gap-2 shrink-0">
                       {event.delta !== 0 && (
                         <span
                           className={cn(
-                            'text-xs font-bold tabular-nums ink-allow-accent',
+                            'type-caption font-bold tabular-nums ink-allow-accent',
                             event.delta > 0 ? 'text-accent-emerald' : 'text-accent-rose',
                           )}
                         >
@@ -101,7 +101,7 @@ export function LearningTimelineChart({
                   </div>
                   {isExpanded && (
                     <div className="mt-3 space-y-2 border-t border-border-subtle/60 pt-3">
-                      <p className="text-xs text-text-secondary leading-relaxed">{event.detail}</p>
+                      <p className="type-caption text-text-secondary leading-relaxed">{event.detail}</p>
                       {event.delta !== 0 && (
                         <div className="flex items-center gap-2">
                           <span className="type-micro text-text-muted">{deltaLabel}</span>

@@ -39,14 +39,14 @@ export function LibrarySyncConflictPanel({
           <h3 id="library-sync-conflict-title" className="ux-section-header m-0">
             {t('librarySyncConflictTitle', lang)}
           </h3>
-          <p className="text-sm opacity-80 mt-1 mb-0">
+          <p className="type-body opacity-80 mt-1 mb-0">
             {t('librarySyncConflictBody', lang).replace('{count}', String(conflicts.length))}
           </p>
         </div>
         {onDismiss ? (
           <button
             type="button"
-            className="ux-secondary-cta text-xs"
+            className="ux-secondary-cta type-caption"
             data-testid="library-sync-conflict-dismiss"
             onClick={onDismiss}
           >
@@ -55,7 +55,7 @@ export function LibrarySyncConflictPanel({
         ) : null}
       </div>
 
-      <ul className="mt-2 mb-0 pl-4 text-xs opacity-75 space-y-0.5">
+      <ul className="mt-2 mb-0 pl-4 type-caption opacity-75 space-y-0.5">
         {preview.map((c) => (
           <li key={`${c.kind}:${c.id}`}>
             <span className="uppercase tracking-wide opacity-60 mr-1">
@@ -76,7 +76,7 @@ export function LibrarySyncConflictPanel({
       <div className="flex flex-wrap gap-2 mt-3">
         <button
           type="button"
-          className="ux-secondary-cta text-xs"
+          className="ux-secondary-cta type-caption"
           data-testid="library-sync-conflict-keep-local"
           onClick={onRestoreLocal}
         >
@@ -84,7 +84,7 @@ export function LibrarySyncConflictPanel({
         </button>
         <button
           type="button"
-          className="ux-primary-cta text-xs"
+          className="ux-primary-cta type-caption"
           data-testid="library-sync-conflict-keep-remote"
           onClick={onKeepRemote}
         >

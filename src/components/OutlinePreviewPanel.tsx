@@ -59,7 +59,7 @@ export function OutlinePreviewPanel({
         aria-label={t('outlineAnalyzing')}
       >
         <UxShimmerPanel lines={4} />
-        <p className="mt-3 text-xs text-text-muted">{t('outlineAnalyzing')}</p>
+        <p className="mt-3 type-caption text-text-muted">{t('outlineAnalyzing')}</p>
       </div>
     );
   }
@@ -70,7 +70,7 @@ export function OutlinePreviewPanel({
         data-testid="upload-outline-preview"
         className="rounded-2xl border border-accent-amber/30 bg-accent-amber/5 p-4"
       >
-        <p className="text-xs text-accent-amber flex items-start gap-2">
+        <p className="type-caption text-accent-amber flex items-start gap-2">
           <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
           {error}
         </p>
@@ -116,12 +116,12 @@ export function OutlinePreviewPanel({
           </div>
 
           {!compact && (
-            <p className="mt-2 text-sm font-semibold text-text-primary truncate" title={outline.title}>
+            <p className="mt-2 type-meta font-semibold text-text-primary truncate" title={outline.title}>
               {outline.title}
             </p>
           )}
           {!compact && outline.summary && (
-            <p className="mt-1 text-xs text-text-secondary line-clamp-2">{outline.summary}</p>
+            <p className="mt-1 type-caption text-text-secondary line-clamp-2">{outline.summary}</p>
           )}
         </div>
         <div className="text-right shrink-0">
@@ -156,7 +156,7 @@ export function OutlinePreviewPanel({
           return (
           <li
             key={`${topic.title}-${i}`}
-            className="flex items-start gap-2 text-xs"
+            className="flex items-start gap-2 type-caption"
           >
             <span className="shrink-0 w-5 h-5 rounded-md bg-surface-hover flex items-center justify-center type-micro font-semibold text-text-secondary">
               {i + 1}
@@ -168,7 +168,7 @@ export function OutlinePreviewPanel({
                   data-testid={`outline-topic-edit-${i}`}
                   value={displayTitle}
                   onChange={(e) => onTopicTitleChange(i, e.target.value)}
-                  className="w-full rounded-lg border border-border-subtle bg-surface-input px-2 py-1 text-xs font-medium text-text-primary focus:outline-none focus:border-brand-500/50"
+                  className="w-full rounded-lg border border-border-subtle bg-surface-input px-2 py-1 type-caption font-medium text-text-primary focus:outline-none focus:border-brand-500/50"
                 />
               ) : (
                 <p className="font-medium text-text-primary truncate">{displayTitle}</p>

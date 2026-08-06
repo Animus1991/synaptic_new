@@ -56,7 +56,7 @@ export function WeakAreasFocusRail({
       >
         <div className="flex items-center gap-2 min-w-0">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
-          <p className="type-caption font-semibold text-text-primary truncate">
+          <p className="type-caption font-semibold text-text-secondary truncate">
             {t('weakAreasTitle', lang)}
             <span className="ml-1.5 font-normal text-text-tertiary">({spots.length})</span>
           </p>
@@ -131,21 +131,21 @@ export function WeakAreasFocusRail({
                   <div className="mt-1.5 flex flex-wrap gap-1" data-testid={`weak-area-try-${normalizeChipKey(spot.concept)}`}>
                     <button
                       type="button"
-                      className="rounded-full border border-border-default bg-surface-tertiary px-2 py-0.5 type-caption font-medium text-text-primary hover:bg-surface-hover"
+                      className="rounded-full border border-border-default bg-surface-tertiary px-2 py-0.5 type-caption font-medium text-text-secondary hover:bg-surface-hover"
                       onClick={() => onTryWeakSpot(spot.concept, 'explain')}
                     >
                       {t('weakTryExplain', lang)}
                     </button>
                     <button
                       type="button"
-                      className="rounded-full border border-border-default bg-surface-tertiary px-2 py-0.5 type-caption font-medium text-text-primary hover:bg-surface-hover"
+                      className="rounded-full border border-border-default bg-surface-tertiary px-2 py-0.5 type-caption font-medium text-text-secondary hover:bg-surface-hover"
                       onClick={() => onTryWeakSpot(spot.concept, 'quiz')}
                     >
                       {t('weakTryQuiz', lang)}
                     </button>
                     <button
                       type="button"
-                      className="rounded-full border border-border-default bg-surface-tertiary px-2 py-0.5 type-caption font-medium text-text-primary hover:bg-surface-hover"
+                      className="rounded-full border border-border-default bg-surface-tertiary px-2 py-0.5 type-caption font-medium text-text-secondary hover:bg-surface-hover"
                       onClick={() => onTryWeakSpot(spot.concept, 'cards')}
                     >
                       {t('weakTryCards', lang)}

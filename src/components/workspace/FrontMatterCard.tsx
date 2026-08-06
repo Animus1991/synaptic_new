@@ -22,10 +22,10 @@ export function FrontMatterCard({
       data-testid="reader-front-matter"
     >
       <div className="flex items-center gap-2 mb-3">
-        <BookOpen className="w-4 h-4 text-text-primary shrink-0" />
-        <h3 className="text-sm font-semibold text-text-primary">{heading}</h3>
+        <BookOpen className="w-4 h-4 text-text-secondary shrink-0" />
+        <h3 className="type-meta font-semibold text-text-secondary">{heading}</h3>
       </div>
-      <ol className={cn('list-decimal space-y-2 pl-5 text-sm text-text-primary')}>
+      <ol className={cn('list-decimal space-y-2 pl-5 type-body text-text-primary')}>
         {items.map((item, i) => (
           <li key={i} className="whitespace-pre-line leading-relaxed">
             {item}

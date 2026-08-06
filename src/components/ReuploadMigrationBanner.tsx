@@ -39,7 +39,7 @@ export function ReuploadMigrationBanner({
     <div
       className={cn(
         'flex items-start gap-3 rounded-2xl border border-accent-amber/30 bg-accent-amber/10',
-        compact ? 'px-3 py-2.5 text-xs' : 'px-4 py-3 text-sm',
+        compact ? 'px-3 py-2.5 type-caption' : 'px-4 py-3 type-meta',
         className,
       )}
       data-testid="reupload-migration-banner"
@@ -55,7 +55,7 @@ export function ReuploadMigrationBanner({
               disabled={reprocessing}
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-lg border border-border-subtle bg-surface-secondary text-text-primary hover:bg-brand-500/20 disabled:opacity-60',
-                compact ? 'px-2 py-1 type-micro' : 'px-3 py-1.5 text-xs',
+                compact ? 'px-2 py-1 type-micro' : 'px-3 py-1.5 type-caption',
               )}
               data-testid="reprocess-migration-action"
             >
@@ -68,7 +68,7 @@ export function ReuploadMigrationBanner({
             onClick={onReupload}
             className={cn(
               'inline-flex items-center gap-1.5 rounded-lg border border-accent-amber/40 bg-accent-amber/15 font-medium text-accent-amber hover:bg-accent-amber/20',
-              compact ? 'px-2 py-1 type-micro' : 'px-3 py-1.5 text-xs',
+              compact ? 'px-2 py-1 type-micro' : 'px-3 py-1.5 type-caption',
             )}
             data-testid="reupload-migration-action"
           >

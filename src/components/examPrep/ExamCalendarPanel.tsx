@@ -52,8 +52,8 @@ export function ExamCalendarPanel() {
             <div className="proximity-row items-start">
               <div className="proximity-row-label min-w-0">
                 <p className="type-micro text-text-muted mb-1">{entry.date}</p>
-                <p className="text-sm font-semibold text-text-primary">{t(entry.titleKey as never)}</p>
-                <p className="text-xs text-text-secondary mt-1">{t(entry.bodyKey as never)}</p>
+                <p className="type-meta font-semibold text-text-primary">{t(entry.titleKey as never)}</p>
+                <p className="type-body text-text-secondary mt-1">{t(entry.bodyKey as never)}</p>
               </div>
               {entry.linkUrl && entry.linkLabelKey && (
                 <a

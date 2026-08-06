@@ -105,7 +105,7 @@ function buildMobileBarItems(
 
 const shellNavClass = (active: boolean, quiet = false, iconRail = false) =>
   cn(
-    'platform-nav-item relative w-full flex text-sm font-medium transition-all border',
+    'platform-nav-item relative w-full flex type-meta font-medium transition-all border',
     quiet ? 'rounded-md' : 'rounded-xl',
     iconRail ? 'items-center justify-center gap-0 px-2 py-2.5' : 'gap-3 px-3 py-2.5',
     !iconRail && (quiet ? 'items-center' : 'items-start'),
@@ -371,7 +371,7 @@ export function Shell({
                           title={tasksReviewBadgeHint}
                           aria-hidden
                           className={cn(
-                            'text-xs ws-chip-danger font-semibold',
+                            'type-caption ws-chip-danger font-semibold',
                             iconRail
                               ? 'absolute -right-0.5 -top-0.5 z-[2] min-w-[1rem] rounded-full px-1 py-0 type-caption leading-tight'
                               : 'ml-auto px-2 py-0.5 rounded-full',
@@ -442,7 +442,7 @@ export function Shell({
                   <span className={cn('ux-quick-icon', quietNav ? 'bg-surface-secondary' : visual.washClass)}>
                     <visual.icon className={cn('w-3 h-3', quietNav ? 'text-text-secondary' : visual.inkClass)} />
                   </span>
-                  <span className={cn(iconRail ? 'sr-only' : 'text-xs truncate')}>{actionLabel}</span>
+                  <span className={cn(iconRail ? 'sr-only' : 'type-caption truncate')}>{actionLabel}</span>
                 </button>
               );})}
             </>
@@ -466,9 +466,9 @@ export function Shell({
                 <div className="w-5 h-5 rounded-md bg-surface-secondary border border-border-subtle flex items-center justify-center shrink-0">
                   <BookOpen className="w-3 h-3 text-text-secondary" />
                 </div>
-                <p className="text-xs font-medium text-text-primary leading-tight truncate">{activeCourse.title}</p>
+                <p className="type-caption font-medium text-text-primary leading-tight truncate">{activeCourse.title}</p>
               </div>
-              <div className="flex items-center gap-2 text-xs text-text-tertiary mb-1.5">
+              <div className="flex items-center gap-2 type-caption text-text-tertiary mb-1.5">
                 <Clock className="w-3 h-3" />
                 <span>
                   {activeCourse.daysToExam === null
@@ -482,11 +482,11 @@ export function Shell({
                 <div className="ux-progress-fill" style={{ width: `${Math.min(100, activeCourse.mastery)}%` }} />
               </div>
               <div className="flex items-center justify-between mt-1.5">
-                <span className="text-xs text-text-tertiary">{shellUx.percentComplete(Math.round(activeCourse.mastery))}</span>
+                <span className="type-caption text-text-tertiary">{shellUx.percentComplete(Math.round(activeCourse.mastery))}</span>
                 <button
                   type="button"
                   onClick={onContinueCourse}
-                  className="text-xs text-text-secondary hover:text-text-primary flex items-center gap-1"
+                  className="type-caption text-text-secondary hover:text-text-primary flex items-center gap-1"
                 >
                   {shellUx.continueCourse}
                   <ChevronRight className="w-3 h-3" />
@@ -504,7 +504,7 @@ export function Shell({
             title={t('uploadMaterial')}
             aria-label={t('uploadMaterial')}
             className={cn(
-              'w-full flex items-center rounded-xl ws-fab font-medium text-sm transition-all',
+              'w-full flex items-center rounded-xl ws-fab font-medium type-meta transition-all',
               iconRail ? 'justify-center px-2 py-2.5' : 'gap-2 px-4 py-3',
             )}
           >
@@ -525,7 +525,7 @@ export function Shell({
               'shell-rail-expand-affordance w-full flex items-center rounded-lg border text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary',
               iconRail
                 ? 'justify-center border-border-default bg-surface-secondary/80 p-2'
-                : 'gap-2 border-border-subtle px-3 py-2 text-xs font-medium',
+                : 'gap-2 border-border-subtle px-3 py-2 type-caption font-medium',
             )}
           >
             {iconRail ? (
@@ -550,13 +550,13 @@ export function Shell({
               iconRail ? 'justify-center p-1.5' : 'gap-3 px-2 text-left',
             )}
           >
-            <div className="w-9 h-9 rounded-full platform-brand-icon flex items-center justify-center text-sm font-bold shrink-0">
+            <div className="w-9 h-9 rounded-full platform-brand-icon flex items-center justify-center type-meta font-bold shrink-0">
               {user.name.charAt(0)}
             </div>
             {!iconRail && (
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{user.name}</p>
-                <p className="text-xs text-text-tertiary">Level {user.level} · {user.xp} XP</p>
+                <p className="type-meta font-medium truncate">{user.name}</p>
+                <p className="type-caption text-text-tertiary">Level {user.level} · {user.xp} XP</p>
               </div>
             )}
           </button>
@@ -628,7 +628,7 @@ export function Shell({
                   {item.view === 'tasks' && stats.reviewsDue > 0 && (
                     <span
                       title={tasksReviewBadgeHint}
-                      className="ml-auto text-xs ws-chip-danger px-2 py-0.5 rounded-full font-semibold"
+                      className="ml-auto type-caption ws-chip-danger px-2 py-0.5 rounded-full font-semibold"
                     >
                       {stats.reviewsDue}
                     </span>
@@ -640,7 +640,7 @@ export function Shell({
             <div className="p-3 border-t border-border-subtle">
               <button
                 onClick={() => { onUpload(); onToggleSidebar(false); }}
-                className="w-full flex items-center gap-2 px-4 py-3 rounded-xl ws-fab font-medium text-sm"
+                className="w-full flex items-center gap-2 px-4 py-3 rounded-xl ws-fab font-medium type-meta"
               >
                 <Upload className="w-4 h-4" />
                 {t('uploadMaterial')}
@@ -680,7 +680,7 @@ export function Shell({
               >
                 <Menu className="w-4 h-4 text-text-secondary" />
               </button>
-              <div className="hidden sm:flex items-center gap-1.5 text-xs text-text-tertiary min-w-0" aria-current="page">
+              <div className="hidden sm:flex items-center gap-1.5 type-caption text-text-tertiary min-w-0" aria-current="page">
                 {breadcrumb?.course ? (
                   <>
                     <span className="text-text-secondary font-medium truncate max-w-[160px]">{breadcrumb.course}</span>
@@ -761,7 +761,7 @@ export function Shell({
                 type="button"
                 onClick={onOpenSearch}
                 data-testid="shell-search-button"
-                className="hidden sm:inline-flex h-8 min-h-8 max-h-8 items-center gap-1.5 px-2.5 rounded-lg bg-surface-input border border-border-subtle text-xs text-text-tertiary hover:border-border-default transition-colors"
+                className="hidden sm:inline-flex h-8 min-h-8 max-h-8 items-center gap-1.5 px-2.5 rounded-lg bg-surface-input border border-border-subtle type-caption text-text-tertiary hover:border-border-default transition-colors"
                 title={t('shellSearchTitle').replace('{shortcut}', commandPaletteBadge())}
                 aria-label={`${t('search')} ${commandPaletteBadge()}`}
               >

@@ -96,7 +96,7 @@ export function PageHeader({
           <div
             className={cn(
               'ux-page-subtitle mt-0.5 text-text-secondary',
-              isMinimal ? 'type-meta leading-snug' : 'text-xs sm:text-sm',
+              isMinimal ? 'type-meta leading-snug' : 'type-meta',
             )}
           >
             {subtitle}
@@ -242,7 +242,7 @@ export function SectionHeading({
       <h2
         className={cn(
           'flex items-center gap-2 font-semibold text-text-primary',
-          size === 'lg' ? 'ws-serif text-lg font-medium' : 'text-sm',
+          size === 'lg' ? 'ws-serif text-lg font-medium' : 'type-meta',
         )}
       >
         {Icon && (
@@ -276,7 +276,7 @@ export function CardLink({
       type="button"
       onClick={onClick}
       className={cn(
-        'ux-card-link inline-flex shrink-0 items-center gap-1 text-sm font-semibold transition-colors',
+        'ux-card-link inline-flex shrink-0 items-center gap-1 type-meta font-semibold transition-colors',
         'text-text-secondary hover:text-text-primary',
         className,
       )}
@@ -427,7 +427,7 @@ export const PrimaryCTA = forwardRef<
       className={cn(
         'ux-primary-cta inline-flex items-center justify-center gap-2 rounded-xl font-semibold text-white transition-all duration-300',
         'bg-brand-600 hover:bg-brand-700 disabled:opacity-60 disabled:pointer-events-none',
-        size === 'sm' ? 'px-4 py-2 text-xs min-h-[var(--btn-height-sm,2rem)]' : 'px-5 text-sm min-h-[var(--btn-height)]',
+        size === 'sm' ? 'px-4 py-2 type-caption min-h-[var(--btn-height-sm,2rem)]' : 'px-5 type-meta min-h-[var(--btn-height)]',
         className,
       )}
       {...props}
@@ -450,7 +450,7 @@ export const SecondaryCTA = forwardRef<
         'ux-secondary-cta inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-300 platform-pill',
         'border border-border-subtle text-text-secondary hover:border-border-default hover:text-text-primary',
         'disabled:opacity-60 disabled:pointer-events-none',
-        size === 'sm' ? 'px-3 py-2 text-xs min-h-[var(--btn-height-sm,2rem)]' : 'px-4 text-sm min-h-[var(--btn-height)]',
+        size === 'sm' ? 'px-3 py-2 type-caption min-h-[var(--btn-height-sm,2rem)]' : 'px-4 type-meta min-h-[var(--btn-height)]',
         className,
       )}
       {...props}

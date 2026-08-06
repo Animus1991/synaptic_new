@@ -44,7 +44,7 @@ export function QuizIrtBadge({ irt, lang, responseCount = 0 }: Props) {
       data-testid="quiz-irt-badge"
       role="status"
     >
-      <p className="type-caption font-medium text-text-primary" data-testid="quiz-irt-meta-line">
+      <p className="type-caption font-medium text-text-secondary" data-testid="quiz-irt-meta-line">
         {metaLine}
       </p>
       <QuizIrtConfidenceBand band={band} hideLabels />

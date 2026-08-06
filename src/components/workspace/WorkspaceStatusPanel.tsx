@@ -96,7 +96,7 @@ export function WorkspaceStatusPanel({ className, defaultOpen = false }: Props) 
     >
       <button
         type="button"
-        className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-xs font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+        className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
         aria-expanded={open}
         data-testid="workspace-status-panel-toggle"
         onClick={() => setOpen((v) => !v)}

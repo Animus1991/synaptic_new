@@ -173,8 +173,8 @@ export function PracticalLessonView({
               <X className="w-5 h-5 text-text-secondary" />
             </button>
             <div>
-              <p className="text-sm font-semibold">{lessonTitle}</p>
-              <p className="text-xs text-text-tertiary">{lessonCourse}</p>
+              <p className="type-meta font-semibold">{lessonTitle}</p>
+              <p className="type-caption text-text-tertiary">{lessonCourse}</p>
             </div>
           </div>
         </div>
@@ -183,13 +183,13 @@ export function PracticalLessonView({
           <h2 className="text-lg font-semibold mb-2">
             {t('uploadNotesPractice')}
           </h2>
-          <p className="text-sm text-text-secondary mb-6">
+          <p className="type-body text-text-secondary mb-6">
             {t('practiceFromNotesBody')}
           </p>
           <button
             type="button"
             onClick={onUpload}
-            className="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium"
+            className="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white type-meta font-medium"
           >
             {t('uploadMaterialBtn')}
           </button>
@@ -208,15 +208,15 @@ export function PracticalLessonView({
             <X className="w-5 h-5 text-text-secondary" />
           </button>
           <div className="min-w-0">
-            <p className="text-sm font-semibold truncate">{lessonTitle}</p>
-            <p className="text-xs text-text-tertiary truncate">{lessonCourse}</p>
+            <p className="type-meta font-semibold truncate">{lessonTitle}</p>
+            <p className="type-caption text-text-tertiary truncate">{lessonCourse}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <button onClick={onOpenAgent} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle hover:border-brand-500/30 transition-all">
+          <button onClick={onOpenAgent} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg type-caption font-medium border border-border-subtle hover:border-brand-500/30 transition-all">
             <Sparkles className="w-3.5 h-3.5 text-text-secondary" /> Ask Agent
           </button>
-          <span className="text-xs text-accent-amber font-medium">+{xpReward} XP</span>
+          <span className="type-caption text-accent-amber font-medium">+{xpReward} XP</span>
         </div>
       </div>
 
@@ -224,7 +224,7 @@ export function PracticalLessonView({
         <div className="lg:w-[40%] border-b lg:border-b-0 lg:border-r border-border-subtle overflow-y-auto min-w-0">
           <div className="p-5 space-y-5">
             <div>
-              <span className="text-xs text-accent-teal font-medium">
+              <span className="type-caption text-accent-teal font-medium">
                 {hasNoteSource ? t('wbFromNotes') : t('exercise')}
               </span>
               <h2 className="text-xl font-bold mt-1">{exercise.title}</h2>
@@ -255,23 +255,23 @@ export function PracticalLessonView({
             </div>
 
             <div className="p-4 rounded-xl bg-surface-card border border-border-subtle">
-              <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+              <h4 className="type-meta font-semibold mb-2 flex items-center gap-2">
                 <Gauge className="w-4 h-4 text-text-secondary" /> Learning Objective
               </h4>
-              <p className="text-sm text-text-secondary">{exercise.objective}</p>
+              <p className="type-body text-text-secondary">{exercise.objective}</p>
             </div>
 
             <div className="space-y-2">
               {exercise.hints.slice(0, hintLevel).map((hint, i) => (
                 <motion.div key={i} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
-                  className="p-3 rounded-lg bg-accent-amber/5 border border-accent-amber/20 text-xs text-text-secondary flex items-start gap-2">
+                  className="p-3 rounded-lg bg-accent-amber/5 border border-accent-amber/20 type-caption text-text-secondary flex items-start gap-2">
                   <Lightbulb className="w-3.5 h-3.5 text-accent-amber shrink-0 mt-0.5" />
                   {hint}
                 </motion.div>
               ))}
               {hintLevel < exercise.hints.length && (
                 <button type="button" onClick={() => setHintLevel((p) => p + 1)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle hover:border-accent-amber/30 text-text-secondary transition-all">
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg type-caption font-medium border border-border-subtle hover:border-accent-amber/30 text-text-secondary transition-all">
                   <Lightbulb className="w-3 h-3 text-accent-amber" /> Show hint
                 </button>
               )}
@@ -280,8 +280,8 @@ export function PracticalLessonView({
             {showSolution && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                 className="p-4 rounded-xl bg-accent-emerald/5 border border-accent-emerald/20">
-                <h4 className="text-sm font-semibold text-accent-emerald mb-2">Solution</h4>
-                <pre className="text-xs font-mono text-text-secondary bg-surface-primary p-3 rounded-lg overflow-x-auto">{exercise.solution}</pre>
+                <h4 className="type-meta font-semibold text-accent-emerald mb-2">Solution</h4>
+                <pre className="type-caption font-mono text-text-secondary bg-surface-primary p-3 rounded-lg overflow-x-auto">{exercise.solution}</pre>
               </motion.div>
             )}
 
@@ -301,13 +301,13 @@ export function PracticalLessonView({
           <div className="flex items-center justify-between px-4 py-2 border-b border-border-subtle bg-surface-secondary/30">
             <div className="flex items-center gap-2">
               <Terminal className="w-4 h-4 text-text-tertiary" />
-              <span className="text-xs font-medium text-text-secondary">script.py</span>
+              <span className="type-caption font-medium text-text-secondary">script.py</span>
             </div>
             <div className="flex items-center gap-2">
-              <button type="button" onClick={() => void runCode()} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-accent-emerald/10 text-accent-emerald hover:bg-accent-emerald/20 transition-all">
+              <button type="button" onClick={() => void runCode()} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg type-caption font-medium bg-accent-emerald/10 text-accent-emerald hover:bg-accent-emerald/20 transition-all">
                 <Play className="w-3 h-3" /> {t('run')}
               </button>
-              <button type="button" onClick={() => void runTests()} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-secondary text-text-primary border border-border-subtle hover:bg-brand-500/20 transition-all">
+              <button type="button" onClick={() => void runTests()} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg type-caption font-medium bg-surface-secondary text-text-primary border border-border-subtle hover:bg-brand-500/20 transition-all">
                 <CheckCircle2 className="w-3 h-3" /> {t('runTests')}
               </button>
               <button type="button" onClick={() => { setCode(exercise.starterCode); setOutput(''); setTestsPassed(null); }} className="p-1.5 rounded-lg hover:bg-surface-hover text-text-muted">
@@ -327,15 +327,15 @@ export function PracticalLessonView({
             <div className="flex items-center justify-between px-4 py-2 border-b border-border-subtle">
               <div className="flex items-center gap-2">
                 <Eye className="w-3.5 h-3.5 text-text-tertiary" />
-                <span className="text-xs font-medium text-text-secondary">Output</span>
+                <span className="type-caption font-medium text-text-secondary">Output</span>
               </div>
               {testsPassed !== null && (
-                <span className={cn('text-xs font-medium flex items-center gap-1', testsPassed ? 'text-accent-emerald' : 'text-accent-rose')}>
+                <span className={cn('type-caption font-medium flex items-center gap-1', testsPassed ? 'text-accent-emerald' : 'text-accent-rose')}>
                   {testsPassed ? <><CheckCircle2 className="w-3 h-3" /> Passed</> : <><AlertTriangle className="w-3 h-3" /> Failed</>}
                 </span>
               )}
             </div>
-            <pre className="p-4 text-xs font-mono text-text-secondary min-h-[100px] max-h-[200px] overflow-y-auto">
+            <pre className="p-4 type-caption font-mono text-text-secondary min-h-[100px] max-h-[200px] overflow-y-auto">
               {output || 'Click "Run Tests" to validate your code...'}
             </pre>
           </div>
@@ -345,12 +345,12 @@ export function PracticalLessonView({
       <div className="border-t border-border-subtle bg-surface-secondary/50 px-4 py-3 w-full min-w-0">
         <div className="w-full flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-xs text-text-muted">{passedCount}/{exercises.length} completed</span>
-            {testsPassed && <span className="text-xs text-accent-emerald flex items-center gap-1"><Zap className="w-3 h-3" /> Exercise passed</span>}
+            <span className="type-caption text-text-muted">{passedCount}/{exercises.length} completed</span>
+            {testsPassed && <span className="type-caption text-accent-emerald flex items-center gap-1"><Zap className="w-3 h-3" /> Exercise passed</span>}
           </div>
           <div className="flex items-center gap-2">
             {exerciseIdx < exercises.length - 1 && testsPassed && (
-              <button type="button" onClick={() => loadExercise(exerciseIdx + 1)} className="px-4 py-2 text-sm text-text-secondary hover:text-text-primary transition-colors flex items-center gap-1">
+              <button type="button" onClick={() => loadExercise(exerciseIdx + 1)} className="px-4 py-2 type-meta text-text-secondary hover:text-text-primary transition-colors flex items-center gap-1">
                 Next exercise <ChevronRight className="w-4 h-4" />
               </button>
             )}
@@ -359,7 +359,7 @@ export function PracticalLessonView({
               onClick={handleFinish}
               disabled={!allDone}
               className={cn(
-                'flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-medium transition-all',
+                'flex items-center gap-2 px-5 py-2 rounded-xl type-meta font-medium transition-all',
                 allDone ? 'bg-brand-600 hover:bg-brand-500 text-white' : 'bg-surface-hover text-text-muted cursor-not-allowed',
               )}
             >

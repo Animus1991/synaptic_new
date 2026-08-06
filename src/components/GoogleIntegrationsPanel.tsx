@@ -274,7 +274,7 @@ export function GoogleIntegrationsPanel({
 
   return (
     <div className="space-y-4" data-testid="google-integrations-panel">
-      <p className="text-xs text-text-secondary leading-relaxed">
+      <p className="type-caption text-text-secondary leading-relaxed">
         {t('googleIntro')}
       </p>
 
@@ -284,7 +284,7 @@ export function GoogleIntegrationsPanel({
             type="button"
             data-testid="google-sign-in"
             onClick={startGoogleSignIn}
-            className="inline-flex items-center gap-2 rounded-xl border border-border-subtle bg-surface-card px-3 py-2 text-xs font-semibold text-text-primary hover:border-brand-500/30"
+            className="inline-flex items-center gap-2 rounded-xl border border-border-subtle bg-surface-card px-3 py-2 type-caption font-semibold text-text-primary hover:border-brand-500/30"
           >
             <Link2 className="h-3.5 w-3.5" />
             {t('googleSignInWithGoogle')}
@@ -322,7 +322,7 @@ export function GoogleIntegrationsPanel({
 
       {status?.connected && status.hasCalendar && (
         <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3 space-y-2">
-          <div className="flex items-center gap-2 text-xs font-semibold text-text-primary">
+          <div className="flex items-center gap-2 type-caption font-semibold text-text-primary">
             <Calendar className="h-4 w-4 text-text-primary" />
             {t('googleCalendar')}
           </div>
@@ -343,7 +343,7 @@ export function GoogleIntegrationsPanel({
               data-testid="google-calendar-sync-reviews"
               disabled={loading}
               onClick={() => void handleCalendarSync(true)}
-              className="ws-empty-cta-primary text-xs min-h-11"
+              className="ws-empty-cta-primary type-caption min-h-11"
             >
               {t('googleSyncDueReviews')}
             </button>
@@ -352,7 +352,7 @@ export function GoogleIntegrationsPanel({
               data-testid="google-calendar-sync-chat-plan"
               disabled={loading || !chatPlanHint.hasSignals}
               onClick={() => void handleCalendarSync(false, { includeChatPlanSoftSlots: true })}
-              className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-500/5 px-2 py-1.5 text-xs text-text-primary hover:border-brand-500/50 min-h-11 disabled:opacity-50"
+              className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 bg-brand-500/5 px-2 py-1.5 type-caption text-text-primary hover:border-brand-500/50 min-h-11 disabled:opacity-50"
             >
               {t('googleSyncChatPlan')}
             </button>
@@ -361,7 +361,7 @@ export function GoogleIntegrationsPanel({
               data-testid="google-calendar-sync-all"
               disabled={loading}
               onClick={() => void handleCalendarSync(false)}
-              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1.5 text-xs text-text-secondary hover:border-brand-500/30 min-h-11"
+              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1.5 type-caption text-text-secondary hover:border-brand-500/30 min-h-11"
             >
               {t('googleSyncAllScheduled')}
             </button>
@@ -370,7 +370,7 @@ export function GoogleIntegrationsPanel({
               data-testid="google-calendar-refresh"
               disabled={loading}
               onClick={() => void loadCalendarEvents()}
-              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1.5 text-xs text-text-secondary hover:border-brand-500/30 min-h-11"
+              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1.5 type-caption text-text-secondary hover:border-brand-500/30 min-h-11"
             >
               {t('googleRefreshCalendar')}
             </button>
@@ -411,7 +411,7 @@ export function GoogleIntegrationsPanel({
 
       {status?.connected && status.hasMeet && (
         <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3 space-y-2">
-          <div className="flex items-center gap-2 text-xs font-semibold text-text-primary">
+          <div className="flex items-center gap-2 type-caption font-semibold text-text-primary">
             <Presentation className="h-4 w-4 text-text-primary" />
             {t('googleGroupVideoMeet')}
           </div>
@@ -420,7 +420,7 @@ export function GoogleIntegrationsPanel({
             data-testid="google-meet-create"
             disabled={loading}
             onClick={() => void handleCreateMeet()}
-            className="ws-empty-cta-primary text-xs"
+            className="ws-empty-cta-primary type-caption"
           >
             {t('googleCreateMeetLink')}
           </button>
@@ -430,7 +430,7 @@ export function GoogleIntegrationsPanel({
               target="_blank"
               rel="noopener noreferrer"
               data-testid="google-meet-link"
-              className="inline-flex items-center gap-1 text-xs text-text-primary hover:underline break-all"
+              className="inline-flex items-center gap-1 type-caption text-text-primary hover:underline break-all"
             >
               {meetUri}
               <ArrowRight className="h-3 w-3 shrink-0" />
@@ -441,7 +441,7 @@ export function GoogleIntegrationsPanel({
 
       {status?.connected && status.hasTasks && (
         <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3 space-y-2">
-          <div className="flex items-center gap-2 text-xs font-semibold text-text-primary">
+          <div className="flex items-center gap-2 type-caption font-semibold text-text-primary">
             <List className="h-4 w-4 text-text-primary" />
             {t('googleTasks')}
           </div>
@@ -450,7 +450,7 @@ export function GoogleIntegrationsPanel({
               value={taskDraft}
               onChange={(e) => setTaskDraft(e.target.value)}
               placeholder={t('googleNewStudyTaskPlaceholder')}
-              className="flex-1 rounded-lg border border-border-subtle bg-surface-input px-2 py-1.5 text-xs"
+              className="flex-1 rounded-lg border border-border-subtle bg-surface-input px-2 py-1.5 type-caption"
               onKeyDown={(e) => e.key === 'Enter' && void handleCreateTask()}
             />
             <button
@@ -458,7 +458,7 @@ export function GoogleIntegrationsPanel({
               data-testid="google-task-create"
               disabled={loading || !taskDraft.trim()}
               onClick={() => void handleCreateTask()}
-              className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 px-2 py-1.5 text-xs font-semibold text-text-primary"
+              className="inline-flex items-center gap-1 rounded-lg border border-brand-500/30 px-2 py-1.5 type-caption font-semibold text-text-primary"
             >
               <Plus className="h-3.5 w-3.5" />
               {t('googleAdd')}
@@ -478,7 +478,7 @@ export function GoogleIntegrationsPanel({
       )}
 
       {error && (
-        <p className="text-xs text-accent-rose" data-testid="google-integration-error">
+        <p className="type-caption text-accent-rose" data-testid="google-integration-error">
           {error}
         </p>
       )}

@@ -207,7 +207,7 @@ export function ReprocessTextEditor({ sections, onChange, initialSectionIndex = 
 
         <div className="min-w-0 flex-1 space-y-3">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="truncate text-xs font-semibold text-text-primary" title={active.heading}>
+            <h3 className="truncate type-caption font-semibold text-text-primary" title={active.heading}>
               {active.heading || sectionLabel(activeIndex)}
             </h3>
             <div className="flex items-center gap-1 shrink-0">

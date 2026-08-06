@@ -59,12 +59,12 @@ export function ReadinessRing({ value, size = 165, strokeWidth = 10.9, label = '
           >
             {value}%
           </motion.span>
-          <span className="text-xs text-text-tertiary font-medium text-center px-1 leading-snug">{label}</span>
+          <span className="type-caption text-text-tertiary font-medium text-center px-1 leading-snug">{label}</span>
         </div>
       </div>
       {showBand && (
         <span
-          className="text-xs font-semibold px-3 py-1 rounded-full border text-text-primary bg-surface-secondary"
+          className="type-caption font-semibold px-3 py-1 rounded-full border text-text-primary bg-surface-secondary"
           style={{
             borderColor: `color-mix(in srgb, ${band.color} 45%, var(--color-border-subtle))`,
           }}

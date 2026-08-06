@@ -45,12 +45,12 @@ export function McpCourseArtifactsPanel({ course, lang = 'en' }: Props) {
   return (
     <BlueprintSurface className="p-4 space-y-4" data-testid="mcp-course-artifacts">
       <div>
-        <h3 className="text-sm font-semibold text-text-primary">{title}</h3>
-        <p className="text-xs text-text-secondary mt-0.5">{subtitle}</p>
+        <h3 className="type-meta font-semibold text-text-primary">{title}</h3>
+        <p className="type-body text-text-secondary mt-0.5">{subtitle}</p>
       </div>
 
       {empty ? (
-        <p className="text-xs text-text-muted" data-testid="mcp-artifacts-empty">
+        <p className="type-caption text-text-muted" data-testid="mcp-artifacts-empty">
           {lang === 'el'
             ? 'Δεν υπάρχουν ακόμα MCP flashcards ή annotations για αυτό το μάθημα.'
             : 'No MCP flashcards or annotations on this course yet.'}
@@ -68,7 +68,7 @@ export function McpCourseArtifactsPanel({ course, lang = 'en' }: Props) {
                   className="rounded-lg border border-border-subtle/70 bg-surface-secondary/40 px-3 py-2"
                   data-testid="mcp-flashcard-row"
                 >
-                  <p className="text-xs font-medium text-text-primary">{c.front}</p>
+                  <p className="type-caption font-medium text-text-primary">{c.front}</p>
                   <p className="type-caption text-text-secondary mt-1">{c.back}</p>
                 </li>
               ))}
@@ -85,7 +85,7 @@ export function McpCourseArtifactsPanel({ course, lang = 'en' }: Props) {
                   className="rounded-lg border border-border-subtle/70 bg-surface-secondary/40 px-3 py-2"
                   data-testid="mcp-annotation-row"
                 >
-                  <p className="text-xs text-text-primary">{a.text}</p>
+                  <p className="type-body text-text-primary">{a.text}</p>
                   {a.note ? <p className="type-caption text-text-secondary mt-1">{a.note}</p> : null}
                 </li>
               ))}

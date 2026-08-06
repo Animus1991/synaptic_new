@@ -232,7 +232,7 @@ export function WhiteboardPanel({
                     key={formula.id}
                     type="button"
                     onClick={() => onOpenInReader?.(formula.name)}
-                    className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-1 type-caption text-text-primary hover:border-brand-500/40"
+                    className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-1 type-caption text-text-secondary hover:border-brand-500/40"
                   >
                     {formula.name.slice(0, 48)}{formula.name.length > 48 ? '…' : ''}
                   </button>

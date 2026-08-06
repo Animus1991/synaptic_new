@@ -128,9 +128,9 @@ export function StudyRoomPanel(props: Props) {
       >
         <header className="ws-cognitive-sheet-header flex shrink-0 items-center justify-between gap-3 border-b border-border-subtle px-4 py-3.5">
           <div className="flex items-center gap-2 min-w-0">
-            <Users className="h-4 w-4 shrink-0 text-text-primary" aria-hidden />
+            <Users className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
             <div className="min-w-0">
-              <h2 className="text-sm font-semibold truncate">{tr('studyRoomTitle')}</h2>
+              <h2 className="type-meta font-semibold truncate">{tr('studyRoomTitle')}</h2>
               {apiStatus?.localFallback && (
                 <p className="type-caption text-text-muted truncate">
                   {tr('studyRoomLocalMode')}
@@ -144,7 +144,7 @@ export function StudyRoomPanel(props: Props) {
         </header>
 
         {error && (
-          <div className="mx-4 mt-3 ws-chip-danger rounded-lg border px-3 py-2 text-xs" role="alert">
+          <div className="mx-4 mt-3 ws-chip-danger rounded-lg border px-3 py-2 type-caption" role="alert">
             {error}
           </div>
         )}
@@ -158,7 +158,7 @@ export function StudyRoomPanel(props: Props) {
                 void handleCreate();
               }}
             >
-              <p className="text-xs leading-relaxed text-text-secondary">
+              <p className="type-caption leading-relaxed text-text-secondary">
                 {tr('studyRoomIntroCoView')}
               </p>
               <label className="block">
@@ -201,7 +201,7 @@ export function StudyRoomPanel(props: Props) {
             </form>
           ) : (
             <div className="space-y-4">
-              <div className="ws-info-strip text-xs">
+              <div className="ws-info-strip type-caption">
                 <span className="font-semibold">{room.name}</span>
                 <span className="text-text-muted">
                   {' '}
@@ -213,7 +213,7 @@ export function StudyRoomPanel(props: Props) {
                 className="rounded-lg border border-border-subtle bg-surface-secondary/60 px-3 py-2 space-y-2"
                 data-testid="study-room-coview-controls"
               >
-                <p className="flex items-center gap-1.5 text-xs font-semibold text-text-primary">
+                <p className="flex items-center gap-1.5 type-caption font-semibold text-text-secondary">
                   <Eye className="h-3.5 w-3.5 text-brand-500" aria-hidden />
                   {tr('studyRoomCoViewHeading')}
                 </p>
@@ -248,10 +248,10 @@ export function StudyRoomPanel(props: Props) {
                 </div>
               </div>
               <div className="space-y-1.5">
-                <p className="text-xs font-semibold text-text-primary">{tr('studyRoomInviteHeading')}</p>
+                <p className="type-caption font-semibold text-text-secondary">{tr('studyRoomInviteHeading')}</p>
                 <p className="type-caption leading-snug text-text-muted">{tr('studyRoomInviteExplain')}</p>
                 <div className="flex items-center gap-2">
-                  <code className="ws-field-input flex-1 py-1.5 text-xs font-mono">{room.inviteCode}</code>
+                  <code className="ws-field-input flex-1 py-1.5 type-caption font-mono">{room.inviteCode}</code>
                   <button type="button" onClick={() => void copyInvite()} className="ws-chrome-btn p-2" title={tr('studyRoomCopy')} aria-label={tr('studyRoomCopy')}>
                     <Copy className="h-4 w-4" />
                   </button>
@@ -261,18 +261,18 @@ export function StudyRoomPanel(props: Props) {
                 <button
                   type="button"
                   onClick={() => onFollowSharedTool?.(room.sharedTool!)}
-                  className="ws-link-action text-xs w-full text-left"
+                  className="ws-link-action type-caption w-full text-left"
                 >
                   {tr('studyRoomFollowTool')}{' '}
                   {workspaceToolLabel(room.sharedTool as WorkspaceToolId, lang)}
                 </button>
               )}
               <div className="space-y-1.5">
-              <p className="text-xs font-semibold text-text-primary">{tr('studyRoomMembersHeading')}</p>
+              <p className="type-caption font-semibold text-text-secondary">{tr('studyRoomMembersHeading')}</p>
               <p className="type-caption leading-snug text-text-muted">{tr('studyRoomMembersExplain')}</p>
               <ul className="space-y-1.5" data-testid="study-room-members">
                 {room.members.map((m) => (
-                  <li key={m.id} className={`rounded-lg border px-3 py-2 text-xs ${m.id === memberId ? 'ws-chip-brand' : 'ws-chip-neutral'}`}>
+                  <li key={m.id} className={`rounded-lg border px-3 py-2 type-caption ${m.id === memberId ? 'ws-chip-brand' : 'ws-chip-neutral'}`}>
                     <span className="font-medium">{m.displayName}</span>
                     {m.id === memberId && <span className="text-text-muted"> ({tr('studyRoomYou')})</span>}
                     {m.leading && <span className="text-text-muted"> · {tr('studyRoomLeadingBadge')}</span>}
@@ -291,14 +291,14 @@ export function StudyRoomPanel(props: Props) {
               </div>
               {/* Shared Study Timer (cross-pollinated from ai_tutor_studio) */}
               <div className="space-y-1.5">
-              <p className="flex items-center gap-1.5 text-xs font-semibold text-text-primary">
+              <p className="flex items-center gap-1.5 type-caption font-semibold text-text-secondary">
                 <Clock className="h-3.5 w-3.5 text-brand-500" aria-hidden />
                 {tr('studyRoomTimerHeading')}
               </p>
               <p className="type-caption leading-snug text-text-muted">{tr('studyRoomTimerExplain')}</p>
               <div className="flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-secondary/50 px-3 py-2">
                 <Clock className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
-                <span className="font-mono text-sm font-bold text-text-primary flex-1">
+                <span className="font-mono type-meta font-bold text-text-primary flex-1">
                   {Math.floor(timerSeconds / 60).toString().padStart(2, '0')}:{(timerSeconds % 60).toString().padStart(2, '0')}
                 </span>
                 <button

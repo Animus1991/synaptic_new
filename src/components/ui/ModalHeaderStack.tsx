@@ -38,7 +38,7 @@ export function ModalHeaderStack({
         <p
           id={subtitleId}
           className={cn(
-            'ux-modal-subtitle text-text-secondary mt-0.5 text-sm leading-relaxed',
+            'ux-modal-subtitle text-text-secondary mt-0.5 type-body leading-relaxed',
           )}
         >
           {subtitle}

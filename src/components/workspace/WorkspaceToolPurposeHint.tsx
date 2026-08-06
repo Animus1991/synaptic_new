@@ -20,7 +20,7 @@ export function WorkspaceToolPurposeHint({ activeTool, lang }: Props) {
     >
       <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-amber" aria-hidden />
       <p className="min-w-0 type-caption leading-snug text-text-secondary">
-        <span className="font-medium text-text-primary">
+        <span className="font-medium text-text-secondary">
           {t('whyNowColon')}
         </span>{' '}
         {toolLearnerProblem(activeTool, lang)}

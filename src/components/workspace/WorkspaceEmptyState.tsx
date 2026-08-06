@@ -70,10 +70,10 @@ export function WorkspaceEmptyState({
           <Icon className="h-5 w-5 text-text-tertiary" aria-hidden />
         </div>
       )}
-      <h3 className={cn('ws-serif font-medium tracking-tight text-text-primary', compact ? 'text-sm' : 'text-lg mb-1.5')}>
+      <h3 className={cn('ws-serif font-medium tracking-tight text-text-primary', compact ? 'type-meta' : 'text-lg mb-1.5')}>
         {heading}
       </h3>
-      <p className={cn('text-sm text-text-secondary leading-relaxed', compact ? 'max-w-none' : 'max-w-md')}>
+      <p className={cn('type-body text-text-secondary leading-relaxed', compact ? 'max-w-none' : 'max-w-md')}>
         {message}
       </p>
       {(actions.length > 0 || showLegacyUpload) && (

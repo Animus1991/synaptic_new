@@ -46,7 +46,7 @@ export function LeitnerDueQueuePanel({
         <p
           className={cn(
             'font-semibold text-text-muted flex items-center gap-1.5',
-            isCard ? 'text-xs text-text-secondary' : 'type-caption mb-1',
+            isCard ? 'type-caption text-text-secondary' : 'type-caption mb-1',
           )}
         >
           {t('leitnerDueQueuePanel')}
@@ -86,7 +86,7 @@ export function LeitnerDueQueuePanel({
                 )}
                 title={`${item.label} · R=${retPct}% · ${item.intervalDays}d`}
               >
-                <p className={cn('font-medium text-text-primary truncate', isCard ? 'text-xs' : 'type-caption')}>
+                <p className={cn('font-medium text-text-primary truncate', isCard ? 'type-caption' : 'type-caption')}>
                   {item.label}
                 </p>
                 <p className={cn('text-text-muted flex gap-2', isCard ? 'type-caption mt-0.5' : 'type-caption')}>

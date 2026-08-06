@@ -35,8 +35,8 @@ export function ReviewSessionView({
             <X className="w-5 h-5 text-text-secondary" />
           </button>
           <div>
-            <p className="text-sm font-semibold">{sessionTitle}</p>
-            <p className="text-xs text-text-tertiary flex items-center gap-1">
+            <p className="type-meta font-semibold">{sessionTitle}</p>
+            <p className="type-caption text-text-tertiary flex items-center gap-1">
               <RotateCcw className="w-3 h-3" />
               {sessionCourse} · FSRS review
             </p>
@@ -45,11 +45,11 @@ export function ReviewSessionView({
         <div className="flex items-center gap-2">
           <button
             onClick={onOpenAgent}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle hover:border-brand-500/30 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg type-caption font-medium border border-border-subtle hover:border-brand-500/30 transition-all"
           >
             <Sparkles className="w-3.5 h-3.5 text-text-secondary" /> Ask Agent
           </button>
-          <span className="text-xs text-accent-amber font-medium">+{xpReward} XP</span>
+          <span className="type-caption text-accent-amber font-medium">+{xpReward} XP</span>
         </div>
       </div>
 
@@ -63,7 +63,7 @@ export function ReviewSessionView({
       </div>
 
       <div className="border-t border-border-subtle bg-surface-secondary/50 px-4 py-3">
-        <p className="text-xs text-text-muted text-center max-w-md mx-auto">
+        <p className="type-caption text-text-muted text-center max-w-md mx-auto">
           Flip the card, recall the answer, then rate your recall. Your FSRS interval updates automatically.
         </p>
       </div>

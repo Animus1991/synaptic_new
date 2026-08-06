@@ -165,7 +165,7 @@ export function AIInsightsPanel({
 
       <div className="rounded-xl border border-border-subtle bg-surface-card p-3 space-y-2">
         {payload.observations.length === 0 ? (
-          <p className="text-xs text-text-tertiary">
+          <p className="type-caption text-text-tertiary">
             {lang === 'el'
               ? 'Συνέχισε τη μελέτη για πιο πλούσια insights.'
               : 'Keep studying to unlock richer insights.'}
@@ -173,7 +173,7 @@ export function AIInsightsPanel({
         ) : (
           <ul className="space-y-1.5">
             {payload.observations.map((obs, i) => (
-              <li key={i} className="flex items-start gap-2 text-xs text-text-secondary">
+              <li key={i} className="flex items-start gap-2 type-caption text-text-secondary">
                 <Lightbulb className="h-3.5 w-3.5 shrink-0 text-text-tertiary mt-0.5" aria-hidden />
                 <span>{obs}</span>
               </li>
@@ -203,7 +203,7 @@ export function AIInsightsPanel({
                   }
                 }}
               >
-                <p className="text-xs font-semibold text-text-primary flex items-center gap-1">
+                <p className="type-caption font-semibold text-text-primary flex items-center gap-1">
                   {action.title}
                   <ArrowRight className="h-3 w-3 text-text-tertiary" aria-hidden />
                 </p>

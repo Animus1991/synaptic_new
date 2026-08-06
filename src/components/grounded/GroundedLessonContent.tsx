@@ -53,12 +53,12 @@ export function GroundedLessonContent({
   if (!hasSource) {
     return (
       <div className="space-y-4 text-center py-12">
-        <p className="text-sm text-text-secondary max-w-md mx-auto">{emptyMessage}</p>
+        <p className="type-body text-text-secondary max-w-md mx-auto">{emptyMessage}</p>
         {onUpload && !hasSource && (
           <button
             type="button"
             onClick={onUpload}
-            className="mt-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-brand-600 to-brand-500 text-white hover:from-brand-500 hover:to-brand-400 transition-all"
+            className="mt-2 px-4 py-2.5 rounded-xl type-meta font-medium bg-gradient-to-r from-brand-600 to-brand-500 text-white hover:from-brand-500 hover:to-brand-400 transition-all"
           >
             {t('uploadMaterial')}
           </button>
@@ -70,24 +70,24 @@ export function GroundedLessonContent({
   if (stepKey === 'retrieval' && quizDef && onQuizSelect && isMcQuiz(quizDef)) {
     return (
       <div className="space-y-4">
-        <span className="text-xs text-text-secondary font-medium">{t('quiz')}</span>
+        <span className="type-caption text-text-secondary font-medium">{t('quiz')}</span>
         <h2 className="text-lg font-semibold">{t('knowledgeCheck')}</h2>
         <div className="p-4 rounded-xl bg-surface-card border border-border-subtle">
           {quizDef.placeholder ? (
             <div className="py-3 text-center">
-              <p className="text-sm font-medium text-text-secondary">{quizDef.question}</p>
-              <p className="mx-auto mt-1.5 max-w-xs text-xs text-text-muted">{t('wsQuizEmptyHint')}</p>
+              <p className="type-body font-medium text-text-secondary">{quizDef.question}</p>
+              <p className="mx-auto mt-1.5 max-w-xs type-caption text-text-muted">{t('wsQuizEmptyHint')}</p>
             </div>
           ) : (
             <>
-              <p className="text-sm mb-3">{quizDef.question}</p>
+              <p className="type-body mb-3">{quizDef.question}</p>
               {quizDef.options.map((opt, i) => (
                 <button
                   key={i}
                   type="button"
                   onClick={() => onQuizSelect(i)}
                   className={cn(
-                    'w-full text-left p-3 rounded-lg border text-sm mb-2 transition-all flex items-center gap-2',
+                    'w-full text-left p-3 rounded-lg border type-body mb-2 transition-all flex items-center gap-2',
                     quizAnswer === i
                       ? i === quizDef.correctIndex
                         ? 'border-accent-emerald/50 bg-accent-emerald/10 text-accent-emerald'
@@ -95,14 +95,14 @@ export function GroundedLessonContent({
                       : 'border-border-subtle hover:border-brand-500/30',
                   )}
                 >
-                  <span className="w-6 h-6 rounded-full border border-current text-xs flex items-center justify-center shrink-0">
+                  <span className="w-6 h-6 rounded-full border border-current type-caption flex items-center justify-center shrink-0">
                     {String.fromCharCode(65 + i)}
                   </span>
                   {opt}
                 </button>
               ))}
               {quizAnswer !== null && (
-                <p className={cn('text-xs mt-2 inline-flex items-center gap-1.5', quizPassed ? 'text-accent-emerald' : 'text-accent-rose')}>
+                <p className={cn('type-caption mt-2 inline-flex items-center gap-1.5', quizPassed ? 'text-accent-emerald' : 'text-accent-rose')}>
                   {quizPassed ? <Check className="w-3.5 h-3.5" aria-hidden /> : <X className="w-3.5 h-3.5" aria-hidden />}
                   {quizPassed ? t('canFinish') : t('reviewMaterial')}
                 </p>
@@ -118,7 +118,7 @@ export function GroundedLessonContent({
     return (
       <div className="space-y-5">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-text-secondary font-medium">{generatedPanel.badge}</span>
+          <span className="type-caption text-text-secondary font-medium">{generatedPanel.badge}</span>
           <span className="inline-flex items-center gap-1 type-micro px-2 py-0.5 rounded-full bg-accent-emerald/10 text-accent-emerald font-medium">
             <Sparkles className="w-3 h-3" />
             {t('wbFromSources')}
@@ -136,7 +136,7 @@ export function GroundedLessonContent({
   if (!body.trim() && stepKey !== 'practice') {
     return (
       <div className="space-y-4 text-center py-8">
-        <p className="text-sm text-text-secondary">{emptyMessage}</p>
+        <p className="type-body text-text-secondary">{emptyMessage}</p>
       </div>
     );
   }
@@ -144,14 +144,14 @@ export function GroundedLessonContent({
   return (
     <div className="space-y-5">
       <div>
-        <span className="text-xs text-accent-cyan font-medium">{stepLabel}</span>
+        <span className="type-caption text-accent-cyan font-medium">{stepLabel}</span>
         <h2 className="text-lg font-semibold mt-2">{concept}</h2>
       </div>
-      <div className="text-sm text-text-secondary leading-relaxed">
+      <div className="type-body text-text-secondary leading-relaxed">
         <RichText text={body} />
       </div>
       {stepKey === 'practice' && (
-        <p className="text-xs text-text-muted">
+        <p className="type-caption text-text-muted">
           {t('lessonPracticeHint')}
         </p>
       )}
@@ -174,7 +174,7 @@ function PanelBlock({ block, onOpenAgent }: { block: WorkspacePanelBlock; onOpen
   switch (block.kind) {
     case 'paragraph':
       return (
-        <div className="text-sm text-text-secondary leading-relaxed">
+        <div className="type-body text-text-secondary leading-relaxed">
           <RichText text={block.text} />
           {block.emphasis && <strong className="text-text-primary"> {block.emphasis}</strong>}
         </div>
@@ -190,10 +190,10 @@ function PanelBlock({ block, onOpenAgent }: { block: WorkspacePanelBlock; onOpen
                 card.accent === 'teal' ? 'bg-accent-teal/5 border-accent-teal/20' : 'bg-brand-500/5 border-brand-500/20',
               )}
             >
-              <h4 className={cn('text-sm font-semibold mb-2', card.accent === 'teal' ? 'text-accent-teal' : 'text-text-secondary')}>
+              <h4 className={cn('type-meta font-semibold mb-2', card.accent === 'teal' ? 'text-accent-teal' : 'text-text-secondary')}>
                 {card.title}
               </h4>
-              <ul className="text-xs text-text-secondary space-y-1">
+              <ul className="type-body text-text-secondary space-y-1">
                 {card.bullets.map((b) => <li key={b}>‶ {b}</li>)}
               </ul>
             </div>
@@ -215,15 +215,15 @@ function PanelBlock({ block, onOpenAgent }: { block: WorkspacePanelBlock; onOpen
           'p-4 rounded-xl border',
           block.variant === 'warning' ? 'bg-accent-amber/5 border-accent-amber/20' : 'bg-brand-500/5 border-brand-500/20',
         )}>
-          <p className={cn('text-sm font-semibold mb-1', block.variant === 'warning' ? 'text-accent-amber' : 'text-text-secondary')}>
+          <p className={cn('type-meta font-semibold mb-1', block.variant === 'warning' ? 'text-accent-amber' : 'text-text-secondary')}>
             {block.title}
           </p>
-          <p className="text-xs text-text-secondary">{block.text}</p>
+          <p className="type-body text-text-secondary">{block.text}</p>
         </div>
       );
     case 'steps':
       return (
-        <div className="space-y-2 text-sm text-text-secondary font-mono">
+        <div className="space-y-2 type-body text-text-secondary font-mono">
           {block.items.map((s) => (
             <div key={s.label}>
               <p className={cn('type-micro font-sans font-semibold', s.success ? 'text-accent-emerald' : 'text-text-secondary')}>{s.label}</p>
@@ -240,7 +240,7 @@ function PanelBlock({ block, onOpenAgent }: { block: WorkspacePanelBlock; onOpen
               key={a.label}
               type="button"
               onClick={onOpenAgent}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle hover:border-brand-500/30 text-text-secondary"
+              className="px-3 py-1.5 rounded-lg type-caption font-medium border border-border-subtle hover:border-brand-500/30 text-text-secondary"
             >
               {a.label}
             </button>

@@ -111,7 +111,7 @@ export function DebatePanel({
 
         {(session.weakExtraction || session.passageGrounded) && session.seedTree && (
           <div
-            className="mb-3 flex items-start gap-2 rounded-md border-l-2 border-accent-amber/60 border-y border-r border-border-subtle bg-accent-amber/5 px-3 py-2 type-caption text-accent-amber"
+            className="mb-3 flex items-start gap-2 rounded-md border-l-2 border-l-accent-amber/60 border-y border-r border-border-subtle bg-accent-amber/5 px-3 py-2 type-caption text-accent-amber"
             data-testid="debate-weak-extraction"
           >
             <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
@@ -137,7 +137,7 @@ export function DebatePanel({
             />
           </div>
           <span className="type-caption text-text-secondary">
-            <span className="font-semibold text-text-primary">{session.nodeCount}</span> {t('panelNodes')}
+            <span className="font-semibold">{session.nodeCount}</span> {t('panelNodes')}
           </span>
           {onOpenInReader && (
             <button
@@ -159,7 +159,7 @@ export function DebatePanel({
                 key={`${i}-${text.slice(0, 24)}`}
                 type="button"
                 onClick={() => selectClaim(text)}
-                className="rounded-md border border-brand-500/25 bg-brand-500/5 px-2 py-0.5 type-caption text-text-primary hover:bg-brand-500/10 hover:border-brand-500/40 transition-colors"
+                className="rounded-md border border-brand-500/25 bg-brand-500/5 px-2 py-0.5 type-caption text-text-secondary hover:bg-brand-500/10 hover:border-brand-500/40 transition-colors"
               >
                 {text.slice(0, 56)}{text.length > 56 ? '…' : ''}
               </button>
@@ -184,7 +184,7 @@ export function DebatePanel({
               type="button"
               data-testid="debate-ai-counter"
               onClick={() => onAiCounter(selectedClaim)}
-              className="rounded-full border border-border-default bg-surface-tertiary px-2.5 py-1 type-caption font-medium text-text-primary hover:bg-surface-hover"
+              className="rounded-full border border-border-default bg-surface-tertiary px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover"
             >
               {t('debateAiCounter')}
             </button>

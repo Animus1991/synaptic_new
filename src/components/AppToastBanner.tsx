@@ -26,7 +26,7 @@ export function AppToastBanner({
         >
           <div className="app-toast-banner flex items-start gap-3 rounded-2xl border border-accent-emerald/35 bg-surface-secondary/95 backdrop-blur px-4 py-3 shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
             <CheckCircle2 className="w-5 h-5 text-accent-emerald shrink-0 mt-0.5" />
-            <p className="text-sm text-text-primary flex-1">{toast.message}</p>
+            <p className="type-body text-text-primary flex-1">{toast.message}</p>
             <button
               type="button"
               onClick={onDismiss}

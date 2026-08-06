@@ -38,7 +38,7 @@ export function FlowchartDiagram({ nodes, edges, title }: { nodes: FlowNode[]; e
 
   return (
     <div className="rounded-xl border border-border-subtle bg-surface-card p-4">
-      {title && <p className="text-xs font-semibold mb-2 text-text-secondary inline-flex items-center gap-1.5"><List className="w-3.5 h-3.5" /> {title}</p>}
+      {title && <p className="type-caption font-semibold mb-2 text-text-secondary inline-flex items-center gap-1.5"><List className="w-3.5 h-3.5" /> {title}</p>}
       <svg width={320} height={svgH} className="block mx-auto">
         {/* Edges */}
         {edges.map((e, i) => {
@@ -86,9 +86,9 @@ interface FormulaSymbol { symbol: string; meaning: string; unit?: string }
 export function FormulaExplorer({ formula, name, symbols }: { formula: string; name: string; symbols: FormulaSymbol[] }) {
   return (
     <div className="rounded-xl border border-border-subtle bg-surface-card p-4">
-      <p className="text-xs font-semibold mb-3 text-text-secondary inline-flex items-center gap-1.5"><Calculator className="w-3.5 h-3.5" /> Formula Explorer</p>
+      <p className="type-caption font-semibold mb-3 text-text-secondary inline-flex items-center gap-1.5"><Calculator className="w-3.5 h-3.5" /> Formula Explorer</p>
       <div className="text-center mb-4">
-        <p className="text-xs text-text-muted mb-1">{name}</p>
+        <p className="type-caption text-text-muted mb-1">{name}</p>
         <div className="text-2xl font-mono font-bold text-text-secondary py-3 px-4 rounded-lg bg-surface-primary/60 inline-block">
           {formula}
         </div>
@@ -96,9 +96,9 @@ export function FormulaExplorer({ formula, name, symbols }: { formula: string; n
       <div className="grid grid-cols-2 gap-2">
         {symbols.map(s => (
           <div key={s.symbol} className="flex items-start gap-2 p-2 rounded-lg bg-surface-hover/50">
-            <span className="font-mono font-bold text-text-secondary text-sm w-8 shrink-0">{s.symbol}</span>
+            <span className="font-mono font-bold text-text-secondary type-meta w-8 shrink-0">{s.symbol}</span>
             <div>
-              <p className="text-xs text-text-secondary">{s.meaning}</p>
+              <p className="type-caption text-text-secondary">{s.meaning}</p>
               {s.unit && <p className="type-caption text-text-muted">Unit: {s.unit}</p>}
             </div>
           </div>
@@ -163,7 +163,7 @@ export function ComparisonTable({
   return (
     <div className="rounded-xl border border-border-subtle bg-surface-card p-4 overflow-x-auto" data-testid="comparison-table">
       <div className="flex items-center justify-between gap-2 mb-3">
-        <p className="text-xs font-semibold text-text-secondary inline-flex items-center gap-1.5"><Scale className="w-3.5 h-3.5" /> {title}</p>
+        <p className="type-caption font-semibold text-text-secondary inline-flex items-center gap-1.5"><Scale className="w-3.5 h-3.5" /> {title}</p>
         <div className="flex items-center gap-1.5">
           <button
             type="button"
@@ -208,7 +208,7 @@ export function ComparisonTable({
           {translate('compareDiffLegend', lang as Lang)}
         </p>
       )}
-      <table className="w-full text-xs">
+      <table className="w-full type-caption">
         <thead>
           <tr className="border-b border-border-subtle">
             {headers.map((h, i) => (
@@ -290,7 +290,7 @@ interface Milestone { label: string; completed: boolean; date?: string; xp?: num
 export function ProgressTimeline({ milestones, title }: { milestones: Milestone[]; title?: string }) {
   return (
     <div className="rounded-xl border border-border-subtle bg-surface-card p-4">
-      {title && <p className="text-xs font-semibold mb-3 text-text-secondary inline-flex items-center gap-1.5"><Flag className="w-3.5 h-3.5" /> {title}</p>}
+      {title && <p className="type-caption font-semibold mb-3 text-text-secondary inline-flex items-center gap-1.5"><Flag className="w-3.5 h-3.5" /> {title}</p>}
       <div className="space-y-0">
         {milestones.map((m, i) => (
           <motion.div
@@ -309,7 +309,7 @@ export function ProgressTimeline({ milestones, title }: { milestones: Milestone[
               )}
             </div>
             <div className="pb-6">
-              <p className={`text-xs font-medium ${m.completed ? 'text-text-primary' : 'text-text-tertiary'}`}>{m.label}</p>
+              <p className={`type-caption font-medium ${m.completed ? 'text-text-primary' : 'text-text-tertiary'}`}>{m.label}</p>
               {m.date && <p className="type-caption text-text-muted mt-0.5">{m.date}</p>}
               {m.xp && m.completed && <p className="type-caption text-accent-amber mt-0.5">+{m.xp} XP</p>}
             </div>

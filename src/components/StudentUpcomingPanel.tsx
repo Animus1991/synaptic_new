@@ -23,23 +23,23 @@ export function StudentUpcomingPanel({ upcoming, ui, lang }: Props) {
   return (
     <section className="space-y-3" data-testid="student-upcoming">
       <h2 className="text-lg font-medium">{ui.upcomingTitle}</h2>
-      <p className="text-sm text-text-muted">{ui.upcomingHint}</p>
+      <p className="type-body text-text-muted">{ui.upcomingHint}</p>
       <ul className="rounded-xl border border-border-subtle divide-y divide-border-subtle/50 overflow-hidden">
         {upcoming.map((row) => (
           <li
             key={`${row.classId}-${row.assignmentId}`}
-            className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 bg-surface-card/40 text-sm"
+            className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 bg-surface-card/40 type-body"
           >
             <div className="min-w-0">
               <p className="font-medium text-text-primary truncate">{row.title}</p>
-              <p className="text-xs text-text-muted truncate">
+              <p className="type-caption text-text-muted truncate">
                 {row.className}
                 {row.dueAt ? ` · ${formatShortDate(row.dueAt, lang)}` : ''}
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
               {row.score != null && (
-                <span className="text-xs font-medium text-text-primary">{row.score}%</span>
+                <span className="type-caption font-medium text-text-primary">{row.score}%</span>
               )}
               <span
                 className={cn(

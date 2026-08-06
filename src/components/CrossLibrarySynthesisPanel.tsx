@@ -82,7 +82,7 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
           <Library className="w-3.5 h-3.5" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-xs font-semibold text-text-primary">{title}</span>
+          <span className="block type-caption font-semibold text-text-primary">{title}</span>
           {/* Promo ink uses theme secondary (warm sepia / spectrum ink / blueprint slate)
               — hardcoded violet-300 was ~1.5:1 on light cards. */}
           <span className="ux-combined-study-promo block type-micro line-clamp-1">{promo}</span>
@@ -99,9 +99,9 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
       </div>
       {open && (
         <div className="px-3.5 pb-3 space-y-2 border-t border-brand-500/20 pt-2.5 bg-surface-primary/30">
-          <p className="text-xs text-text-secondary">{subtitle}</p>
+          <p className="type-caption text-text-secondary">{subtitle}</p>
           {!token && (
-            <p className="text-xs text-text-muted" data-testid="cross-library-synthesis-demo-hint">
+            <p className="type-caption text-text-muted" data-testid="cross-library-synthesis-demo-hint">
               {lang === 'el'
                 ? 'Συνδέσου στο proxy για σύνθεση μεταξύ μαθημάτων. Τα demo μένουν τοπικά μέχρι τότε.'
                 : 'Sign in to the proxy to synthesize across courses. Demo libraries stay local until then.'}
@@ -118,14 +118,14 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
             }}
             placeholder={defaultQuery}
             rows={2}
-            className="w-full rounded-lg border border-brand-500/25 bg-surface-primary px-2 py-1.5 text-xs text-text-primary placeholder:text-text-muted resize-none focus:outline-none focus:ring-1 focus:ring-brand-500/35"
+            className="w-full rounded-lg border border-brand-500/25 bg-surface-primary px-2 py-1.5 type-body text-text-primary placeholder:text-text-muted resize-none focus:outline-none focus:ring-1 focus:ring-brand-500/35"
             data-testid="cross-library-synthesis-query"
           />
           {courses.length > 0 && (
             <select
               value={scope}
               onChange={(e) => setScope(e.target.value)}
-              className="w-full rounded-lg border border-brand-500/25 bg-surface-primary px-2 py-1 text-xs text-text-primary"
+              className="w-full rounded-lg border border-brand-500/25 bg-surface-primary px-2 py-1 type-body text-text-primary"
               data-testid="cross-library-synthesis-scope"
             >
               <option value="all">{lang === 'el' ? 'Όλα τα μαθήματα' : 'All courses'}</option>
@@ -140,7 +140,7 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
             type="button"
             disabled={busy || !token}
             onClick={() => void runSynthesis()}
-            className="ux-combined-study-cta inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border disabled:opacity-55"
+            className="ux-combined-study-cta inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg type-caption font-semibold border disabled:opacity-55"
             data-testid="cross-library-synthesis-run"
             title={!token ? (lang === 'el' ? 'Απαιτείται σύνδεση' : 'Sign-in required') : undefined}
           >
@@ -154,13 +154,13 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
                 : 'Synthesize'}
           </button>
           {error && (
-            <p className="text-xs text-accent-rose" data-testid="cross-library-synthesis-error" role="alert">
+            <p className="type-caption text-accent-rose" data-testid="cross-library-synthesis-error" role="alert">
               {error}
             </p>
           )}
           {synthesis && (
             <pre
-              className="text-xs text-text-secondary whitespace-pre-wrap max-h-40 overflow-y-auto p-2 rounded-lg bg-surface-secondary/40 border border-brand-500/20"
+              className="type-caption text-text-secondary whitespace-pre-wrap max-h-40 overflow-y-auto p-2 rounded-lg bg-surface-secondary/40 border border-brand-500/20"
               data-testid="cross-library-synthesis-result"
             >
               {synthesis}
@@ -171,7 +171,7 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
               <button
                 type="button"
                 onClick={() => setCitationsOpen((v) => !v)}
-                className="w-full flex items-center gap-1.5 px-2 py-1.5 text-xs text-text-secondary hover:text-text-primary"
+                className="w-full flex items-center gap-1.5 px-2 py-1.5 type-caption text-text-secondary hover:text-text-primary"
               >
                 <FileText className="w-3 h-3" />
                 {citations.length}{' '}
@@ -187,7 +187,7 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
               {citationsOpen && (
                 <ul className="divide-y divide-border-subtle/60 max-h-32 overflow-y-auto">
                   {citations.map((c) => (
-                    <li key={c.chunkId} className="px-2 py-1.5 text-xs">
+                    <li key={c.chunkId} className="px-2 py-1.5 type-caption">
                       <p className="font-medium text-text-primary truncate">
                         {c.fileName} · {c.locator}
                       </p>
