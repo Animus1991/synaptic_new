@@ -1416,6 +1416,7 @@ export default function App() {
               onSyncAccount={store.syncAccountOnLogin}
               onRefreshPlan={store.refreshAuthPlan}
               onReplayProductTour={replayProductTour}
+              onDoneStudying={() => store.navigate('dashboard')}
               tasks={store.tasks}
               onApplyCalendarSync={store.applyTaskCalendarSync}
             />

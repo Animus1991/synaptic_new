@@ -300,8 +300,9 @@ export function Library({
   return (
     <div
       {...warmSandScopeProps(warmSandPage)}
-      className={cn(isMinimal && 'library-calm library-files-density')}
+      className={cn('w-full max-w-none', isMinimal && 'library-calm library-files-density')}
       data-testid="library-page"
+      data-bleed="full"
     >
     <Page gap="sm">
       <PageHeader
@@ -317,6 +318,11 @@ export function Library({
         }
       />
 
+      <div
+        className="library-work-surface w-full max-w-none space-y-2"
+        data-testid="library-work-surface"
+        data-bleed="full"
+      >
       <RagIndexProgressBanner
         settings={userSettings}
         lang={userLanguage}
@@ -371,6 +377,7 @@ export function Library({
           <CollapsibleChromeSection
             title={t('chromeLibraryExtras', userLanguage)}
             data-testid="library-extras-chrome"
+            alwaysCollapse
           >
             <div className="space-y-3 px-1 pb-2">
               {onImportNotebookLm && (
@@ -421,31 +428,49 @@ export function Library({
         testIdPrefix="library-tab"
       />
 
-      {/* Search & Filters */}
-      <div className="flex flex-col sm:flex-row gap-2">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" aria-hidden="true" />
-          <input
-            type="search"
-            placeholder={t('libSearchPlaceholder', userLanguage)}
-            aria-label={t('libSearchAria', userLanguage)}
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-10 py-2.5 rounded-md bg-surface-input border border-border-subtle type-body text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/40 transition-colors"
-          />
-          {search && (
-            <button
-              type="button"
-              onClick={() => setSearch('')}
-              aria-label={t('libClearSearch', userLanguage)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-text-tertiary hover:text-text-primary hover:bg-surface-hover transition-colors"
-            >
-              <X className="w-3.5 h-3.5" aria-hidden />
-            </button>
-          )}
-        </div>
-        {tab === 'courses' && (
-          <div className="flex items-center gap-2 flex-wrap">
+      {/* Wave H4 — upload-first: drop strip above the course grid when materials exist. */}
+      {tab === 'courses' && courses.length > 0 && !search.trim() && (
+        <button
+          type="button"
+          onClick={() => onUpload()}
+          data-testid="library-drop-zone-compact"
+          data-bleed="full"
+          className="ux-library-drop-zone ux-library-drop-zone--compact ux-prompt-bar-surface flex w-full flex-row items-center justify-center gap-3 px-4 py-3 text-text-secondary hover:text-text-primary transition-colors"
+        >
+          <Upload className="h-5 w-5 text-text-secondary shrink-0" aria-hidden />
+          <span className="type-meta font-medium">{t('libDropZoneCompactTitle', userLanguage)}</span>
+        </button>
+      )}
+
+      {/* Search stays visible; filters/sort nest as Find courses chrome. */}
+      <div className="relative w-full">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" aria-hidden="true" />
+        <input
+          type="search"
+          placeholder={t('libSearchPlaceholder', userLanguage)}
+          aria-label={t('libSearchAria', userLanguage)}
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="w-full pl-10 pr-10 py-2.5 rounded-md bg-surface-input border border-border-subtle type-body text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/40 transition-colors"
+        />
+        {search && (
+          <button
+            type="button"
+            onClick={() => setSearch('')}
+            aria-label={t('libClearSearch', userLanguage)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-text-tertiary hover:text-text-primary hover:bg-surface-hover transition-colors"
+          >
+            <X className="w-3.5 h-3.5" aria-hidden />
+          </button>
+        )}
+      </div>
+      {tab === 'courses' && (
+        <CollapsibleChromeSection
+          title={t('libraryFindChrome', userLanguage)}
+          data-testid="library-find-chrome"
+          alwaysCollapse
+        >
+          <div className="flex items-center gap-2 flex-wrap px-1 pb-2">
             {(['all', 'in-progress', 'generating', 'completed', 'attention'] as const).map(f => {
               const active = filter === f;
               return (
@@ -499,8 +524,8 @@ export function Library({
               </button>
             </div>
           </div>
-        )}
-      </div>
+        </CollapsibleChromeSection>
+      )}
 
       {/* Content */}
       <AnimatePresence mode="wait">
@@ -517,7 +542,8 @@ export function Library({
                 type="button"
                 onClick={() => onUpload()}
                 data-testid="library-drop-zone"
-                className="ux-library-drop-zone ux-prompt-bar-surface mb-2 flex w-full flex-col items-center gap-2 px-6 py-8 text-center text-text-secondary hover:text-text-primary transition-colors"
+                data-bleed="full"
+                className="ux-library-drop-zone ux-prompt-bar-surface mb-2 flex w-full max-w-none flex-col items-center gap-2 px-6 py-12 text-center text-text-secondary hover:text-text-primary transition-colors"
               >
                 <Upload className="h-8 w-8 text-text-secondary" aria-hidden />
                 <span className="type-meta font-medium">
@@ -582,7 +608,7 @@ export function Library({
                     <CollapsibleChromeSection
                       title={t('chromeAlerts', userLanguage)}
                       data-testid="library-quality-alerts-chrome"
-                      defaultOpen
+                      alwaysCollapse
                     >
                       <div className="space-y-2 px-1 pb-2">
                         {libraryQualityAlerts.needsMaterial && (
@@ -608,56 +634,51 @@ export function Library({
                   )}
                 </div>
                 {!search.trim() && (libraryInfo.topics.length > 0 || libraryInfo.examples.length > 0) && (
-                  <div
-                    className="library-info-stacks grid grid-cols-1 gap-2 lg:grid-cols-2 lg:gap-2.5"
-                    data-testid="library-info-stacks"
+                  <CollapsibleChromeSection
+                    title={t('libraryTopicsChrome', userLanguage)}
+                    data-testid="library-topics-chrome"
+                    alwaysCollapse
                   >
-                    {libraryInfo.topics.length > 0 && (
-                      <InfoStack
-                        title={t('libraryInfoStackTopicsTitle', userLanguage)}
-                        items={libraryInfo.topics}
-                        secondary={libraryInfo.prerequisites}
-                        secondaryLabel={t('libraryInfoStackPrereqLabel', userLanguage)}
-                        onItemClick={(topicTitle) => {
-                          // OPT-L1 — open study workspace on the topic (demo + prod); fallback to course.
-                          if (onOpenConcept) {
-                            onOpenConcept(topicTitle);
-                            return;
-                          }
-                          const owning = topicToCourse.get(topicTitle);
-                          if (owning) onSelectCourse(owning);
-                        }}
-                        onSecondaryClick={(label) => {
-                          if (onOpenConcept) onOpenConcept(label);
-                        }}
-                        itemHint={t('libTopicOpenHint', userLanguage)}
-                        secondaryHint={t('libPrereqOpenHint', userLanguage)}
-                      />
-                    )}
-                    {libraryInfo.examples.length > 0 && (
-                      <InfoStack
-                        title={t('libraryInfoStackExamplesTitle', userLanguage)}
-                        items={libraryInfo.examples}
-                        secondary={libraryInfo.enrichments}
-                        secondaryLabel={t('libraryInfoStackEnrichmentLabel', userLanguage)}
-                        onItemClick={onOpenConcept}
-                        onSecondaryClick={onOpenConcept}
-                        itemHint={t('libConceptOpenHint', userLanguage)}
-                        secondaryHint={t('libConceptOpenHint', userLanguage)}
-                      />
-                    )}
-                  </div>
-                )}
-                {!search.trim() && (
-                  <button
-                    type="button"
-                    onClick={() => onUpload()}
-                    data-testid="library-drop-zone-compact"
-                    className="ux-library-drop-zone ux-library-drop-zone--compact ux-prompt-bar-surface flex w-full flex-row items-center justify-center gap-3 px-4 py-2.5 text-text-secondary hover:text-text-primary transition-colors"
-                  >
-                    <Upload className="h-5 w-5 text-text-secondary shrink-0" aria-hidden />
-                    <span className="type-meta font-medium">{t('libDropZoneCompactTitle', userLanguage)}</span>
-                  </button>
+                    <div
+                      className="library-info-stacks grid grid-cols-1 gap-2 px-1 pb-2 lg:grid-cols-2 lg:gap-2.5"
+                      data-testid="library-info-stacks"
+                    >
+                      {libraryInfo.topics.length > 0 && (
+                        <InfoStack
+                          title={t('libraryInfoStackTopicsTitle', userLanguage)}
+                          items={libraryInfo.topics}
+                          secondary={libraryInfo.prerequisites}
+                          secondaryLabel={t('libraryInfoStackPrereqLabel', userLanguage)}
+                          onItemClick={(topicTitle) => {
+                            // OPT-L1 — open study workspace on the topic (demo + prod); fallback to course.
+                            if (onOpenConcept) {
+                              onOpenConcept(topicTitle);
+                              return;
+                            }
+                            const owning = topicToCourse.get(topicTitle);
+                            if (owning) onSelectCourse(owning);
+                          }}
+                          onSecondaryClick={(label) => {
+                            if (onOpenConcept) onOpenConcept(label);
+                          }}
+                          itemHint={t('libTopicOpenHint', userLanguage)}
+                          secondaryHint={t('libPrereqOpenHint', userLanguage)}
+                        />
+                      )}
+                      {libraryInfo.examples.length > 0 && (
+                        <InfoStack
+                          title={t('libraryInfoStackExamplesTitle', userLanguage)}
+                          items={libraryInfo.examples}
+                          secondary={libraryInfo.enrichments}
+                          secondaryLabel={t('libraryInfoStackEnrichmentLabel', userLanguage)}
+                          onItemClick={onOpenConcept}
+                          onSecondaryClick={onOpenConcept}
+                          itemHint={t('libConceptOpenHint', userLanguage)}
+                          secondaryHint={t('libConceptOpenHint', userLanguage)}
+                        />
+                      )}
+                    </div>
+                  </CollapsibleChromeSection>
                 )}
               </div>
             )}
@@ -705,6 +726,7 @@ export function Library({
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </Page>
     </div>
   );

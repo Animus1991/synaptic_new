@@ -12,7 +12,7 @@ import { authLogin, authRegister, pushRemoteLibrary, createCheckoutSession, auth
 import { GoogleIntegrationsPanel } from './GoogleIntegrationsPanel';
 import { googleAuthStartUrl } from '../lib/googleClient';
 import { loadLibrarySync } from '../features/library';
-import { Page, PageHeader, AnimatedCard } from './ui/primitives';
+import { Page, PageHeader, AnimatedCard, PrimaryCTA } from './ui/primitives';
 import { WorkspaceTTIPanel } from './WorkspaceTTIPanel';
 import { useI18n } from '../lib/i18n';
 import { getSettingsContent } from '../lib/settingsContent';
@@ -33,7 +33,7 @@ import {
   settingsPatchForBaseUrlPreset,
   type AiBaseUrlPresetId,
 } from '../lib/aiEconomicsPresets';
-
+import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 
 interface SettingsProps {
@@ -45,6 +45,8 @@ interface SettingsProps {
   onSyncAccount?: () => Promise<unknown>;
   onRefreshPlan?: () => Promise<unknown>;
   onReplayProductTour?: () => void;
+  /** Wave H3 — leave Settings back to Dashboard / study */
+  onDoneStudying?: () => void;
   tasks?: Task[];
   onApplyCalendarSync?: (updates: TaskCalendarSyncUpdate[]) => void;
 }
@@ -59,6 +61,7 @@ export function Settings({
   onSyncAccount,
   onRefreshPlan,
   onReplayProductTour,
+  onDoneStudying,
   tasks = [],
   onApplyCalendarSync,
 }: SettingsProps) {
@@ -155,29 +158,51 @@ export function Settings({
     }
   };
 
-  const settingsSections = useMemo(
+  /* Wave H3 — IA groups (Learning / Account / Advanced) instead of flat 13-pill strip */
+  const settingsNavGroups = useMemo(
     () => [
-      { id: 'settings-teaching', label: c.sectionTeachingApproach },
-      { id: 'settings-content', label: c.sectionContentBalance },
-      { id: 'settings-pacing', label: c.sectionPacingDifficulty },
-      { id: 'settings-practice', label: c.sectionPracticeRevision },
-      { id: 'settings-plugins', label: t('pluginMarketplaceTitle') },
-      { id: 'settings-source', label: c.sectionSourceContent },
-      { id: 'settings-goals', label: c.sectionStudyGoals },
-      { id: 'settings-ai', label: c.sectionAiLlm },
-      { id: 'settings-account', label: c.sectionAccountSync },
-      { id: 'settings-google', label: c.sectionGoogleWorkspace },
-      { id: 'settings-interface', label: c.sectionInterface },
-      { id: 'settings-data', label: c.sectionDataProgress },
-      { id: 'settings-developer', label: c.sectionDeveloper },
+      {
+        id: 'learning' as const,
+        title: c.navGroupLearning,
+        sections: [
+          { id: 'settings-teaching', label: c.sectionTeachingApproach },
+          { id: 'settings-content', label: c.sectionContentBalance },
+          { id: 'settings-pacing', label: c.sectionPacingDifficulty },
+          { id: 'settings-practice', label: c.sectionPracticeRevision },
+          { id: 'settings-source', label: c.sectionSourceContent },
+          { id: 'settings-goals', label: c.sectionStudyGoals },
+          { id: 'settings-interface', label: c.sectionInterface },
+        ],
+      },
+      {
+        id: 'account' as const,
+        title: c.navGroupAccount,
+        sections: [
+          { id: 'settings-account', label: c.sectionAccountSync },
+          { id: 'settings-google', label: c.sectionGoogleWorkspace },
+          { id: 'settings-data', label: c.sectionDataProgress },
+        ],
+      },
+      {
+        id: 'advanced' as const,
+        title: c.navGroupAdvanced,
+        sections: [
+          { id: 'settings-ai', label: c.sectionAiLlm },
+          { id: 'settings-plugins', label: t('pluginMarketplaceTitle') },
+          { id: 'settings-developer', label: c.sectionDeveloper },
+        ],
+      },
     ],
     [c, t],
   );
+  const settingsSections = useMemo(
+    () => settingsNavGroups.flatMap((g) => g.sections),
+    [settingsNavGroups],
+  );
   const [activeSection, setActiveSection] = useState(settingsSections[0]?.id ?? 'settings-teaching');
 
-  // OPT-R16 — highlight the section nearest the viewport top while scrolling (Minimal IDE nav).
+  // Wave H3 — active section tracking on every theme (not Minimal-only).
   useEffect(() => {
-    if (!isMinimal) return;
     const elements = settingsSections
       .map((section) => document.getElementById(section.id))
       .filter((el): el is HTMLElement => Boolean(el));
@@ -195,83 +220,77 @@ export function Settings({
     );
     elements.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, [isMinimal, settingsSections]);
+  }, [settingsSections]);
 
-  // UIUX-AUDIT-2026-08 H3 — keep the active nav item in view as the content
-  // scroll drives activeSection (effect above). With 12 sections the active pill
-  // can otherwise end up off-screen: scrolled out of the horizontal mobile row,
-  // or below the fold of the sticky vertical desktop rail — leaving no visible
-  // indicator of which section is active. 'nearest'/'nearest' only moves the
-  // nav's own scroll container, and only just enough to reveal the item — it
-  // never scrolls the page itself, and is a no-op when the item is already
-  // visible (including the redundant call this fires on direct nav clicks).
-  // Rollback: delete this effect.
   useEffect(() => {
-    if (!isMinimal) return;
     const active = document.querySelector(
       `[data-testid="settings-section-nav"] a[href="#${activeSection}"]`,
     );
     active?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
-  }, [isMinimal, activeSection]);
+  }, [activeSection]);
 
   return (
-    <Page className={cn('ux-flow-shell', isMinimal && 'enterprise-calm settings-ide')}>
+    <Page className={cn('ux-flow-shell settings-ide', isMinimal && 'enterprise-calm')}>
+      <div data-testid="settings-page" data-bleed="full" className="w-full max-w-none space-y-3">
       <PageHeader
         title={c.pageTitle}
         subtitle={c.pageSubtitle}
         icon={Brain}
+        actions={
+          onDoneStudying ? (
+            <PrimaryCTA
+              type="button"
+              size="sm"
+              data-testid="settings-done-studying"
+              onClick={onDoneStudying}
+              className="ws-touch-floor min-h-9 shrink-0 rounded-lg px-3"
+            >
+              {c.doneStudyingCta}
+            </PrimaryCTA>
+          ) : undefined
+        }
       />
 
       <div
-        className={cn(
-          isMinimal &&
-            'settings-ide-layout lg:grid lg:grid-cols-[13.5rem_minmax(0,1fr)] lg:items-start lg:gap-8',
-        )}
+        className="settings-ide-layout w-full max-w-none lg:grid lg:grid-cols-[13.5rem_minmax(0,1fr)] lg:items-start lg:gap-6"
+        data-testid="settings-work-surface"
+        data-bleed="full"
       >
       <nav
-        className={cn(
-          'ux-settings-nav sticky top-16 z-20',
-          isMinimal
-            ? 'settings-ide-nav -mx-1 mb-4 flex gap-1 overflow-x-auto pb-2 pt-1 lg:mx-0 lg:mb-0 lg:max-h-[calc(100dvh-5.5rem)] lg:flex-col lg:gap-0.5 lg:overflow-x-visible lg:overflow-y-auto lg:pb-0'
-            : '-mx-1 mb-4 flex gap-2 overflow-x-auto pb-2 pt-1',
-        )}
+        className="ux-settings-nav settings-ide-nav sticky top-16 z-20 -mx-1 mb-4 flex gap-1 overflow-x-auto pb-2 pt-1 lg:mx-0 lg:mb-0 lg:max-h-[calc(100dvh-5.5rem)] lg:flex-col lg:gap-3 lg:overflow-x-visible lg:overflow-y-auto lg:pb-0"
         aria-label={t('settingsSectionNav')}
         data-testid="settings-section-nav"
       >
-        {settingsSections.map((section) => {
-          const isActive = isMinimal && activeSection === section.id;
-          return (
-            <a
-              key={section.id}
-              href={`#${section.id}`}
-              aria-current={isActive ? 'true' : undefined}
-              className={cn(
-                isMinimal
-                  ? cn(
+        {settingsNavGroups.map((group) => (
+          <div key={group.id} className="flex min-w-0 flex-col gap-0.5" data-testid={`settings-nav-group-${group.id}`}>
+            <p className="type-micro font-semibold uppercase tracking-[0.08em] text-text-muted px-2.5 py-1 shrink-0">
+              {group.title}
+            </p>
+            <div className="flex gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
+              {group.sections.map((section) => {
+                const isActive = activeSection === section.id;
+                return (
+                  <a
+                    key={section.id}
+                    href={`#${section.id}`}
+                    aria-current={isActive ? 'true' : undefined}
+                    className={cn(
                       'settings-ide-nav-item shrink-0 rounded-md px-2.5 py-1.5 text-left type-caption font-medium text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary lg:w-full',
                       isActive && 'is-active',
-                    )
-                  : 'platform-pill shrink-0 px-3 py-1.5 type-caption font-medium text-text-secondary hover:text-text-primary',
-              )}
-              onClick={() => {
-                if (isMinimal) setActiveSection(section.id);
-              }}
-            >
-              {section.label}
-            </a>
-          );
-        })}
+                    )}
+                    onClick={() => setActiveSection(section.id)}
+                  >
+                    {section.label}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
-      {/* Wave P-L01 — masonry column flow (Blueprint). OPT-R16 Minimal uses a single
-          IDE-like content column beside the section rail instead of multi-column cards. */}
-      <div
-        className={cn(
-          isMinimal
-            ? 'settings-ide-content space-y-3'
-            : 'lg:columns-2 lg:gap-6 [&>*]:mb-6 [&>*]:break-inside-avoid',
-        )}
-      >
+      {/* Wave H3 — single full-bleed column (drop masonry card gutters on all themes) */}
+      <div className="settings-ide-content w-full max-w-none space-y-3" data-bleed="full">
       <SettingsSection id="settings-teaching" title={c.sectionTeachingApproach} icon={<Brain className="w-5 h-5 text-text-secondary" />} delay={0.05}>
         <ToggleRow label={c.labelTeachingStyle} options={c.teachingStyleOptions} value={settings.teachingStyle} onChange={v => onUpdate({ teachingStyle: v as UserSettings['teachingStyle'] })} />
         <ToggleRow label={c.labelExplanationDepth} options={c.explanationDepthOptions} value={settings.explanationDepth} onChange={v => onUpdate({ explanationDepth: v as UserSettings['explanationDepth'] })} />
@@ -330,143 +349,7 @@ export function Settings({
       </SettingsSection>
 
       <SettingsSection id="settings-ai" title={c.sectionAiLlm} icon={<Brain className="w-5 h-5 text-text-secondary" />} delay={0.32}>
-        <div className="rounded-xl border border-border-subtle/70 bg-surface-hover/40 px-3 py-2 space-y-1" data-testid="ai-economics-panel">
-          <p className="type-caption font-semibold text-text-primary">{c.aiEconomicsTitle}</p>
-          <p className="type-caption text-text-muted leading-relaxed">{c.aiEconomicsBody}</p>
-          <p className="type-micro text-text-muted">{c.proxyMeteringNote}</p>
-          {settings.authToken && (
-            <p className="type-micro text-text-secondary" data-testid="ai-economics-plan">
-              {c.planLabel} <strong>{settings.authPlan ?? 'free'}</strong>
-            </p>
-          )}
-        </div>
-        <div>
-          <label className="type-caption text-text-secondary block mb-2">{c.labelOpenAiKey}</label>
-          <input
-            type="password"
-            value={settings.openaiApiKey ?? ''}
-            onChange={(e) => onUpdate({ openaiApiKey: e.target.value || undefined })}
-            placeholder={c.placeholderOpenAiKey}
-            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50"
-          />
-        </div>
-        <div>
-          <p className="type-caption text-text-secondary mb-2">{c.modelTierLabel}</p>
-          <div className="flex flex-wrap gap-2" data-testid="ai-model-tier-presets">
-            {AI_MODEL_TIER_PRESETS.map((preset) => {
-              const active = inferModelTier(settings.llmModel) === preset.id;
-              const label =
-                preset.id === 'economy' ? c.modelTierEconomy
-                  : preset.id === 'quality' ? c.modelTierQuality
-                    : c.modelTierBalanced;
-              return (
-                <button
-                  key={preset.id}
-                  type="button"
-                  data-testid={`ai-model-tier-${preset.id}`}
-                  onClick={() => onUpdate({ llmModel: preset.model })}
-                  className={cn(
-                    'px-3 py-1.5 rounded-lg type-caption font-medium border transition-colors',
-                    active
-                      ? 'bg-surface-secondary text-text-primary border-border-default'
-                      : 'border-border-subtle text-text-tertiary hover:border-brand-500/30',
-                  )}
-                >
-                  {label}
-                  <span className="ml-1 type-micro opacity-70">{preset.model}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        <div>
-          <label className="type-caption text-text-secondary block mb-2">{c.labelModel}</label>
-          <input
-            type="text"
-            value={settings.llmModel ?? 'gpt-4o-mini'}
-            onChange={(e) => onUpdate({ llmModel: e.target.value || undefined })}
-            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50"
-          />
-        </div>
-        <div>
-          <p className="type-caption text-text-secondary mb-2">{c.baseUrlPresetsLabel}</p>
-          <div className="flex flex-wrap gap-2 mb-2" data-testid="ai-base-url-presets">
-            {AI_BASE_URL_PRESETS.map((preset) => {
-              const label =
-                preset.id === 'openai' ? c.presetOpenAi
-                  : preset.id === 'ollama' ? c.presetOllama
-                    : preset.id === 'krikri' ? c.presetKrikri
-                      : preset.id === 'sophea' ? c.presetSophea
-                        : preset.id === 'groq' ? c.presetGroq
-                          : c.presetClearBaseUrl;
-              const modelMatches = !preset.defaultModel
-                || (settings.llmModel ?? '') === preset.defaultModel
-                || (preset.id === 'ollama' && !(settings.llmModel ?? '').includes('krikri') && !(settings.llmModel ?? '').includes('sophea'));
-              const active = (settings.llmBaseUrl ?? '') === preset.baseUrl
-                && (preset.id !== 'sophea' || settings.llmDisableThinking === true)
-                && (preset.id === 'krikri' ? (settings.llmModel ?? '').includes('krikri') : modelMatches);
-              return (
-                <button
-                  key={preset.id}
-                  type="button"
-                  data-testid={`ai-base-url-${preset.id}`}
-                  onClick={() => {
-                    const id = preset.id as AiBaseUrlPresetId;
-                    if (id === 'ollama' && settings.llmModel && !settings.llmModel.includes('gpt') && !settings.llmModel.includes('krikri')) {
-                      onUpdate({
-                        ...settingsPatchForBaseUrlPreset(id),
-                        llmModel: settings.llmModel,
-                      });
-                      return;
-                    }
-                    onUpdate(settingsPatchForBaseUrlPreset(id));
-                  }}
-                  className={cn(
-                    'px-3 py-1.5 rounded-lg type-caption font-medium border transition-colors',
-                    active
-                      ? 'bg-surface-secondary text-text-primary border-border-default'
-                      : 'border-border-subtle text-text-tertiary hover:border-brand-500/30',
-                  )}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-          {(settings.llmBaseUrl ?? '') === 'http://127.0.0.1:8000/v1' && (
-            <p className="type-caption text-text-muted mb-2 leading-relaxed" data-testid="ai-sophea-hint">
-              {c.sopheaPresetHint}
-            </p>
-          )}
-          <label className="type-caption text-text-secondary block mb-2">{c.labelApiBaseUrl}</label>
-          <input
-            type="url"
-            value={settings.llmBaseUrl ?? ''}
-            onChange={(e) => onUpdate({ llmBaseUrl: e.target.value || undefined })}
-            placeholder={c.placeholderApiBaseUrl}
-            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50"
-          />
-        </div>
-        <div>
-          <ToggleRow
-            label={c.labelDisableThinking}
-            options={c.disableThinkingOptions}
-            value={settings.llmDisableThinking ? 'true' : 'false'}
-            onChange={(v) => onUpdate({ llmDisableThinking: v === 'true' })}
-          />
-          <p className="type-caption text-text-muted mt-1 leading-relaxed">{c.disableThinkingHint}</p>
-        </div>
-        <div>
-          <label className="type-caption text-text-secondary block mb-2">{c.labelManagedProxyUrl}</label>
-          <input
-            type="url"
-            value={settings.llmProxyUrl ?? ''}
-            onChange={(e) => onUpdate({ llmProxyUrl: e.target.value || undefined })}
-            placeholder={c.placeholderManagedProxyUrl}
-            className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50"
-          />
-          <p className="type-caption text-text-muted mt-1.5">{c.managedProxyHint}</p>
-        </div>
+        {/* Wave H3 — everyday tutor prefs first; keys/endpoints nested */}
         <ToggleRow label={c.labelUseLlm} options={c.useLlmOptions} value={settings.useLlm !== false ? 'true' : 'false'} onChange={v => onUpdate({ useLlm: v === 'true' })} />
         <p className="type-caption text-text-muted mt-1 px-1">
           {c.llmOfflineHint}
@@ -505,13 +388,159 @@ export function Settings({
           onChange={(v) => onUpdate({ autoStartAfterCheckIn: v === 'true' })}
         />
         <p className="type-caption text-text-muted mt-1 px-1">{c.autoStartCheckInHint}</p>
-        <ToggleRow label={c.labelUseVisionOcr} options={c.visionOcrOptions} value={settings.useVisionOcr !== false ? 'true' : 'false'} onChange={v => onUpdate({ useVisionOcr: v === 'true' })} />
-        <p className="type-caption text-text-muted mt-1 px-1">
-          {c.visionOcrHint}
-        </p>
-        <p className="type-caption text-accent-amber mt-1 px-1" data-testid="ai-vision-cost-note">
-          {c.visionCostNote}
-        </p>
+
+        <CollapsibleChromeSection
+          title={c.aiAdvancedChrome}
+          alwaysCollapse
+          data-testid="settings-ai-advanced-chrome"
+        >
+          <div className="space-y-4 px-0.5 pb-1">
+            <div className="rounded-xl border border-border-subtle/70 bg-surface-hover/40 px-3 py-2 space-y-1" data-testid="ai-economics-panel">
+              <p className="type-caption font-semibold text-text-primary">{c.aiEconomicsTitle}</p>
+              <p className="type-caption text-text-muted leading-relaxed">{c.aiEconomicsBody}</p>
+              <p className="type-micro text-text-muted">{c.proxyMeteringNote}</p>
+              {settings.authToken && (
+                <p className="type-micro text-text-secondary" data-testid="ai-economics-plan">
+                  {c.planLabel} <strong>{settings.authPlan ?? 'free'}</strong>
+                </p>
+              )}
+            </div>
+            <div>
+              <label className="type-caption text-text-secondary block mb-2">{c.labelOpenAiKey}</label>
+              <input
+                type="password"
+                value={settings.openaiApiKey ?? ''}
+                onChange={(e) => onUpdate({ openaiApiKey: e.target.value || undefined })}
+                placeholder={c.placeholderOpenAiKey}
+                className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50"
+              />
+            </div>
+            <div>
+              <p className="type-caption text-text-secondary mb-2">{c.modelTierLabel}</p>
+              <div className="flex flex-wrap gap-2" data-testid="ai-model-tier-presets">
+                {AI_MODEL_TIER_PRESETS.map((preset) => {
+                  const active = inferModelTier(settings.llmModel) === preset.id;
+                  const label =
+                    preset.id === 'economy' ? c.modelTierEconomy
+                      : preset.id === 'quality' ? c.modelTierQuality
+                        : c.modelTierBalanced;
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      data-testid={`ai-model-tier-${preset.id}`}
+                      onClick={() => onUpdate({ llmModel: preset.model })}
+                      className={cn(
+                        'px-3 py-1.5 rounded-lg type-caption font-medium border transition-colors',
+                        active
+                          ? 'bg-surface-secondary text-text-primary border-border-default'
+                          : 'border-border-subtle text-text-tertiary hover:border-brand-500/30',
+                      )}
+                    >
+                      {label}
+                      <span className="ml-1 type-micro opacity-70">{preset.model}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div>
+              <label className="type-caption text-text-secondary block mb-2">{c.labelModel}</label>
+              <input
+                type="text"
+                value={settings.llmModel ?? 'gpt-4o-mini'}
+                onChange={(e) => onUpdate({ llmModel: e.target.value || undefined })}
+                className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50"
+              />
+            </div>
+            <div>
+              <p className="type-caption text-text-secondary mb-2">{c.baseUrlPresetsLabel}</p>
+              <div className="flex flex-wrap gap-2 mb-2" data-testid="ai-base-url-presets">
+                {AI_BASE_URL_PRESETS.map((preset) => {
+                  const label =
+                    preset.id === 'openai' ? c.presetOpenAi
+                      : preset.id === 'ollama' ? c.presetOllama
+                        : preset.id === 'krikri' ? c.presetKrikri
+                          : preset.id === 'sophea' ? c.presetSophea
+                            : preset.id === 'groq' ? c.presetGroq
+                              : c.presetClearBaseUrl;
+                  const modelMatches = !preset.defaultModel
+                    || (settings.llmModel ?? '') === preset.defaultModel
+                    || (preset.id === 'ollama' && !(settings.llmModel ?? '').includes('krikri') && !(settings.llmModel ?? '').includes('sophea'));
+                  const active = (settings.llmBaseUrl ?? '') === preset.baseUrl
+                    && (preset.id !== 'sophea' || settings.llmDisableThinking === true)
+                    && (preset.id === 'krikri' ? (settings.llmModel ?? '').includes('krikri') : modelMatches);
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      data-testid={`ai-base-url-${preset.id}`}
+                      onClick={() => {
+                        const id = preset.id as AiBaseUrlPresetId;
+                        if (id === 'ollama' && settings.llmModel && !settings.llmModel.includes('gpt') && !settings.llmModel.includes('krikri')) {
+                          onUpdate({
+                            ...settingsPatchForBaseUrlPreset(id),
+                            llmModel: settings.llmModel,
+                          });
+                          return;
+                        }
+                        onUpdate(settingsPatchForBaseUrlPreset(id));
+                      }}
+                      className={cn(
+                        'px-3 py-1.5 rounded-lg type-caption font-medium border transition-colors',
+                        active
+                          ? 'bg-surface-secondary text-text-primary border-border-default'
+                          : 'border-border-subtle text-text-tertiary hover:border-brand-500/30',
+                      )}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+              {(settings.llmBaseUrl ?? '') === 'http://127.0.0.1:8000/v1' && (
+                <p className="type-caption text-text-muted mb-2 leading-relaxed" data-testid="ai-sophea-hint">
+                  {c.sopheaPresetHint}
+                </p>
+              )}
+              <label className="type-caption text-text-secondary block mb-2">{c.labelApiBaseUrl}</label>
+              <input
+                type="url"
+                value={settings.llmBaseUrl ?? ''}
+                onChange={(e) => onUpdate({ llmBaseUrl: e.target.value || undefined })}
+                placeholder={c.placeholderApiBaseUrl}
+                className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50"
+              />
+            </div>
+            <div>
+              <ToggleRow
+                label={c.labelDisableThinking}
+                options={c.disableThinkingOptions}
+                value={settings.llmDisableThinking ? 'true' : 'false'}
+                onChange={(v) => onUpdate({ llmDisableThinking: v === 'true' })}
+              />
+              <p className="type-caption text-text-muted mt-1 leading-relaxed">{c.disableThinkingHint}</p>
+            </div>
+            <div>
+              <label className="type-caption text-text-secondary block mb-2">{c.labelManagedProxyUrl}</label>
+              <input
+                type="url"
+                value={settings.llmProxyUrl ?? ''}
+                onChange={(e) => onUpdate({ llmProxyUrl: e.target.value || undefined })}
+                placeholder={c.placeholderManagedProxyUrl}
+                className="w-full px-4 py-2 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50"
+              />
+              <p className="type-caption text-text-muted mt-1.5">{c.managedProxyHint}</p>
+            </div>
+            <ToggleRow label={c.labelUseVisionOcr} options={c.visionOcrOptions} value={settings.useVisionOcr !== false ? 'true' : 'false'} onChange={v => onUpdate({ useVisionOcr: v === 'true' })} />
+            <p className="type-caption text-text-muted mt-1 px-1">
+              {c.visionOcrHint}
+            </p>
+            <p className="type-caption text-accent-amber mt-1 px-1" data-testid="ai-vision-cost-note">
+              {c.visionCostNote}
+            </p>
+          </div>
+        </CollapsibleChromeSection>
       </SettingsSection>
 
       <SettingsSection id="settings-account" title={c.sectionAccountSync} icon={<KeyRound className="w-5 h-5 text-accent-teal" />} delay={0.34}>
@@ -908,9 +937,15 @@ export function Settings({
         />
       </SettingsSection>
 
-      <div className="lg:col-span-2">
-        <ColorCodingReferencePanel />
-      </div>
+      <CollapsibleChromeSection
+        title={c.colorLegendChrome}
+        alwaysCollapse
+        data-testid="settings-color-legend-chrome"
+      >
+        <div className="pb-1">
+          <ColorCodingReferencePanel />
+        </div>
+      </CollapsibleChromeSection>
 
       <SettingsSection id="settings-data" title={c.sectionDataProgress} icon={<Database className="w-5 h-5 text-accent-cyan" />} delay={0.38}>
         <ToggleRow label={c.labelDemoContent} options={c.demoContentOptions} value={settings.showDemoContent ? 'on' : 'off'} onChange={v => onUpdate({ showDemoContent: v === 'on' })} />
@@ -1006,6 +1041,7 @@ export function Settings({
           {c.footerNote}
         </p>
       </div>
+      </div>
     </Page>
   );
 }
@@ -1013,22 +1049,18 @@ export function Settings({
 function SettingsSection({ id, title, icon, children, delay }: { id: string; title: string; icon: React.ReactNode; children: React.ReactNode; delay: number }) {
   const isMinimal = useMinimalTheme();
   return (
+    /* Wave H3 — denser section chrome on every theme (IDE section, not masonry card) */
     <AnimatedCard
       id={id}
-      delay={isMinimal ? 0 : delay}
+      delay={isMinimal ? 0 : Math.min(delay, 0.08)}
       padding="md"
-      className={cn('scroll-mt-28', isMinimal && 'settings-ide-section')}
+      className="settings-ide-section scroll-mt-28"
     >
-      <h3
-        className={cn(
-          'ws-serif type-meta font-medium flex items-center gap-2 mb-4 text-text-primary',
-          isMinimal && 'settings-ide-section-title',
-        )}
-      >
+      <h3 className="settings-ide-section-title ws-serif type-meta font-medium flex items-center gap-2 mb-3 text-text-primary">
         {icon}
         {title}
       </h3>
-      <div className="space-y-4">{children}</div>
+      <div className="space-y-3">{children}</div>
     </AnimatedCard>
   );
 }

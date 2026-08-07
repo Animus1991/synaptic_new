@@ -5,6 +5,13 @@ export type ToggleOption = { value: string; label: string };
 export type SettingsContent = {
   pageTitle: string;
   pageSubtitle: string;
+  /** Wave H3 — primary leave-settings CTA */
+  doneStudyingCta: string;
+  navGroupLearning: string;
+  navGroupAccount: string;
+  navGroupAdvanced: string;
+  aiAdvancedChrome: string;
+  colorLegendChrome: string;
   sectionTeachingApproach: string;
   labelTeachingStyle: string;
   teachingStyleOptions: ToggleOption[];
@@ -165,8 +172,13 @@ export type SettingsContent = {
 
 const EN: SettingsContent = {
   pageTitle: 'Learning Preferences',
-  pageSubtitle:
-    'Customize how Synapse teaches you. These are UI preferences — the adaptive engine also learns from your behavior.',
+  pageSubtitle: 'Choose how Synapse teaches you — changes apply as you study.',
+  doneStudyingCta: 'Back to study',
+  navGroupLearning: 'Learning',
+  navGroupAccount: 'Account',
+  navGroupAdvanced: 'Advanced',
+  aiAdvancedChrome: 'Connection & models',
+  colorLegendChrome: 'Color legend',
   sectionTeachingApproach: 'Teaching Approach',
   labelTeachingStyle: 'Teaching style',
   teachingStyleOptions: [
@@ -254,22 +266,22 @@ const EN: SettingsContent = {
   sectionStudyGoals: 'Study Goals',
   labelDailyStudyGoal: 'Daily study goal',
   labelExamDate: 'Exam date',
-  sectionAiLlm: 'AI & LLM',
-  labelOpenAiKey: 'OpenAI API key (stored locally in browser)',
-  placeholderOpenAiKey: 'sk-… or set VITE_OPENAI_API_KEY at build time',
+  sectionAiLlm: 'Tutor & AI',
+  labelOpenAiKey: 'API key (stays in this browser)',
+  placeholderOpenAiKey: 'sk-…',
   labelModel: 'Model',
-  labelApiBaseUrl: 'API base URL (optional, for OpenAI-compatible proxies)',
+  labelApiBaseUrl: 'Custom endpoint (optional)',
   placeholderApiBaseUrl: 'https://api.openai.com/v1',
-  labelManagedProxyUrl: 'Managed proxy URL (keeps the API key off the browser)',
+  labelManagedProxyUrl: 'Managed proxy URL (keeps the key off the browser)',
   placeholderManagedProxyUrl: 'https://your-proxy.example.com/v1',
   managedProxyHint:
-    'When set, chat & embeddings route here with no browser key — the proxy injects the secret server-side and can meter managed (paid) usage.',
-  labelUseLlm: 'Use LLM for Agent & Feynman',
+    'When set, chat goes through your proxy — no key in the browser, and usage can be metered.',
+  labelUseLlm: 'Smarter Tutor & Feynman answers',
   useLlmOptions: [
-    { value: 'true', label: 'Enabled' },
+    { value: 'true', label: 'On' },
     { value: 'false', label: 'Offline only' },
   ],
-  labelAgentTts: 'Read Agent replies aloud',
+  labelAgentTts: 'Read Tutor replies aloud',
   agentTtsOptions: [
     { value: 'true', label: 'Enabled' },
     { value: 'false', label: 'Off' },
@@ -291,22 +303,22 @@ const EN: SettingsContent = {
   autoStartCheckInHint:
     'When the daily chat check-in finishes, open the matched task/session without a second tap.',
   llmOfflineHint:
-    'Without a key, Agent and Feynman use offline templates. Keys never leave your browser except to your chosen API endpoint.',
-  labelUseVisionOcr: 'Vision OCR for Greek handwriting & scans',
+    'Without a connection, Tutor and Feynman use built-in offline answers. Your key only goes to the endpoint you choose.',
+  labelUseVisionOcr: 'Better reading for handwriting & scans',
   visionOcrOptions: [
-    { value: 'true', label: 'Enabled' },
-    { value: 'false', label: 'Offline OCR only' },
+    { value: 'true', label: 'On' },
+    { value: 'false', label: 'Basic OCR only' },
   ],
   visionOcrHint:
-    'When enabled, scanned pages and handwritten Greek notes are transcribed by a vision-capable LLM (via your key or local OCR proxy) for far higher accuracy. Falls back to offline Tesseract when unavailable.',
-  aiEconomicsTitle: 'AI economics (hybrid)',
+    'Uses a vision model (via your key or local proxy) for clearer Greek handwriting and scans. Falls back to basic offline OCR when unavailable.',
+  aiEconomicsTitle: 'How AI runs here',
   aiEconomicsBody:
-    'You do not need a browser API key. Prefer managed proxy metering, OpenAI-compatible local endpoints (Ollama), or offline heuristics (FSRS/IRT, Agent templates). Vision OCR costs more tokens when a cloud model is used.',
-  modelTierLabel: 'Model tier presets',
+    'You can study without a browser API key. Prefer a managed proxy, a local endpoint (Ollama), or offline answers. Vision reading uses more tokens when a cloud model is on.',
+  modelTierLabel: 'Model speed vs quality',
   modelTierEconomy: 'Economy',
   modelTierBalanced: 'Balanced',
   modelTierQuality: 'Quality',
-  baseUrlPresetsLabel: 'Compatible endpoint presets',
+  baseUrlPresetsLabel: 'Quick endpoints',
   presetOpenAi: 'OpenAI',
   presetOllama: 'Ollama (local)',
   presetKrikri: 'Krikri / Greek Ollama',
@@ -314,18 +326,18 @@ const EN: SettingsContent = {
   presetGroq: 'Groq',
   presetClearBaseUrl: 'Clear',
   sopheaPresetHint:
-    'Points at local vLLM (http://127.0.0.1:8000/v1) with model sophea-titan-1 and non-thinking mode for Greek quality. Serve KIEFERSA/Sophea-Titan-1 first.',
-  labelDisableThinking: 'Non-thinking mode (Sophea / Qwen3.6)',
+    'Uses a local Greek model at http://127.0.0.1:8000/v1 (sophea-titan-1). Start that server first for best Greek quality.',
+  labelDisableThinking: 'Faster Greek local mode',
   disableThinkingOptions: [
-    { value: 'true', label: 'On (Sophea)' },
+    { value: 'true', label: 'On' },
     { value: 'false', label: 'Off' },
   ],
   disableThinkingHint:
-    'Sends enable_thinking=false on chat requests. Keep on for Sophea-Titan-1 Greek output; leave off for OpenAI/Groq.',
+    'Keeps local Greek models focused on the answer. Leave off for OpenAI/Groq.',
   visionCostNote:
-    'Vision OCR: disable to stay on free offline Tesseract/TrOCR path; enable only when handwriting accuracy justifies paid/proxy vision tokens.',
+    'Turn vision reading off to stay on free offline OCR; turn it on only when handwriting accuracy is worth the extra usage.',
   proxyMeteringNote:
-    'Signed-in proxy plans meter chat/embeddings server-side. Free plan stays local-first; Pro/Team unlock managed quota (see Teacher LLM usage).',
+    'Signed-in plans can meter chat on the server. Free stays local-first; Pro/Team unlock managed quota.',
   sectionAccountSync: 'Account & Sync',
   planLabel: 'Plan:',
   upgradePro: 'Upgrade to Pro',
@@ -391,7 +403,7 @@ const EN: SettingsContent = {
   sectionDeveloper: 'Developer',
   developerHint: 'Study Workspace load timings — open a course, then review.',
   footerNote:
-    'These are your UI preferences. The adaptive engine also learns from your behavior — response time, accuracy, confidence calibration, error patterns, help-seeking rate, and retention over time. It adjusts independently of these settings.',
+    'These preferences guide how Synapse teaches you. As you study, it also quietly learns what helps — so practice stays personal without you tuning every knob.',
   signedInAs: 'Signed in as',
   registeredAs: 'Registered',
   authSyncedSuffix: '— library & progress synced',
@@ -422,8 +434,13 @@ const EN: SettingsContent = {
 
 const EL: SettingsContent = {
   pageTitle: 'Προτιμήσεις Μάθησης',
-  pageSubtitle:
-    'Προσάρμοσε πώς σε διδάσκει το Synapse. Αυτές είναι προτιμήσεις UI — το προσαρμοστικό σύστημα μαθαίνει και από τη συμπεριφορά σου.',
+  pageSubtitle: 'Διάλεξε πώς σε διδάσκει το Synapse — οι αλλαγές ισχύουν καθώς μελετάς.',
+  doneStudyingCta: 'Πίσω στη μελέτη',
+  navGroupLearning: 'Μάθηση',
+  navGroupAccount: 'Λογαριασμός',
+  navGroupAdvanced: 'Για προχωρημένους',
+  aiAdvancedChrome: 'Σύνδεση & μοντέλα',
+  colorLegendChrome: 'Υπόμνημα χρωμάτων',
   sectionTeachingApproach: 'Προσέγγιση Διδασκαλίας',
   labelTeachingStyle: 'Στυλ διδασκαλίας',
   teachingStyleOptions: [
@@ -511,25 +528,25 @@ const EL: SettingsContent = {
   sectionStudyGoals: 'Στόχοι Μελέτης',
   labelDailyStudyGoal: 'Ημερήσιος στόχος μελέτης',
   labelExamDate: 'Ημερομηνία εξέτασης',
-  sectionAiLlm: 'AI & LLM',
-  labelOpenAiKey: 'OpenAI API key (αποθηκεύεται τοπικά στον browser)',
-  placeholderOpenAiKey: 'sk-… ή VITE_OPENAI_API_KEY κατά το build',
+  sectionAiLlm: 'Βοηθός & AI',
+  labelOpenAiKey: 'API key (μένει σε αυτόν τον browser)',
+  placeholderOpenAiKey: 'sk-…',
   labelModel: 'Μοντέλο',
-  labelApiBaseUrl: 'API base URL (προαιρετικό, για OpenAI-compatible proxies)',
+  labelApiBaseUrl: 'Προσαρμοσμένο endpoint (προαιρετικό)',
   placeholderApiBaseUrl: 'https://api.openai.com/v1',
-  labelManagedProxyUrl: 'Managed proxy URL (κρατά το API key εκτός browser)',
+  labelManagedProxyUrl: 'Managed proxy URL (κρατά το key εκτός browser)',
   placeholderManagedProxyUrl: 'https://your-proxy.example.com/v1',
   managedProxyHint:
-    'Όταν οριστεί, chat & embeddings περνούν από εδώ χωρίς browser key — το proxy εισάγει το secret server-side και μπορεί να μετρά managed (πληρωμένη) χρήση.',
-  labelUseLlm: 'LLM για Agent & Feynman',
+    'Όταν οριστεί, η συνομιλία περνά από το proxy σου — χωρίς key στον browser, και με μέτρηση χρήσης αν χρειάζεται.',
+  labelUseLlm: 'Εξυπνότερες απαντήσεις Tutor & Feynman',
   useLlmOptions: [
-    { value: 'true', label: 'Ενεργό' },
+    { value: 'true', label: 'Ναι' },
     { value: 'false', label: 'Μόνο offline' },
   ],
-  labelAgentTts: 'Εκφώνηση απαντήσεων Agent',
+  labelAgentTts: 'Εκφώνηση απαντήσεων Tutor',
   agentTtsOptions: [
-    { value: 'true', label: 'Ενεργό' },
-    { value: 'false', label: 'Κλειστό' },
+    { value: 'true', label: 'Ναι' },
+    { value: 'false', label: 'Όχι' },
   ],
   agentTtsHint: 'Χρησιμοποιεί τις φωνές της συσκευής (Ελληνικά/Αγγλικά). Πάτα το ηχείο σε κάθε απάντηση για επανάληψη ή διακοπή.',
   labelDailyCheckInNotif: 'Υπενθύμιση ημερήσιου check-in',
@@ -548,22 +565,22 @@ const EL: SettingsContent = {
   autoStartCheckInHint:
     'Όταν ολοκληρωθεί το ημερήσιο check-in στο chat, ανοίγει το matched task/session χωρίς δεύτερο tap.',
   llmOfflineHint:
-    'Χωρίς key, Agent και Feynman χρησιμοποιούν offline templates. Τα keys δεν φεύγουν από τον browser εκτός από το API endpoint που επιλέγεις.',
-  labelUseVisionOcr: 'Vision OCR για ελληνικό χειρόγραφο & σαρώσεις',
+    'Χωρίς σύνδεση, ο Tutor και το Feynman χρησιμοποιούν ενσωματωμένες offline απαντήσεις. Το key πηγαίνει μόνο στο endpoint που επιλέγεις.',
+  labelUseVisionOcr: 'Καλύτερη ανάγνωση χειρογράφου & σαρώσεων',
   visionOcrOptions: [
-    { value: 'true', label: 'Ενεργό' },
-    { value: 'false', label: 'Μόνο offline OCR' },
+    { value: 'true', label: 'Ναι' },
+    { value: 'false', label: 'Βασικό OCR μόνο' },
   ],
   visionOcrHint:
-    'Όταν είναι ενεργό, σαρωμένες σελίδες και χειρόγραφες ελληνικές σημειώσεις μεταγράφονται από vision LLM (μέσω του key σου ή του τοπικού OCR proxy) για πολύ μεγαλύτερη ακρίβεια. Επιστρέφει σε offline Tesseract όταν δεν είναι διαθέσιμο.',
-  aiEconomicsTitle: 'Οικονομία AI (υβριδικό)',
+    'Χρησιμοποιεί μοντέλο όρασης (μέσω key ή τοπικού proxy) για πιο καθαρά ελληνικά χειρόγραφα και σαρώσεις. Επιστρέφει σε βασικό offline OCR όταν δεν είναι διαθέσιμο.',
+  aiEconomicsTitle: 'Πώς τρέχει το AI εδώ',
   aiEconomicsBody:
-    'Δεν χρειάζεσαι απαραίτητα browser API key. Προτίμησε managed proxy metering, OpenAI-compatible τοπικά endpoints (Ollama), ή offline heuristics (FSRS/IRT, Agent templates). Το Vision OCR κοστίζει περισσότερα tokens όταν χρησιμοποιείται cloud μοντέλο.',
-  modelTierLabel: 'Presets επιπέδου μοντέλου',
+    'Μπορείς να μελετάς χωρίς browser API key. Προτίμησε managed proxy, τοπικό endpoint (Ollama) ή offline απαντήσεις. Η ανάγνωση με όραση χρησιμοποιεί περισσότερα tokens όταν είναι ενεργό cloud μοντέλο.',
+  modelTierLabel: 'Ταχύτητα vs ποιότητα',
   modelTierEconomy: 'Οικονομικό',
   modelTierBalanced: 'Ισορροπημένο',
   modelTierQuality: 'Ποιότητα',
-  baseUrlPresetsLabel: 'Presets συμβατού endpoint',
+  baseUrlPresetsLabel: 'Γρήγορα endpoints',
   presetOpenAi: 'OpenAI',
   presetOllama: 'Ollama (τοπικό)',
   presetKrikri: 'Krikri / Ελληνικά Ollama',
@@ -571,18 +588,18 @@ const EL: SettingsContent = {
   presetGroq: 'Groq',
   presetClearBaseUrl: 'Καθαρισμός',
   sopheaPresetHint:
-    'Δείχνει σε τοπικό vLLM (http://127.0.0.1:8000/v1) με μοντέλο sophea-titan-1 και non-thinking για ποιότητα ελληνικών. Ξεκίνα πρώτα το KIEFERSA/Sophea-Titan-1.',
-  labelDisableThinking: 'Non-thinking mode (Sophea / Qwen3.6)',
+    'Χρησιμοποιεί τοπικό ελληνικό μοντέλο στο http://127.0.0.1:8000/v1 (sophea-titan-1). Ξεκίνα πρώτα αυτόν τον server για καλύτερη ποιότητα ελληνικών.',
+  labelDisableThinking: 'Γρηγορότερη τοπική ελληνική λειτουργία',
   disableThinkingOptions: [
-    { value: 'true', label: 'On (Sophea)' },
-    { value: 'false', label: 'Off' },
+    { value: 'true', label: 'Ναι' },
+    { value: 'false', label: 'Όχι' },
   ],
   disableThinkingHint:
-    'Στέλνει enable_thinking=false στα chat requests. Κράτα το ενεργό για Sophea-Titan-1· άφησέ το off για OpenAI/Groq.',
+    'Κρατά τα τοπικά ελληνικά μοντέλα εστιασμένα στην απάντηση. Άφησέ το off για OpenAI/Groq.',
   visionCostNote:
-    'Vision OCR: απενεργοποίησέ το για δωρεάν offline Tesseract/TrOCR· ενεργοποίησέ το μόνο όταν η ακρίβεια χειρογράφου δικαιολογεί πληρωμένα/proxy vision tokens.',
+    'Κλείσε την ανάγνωση με όραση για δωρεάν offline OCR· άνοιξέ την μόνο όταν η ακρίβεια χειρογράφου αξίζει την επιπλέον χρήση.',
   proxyMeteringNote:
-    'Συνδεδεμένα proxy plans μετρούν chat/embeddings server-side. Το Free μένει local-first· Pro/Team ξεκλειδώνουν managed quota (βλ. Teacher LLM usage).',
+    'Συνδεδεμένα πλάνα μπορούν να μετρούν το chat στον server. Το Free μένει τοπικό πρώτα· Pro/Team ξεκλειδώνουν managed quota.',
   sectionAccountSync: 'Λογαριασμός & Συγχρονισμός',
   planLabel: 'Πλάνο:',
   upgradePro: 'Αναβάθμιση σε Pro',
@@ -648,7 +665,7 @@ const EL: SettingsContent = {
   sectionDeveloper: 'Developer',
   developerHint: 'Study Workspace load timings — άνοιξε μάθημα και έλεγξε.',
   footerNote:
-    'Αυτές είναι οι προτιμήσεις UI σου. Το προσαρμοστικό σύστημα μαθαίνει και από τη συμπεριφορά σου — χρόνο απόκρισης, ακρίβεια, βαθμονόμηση εμπιστοσύνης, μοτίβα λαθών, ζήτηση βοήθειας και retention με τον χρόνο. Προσαρμόζεται ανεξάρτητα από αυτές τις ρυθμίσεις.',
+    'Αυτές οι προτιμήσεις καθοδηγούν πώς σε διδάσκει το Synapse. Καθώς μελετάς, μαθαίνει ήσυχα τι σε βοηθά — ώστε η εξάσκηση να μένει προσωπική χωρίς να ρυθμίζεις κάθε λεπτομέρεια.',
   signedInAs: 'Σύνδεση ως',
   registeredAs: 'Εγγραφή',
   authSyncedSuffix: '— βιβλιοθήκη & πρόοδος συγχρονίστηκαν',
