@@ -238,29 +238,11 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     [openStudioTool, pinnedSourceKey, sourceRows],
   );
 
-  /* OPT-K137 — Sources: text-led, self-explanatory; thumbnails kept as useful preview */
+  /* OPT-K137/K138 — Sources: files first; secondary actions collapsed; no purpose stack */
   const sourcesBody = (
     <div className="flex-1 min-h-0 overflow-y-auto p-2">
       {noteBundle.hasSource ? (
         <>
-          <p className="mb-2 px-1 type-caption text-text-muted leading-snug" data-testid="notebook-sources-purpose">
-            {tx(
-              'Το υλικό σου για μελέτη και απαντήσεις AI. Πάτα ένα αρχείο για ανάγνωση.',
-              'Your study material for reading and AI answers. Tap a file to open it.',
-            )}
-          </p>
-          <button
-            type="button"
-            onClick={openSourceGuide}
-            data-testid="notebook-source-guide"
-            className="mb-2 flex w-full items-center justify-between gap-2 rounded-xl border-0 bg-surface-secondary/55 px-3 py-2.5 text-left hover:bg-surface-hover transition-colors"
-          >
-            <span className="type-caption font-medium text-text-secondary truncate">
-              {tx('Σύνοψη αρχείου & ιδέες μελέτης', 'File summary & study ideas')}
-            </span>
-            <ChevronRight className="h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden />
-          </button>
-
           <ul className="space-y-1.5" data-testid="notebook-source-list">
             {orderedSourceRows.map((source) => {
               const isPinned = source.key === pinnedSourceKey;
@@ -292,13 +274,14 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                     <NotebookSourceThumbnail file={source.file} label={source.label} settings={userSettings} />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate type-caption font-medium">{source.label}</span>
-                      <span className="block type-caption text-text-secondary">
-                        {isReaderActive
-                          ? tx('Ανοιχτό στον αναγνώστη', 'Open in reader')
-                          : isPinned
-                            ? tx('Επιλεγμένο · πάτα για ανάγνωση', 'Selected · tap to read')
-                            : (source.meta ?? tx('Πάτα για ανάγνωση', 'Tap to read'))}
-                      </span>
+                      {source.meta && (
+                        <span className="block type-caption text-text-secondary">{source.meta}</span>
+                      )}
+                      {isReaderActive && (
+                        <span className="block type-caption text-text-muted">
+                          {tx('Ανοιχτό στον αναγνώστη', 'Open in reader')}
+                        </span>
+                      )}
                     </span>
                   </button>
                   {needsSourceThumbnailReprocessHint(source.file) && (
@@ -316,39 +299,50 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               );
             })}
           </ul>
-          {(() => {
-            const pinned = orderedSourceRows.find((s) => s.key === pinnedSourceKey)?.file;
-            const pages = pinned?.pageCount ?? 0;
-            if (!pinned || pinned.type !== 'pdf' || pages <= 1) return null;
-            return (
-              <div className="mt-3 px-0.5 space-y-1" data-testid="notebook-pdf-page-strip">
-                <p className="type-caption font-medium text-text-primary px-0.5">
-                  {t('agentPdfPagesLabel')}
-                </p>
-                <p className="type-caption text-text-muted px-0.5 leading-snug">
-                  {t('agentPdfPagesHint')}
-                </p>
-                <PdfPageThumbnailStrip
-                  pageCount={pages}
-                  activePageIndex={pdfPageIndex}
-                  onSelectPage={openPdfPage}
-                  lang={lang === 'el' ? 'el' : 'en'}
-                  className="notebook-pdf-page-strip"
-                />
-              </div>
-            );
-          })()}
+
+          <details className="group mt-2 rounded-xl border-0 bg-surface-secondary/40 px-2.5 py-1.5" data-testid="notebook-sources-more">
+            <summary className="cursor-pointer type-caption font-medium text-text-secondary hover:text-text-primary list-none flex items-center justify-between gap-2">
+              <span>{tx('Περισσότερα', 'More')}</span>
+              <ChevronRight className="h-3.5 w-3.5 shrink-0 text-text-muted transition-transform group-open:rotate-90" aria-hidden />
+            </summary>
+            <div className="mt-2 space-y-2 pb-1">
+              <button
+                type="button"
+                onClick={openSourceGuide}
+                data-testid="notebook-source-guide"
+                className="flex w-full items-center justify-between gap-2 rounded-lg border-0 bg-surface-secondary/55 px-2.5 py-2 text-left hover:bg-surface-hover transition-colors"
+              >
+                <span className="type-caption font-medium text-text-secondary truncate">
+                  {tx('Σύνοψη αρχείου', 'File summary')}
+                </span>
+                <ChevronRight className="h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden />
+              </button>
+              {(() => {
+                const pinned = orderedSourceRows.find((s) => s.key === pinnedSourceKey)?.file;
+                const pages = pinned?.pageCount ?? 0;
+                if (!pinned || pinned.type !== 'pdf' || pages <= 1) return null;
+                return (
+                  <div className="space-y-1" data-testid="notebook-pdf-page-strip">
+                    <p className="type-caption font-medium text-text-secondary px-0.5">
+                      {t('agentPdfPagesLabel')}
+                    </p>
+                    <PdfPageThumbnailStrip
+                      pageCount={pages}
+                      activePageIndex={pdfPageIndex}
+                      onSelectPage={openPdfPage}
+                      lang={lang === 'el' ? 'el' : 'en'}
+                      className="notebook-pdf-page-strip"
+                    />
+                  </div>
+                );
+              })()}
+            </div>
+          </details>
         </>
       ) : (
         <div className="flex h-full flex-col items-center justify-center gap-3 px-4 text-center">
           <p className="type-meta font-medium text-text-primary">
             {tx('Πρόσθεσε το υλικό σου', 'Add your material')}
-          </p>
-          <p className="type-caption text-text-secondary max-w-[16rem] leading-snug">
-            {tx(
-              'Ανέβασε PDF ή σημειώσεις. Από εδώ τις ανοίγεις, ελέγχεις ποιότητα και τις χρησιμοποιεί ο βοηθός.',
-              'Upload a PDF or notes. Open them here, check quality, and the tutor uses them to answer.',
-            )}
           </p>
           <button
             type="button"
@@ -482,12 +476,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
 
   const studioGrid = (
     <div className="flex-1 min-h-0 overflow-y-auto p-3">
-      <p className="px-0.5 pb-2 type-caption text-text-muted leading-snug" data-testid="notebook-studio-purpose">
-        {tx(
-          'Εργαλεία μελέτης πάνω στις πηγές σου. «AI» ζητά βοήθεια για το εργαλείο.',
-          'Study tools on your sources. “AI” asks for help with that tool.',
-        )}
-      </p>
+      {/* OPT-K138 — title-only studio cards; description via title/hover */}
       {studioQuickActions}
       <div
         className={cn(
@@ -496,7 +485,6 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         )}
         data-testid="notebook-studio-grid"
       >
-        {/* OPT-K137 — text-led studio cards (tool name + AI); no decorative glyphs */}
         {STUDIO_TOOLS.map(({ id }) => {
           const genKey = id === 'quiz' ? 'quiz-from-source' : id === 'concept-map' ? 'mindmap-from-source' : null;
           const genState = genKey ? studioGen[genKey] : undefined;
@@ -512,7 +500,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               title={workspaceToolDescription(id, lang)}
               className={cn(
                 /* OPT-K126 — denser wash studio cards (no outline / ring cage) */
-                'flex w-full flex-col items-start gap-1 rounded-xl border-0 px-2.5 py-2.5 pr-9 text-left transition-colors min-h-[4.25rem]',
+                'flex w-full flex-col items-start justify-center gap-0.5 rounded-xl border-0 px-2.5 py-2.5 pr-9 text-left transition-colors min-h-[3.25rem]',
                 studioToolOpen && activeTool === id
                   ? 'bg-surface-secondary text-text-primary'
                   : 'bg-surface-secondary/45 hover:bg-surface-hover',
@@ -520,9 +508,6 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
             >
               <span className="type-caption font-medium text-text-primary leading-tight">
                 {workspaceToolLabel(id, lang)}
-              </span>
-              <span className="type-micro text-text-muted leading-snug line-clamp-2">
-                {workspaceToolDescription(id, lang)}
               </span>
               {genState === 'running' && (
                 <span className="type-micro text-text-secondary">{tx('Δημιουργία…', 'Generating…')}</span>
@@ -740,15 +725,17 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
             aria-label={notebookCalm ? tx('Βοηθός', 'Tutor') : tx('Συνομιλία', 'Chat')}
             data-testid="notebook-chat-panel"
           >
-            <header
-              className="flex items-center justify-between gap-2 border-b border-transparent px-4 py-3 shrink-0"
-              title={chatGrounding}
-            >
-              <h2 className="font-sans type-meta font-semibold normal-case tracking-normal text-text-primary">
-                {notebookCalm ? tx('Βοηθός', 'Tutor') : tx('Συνομιλία', 'Chat')}
-              </h2>
-              <span className="type-caption truncate text-text-muted">{chatGrounding}</span>
-            </header>
+            {/* OPT-K138 — when agent is embedded, its chrome is the only header row */}
+            {!renderCenterAgent && (
+              <header
+                className="flex items-center justify-between gap-2 border-b border-transparent px-4 py-3 shrink-0"
+                title={chatGrounding}
+              >
+                <h2 className="font-sans type-meta font-semibold normal-case tracking-normal text-text-primary">
+                  {notebookCalm ? tx('Βοηθός', 'Tutor') : tx('Συνομιλία', 'Chat')}
+                </h2>
+              </header>
+            )}
             {chatBody}
           </section>
         </Panel>
@@ -770,12 +757,11 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
             >
               <header
                 className="flex items-center justify-between gap-2 border-b border-transparent px-4 py-3 shrink-0"
-                title={tx('Εργαλεία που σε βοηθούν να μελετήσεις', 'Tools that help you study')}
+                title={tx('Εργαλεία μελέτης πάνω στις πηγές σου', 'Study tools on your sources')}
               >
                 <h2 className="font-sans type-meta font-semibold normal-case tracking-normal text-text-primary">
                   {notebookCalm ? tx('Εργαλεία μελέτης', 'Study tools') : 'Studio'}
                 </h2>
-                <span className="type-caption text-text-muted">{tx('Με βοήθεια AI', 'With AI help')}</span>
               </header>
               {studioGrid}
             </section>

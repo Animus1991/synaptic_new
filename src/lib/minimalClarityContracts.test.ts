@@ -852,13 +852,11 @@ describe('OPT-K69 engineering clarity contracts', () => {
   it('K137 — Sources/Studio clarity + icon diet; pages self-explanatory', () => {
     const nb = read('src/components/workspace/studyWorkspace/NotebookWorkspaceLayout.tsx');
     expect(nb).toMatch(/OPT-K137/);
-    expect(nb).toContain('data-testid="notebook-sources-purpose"');
-    expect(nb).toContain('data-testid="notebook-studio-purpose"');
     expect(nb).not.toMatch(/Sparkles/);
     expect(nb).not.toMatch(/\bPin\b/);
     expect(nb).toMatch(/data-testid=\{`studio-card-ai-\$\{id\}`\}/);
     expect(nb).toMatch(/>\s*AI\s*</);
-    expect(nb).toMatch(/agentPdfPagesHint/);
+    expect(nb).toMatch(/agentPdfPagesLabel/);
 
     const pdf = read('src/components/workspace/PdfPageThumbnailStrip.tsx');
     expect(pdf).toMatch(/OPT-K137/);
@@ -869,13 +867,37 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(i18n).toMatch(/Μετάβαση σε σελίδα PDF/);
   });
 
+  it('K138 — one role line; studio title-only; unified chat status', () => {
+    const nb = read('src/components/workspace/studyWorkspace/NotebookWorkspaceLayout.tsx');
+    expect(nb).toMatch(/OPT-K138/);
+    expect(nb).not.toContain('notebook-sources-purpose');
+    expect(nb).not.toContain('notebook-studio-purpose');
+    expect(nb).toContain('data-testid="notebook-sources-more"');
+    expect(nb).toMatch(/title=\{workspaceToolDescription/);
+    expect(nb).toMatch(/!renderCenterAgent/);
+
+    const agent = read('src/components/Agent.tsx');
+    expect(agent).toMatch(/OPT-K138/);
+    expect(agent).toMatch(/sessionNotice=\{embedded/);
+    expect(agent).toMatch(/icon-only composer tools/);
+    expect(agent).not.toMatch(/agentComposerVoice\}\s*\n?\s*<\/span>/);
+    expect(agent).not.toMatch(/agentComposerSources\}\s*\n?\s*<\/span>/);
+    expect(agent).toMatch(/badge only when there is no citation/);
+
+    const banner = read('src/components/AgentContextBanner.tsx');
+    expect(banner).toMatch(/OPT-K138/);
+    expect(banner).toContain('sessionNotice');
+    expect(banner).toContain('data-testid="agent-session-offline-strip"');
+    expect(banner).toMatch(/one compact status strip/);
+  });
+
   it('K136 — Agent chat icon diet keeps functional chrome', () => {
     const agent = read('src/components/Agent.tsx');
     expect(agent).toMatch(/OPT-K136/);
     expect(agent).not.toMatch(/agent-message-avatar/);
     expect(agent).not.toMatch(/Layers className="h-3 w-3/);
     expect(agent).toContain('data-testid="agent-tts-toggle"');
-    expect(agent).toContain('data-testid="agent-session-offline-strip"');
+    expect(agent).toMatch(/sessionNotice=\{embedded/);
     expect(agent).toMatch(/AlertTriangle/);
     expect(agent).toMatch(/Volume2|VolumeX/);
 
@@ -884,6 +906,7 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(banner).not.toMatch(/MapPin[, ]/);
     expect(banner).toMatch(/AlertTriangle/);
     expect(banner).toMatch(/InfoHint/);
+    expect(banner).toContain('data-testid="agent-session-offline-strip"');
 
     const go = read('src/components/GoToSourceButton.tsx');
     expect(go).toMatch(/OPT-K136/);

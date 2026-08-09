@@ -180,10 +180,22 @@ describe('Wave H2 — Dashboard productization', () => {
   it('OPT-K137 — Sources/Studio self-explanatory + icon diet', () => {
     const nb = read('components/workspace/studyWorkspace/NotebookWorkspaceLayout.tsx');
     expect(nb).toMatch(/OPT-K137/);
-    expect(nb).toContain('notebook-sources-purpose');
     expect(nb).not.toMatch(/Sparkles/);
+    expect(nb).toContain('notebook-sources-more');
     const pdf = read('components/workspace/PdfPageThumbnailStrip.tsx');
     expect(pdf).toMatch(/OPT-K137/);
+  });
+
+  it('OPT-K138 — quieter role copy + unified chat status', () => {
+    const nb = read('components/workspace/studyWorkspace/NotebookWorkspaceLayout.tsx');
+    expect(nb).toMatch(/OPT-K138/);
+    expect(nb).not.toContain('notebook-sources-purpose');
+    expect(nb).toMatch(/title=\{workspaceToolDescription/);
+    const agent = read('components/Agent.tsx');
+    expect(agent).toMatch(/OPT-K138/);
+    expect(agent).toMatch(/sessionNotice=\{embedded/);
+    const banner = read('components/AgentContextBanner.tsx');
+    expect(banner).toMatch(/OPT-K138/);
   });
 
   it('OPT-K136 — Agent chat icon diet keeps functional chrome', () => {

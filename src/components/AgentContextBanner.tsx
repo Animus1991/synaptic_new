@@ -16,48 +16,91 @@ type Props = {
   className?: string;
   /** Single-line breadcrumb; details via InfoHint (embedded chat). */
   compact?: boolean;
+  /** OPT-K138 — merge offline / session notice into the same strip (no second banner). */
+  sessionNotice?: string | null;
 };
 
-/** Visible workspace handoff strip in the Agent panel (Prompt 3 · Wave E13 / AG). */
-export function AgentContextBanner({ context, lang, className, compact = false }: Props) {
+/**
+ * Visible workspace handoff strip in the Agent panel (Prompt 3 · Wave E13 / AG).
+ * OPT-K136 — icon diet (warn + InfoHint only). OPT-K138 — merge offline into same strip.
+ */
+export function AgentContextBanner({
+  context,
+  lang,
+  className,
+  compact = false,
+  sessionNotice = null,
+}: Props) {
   const { t } = useI18n();
   const banner = buildAgentContextBanner(context, lang);
   const [jsonOpen, setJsonOpen] = useState(false);
-  if (!banner) return null;
+  if (!banner && !sessionNotice) return null;
 
   const jsonText = serializeAgentWorkspaceContextJson(context);
-  const detailParts = [banner.line, banner.caution, banner.groundingNote].filter(Boolean) as string[];
+  const detailParts = [
+    sessionNotice,
+    banner?.line,
+    banner?.caution,
+    banner?.groundingNote,
+  ].filter(Boolean) as string[];
 
   if (compact) {
+    const primaryLine = sessionNotice
+      ?? banner?.compactLine
+      ?? banner?.line
+      ?? '';
+    const showWarn = Boolean(sessionNotice || banner?.caution);
+
     return (
       <div
         className={cn(
-          /* OPT-K124 / OPT-K136 — wash strip; text-led (no decorative pin icon) */
-          'relative flex items-center gap-2 border-b border-transparent px-3 py-1.5 shrink-0 bg-surface-secondary/25',
+          /* OPT-K138 — one compact status strip (study + offline + details) */
+          'relative flex items-center gap-2 border-b border-transparent px-3 py-1.5 shrink-0',
+          sessionNotice ? 'platform-banner-warn' : 'bg-surface-secondary/25',
           className,
         )}
-        data-testid="agent-context-banner"
+        data-testid={banner ? 'agent-context-banner' : 'agent-session-offline-strip'}
+        data-context-banner={banner ? 'true' : undefined}
+        data-session-notice={sessionNotice ? 'true' : undefined}
         role="status"
       >
+        {sessionNotice && banner && (
+          <span className="sr-only" data-testid="agent-session-offline-strip">
+            {sessionNotice}
+          </span>
+        )}
+        {showWarn && (
+          <AlertTriangle
+            className={cn(
+              'h-3.5 w-3.5 shrink-0',
+              sessionNotice ? 'text-[var(--color-banner-warn-ink)]' : 'text-accent-amber',
+            )}
+            aria-hidden
+          />
+        )}
         <div className="min-w-0 flex-1">
-          <p className="type-caption text-text-muted leading-none mb-0.5">{banner.heading}</p>
+          {banner && !sessionNotice && (
+            <p className="type-caption text-text-muted leading-none mb-0.5">{banner.heading}</p>
+          )}
           <p
-            className="truncate type-caption font-medium text-text-primary"
+            className={cn(
+              'truncate type-caption font-medium',
+              sessionNotice ? 'platform-banner-title text-[var(--color-banner-warn-ink)]' : 'text-text-primary',
+            )}
             data-testid="agent-context-compact-chip"
-            title={banner.line}
+            title={detailParts.join(' · ')}
           >
-            {banner.compactLine}
+            {primaryLine}
           </p>
         </div>
-        {banner.caution && (
-          <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-accent-amber" aria-hidden />
+        {detailParts.length > 0 && (
+          <InfoHint
+            label={detailParts.join('\n\n')}
+            triggerAriaLabel={t('agentContextDetailHint')}
+            data-testid="agent-context-detail-hint"
+            maxWidth={300}
+          />
         )}
-        <InfoHint
-          label={detailParts.join('\n\n')}
-          triggerAriaLabel={t('agentContextDetailHint')}
-          data-testid="agent-context-detail-hint"
-          maxWidth={300}
-        />
         {jsonText && (
           <button
             type="button"
@@ -82,6 +125,8 @@ export function AgentContextBanner({ context, lang, className, compact = false }
     );
   }
 
+  if (!banner) return null;
+
   return (
     <div
       className={cn(
@@ -105,9 +150,13 @@ export function AgentContextBanner({ context, lang, className, compact = false }
               {banner.caution}
             </p>
           )}
+          {sessionNotice && (
+            <p className="type-caption text-accent-amber" data-testid="agent-session-offline-strip">
+              {sessionNotice}
+            </p>
+          )}
         </div>
       </div>
-      {/* Wave AG — grounding / session details nested closed */}
       {(banner.groundingNote || jsonText) && (
         <CollapsibleChromeSection
           title={t('agentHowAnswersChrome')}

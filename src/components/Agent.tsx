@@ -1226,6 +1226,12 @@ export function Agent({
         <div
           className="flex items-center justify-between gap-2 border-b border-transparent px-2.5 py-1.5 shrink-0 bg-surface-secondary/20"
           data-testid="agent-embedded-chrome"
+          /* OPT-K138 — one controls row; grounding lives in title (no second header line) */
+          title={
+            attachSource
+              ? (lang === 'el' ? 'Απαντά με βάση τις σημειώσεις σου' : 'Answers from your notes')
+              : (lang === 'el' ? 'Χωρίς πηγές ακόμα' : 'No sources yet')
+          }
         >
           <button
             type="button"
@@ -1327,18 +1333,13 @@ export function Agent({
         </div>
       )}
 
-      {/* Wave E13 — one session status strip (avoid repeating offline under every message). */}
-      {embedded && !llmReady && (
-        <div
-          className="platform-banner-warn flex items-center gap-2 border-b px-3 py-1.5 shrink-0"
-          data-testid="agent-session-offline-strip"
-          role="status"
-        >
-          <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-[var(--color-banner-warn-ink)]" aria-hidden />
-          <p className="platform-banner-title type-caption min-w-0">{t('agentSessionOfflineStrip')}</p>
-        </div>
-      )}
-      <AgentContextBanner context={workspaceContext} lang={lang} compact={embedded} />
+      {/* OPT-K138 — one status strip: offline + studying (no stacked banners) */}
+      <AgentContextBanner
+        context={workspaceContext}
+        lang={lang}
+        compact={embedded}
+        sessionNotice={embedded && !llmReady ? t('agentSessionOfflineStrip') : null}
+      />
 
       {!embedded && (
         <div className={cn('agent-chat-column w-full pt-3', pagePadX)}>
@@ -1613,51 +1614,43 @@ export function Agent({
                   aria-pressed={voiceListening}
                   onClick={handleToggleVoice}
                   disabled={isThinking}
-                  title={voiceListening ? t('agentVoiceListening') : t('agentVoiceInput')}
+                  title={voiceListening ? t('agentVoiceListening') : t('agentComposerVoice')}
                   className={cn(
-                    'inline-flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-lg px-1.5 py-1 hover:bg-surface-hover text-text-secondary',
+                    /* OPT-K138 — icon-only composer tools (aria/title carry the label) */
+                    'inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg hover:bg-surface-hover text-text-secondary',
                     voiceListening && 'text-accent-rose bg-accent-rose/10',
                   )}
                 >
                   <Mic className={cn('w-4 h-4', voiceListening && 'animate-pulse')} aria-hidden="true" />
-                  <span className="type-caption leading-none text-text-muted">
-                    {t('agentComposerVoice')}
-                  </span>
                 </button>
                 <button
                   type="button"
                   aria-label={t('agentSearchSources')}
                   onClick={handleSearchSources}
-                  title={t('agentSearchSources')}
+                  title={t('agentComposerSources')}
                   className={cn(
-                    'inline-flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-lg px-1.5 py-1 hover:bg-surface-hover text-text-secondary',
+                    'inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg hover:bg-surface-hover text-text-secondary',
                     attachSource && 'text-text-primary',
                   )}
                 >
                   <Search className="w-4 h-4" aria-hidden="true" />
-                  <span className="type-caption leading-none text-text-muted">
-                    {t('agentComposerSources')}
-                  </span>
                 </button>
                 <div className="relative">
                   <button
                     type="button"
                     aria-label={t('agentAttachFile')}
                     aria-expanded={showAttachPicker}
-                    title={t('agentAttachFile')}
+                    title={t('agentComposerFile')}
                     onClick={() => {
                       setShowAttachPicker((v) => !v);
                       setShowSourceSettings(false);
                     }}
                     className={cn(
-                      'inline-flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-lg px-1.5 py-1 hover:bg-surface-hover text-text-secondary',
+                      'inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg hover:bg-surface-hover text-text-secondary',
                       pinnedFileId && 'text-text-primary',
                     )}
                   >
                     <FileText className="w-4 h-4" aria-hidden="true" />
-                    <span className="type-caption leading-none text-text-muted">
-                      {t('agentComposerFile')}
-                    </span>
                   </button>
                   {showAttachPicker && (
                     <div className="absolute left-0 bottom-full mb-1 z-20 w-64 max-h-48 overflow-y-auto rounded-xl border border-border-subtle bg-surface-card shadow-lg p-2 type-caption">
@@ -2041,8 +2034,11 @@ function MessageBubble({
           </button>
         )}
 
-        {/* OPT-K136/K137 — only trust-critical badges (cut RAG/enrichment chrome noise) */}
-        {!isUser && message.metadata && (message.metadata.sourceGrounded || message.metadata.lowRetrieval) && (
+        {/* OPT-K138 — badge only when there is no citation/source line already */}
+        {!isUser
+          && message.metadata
+          && !(message.citations?.length || message.sourceReference)
+          && (message.metadata.sourceGrounded || message.metadata.lowRetrieval) && (
           <div className="agent-meta-badge-row mt-2 pt-2 border-t border-transparent flex items-center gap-1.5 flex-wrap pb-0.5">
             {message.metadata.sourceGrounded && (
               <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded border-0 bg-surface-secondary text-text-secondary font-medium">{ui.badgeSourceGrounded}</span>
