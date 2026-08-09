@@ -1,6 +1,5 @@
 import { t, type Lang } from '../../lib/i18n';
 import { useStudyRoomSharedNotes } from '../../hooks/useStudyRoomSharedNotes';
-import { AllCapsLabel } from '../ui/AllCapsLabel';
 import { StudyRoomNoteProposalsPanel } from './StudyRoomNoteProposalsPanel';
 
 type Props = {
@@ -41,7 +40,7 @@ export function StudyRoomSharedNotes({
     <div className="space-y-2" data-testid="study-room-shared-notes">
       <div className="space-y-1.5">
         <div className="flex items-center justify-between gap-2">
-          <p className="ws-field-label"><AllCapsLabel>{tr('studyRoomSharedNotes')}</AllCapsLabel></p>
+          <p className="type-caption font-medium text-text-secondary">{tr('studyRoomSharedNotes')}</p>
           <span className="type-caption text-text-muted">
             {synced ? tr('studyRoomCollabSynced') : tr('studyRoomCollabConnecting')}
           </span>

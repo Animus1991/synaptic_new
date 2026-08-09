@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Save, Trash2, CheckCircle2, Circle, Sparkles, Highlighter, Layers,
+  Save, Trash2, CheckCircle2, Circle, Highlighter, Layers,
 } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import {
@@ -40,6 +40,7 @@ const MODES: ScratchpadMode[] = [
 ];
 
 /* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
+/** OPT-K162 — wash notes chrome; text-first AI polish */
 export function ScratchpadNotesPanel({
   scopeKey,
   concept,
@@ -112,7 +113,9 @@ export function ScratchpadNotesPanel({
   };
 
   return (
-    <div className="flex flex-col h-full" data-testid="scratchpad-notes-panel">
+    // OPT-K162
+
+    <div className="flex flex-col h-full" data-testid="scratchpad-notes-panel" data-clarity-pass="k162">
       {(sectionLabel || concept) && (
         <div className="px-4 py-1.5 border-b border-border-subtle bg-surface-primary/30 type-caption text-text-muted shrink-0">
           {t('scratchAttachedTo')}
@@ -146,7 +149,7 @@ export function ScratchpadNotesPanel({
           onChange={(e) => updateDraft(e.target.value)}
           placeholder={modePlaceholder(mode)}
           data-testid="scratchpad-notes-draft"
-          className="w-full min-h-[120px] px-3 py-2 rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50 resize-y"
+          className="w-full min-h-[120px] px-3 py-2 rounded-xl border-0 bg-surface-secondary/55 type-body text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50 resize-y"
         />
         <div className="flex flex-wrap gap-2">
           <button
@@ -165,9 +168,8 @@ export function ScratchpadNotesPanel({
             <button
               type="button"
               onClick={() => onAskAgent(draft, mode)}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 text-text-secondary type-caption"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border-0 bg-accent-cyan/10 text-text-secondary type-caption"
             >
-              <Sparkles className="w-3.5 h-3.5" />
               Agent
             </button>
           )}
@@ -246,7 +248,6 @@ export function ScratchpadNotesPanel({
                           onClick={() => onAskAgent(entry.body, entry.mode)}
                           className="flex items-center gap-1 type-caption text-text-secondary"
                         >
-                          <Sparkles className="w-3 h-3" />
                           Agent
                         </button>
                       )}

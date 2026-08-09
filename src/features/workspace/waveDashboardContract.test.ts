@@ -332,6 +332,17 @@ describe('Wave H2 — Dashboard productization', () => {
     expect(indexCss).toMatch(/OPT-K122/);
   });
 
+  it('OPT-K149 — Library Tasks-parity icon diet + type ×0.99', () => {
+    const lib = read('components/Library.tsx');
+    expect(lib).toMatch(/OPT-K149/);
+    expect(lib).toContain('data-type-rhythm="library"');
+    expect(lib).not.toMatch(/icon=\{BookOpen\}/);
+    expect(lib).toMatch(/icon=\{null\}/);
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K149/);
+    expect(clarity).toContain('--library-type-scale: 0.99');
+  });
+
   it('OPT-K140 — Tasks CTA-only unbox + wash session cards', () => {
     const tasks = read('components/Tasks.tsx');
     expect(tasks).toMatch(/OPT-K140/);
@@ -340,6 +351,64 @@ describe('Wave H2 — Dashboard productization', () => {
     expect(clarity).toMatch(/OPT-K140/);
     const indexCss = read('index.css');
     expect(indexCss).toMatch(/OPT-K140/);
+  });
+
+  it('OPT-K143 — Tasks equal cards/tabs + tight type', () => {
+    const tasks = read('components/Tasks.tsx');
+    expect(tasks).toContain('data-type-rhythm="tasks"');
+    expect(tasks).toContain('ux-kpi-value-sm');
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K143/);
+  });
+
+  it('OPT-K144 — Tasks text-first sessions + icon diet', () => {
+    const tasks = read('components/Tasks.tsx');
+    expect(tasks).toMatch(/OPT-K144|OPT-K140–K145/);
+    expect(tasks).not.toMatch(/tasks-tab-filter/);
+    expect(tasks).not.toMatch(/icon=\{Icon\}/);
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K144/);
+  });
+
+  it('OPT-K145 — Tasks flush column + CTA −2%', () => {
+    const content = read('lib/tasksContent.ts');
+    expect(content).not.toMatch(/`~\$\{minutes\}/);
+    expect(content).not.toMatch(/`~\$\{min\}/);
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K145/);
+  });
+
+  it('OPT-K146 — Tasks quieter titles + text-first empty', () => {
+    const tasks = read('components/Tasks.tsx');
+    expect(tasks).toMatch(/OPT-K146|OPT-K140–K146|OPT-K140–K147/);
+    expect(tasks).toMatch(/icon=\{null\}/);
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K146/);
+    expect(clarity).toMatch(/0\.9604/);
+  });
+
+  it('OPT-K147/K151 — Tasks denser type restored (×0.99)', () => {
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K151|OPT-K147/);
+    expect(clarity).toContain('--tasks-type-scale: 0.99');
+  });
+
+  it('OPT-K150 — Agent text-first header (Tasks keeps denser type)', () => {
+    const agent = read('components/Agent.tsx');
+    expect(agent).toMatch(/OPT-K150/);
+    expect(agent).not.toMatch(/agent-header-mode-icon/);
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K150/);
+  });
+
+  it('OPT-K148 — Dashboard Tasks-parity icon diet + type ×0.99', () => {
+    expect(page).toMatch(/OPT-K148/);
+    expect(page).not.toMatch(/greetingIconKind/);
+    expect(page).not.toMatch(/SectionLabel icon=\{/);
+    expect(page).not.toMatch(/dashboard-today-stat-icon/);
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K148/);
+    expect(clarity).toContain('--dashboard-type-scale: 0.99');
   });
 
   it('OPT-K142 — Workspace tools share CTA-only diet + type rhythm', () => {
@@ -351,6 +420,110 @@ describe('Wave H2 — Dashboard productization', () => {
     const clarity = read('styles/cursor-clarity.css');
     expect(clarity).toMatch(/OPT-K142/);
   });
+
+
+  it('OPT-K152 — Workspace epitome clarity across notebook + ToolFrame', () => {
+    const nb = read('components/workspace/studyWorkspace/NotebookWorkspaceLayout.tsx');
+    expect(nb).toContain('data-clarity-pass="k152"');
+    expect(nb).toMatch(/OPT-K152|OPT-K126\/K152/);
+    const header = read('components/workspace/WorkspaceToolHeader.tsx');
+    expect(header).toMatch(/OPT-K152/);
+    expect(header).not.toMatch(/HelpCircle/);
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K152/);
+    expect(clarity).toMatch(/Workspace epitome clarity/);
+    const indexCss = read('index.css');
+    expect(indexCss).toMatch(/OPT-K152/);
+  });
+
+
+  it('OPT-K153 — Quiz/Progress/Annotations text-first wash residual', () => {
+    const warn = read('components/workspace/WorkspacePanelWarnStrip.tsx');
+    expect(warn).toMatch(/OPT-K153/);
+    expect(warn).not.toMatch(/AlertTriangle/);
+    const quiz = read('components/workspace/QuizPanel.tsx');
+    expect(quiz).toContain('data-clarity-pass="k153"');
+    const dash = read('components/workspace/DashboardPanel.tsx');
+    expect(dash).toContain('data-clarity-pass="k153"');
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K153/);
+  });
+
+
+  it('OPT-K154 — Timer wash + text-first secondary', () => {
+    const panel = read('components/workspace/TimerPanel.tsx');
+    expect(panel).toContain('data-clarity-pass="k154"');
+    const timer = read('components/workspace/StudyTimer.tsx');
+    expect(timer).toMatch(/OPT-K154/);
+    expect(timer).not.toMatch(/GraduationCap/);
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K154/);
+  });
+
+
+  it('OPT-K155 — Workspace type parity + ghost Guide across ToolFrame', () => {
+    const body = read('components/workspace/StudyWorkspaceBody.tsx');
+    expect(body).toContain('data-clarity-pass="k155"');
+    const header = read('components/workspace/WorkspaceToolHeader.tsx');
+    expect(header).toMatch(/OPT-K155|ghost text Guide/);
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K155/);
+    const indexCss = read('index.css');
+    expect(indexCss).toMatch(/OPT-K155/);
+    expect(indexCss).toMatch(/--type-display-sm: 0\.9375rem/);
+  });
+
+
+  it('OPT-K156 — Reader + Debate text-first wash residual', () => {
+    const reader = read('components/workspace/CognitiveReader.tsx');
+    expect(reader).toContain('data-clarity-pass="k156"');
+    const map = read('components/workspace/ArgumentMap.tsx');
+    expect(map).toMatch(/data-clarity-pass="k15[68]"/);
+    expect(map).not.toMatch(/Shield/);
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K156/);
+  });
+
+
+  it('OPT-K157 — Whiteboard wash + text-first coach residual', () => {
+    const board = read('components/workspace/StudyWhiteboard.tsx');
+    expect(board).toContain('data-clarity-pass="k157"');
+    const coach = read('components/workspace/WhiteboardDiagramCoach.tsx');
+    expect(coach).toContain('data-clarity-pass="k157"');
+    expect(coach).not.toMatch(/Sparkles/);
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K157/);
+  });
+
+
+  it('OPT-K158 — Debate wash nodes + text-first agent chips', () => {
+    const map = read('components/workspace/ArgumentMap.tsx');
+    expect(map).toContain('data-clarity-pass="k158"');
+    expect(map).toMatch(/border-0/);
+    const chips = read('components/workspace/WorkspaceToolAgentChipBar.tsx');
+    expect(chips).toContain('data-clarity-pass="k158"');
+    expect(chips).not.toMatch(/<Sparkles/);
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K158/);
+  });
+
+
+  it('OPT-K159 — Quiz/ConceptMap/Simulator wash residual', () => {
+    const quiz = read('components/workspace/QuizPanel.tsx');
+    expect(quiz).toContain('data-clarity-pass="k159"');
+    const map = read('components/workspace/DraggableConceptMap.tsx');
+    expect(map).toContain('data-clarity-pass="k159"');
+    expect(map).not.toMatch(/cm-node-shadow/);
+    const sim = read('components/workspace/SimulatorPanel.tsx');
+    expect(sim).toContain('data-clarity-pass="k159"');
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K159/);
+  });
+
+
+
+
+
 
   it('OPT-K121 — Dashboard type rhythm on all platform pages', () => {
     const prim = read('components/ui/primitives.tsx');

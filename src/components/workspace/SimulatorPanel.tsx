@@ -1,5 +1,4 @@
 import { useMemo, useState, useEffect } from 'react';
-import { BookOpen, Search, Timer } from '@/lib/lucide-shim';
 import type { SimulatorSessionContent } from '../../lib/simulatorSessionModel';
 import { filterNumericCues } from '../../lib/simulatorSessionModel';
 import { examPracticeLabel } from '../../lib/examPracticePresets';
@@ -98,7 +97,8 @@ export function SimulatorPanel({
 
   if (mainTab === 'exam-prep') {
     return (
-      <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel">
+      <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel"
+      data-clarity-pass="k159">
         {tabBar}
         <ExamPrepPanel />
       </div>
@@ -121,7 +121,8 @@ export function SimulatorPanel({
 
   if (!session.hasSource) {
     return (
-      <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel">
+      <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel"
+      data-clarity-pass="k159">
         {tabBar}
         <WorkspaceToolEmptyState
           tool="simulator"
@@ -136,7 +137,8 @@ export function SimulatorPanel({
 
   if (!session.hasActionableContent) {
     return (
-      <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel">
+      <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel"
+      data-clarity-pass="k159">
         {tabBar}
         <div className="p-4 flex-1 overflow-y-auto" data-testid="simulator-panel-empty">
         <WorkspaceToolEmptyState
@@ -159,13 +161,14 @@ export function SimulatorPanel({
     <div
       className="flex h-full flex-col overflow-hidden"
       data-testid="simulator-panel"
+      data-clarity-pass="k159"
       data-bleed="full"
     >
       {tabBar}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       {/* Wave G5 — exam/meta densify: one strip; timer sync only when warn */}
       <div
-        className="shrink-0 space-y-1.5 border-b border-border-subtle px-3 py-2"
+        className="shrink-0 space-y-1.5 border-b border-transparent px-3 py-2"
         data-testid="simulator-exam-chrome"
       >
         {artifactStale && onAcknowledgeStale && (
@@ -198,14 +201,13 @@ export function SimulatorPanel({
             </p>
           )}
           {session.numericCues.length > 0 && (
-            <div className="relative min-w-[8rem] max-w-[14rem] flex-1">
-              <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted" aria-hidden />
+            <div className="min-w-[8rem] max-w-[14rem] flex-1">
               <input
                 type="search"
                 value={filterQuery}
                 onChange={(e) => setFilterQuery(e.target.value)}
                 placeholder={t('panelSearchParameters')}
-                className="w-full min-h-9 rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-7 pr-2 type-caption text-text-secondary placeholder:text-text-muted focus:border-border-default focus:outline-none"
+                className="w-full min-h-8 rounded-md border-0 bg-surface-secondary/55 py-1.5 px-2.5 type-caption text-text-secondary placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/35"
                 data-testid="simulator-filter"
               />
             </div>
@@ -224,22 +226,20 @@ export function SimulatorPanel({
               data-testid="simulator-start-timed-practice"
               onClick={() => onStartTimedPractice(session.suggestedExamPractice)}
               title={`${t('panelTimedBlock')}: ${examPracticeLabel(session.suggestedExamPractice, lang)}`}
-              className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center gap-1.5 rounded-lg border border-accent-amber/35 bg-accent-amber/10 px-2 type-caption font-medium text-text-secondary hover:bg-accent-amber/15 sm:min-w-0 sm:px-2.5"
+              className="ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 bg-surface-secondary/55 px-2.5 type-caption font-medium text-text-secondary hover:bg-surface-hover"
             >
-              <Timer className="h-3.5 w-3.5 text-accent-amber" aria-hidden />
-              <span className="hidden sm:inline">{t('panelTimedBlock')}</span>
+              {t('panelTimedBlock')}
             </button>
           )}
           {onOpenInReader && (
             <button
               type="button"
               onClick={() => onOpenInReader(concept)}
-              className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center gap-1 rounded-lg border border-border-subtle px-2 type-caption text-text-secondary hover:border-border-default hover:text-text-primary sm:min-w-0 sm:px-2.5"
+              className="ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 bg-surface-secondary/55 px-2.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
               data-testid="simulator-open-reader"
               aria-label={t('cognitiveReader')}
             >
-              <BookOpen className="h-3.5 w-3.5" aria-hidden />
-              <span className="hidden sm:inline">{t('cognitiveReader')}</span>
+              {t('cognitiveReader')}
             </button>
           )}
         </div>
@@ -251,7 +251,7 @@ export function SimulatorPanel({
                 key={cue.id}
                 type="button"
                 onClick={() => onOpenInReader?.(cue.context.slice(0, 80) || cue.label)}
-                className="ws-touch-floor rounded-lg border border-border-subtle bg-surface-secondary px-2 py-1 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
+                className="ws-touch-floor rounded-md border-0 bg-surface-secondary/50 px-2 py-1 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
               >
                 {cue.label.slice(0, 48)}{cue.label.length > 48 ? '…' : ''}
               </button>

@@ -128,17 +128,20 @@ export function MiniDashboard({
         {(!collapsed || embedded) && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={emphasizedTransition}>
             {/* Tabs */}
-            <div className="flex border-b border-border-subtle">
+            {/* OPT-K153 — text-first tabs when embedded Progress */}
+            <div className={cn('flex', embedded ? 'border-b border-transparent' : 'border-b border-border-subtle')}>
               {(['overview', 'weak', 'next'] as const).map((tab) => (
                 <button key={tab} type="button" onClick={() => setActiveTab(tab)}
                   className={cn('flex-1 py-1.5 type-caption font-medium capitalize transition-all inline-flex items-center justify-center gap-0.5',
-                    activeTab === tab ? 'text-text-secondary border-b border-brand-500' : 'text-text-muted hover:text-text-secondary')}>
+                    activeTab === tab
+                      ? (embedded ? 'text-text-primary bg-surface-secondary/55' : 'text-text-secondary border-b border-brand-500')
+                      : 'text-text-muted hover:text-text-secondary')}>
                   {tab === 'overview' ? (
-                    <><Target className="w-3 h-3" /> {t('status')}</>
+                    embedded ? t('status') : <><Target className="w-3 h-3" /> {t('status')}</>
                   ) : tab === 'weak' ? (
-                    <><AlertTriangle className="w-3 h-3" /> {t('weak')}</>
+                    embedded ? t('weak') : <><AlertTriangle className="w-3 h-3" /> {t('weak')}</>
                   ) : (
-                    <><Play className="w-3 h-3" /> {t('nextActions')}</>
+                    embedded ? t('nextActions') : <><Play className="w-3 h-3" /> {t('nextActions')}</>
                   )}
                 </button>
               ))}
@@ -169,13 +172,13 @@ export function MiniDashboard({
 
                 {/* Quick stats — full width when embedded */}
                 <div className={cn('grid gap-1.5', embedded ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-3')}>
-                  <StatPill icon={<Zap className="w-3 h-3 text-accent-amber" />} label={t('streak')} value={`${streak}d`} />
-                  <StatPill icon={<RotateCcw className="w-3 h-3 text-accent-teal" />} label={t('due')} value={`${reviewsDue}`} />
-                  <StatPill icon={<Brain className="w-3 h-3 text-text-secondary" />} label={t('weak')} value={`${weakSpots.length}`} />
+                  <StatPill icon={embedded ? null : <Zap className="w-3 h-3 text-accent-amber" />} label={t('streak')} value={`${streak}d`} />
+                  <StatPill icon={embedded ? null : <RotateCcw className="w-3 h-3 text-accent-teal" />} label={t('due')} value={`${reviewsDue}`} />
+                  <StatPill icon={embedded ? null : <Brain className="w-3 h-3 text-text-secondary" />} label={t('weak')} value={`${weakSpots.length}`} />
                   {embedded ? (
                     <>
-                      <StatPill icon={<Clock className="w-3 h-3 text-accent-emerald" />} label={t('studyToday')} value={`${studyTimeToday}m`} />
-                      <StatPill icon={<Clock className="w-3 h-3 text-text-secondary" />} label={t('studyThisWeek')} value={`${studyTimeWeek}m`} />
+                      <StatPill icon={null} label={t('studyToday')} value={`${studyTimeToday}m`} />
+                      <StatPill icon={null} label={t('studyThisWeek')} value={`${studyTimeWeek}m`} />
                     </>
                   ) : null}
                 </div>
@@ -354,11 +357,12 @@ export function MiniDashboard({
   );
 }
 
-function StatPill({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
+/* OPT-K153 — icon optional (text-first when embedded Progress) */
+function StatPill({ icon, label, value }: { icon?: ReactNode | null; label: string; value: string }) {
   return (
-    <div className="flex flex-col items-center py-1.5 rounded-lg bg-surface-primary/50">
+    <div className="flex flex-col items-center py-1.5 rounded-lg bg-surface-secondary/45">
       {icon}
-      <span className="type-caption font-bold mt-0.5">{value}</span>
+      <span className={cn('type-caption font-bold', icon ? 'mt-0.5' : undefined)}>{value}</span>
       <span className="type-micro text-text-muted">{label}</span>
     </div>
   );

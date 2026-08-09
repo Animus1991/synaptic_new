@@ -1,4 +1,3 @@
-import { CheckCircle2, AlertTriangle } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { WhiteboardBlueprintCoverageReport } from '../../lib/whiteboardBlueprintCoverageQA';
 import { blueprintContextHint, blueprintKindLabel } from '../../lib/whiteboardBlueprintCoverageQA';
@@ -11,20 +10,19 @@ type Props = {
 
 export function WhiteboardBlueprintCoverageStrip({ report, lang }: Props) {
   const { t } = useI18n();
-  const Icon = report.ok ? CheckCircle2 : AlertTriangle;
   const contextHint = blueprintContextHint(report.contextEdge, lang);
 
   return (
     <div
       className={cn(
-        'ws-status-strip rounded-lg space-y-1',
+        'ws-status-strip rounded-md space-y-1 border-0',
         report.ok ? 'ws-status-ok' : 'ws-status-warn',
       )}
       data-testid="whiteboard-blueprint-coverage-strip"
+      data-clarity-pass="k157"
     >
-      <div className="flex items-center gap-2">
-        <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
-        <span className="min-w-0 flex-1">
+      <div className="min-w-0">
+        <span className="type-caption">
           {report.bannerSummary
             ?? (t('stripBlueprintCoverage'))}
           {' · '}
@@ -32,7 +30,7 @@ export function WhiteboardBlueprintCoverageStrip({ report, lang }: Props) {
         </span>
       </div>
       {contextHint && (
-        <p className="type-caption opacity-90 pl-5">{contextHint}</p>
+        <p className="type-caption opacity-90">{contextHint}</p>
       )}
     </div>
   );

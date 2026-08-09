@@ -1,4 +1,3 @@
-import { BookOpen } from '@/lib/lucide-shim';
 import type { ContentCitation } from '../../lib/contentCitation';
 import { useI18n } from '../../lib/i18n';
 
@@ -20,14 +19,14 @@ export function SourceCitationChip({ citation, onOpenInReader, className = '' }:
     <button
       type="button"
       data-testid="source-citation-chip"
+      data-clarity-pass="k159"
       onClick={(e) => {
         e.stopPropagation();
         onOpenInReader(query);
       }}
-      className={`inline-flex items-center gap-1 rounded-full border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 type-caption font-medium text-text-secondary hover:opacity-90 ${className}`}
+      className={`inline-flex min-h-8 items-center rounded-md border-0 bg-surface-secondary/55 px-2.5 py-0.5 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary ${className}`}
       title={citation.fileName ?? citation.fileId}
     >
-      <BookOpen className="h-3 w-3" />
       {t('viewSource')}
       {citation.fileName ? ` · ${citation.fileName}` : ''}
     </button>

@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from 'react';
-import { ArrowRight, BookOpen, Download, Lightbulb, Printer, Search, Target } from '@/lib/lucide-shim';
+import { ArrowRight, Download, Printer } from '@/lib/lucide-shim';
 import { PanelOverflowMenu } from './PanelOverflowMenu';
 import type { DashboardSessionContent } from '../../lib/dashboardSessionModel';
 import {
@@ -68,7 +68,7 @@ type Props = {
   conceptBusRows?: ConceptBusRow[];
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101/K153 — residual markup debt + Progress epitome clarity */
 export function DashboardPanel({
   session,
   concept,
@@ -191,6 +191,7 @@ export function DashboardPanel({
       className="flex h-full min-h-0 flex-col overflow-hidden bg-surface-card"
       data-testid="dashboard-panel"
       data-bleed="full"
+      data-clarity-pass="k153"
     >
       <div className="shrink-0 space-y-1.5 border-b border-border-subtle px-3 py-2">
         {session.sectionLabel && (
@@ -221,7 +222,6 @@ export function DashboardPanel({
           <UxCallout
             variant="next-action"
             title={t('dashboardSuggestedNext')}
-            icon={<Lightbulb />}
             testId="workspace-dashboard-next-action"
             className="mb-1"
             action={
@@ -230,7 +230,7 @@ export function DashboardPanel({
                 size="sm"
                 onClick={onRunNextAction}
                 data-testid="workspace-dashboard-next-action-btn"
-                className="ws-touch-floor min-h-9 shrink-0 rounded-lg px-3"
+                className="ws-touch-floor min-h-8 shrink-0 rounded-lg px-2.5"
               >
                 {nextActionLabel(nextAction.primary, lang)}
                 <ArrowRight className="h-3.5 w-3.5" aria-hidden />
@@ -245,7 +245,7 @@ export function DashboardPanel({
         {/* Wave PR — primary strip: focus action + Reader; exports in ⋯ */}
         <div className="flex flex-wrap items-center gap-1.5" data-testid="dashboard-kpi-row">
           {session.weakSpotCount > 0 && (
-            <span className="rounded-lg border border-accent-rose/40 bg-accent-rose/12 px-2 py-1 type-caption font-semibold text-text-secondary">
+            <span className="rounded-lg border-0 bg-surface-secondary/70 px-2 py-1 type-caption font-semibold text-text-secondary">
               {session.weakSpotCount} {t('panelWeakCount')}
             </span>
           )}
@@ -259,10 +259,9 @@ export function DashboardPanel({
               type="button"
               size="sm"
               onClick={onOpenSuggestedTool}
-              className="ws-touch-floor min-h-9 rounded-lg px-3"
+              className="ws-touch-floor min-h-8 rounded-lg px-2.5"
               data-testid="dashboard-suggest-tool"
             >
-              <Target className="h-3.5 w-3.5" aria-hidden />
               {t('dashboardNextColon')} {suggestLabel}
             </PrimaryCTA>
           )}
@@ -270,10 +269,9 @@ export function DashboardPanel({
             <button
               type="button"
               onClick={() => onOpenInReader(concept)}
-              className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
+              className="ws-touch-floor inline-flex min-h-8 items-center rounded-lg border-0 bg-surface-secondary/55 px-2.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
               data-testid="dashboard-open-reader"
             >
-              <BookOpen className="h-3.5 w-3.5" aria-hidden />
               {t('cognitiveReader')}
             </button>
           )}
@@ -323,17 +321,13 @@ export function DashboardPanel({
               <label className="sr-only" htmlFor="dashboard-filter-input">
                 {t('dashFilterPlaceholder')}
               </label>
-              <Search
-                className="pointer-events-none absolute left-5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted"
-                aria-hidden
-              />
               <input
                 id="dashboard-filter-input"
                 type="search"
                 value={filterQuery}
                 onChange={(e) => setFilterQuery(e.target.value)}
                 placeholder={t('dashFilterPlaceholder')}
-                className="w-full min-h-9 rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-8 pr-2 type-caption text-text-primary placeholder:text-text-muted focus:border-border-default focus:outline-none"
+                className="w-full min-h-8 rounded-lg border-0 bg-surface-secondary/55 py-1.5 px-2.5 type-caption text-text-primary placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/35"
                 data-testid="dashboard-filter"
               />
             </div>

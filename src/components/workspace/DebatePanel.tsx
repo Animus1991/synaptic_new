@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { BookOpen, Search } from '@/lib/lucide-shim';
 import { ArgumentMap } from './ArgumentMap';
 import { WorkspaceToolEmptyState } from './WorkspaceToolEmptyState';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
@@ -12,7 +11,6 @@ import type {
   WorkspaceSelectionContext,
 } from '../../lib/workspaceSelectionActions';
 import { useI18n } from '../../lib/i18n';
-import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 type Props = {
   session: DebateSessionContent;
@@ -106,14 +104,13 @@ export function DebatePanel({
       className="flex h-full min-h-0 flex-col overflow-hidden bg-surface-card"
       data-testid="debate-panel"
       data-bleed="full"
+      data-clarity-pass="k158"
     >
-      <div className="shrink-0 space-y-1.5 border-b border-border-subtle px-3 py-2">
+      <div className="shrink-0 space-y-1.5 border-b border-transparent px-3 py-1.5">
         {session.sectionLabel && (
-          <p className="ws-eyebrow text-text-muted" data-testid="debate-section-label">
-            <span><AllCapsLabel>{t('wsSectionLabel')}</AllCapsLabel></span>
-            <span className="ml-2 font-sans type-caption font-normal normal-case tracking-normal text-text-secondary">
-              {session.sectionLabel}
-            </span>
+          <p className="type-caption text-text-muted" data-testid="debate-section-label">
+            <span className="text-text-muted">{t('wsSectionLabel')}</span>
+            <span className="ml-1.5 text-text-secondary">{session.sectionLabel}</span>
           </p>
         )}
 
@@ -134,14 +131,10 @@ export function DebatePanel({
             className="flex flex-wrap items-center gap-2 px-3 pb-2"
             data-testid="debate-panel-toolbar"
           >
-            <div className="relative min-w-[8rem] flex-1">
+            <div className="min-w-[8rem] flex-1">
               <label className="sr-only" htmlFor="debate-filter-input">
                 {t('panelSearchClaimsAria')}
               </label>
-              <Search
-                className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted"
-                aria-hidden
-              />
               <input
                 id="debate-filter-input"
                 type="search"
@@ -149,7 +142,7 @@ export function DebatePanel({
                 onChange={(e) => setFilterQuery(e.target.value)}
                 placeholder={t('panelSearchClaims')}
                 aria-label={t('panelSearchClaimsAria')}
-                className="w-full min-h-9 rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-8 pr-2 type-caption text-text-primary placeholder:text-text-muted focus:border-border-default focus:outline-none"
+                className="w-full min-h-8 rounded-md border-0 bg-surface-secondary/55 py-1.5 px-2.5 type-caption text-text-primary placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/35"
                 data-testid="debate-filter"
               />
             </div>
@@ -161,10 +154,9 @@ export function DebatePanel({
               <button
                 type="button"
                 onClick={() => onOpenInReader(concept)}
-                className="ws-touch-floor inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border-subtle px-2.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
+                className="ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 bg-surface-secondary/55 px-2.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                 data-testid="debate-open-reader"
               >
-                <BookOpen className="h-3.5 w-3.5" aria-hidden />
                 {t('panelReaderSource')}
               </button>
             )}
@@ -178,7 +170,7 @@ export function DebatePanel({
                 key={`${i}-${text.slice(0, 24)}`}
                 type="button"
                 onClick={() => selectClaim(text)}
-                className="rounded-md border border-border-subtle bg-surface-secondary/50 px-2 py-0.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
+                className="rounded-md border-0 bg-surface-secondary/50 px-2 py-0.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
               >
                 {text.slice(0, 56)}{text.length > 56 ? '…' : ''}
               </button>
@@ -193,7 +185,7 @@ export function DebatePanel({
             originTool="debate"
             onAction={handleSelectionAction}
             onDismiss={() => setSelectedClaim(null)}
-            className="rounded-md border border-border-subtle"
+            className="rounded-md border-0 bg-surface-secondary/40"
             data-testid="debate-selection-actions"
           />
         )}
@@ -203,7 +195,7 @@ export function DebatePanel({
               type="button"
               data-testid="debate-ai-counter"
               onClick={() => onAiCounter(selectedClaim)}
-              className="rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover"
+              className="rounded-md border-0 bg-surface-secondary/55 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover"
             >
               {t('debateAiCounter')}
             </button>

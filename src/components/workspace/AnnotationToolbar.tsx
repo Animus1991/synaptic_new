@@ -1,10 +1,6 @@
-import {
-  FileText, Highlighter, MessageSquare, Pin, Download,
-} from '@/lib/lucide-shim';
+import { Download } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { AnnotationCategory } from '../../lib/annotationStore';
-import type { UiIconId } from '../../lib/uiIconRegistry';
-import { UiIcon } from '../ui/UiIcon';
 
 import { ANNOTATION_PALETTE } from '../../lib/masteryPalette';
 import { useI18n, type I18nKey } from '../../lib/i18n';
@@ -23,11 +19,10 @@ const COLOR_LABEL_KEYS: I18nKey[] = [
 
 const SEMANTIC_CATEGORIES: {
   cat: AnnotationCategory;
-  iconId: UiIconId;
   labelKey: I18nKey;
 }[] = [
-  { cat: 'confusing', iconId: 'warning', labelKey: 'annoConfusing' },
-  { cat: 'exam-relevant', iconId: 'notes', labelKey: 'annoExam' },
+  { cat: 'confusing', labelKey: 'annoConfusing' },
+  { cat: 'exam-relevant', labelKey: 'annoExam' },
 ];
 
 type Tool = 'highlight' | 'comment' | 'pin';
@@ -56,7 +51,7 @@ type Props = {
   pinLabel: string;
 };
 
-/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K100/K153 — markup debt + text-first annotation chrome */
 export function AnnotationToolbar({
   lang: _lang,
   sourceName,
@@ -79,9 +74,9 @@ export function AnnotationToolbar({
   pinLabel,
 }: Props) {
   const { t } = useI18n();
-  const secondaryTools: { id: Exclude<Tool, 'highlight'>; icon: typeof Highlighter; label: string }[] = [
-    { id: 'comment', icon: MessageSquare, label: commentLabel },
-    { id: 'pin', icon: Pin, label: pinLabel },
+  const secondaryTools: { id: Exclude<Tool, 'highlight'>; label: string }[] = [
+    { id: 'comment', label: commentLabel },
+    { id: 'pin', label: pinLabel },
   ];
 
   const countFor = (cat: AnnotationCategory | 'general') => categoryCounts?.[cat] ?? 0;
@@ -95,7 +90,6 @@ export function AnnotationToolbar({
         data-testid="annotation-source-chrome"
       >
         <div className="ws-panel-toolbar-row px-3 pb-2">
-          <FileText className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
           <span className="type-caption shrink-0 font-medium text-text-secondary">{sourceViewerLabel}</span>
           {sharedCount > 0 && (
             <span className="ws-chip-warn rounded px-1.5 py-0.5 type-caption">
@@ -139,10 +133,9 @@ export function AnnotationToolbar({
             data-active="true"
             aria-pressed
             onClick={() => onToolChange('highlight')}
-            className="ws-touch-floor min-h-9 rounded-lg px-3"
+            className="ws-touch-floor min-h-8 rounded-lg px-2.5"
             title={highlightLabel}
           >
-            <Highlighter className="h-3.5 w-3.5 shrink-0" aria-hidden />
             <span>{highlightLabel}</span>
           </PrimaryCTA>
         ) : (
@@ -155,7 +148,6 @@ export function AnnotationToolbar({
             aria-pressed={false}
             title={highlightLabel}
           >
-            <Highlighter className="h-3.5 w-3.5 shrink-0" aria-hidden />
             <span>{highlightLabel}</span>
           </button>
         )}
@@ -171,12 +163,9 @@ export function AnnotationToolbar({
             aria-pressed={tool === b.id}
             title={b.label}
           >
-            <b.icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
             <span>{b.label}</span>
           </button>
         ))}
-
-        <div className="h-3 w-px bg-border-subtle" aria-hidden />
 
         <div className="flex items-center gap-1" data-testid="annotation-color-swatches">
           {COLORS.map((c, i) => {
@@ -212,7 +201,7 @@ export function AnnotationToolbar({
               <span className="ws-num opacity-80">{countFor('general')}</span>
             )}
           </button>
-          {SEMANTIC_CATEGORIES.map(({ cat, iconId, labelKey }) => (
+          {SEMANTIC_CATEGORIES.map(({ cat, labelKey }) => (
             <button
               key={cat}
               type="button"
@@ -226,7 +215,6 @@ export function AnnotationToolbar({
               )}
               aria-pressed={activeCategory === cat}
             >
-              <UiIcon id={iconId} size="xs" />
               <span>{t(labelKey)}</span>
               {countFor(cat) > 0 && (
                 <span className="ws-num opacity-80">{countFor(cat)}</span>

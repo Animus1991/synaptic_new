@@ -46,7 +46,7 @@ export function CollapsibleChromeSection({
   return (
     <div
       className={cn(
-        /* OPT-K115 — spacing only; no framed chrome box / hairline cage */
+        /* OPT-K115/K155 — spacing only; no framed chrome box / hairline cage */
         'collapsible-chrome-section shrink-0 border-0 bg-transparent',
         className,
       )}
@@ -56,7 +56,7 @@ export function CollapsibleChromeSection({
     >
       <button
         type="button"
-        className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+        className="flex w-full items-center justify-between gap-2 px-3 py-1 text-left type-caption font-medium text-text-secondary hover:text-text-primary"
         aria-expanded={open}
         aria-label={metaLabel ? `${title} (${metaLabel})` : title}
         data-testid={`${testId}-toggle`}

@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useState } from 'react';
-import { BookOpen, Search } from '@/lib/lucide-shim';
 import type { QuizIrtDisplay } from '../../lib/quizIrt';
 import type { QuizSessionContent } from '../../lib/quizSessionModel';
 import { filterQuizItems, quizItemQuestion } from '../../lib/quizSessionModel';
@@ -51,7 +50,7 @@ type Props = {
   onDiagnosisReady?: (diagnosis: import('../../lib/quizErrorDiagnosis').QuizErrorDiagnosis, item: QuizSessionItem) => void;
 };
 
-/* Wave QZ — question-first, full-bleed; search demoted; warm warn */
+/* Wave QZ / OPT-K153 — question-first; wash chrome; text-first filters */
 export function QuizPanel({
   session,
   concept,
@@ -150,20 +149,19 @@ export function QuizPanel({
   }
 
   return (
-    <div className="flex h-full w-full min-w-0 flex-col overflow-hidden" data-testid="quiz-panel">
-      <div className="shrink-0 border-b border-border-subtle px-4 pt-2.5 pb-1.5">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-          {session.sectionLabel && (
-            <p className="type-caption text-text-muted" data-testid="quiz-section-label">
-              {t('wsSectionColon')}{' '}
-              <span className="font-medium text-text-secondary">{session.sectionLabel}</span>
-            </p>
-          )}
-          <span className="type-caption tabular-nums text-text-secondary" data-testid="quiz-item-count">
-            {session.items.length}{' '}
-            {session.items.length === 1 ? t('panelQuestion') : t('panelQuestions')}
-          </span>
-        </div>
+    <div className="flex h-full w-full min-w-0 flex-col overflow-hidden" data-testid="quiz-panel" data-clarity-pass="k159">
+      <div className="shrink-0 border-b border-transparent px-4 pt-2.5 pb-1.5">
+        {session.sectionLabel && (
+          <p className="type-caption text-text-muted" data-testid="quiz-section-label">
+            {t('wsSectionColon')}{' '}
+            <span className="font-medium text-text-secondary">{session.sectionLabel}</span>
+          </p>
+        )}
+        {/* OPT-K159 — item count lives in session progress (avoids 1 ερώτηση + Ερώτηση 1 από 1) */}
+        <span className="sr-only" data-testid="quiz-item-count">
+          {session.items.length}{' '}
+          {session.items.length === 1 ? t('panelQuestion') : t('panelQuestions')}
+        </span>
 
         {artifactStale && onAcknowledgeStale && (
           <div className="mt-2">
@@ -191,8 +189,7 @@ export function QuizPanel({
       >
         <div className="space-y-2 px-4 pb-3">
           <div className="flex flex-wrap items-center gap-2">
-            <div className="relative min-w-[140px] max-w-md flex-1">
-              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted" aria-hidden />
+            <div className="min-w-[140px] max-w-md flex-1">
               <label className="sr-only" htmlFor="quiz-filter-input">
                 {t('panelSearchQuestions')}
               </label>
@@ -202,7 +199,7 @@ export function QuizPanel({
                 value={filterQuery}
                 onChange={(e) => setFilterQuery(e.target.value)}
                 placeholder={t('panelSearchQuestions')}
-                className="w-full min-h-9 rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-8 pr-2 type-caption text-text-primary placeholder:text-text-muted focus:border-border-default focus:outline-none"
+                className="w-full min-h-8 rounded-lg border-0 bg-surface-secondary/55 py-1.5 px-2.5 type-caption text-text-primary placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/35"
                 data-testid="quiz-filter"
               />
             </div>
@@ -210,10 +207,9 @@ export function QuizPanel({
               <button
                 type="button"
                 onClick={() => onOpenInReader(concept)}
-                className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
+                className="ws-touch-floor inline-flex min-h-8 items-center rounded-lg border-0 bg-surface-secondary/55 px-2.5 py-1 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                 data-testid="quiz-open-reader"
               >
-                <BookOpen className="h-3.5 w-3.5" aria-hidden />
                 {t('quizOpenReader')}
               </button>
             )}
@@ -226,7 +222,7 @@ export function QuizPanel({
                   key={item.id}
                   type="button"
                   onClick={() => (onSelectionAction ? selectQuestion(item) : onOpenInReader?.(quizItemQuestion(item)))}
-                  className="max-w-full rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 text-left type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
+                  className="max-w-full rounded-lg border-0 bg-surface-secondary/55 px-2.5 py-1 text-left type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                 >
                   <span className="line-clamp-2 whitespace-normal break-words">
                     {quizItemQuestion(item)}
@@ -249,7 +245,7 @@ export function QuizPanel({
               setSelectedPassage(null);
               window.getSelection()?.removeAllRanges();
             }}
-            className="mb-0 rounded-xl border border-border-subtle"
+            className="mb-0 rounded-xl border-0 bg-surface-secondary/40"
             data-testid="quiz-selection-actions"
           />
         </div>

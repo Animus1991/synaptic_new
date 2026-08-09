@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Calendar, CheckSquare, CheckCircle2 } from '@/lib/lucide-shim';
+import { Calendar, CheckCircle2 } from '@/lib/lucide-shim';
 import type { Course } from '../../types';
 import {
   buildSyllabusCoverageSnapshot,
@@ -9,7 +9,6 @@ import {
 import { useI18n } from '../../lib/i18n';
 import { cn } from '../../utils/cn';
 import { PlatformSection } from '../ui/primitives';
-import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 type Props = {
   courses: Course[];
@@ -47,8 +46,8 @@ export function SyllabusCoverageWidget({
         data-testid="syllabus-coverage-widget-compact"
       >
         <div className="flex items-center justify-between gap-2">
-          <p className="type-micro font-semibold uppercase tracking-wide text-text-tertiary">
-            <AllCapsLabel>{t('coverageTrackerTitle')}</AllCapsLabel>
+          <p className="type-caption font-semibold text-text-secondary">
+            {t('coverageTrackerTitle')}
           </p>
           {onSelectCourse && primary && (
             <button
@@ -83,7 +82,7 @@ export function SyllabusCoverageWidget({
                     so it stays visible in warm-light / spectrum where the raw
                     border-subtle stroke collapsed to invisible on tinted cards. */
                 <span
-                  className="w-3 h-3 rounded-full border border-border-default shrink-0"
+                  className="w-2.5 h-2.5 rounded-full border-0 shrink-0"
                   style={{ backgroundColor: 'var(--viz-bar-track)' }}
                   aria-hidden
                 />
@@ -112,8 +111,6 @@ export function SyllabusCoverageWidget({
     <PlatformSection
       tone="brand"
       title={t('coverageTrackerTitle')}
-      icon={CheckSquare}
-      iconClassName="text-text-secondary"
     >
       <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-3 type-caption">

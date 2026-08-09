@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Calendar, ArrowRight } from '@/lib/lucide-shim';
+import { ArrowRight } from '@/lib/lucide-shim';
 import { EXAM_CALENDAR_FEED, filterExamCalendar } from '../../lib/examPrep/examCalendarFeed';
 import { useI18n } from '../../lib/i18n';
 import { PlatformSection } from '../ui/primitives';
@@ -17,7 +17,6 @@ export function ExamCalendarPanel() {
     <PlatformSection
       tone="muted"
       title={t('examCalendarTitle')}
-      icon={Calendar}
       className="border-0 shadow-none bg-transparent"
       padding="sm"
     >

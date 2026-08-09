@@ -55,9 +55,11 @@ export function StudyWorkspaceBody(props: StudyWorkspaceProps) {
           /* OPT-R13 — workspace canvas primacy under Minimal */
           isMinimal && 'workspace-canvas',
         )}
+        /* OPT-K152/K155 — Workspace epitome wash + type parity */
         data-testid="study-workspace"
         data-border-diet="cta-only"
         data-type-rhythm="workspace-tools"
+        data-clarity-pass="k155"
         data-grounded={model.noteBundle.hasSource ? 'true' : 'false'}
       >
         <StudyWorkspaceChrome model={model} />

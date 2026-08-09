@@ -7,7 +7,6 @@ import { useI18n } from '../lib/i18n';
 import { workspaceEntryPrefetchHandlers } from '../features/workspace';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { DashboardLivePreviewWatches } from './DashboardLivePreviewWatches';
-import { AllCapsLabel } from './ui/AllCapsLabel';
 import { PrimaryCTA } from './ui/primitives';
 
 type PreviewStep = {
@@ -104,19 +103,20 @@ export function DashboardLivePreview({
       : t('dashboardResumeSubtitle'));
 
   if (compact) {
-    /* Wave H2 — full-bleed resume strip (no nested card gutter) */
+    /* OPT-K166 — sentence-case resume strip; wash without accent rail.
+     * Wave H2 — full-bleed resume strip (no nested card gutter) */
     return (
       <div
         /* OPT-K110 — wash + left accent only; no Y-axis outline cage */
-        className="dashboard-live-preview w-full max-w-none border-0 border-l-[3px] border-l-accent-emerald bg-accent-emerald/[0.06] py-2.5 pl-3"
+        className="dashboard-live-preview w-full max-w-none border-0 bg-surface-secondary/45 py-2.5 px-1 sm:px-1.5"
         data-tour="dashboard-resume"
         data-testid="dashboard-live-preview"
         data-bleed="full"
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <p className="type-micro font-semibold uppercase tracking-[0.08em] text-text-secondary">
-              <AllCapsLabel>{t('dashboardLivePreviewEyebrow')}</AllCapsLabel>
+            <p className="type-micro font-semibold text-text-secondary">
+              {t('dashboardLivePreviewEyebrow')}
             </p>
             <h2 className="mt-1 truncate type-meta font-semibold text-text-primary">{headline}</h2>
             <p className="mt-0.5 type-caption text-text-tertiary line-clamp-1">{meta}</p>
@@ -148,7 +148,7 @@ export function DashboardLivePreview({
       <div className="dashboard-live-preview-topline" aria-hidden />
       <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="dashboard-live-preview-eyebrow"><AllCapsLabel>{t('dashboardLivePreviewEyebrow')}</AllCapsLabel></p>
+          <p className="dashboard-live-preview-eyebrow type-micro font-semibold text-text-secondary">{t('dashboardLivePreviewEyebrow')}</p>
           <h2 className="dashboard-preview-title mt-2">{headline}</h2>
           <p className="mt-1 type-body text-text-secondary">{t('dashboardResumeSubtitle')}</p>
         </div>
@@ -158,7 +158,7 @@ export function DashboardLivePreview({
             onClick={onOpenWorkspace}
             data-testid="dashboard-resume-workspace"
             {...workspaceEntryPrefetchHandlers()}
-            className="dashboard-continue-hero flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-700 px-4 py-2 type-caption font-semibold text-white transition-all hover:bg-brand-800"
+            className="dashboard-continue-hero flex shrink-0 items-center gap-1.5 rounded-lg bg-brand-700 px-3.5 py-1.5 type-caption font-semibold text-white transition-all hover:bg-brand-800"
           >
             {t('dashboardResumeContinue')} <ArrowRight className="h-3 w-3" />
           </button>
@@ -182,7 +182,7 @@ export function DashboardLivePreview({
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="type-meta font-semibold text-text-primary">{step.title}</h3>
                   <span className="dashboard-live-preview-status">
-                    <AllCapsLabel>{active ? t('dashboardLivePreviewActive') : t('dashboardLivePreviewQueued')}</AllCapsLabel>
+                    {active ? t('dashboardLivePreviewActive') : t('dashboardLivePreviewQueued')}
                   </span>
                 </div>
                 <p className="mt-2 type-body leading-6 text-text-secondary">{step.body}</p>

@@ -147,7 +147,7 @@ export function JitsiMeetEmbed({ roomName, lang: _lang = 'en', className }: Prop
     return (
       <div className={cn('ws-jitsi-inline', className)} data-ws-theme="warm" data-testid="jitsi-meet-embed">
         {toolbar}
-        <div className="ws-jitsi-popup-hint mt-2 rounded-lg border border-border-subtle bg-surface-card px-3 py-2 type-caption text-text-secondary">
+        <div className="ws-jitsi-popup-hint mt-2 rounded-lg border-0 bg-surface-secondary/55 px-3 py-2 type-caption text-text-secondary">
           {t('jitsiVideoSeparateWindow')}
           {' '}
           <button type="button" className="ws-link-action" onClick={focusPopup}>
@@ -206,7 +206,7 @@ export function JitsiMeetEmbed({ roomName, lang: _lang = 'en', className }: Prop
           </p>
         )}
         {layout !== 'float' && (
-          <div className="mt-1.5 overflow-hidden rounded-lg border border-border-subtle h-48 sm:h-56">
+          <div className="mt-1.5 overflow-hidden rounded-lg border-0 bg-surface-secondary/40 h-48 sm:h-56">
             {iframe('h-full w-full')}
           </div>
         )}

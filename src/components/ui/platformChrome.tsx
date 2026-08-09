@@ -144,7 +144,8 @@ export function SessionLauncherCard({
   desc: string;
   durationTag: string;
   taskHint?: string;
-  icon: LucideIcon;
+  /** OPT-K144 — optional; omit when title + duration already self-explain. */
+  icon?: LucideIcon;
   active?: boolean;
   disabled?: boolean;
   recommended?: boolean;
@@ -159,8 +160,9 @@ export function SessionLauncherCard({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        /* OPT-K140 — wash session cards (no ring cages); recommended via wash + badge */
-        'ux-session-card relative',
+        /* OPT-K140/K143/K144 — wash session cards; equal height in grids */
+        'ux-session-card relative h-full',
+        !Icon && 'ux-session-card--text-only',
         active && 'ux-session-card-active',
         recommended && 'ux-session-card-recommended',
         disabled && 'opacity-50 cursor-not-allowed',
@@ -174,15 +176,17 @@ export function SessionLauncherCard({
           <AllCapsLabel>{recommendedLabel}</AllCapsLabel>
         </span>
       ) : null}
-      <span className="ux-session-card-icon">
-        <Icon className="h-4 w-4" aria-hidden />
-      </span>
+      {Icon ? (
+        <span className="ux-session-card-icon">
+          <Icon className="h-4 w-4" aria-hidden />
+        </span>
+      ) : null}
       <span className="min-w-0 flex-1 text-left">
         <span className="block type-meta font-semibold text-text-primary">{label}</span>
-        <span className="mt-1 block type-caption uppercase tracking-[0.06em] text-text-tertiary">
+        <span className="mt-0.5 block type-caption uppercase tracking-[0.04em] text-text-tertiary">
           <AllCapsLabel>{durationTag}</AllCapsLabel>
         </span>
-        <span className="mt-1.5 block type-caption leading-5 text-text-secondary">{desc}</span>
+        <span className="mt-1 block type-caption leading-snug text-text-secondary">{desc}</span>
         {taskHint ? (
           <span className="mt-1 block type-caption text-text-tertiary">{taskHint}</span>
         ) : null}

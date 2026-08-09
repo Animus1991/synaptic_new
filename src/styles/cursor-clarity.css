@@ -3317,6 +3317,59 @@ body::-webkit-scrollbar-corner,
 }
 
 /*
+ * OPT-K150 — Agent Tasks-parity clarity (keep Agent type = Dashboard K121):
+ * text-first header, equal chip/bubble washes, quieter composer send, no hairlines.
+ */
+[data-testid="agent-page"][data-border-diet="cta-only"] .agent-header-mode-icon,
+[data-testid="agent-embedded"][data-border-diet="cta-only"] .agent-header-mode-icon {
+  display: none !important;
+}
+
+[data-testid="agent-page"] .agent-message-bubble-assistant,
+[data-testid="agent-embedded"] .agent-message-bubble-assistant {
+  background: color-mix(in srgb, var(--color-surface-secondary) 62%, transparent) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="agent-page"] .ux-agent-chip,
+[data-testid="agent-embedded"] .ux-agent-chip {
+  background: color-mix(in srgb, var(--color-surface-secondary) 68%, transparent) !important;
+}
+
+[data-testid="agent-page"] .agent-composer,
+[data-testid="agent-embedded"] .agent-composer {
+  border: none !important;
+  box-shadow: none !important;
+  background: color-mix(in srgb, var(--color-surface-secondary) 35%, transparent);
+}
+
+[data-testid="agent-page"] .agent-composer-send,
+[data-testid="agent-embedded"] .agent-composer-send {
+  min-height: 2.5rem !important;
+  min-width: 2.5rem !important;
+}
+
+[data-testid="agent-page"][data-border-diet="cta-only"] :is(
+  .agent-system-status,
+  [data-testid="agent-message-status-strip"],
+  [data-testid="agent-flow-chrome"]
+),
+[data-testid="agent-embedded"][data-border-diet="cta-only"] :is(
+  .agent-system-status,
+  [data-testid="agent-message-status-strip"],
+  [data-testid="agent-flow-chrome"]
+) {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/*
+ * OPT-K151 — Tasks type restored to denser pre-K150 band (K147 ×0.99).
+ * Agent keeps Dashboard K121 sizes; Tasks stays page-scoped denser rhythm.
+ */
+
+/*
  * OPT-K122 — Library page clarity (Canon / industry):
  * Unbox course/file cards; quiet secondary accents; wash filters/search/Shell CTAs.
  * Keep: PrimaryCTA (Άνοιγμα / Upload), focus rings, confirm dialogs.
@@ -3385,6 +3438,112 @@ body::-webkit-scrollbar-corner,
 [data-testid="library-page"][data-border-diet="cta-only"] .ux-solid-brand-cta,
 [data-testid="library-page"][data-border-diet="cta-only"] .ux-primary-cta {
   border: none !important;
+}
+
+/*
+ * OPT-K149 — Library Tasks-parity clarity (Canon / industry):
+ * text-first header/empty, equal tab/card washes, type ×0.99, quieter drop/upload.
+ * Keep: Upload CTA, CourseIcon identity, file-type icons, focus rings, dialogs.
+ */
+[data-testid="library-page"][data-type-rhythm="library"] {
+  --library-type-scale: 0.99;
+  --type-micro: calc(0.6875rem * var(--library-type-scale));
+  --type-caption: calc(0.75rem * var(--library-type-scale));
+  --type-body-sm: calc(0.75rem * var(--library-type-scale));
+  --type-meta: calc(0.8125rem * var(--library-type-scale));
+  --type-body: calc(0.875rem * var(--library-type-scale));
+  --type-title: calc(1.125rem * var(--library-type-scale));
+  --type-display-sm: calc(1.375rem * var(--library-type-scale));
+  --type-display: calc(1.5rem * var(--library-type-scale));
+  --ux-type-hero: calc(1.25rem * var(--library-type-scale));
+  --type-hero-app: calc(1.25rem * var(--library-type-scale));
+}
+
+[data-testid="library-page"][data-type-rhythm="library"] .ux-page-header h1 {
+  font-size: var(--ux-type-hero);
+  line-height: 1.25;
+}
+
+[data-testid="library-page"][data-type-rhythm="library"] .ux-page-subtitle {
+  font-size: var(--type-caption);
+  line-height: 1.4;
+}
+
+[data-testid="library-page"] .descriptive-sticky-tab {
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  background: color-mix(in srgb, var(--color-surface-secondary) 42%, transparent);
+  border: none !important;
+  border-radius: var(--radius-control, 0.65rem);
+  box-shadow: none !important;
+}
+
+[data-testid="library-page"] .descriptive-sticky-tab-active {
+  background: color-mix(in srgb, var(--color-surface-secondary) 72%, transparent) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="library-page"] .descriptive-sticky-tabs,
+[data-testid="library-page"] .descriptive-sticky-tabs-shell {
+  border: none !important;
+  box-shadow: none !important;
+  gap: 0.25rem;
+}
+
+[data-testid="library-page"][data-border-diet="cta-only"] [data-testid="library-course-card"] {
+  background: color-mix(in srgb, var(--color-surface-secondary) 62%, transparent) !important;
+}
+
+[data-testid="library-page"][data-border-diet="cta-only"] [data-testid="library-course-card"]:hover {
+  background: color-mix(in srgb, var(--color-surface-secondary) 80%, transparent) !important;
+}
+
+[data-testid="library-page"][data-border-diet="cta-only"] [data-testid="library-file-row"] {
+  background: color-mix(in srgb, var(--color-surface-secondary) 58%, transparent) !important;
+}
+
+[data-testid="library-page"] .library-upload-cta {
+  min-height: calc(2.25rem * 0.98);
+  font-size: var(--type-meta);
+}
+
+[data-testid="library-page"] .library-empty-state,
+[data-testid="library-page"] .platform-empty-state.library-empty-state {
+  padding-block: 1.75rem !important;
+  padding-inline: 0.5rem !important;
+  background: color-mix(in srgb, var(--color-surface-secondary) 38%, transparent) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="library-page"] .library-empty-state .platform-empty-state-title,
+[data-testid="library-page"] .library-empty-state h3 {
+  font-size: var(--type-title);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+[data-testid="library-page"] .library-empty-state .type-body {
+  font-size: var(--type-caption);
+  line-height: 1.45;
+  margin-bottom: 0;
+}
+
+[data-testid="library-page"][data-border-diet="cta-only"] :is(
+  [data-testid="library-tip-banner"],
+  .mini-alert,
+  .info-stack
+) {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="library-page"] .ux-library-drop-zone {
+  background: color-mix(in srgb, var(--color-surface-secondary) 48%, transparent) !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 /*
@@ -3565,6 +3724,367 @@ body::-webkit-scrollbar-corner,
 }
 
 /*
+ * OPT-K143 — Tasks densify pass (screenshot residual):
+ * equal session washes, equal tab columns, no hairline under tabs / danger,
+ * tighter type band so KPI/titles stay near body.
+ * OPT-K151 — restore pre-K150 Tasks type (user preferred denser Tasks scale).
+ */
+[data-testid="tasks-page"][data-type-rhythm="tasks"] {
+  --type-micro: 0.75rem;
+  --type-caption: 0.8125rem;
+  --type-body-sm: 0.875rem;
+  --type-meta: 0.875rem;
+  --type-body: 0.9375rem;
+  --type-title: 1rem;
+  --type-display-sm: 1.0625rem;
+  --type-display: 1.125rem;
+  --ux-type-hero: 1.125rem;
+}
+
+[data-testid="tasks-page"][data-type-rhythm="tasks"] .ux-page-header h1 {
+  font-size: var(--type-display-sm);
+  line-height: 1.3;
+}
+
+[data-testid="tasks-page"][data-type-rhythm="tasks"] .ux-page-subtitle {
+  font-size: var(--type-caption);
+  line-height: 1.4;
+}
+
+[data-testid="tasks-page"][data-type-rhythm="tasks"] .ux-section-eyebrow {
+  font-size: var(--type-micro);
+}
+
+[data-testid="tasks-page"][data-type-rhythm="tasks"] .ux-kpi-value,
+[data-testid="tasks-page"][data-type-rhythm="tasks"] .ux-kpi-value-sm {
+  font-size: var(--type-title);
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+[data-testid="tasks-page"][data-border-diet="cta-only"] :is(
+  .ux-callout,
+  .ux-callout-danger,
+  .ux-callout-warn,
+  [data-testid="tasks-danger-zone"],
+  .tasks-danger-zone
+) {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+[data-testid="tasks-page"][data-border-diet="cta-only"] .ux-session-card {
+  height: 100%;
+  min-height: 7.75rem;
+  background: color-mix(in srgb, var(--color-surface-secondary) 62%, transparent) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="tasks-page"][data-border-diet="cta-only"] .ux-session-card-recommended:not(.ux-session-card-active) {
+  background: color-mix(in srgb, var(--color-brand-500) 12%, var(--color-surface-secondary)) !important;
+}
+
+[data-testid="tasks-page"][data-border-diet="cta-only"] .ux-session-card-active {
+  background: color-mix(in srgb, var(--color-brand-500) 16%, var(--color-surface-secondary)) !important;
+}
+
+[data-testid="tasks-page"] .descriptive-sticky-tabs-shell {
+  border: none !important;
+  box-shadow: none !important;
+  gap: 0.35rem;
+}
+
+[data-testid="tasks-page"] .descriptive-sticky-tabs {
+  gap: 0.25rem;
+  padding-bottom: 0;
+  border: none !important;
+}
+
+[data-testid="tasks-page"] .descriptive-sticky-tab {
+  flex: 1 1 0;
+  width: 0; /* force equal columns in flex row */
+  min-width: 0;
+  padding: 0.5rem 0.55rem;
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="tasks-page"] .descriptive-sticky-tab-active {
+  background: color-mix(in srgb, var(--color-surface-secondary) 58%, transparent) !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+[data-testid="tasks-page"] .descriptive-sticky-tab-label {
+  font-size: var(--type-meta);
+  font-weight: 600;
+  line-height: 1.25;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-testid="tasks-page"] .descriptive-sticky-tab-summary {
+  font-size: var(--type-caption);
+  line-height: 1.35;
+  -webkit-line-clamp: 2;
+}
+
+[data-testid="tasks-page"] .descriptive-sticky-tab-count {
+  border: none !important;
+  box-shadow: none !important;
+  font-size: var(--type-micro);
+}
+
+[data-testid="tasks-page"][data-border-diet="cta-only"] .ux-progress-track {
+  border: none !important;
+  box-shadow: none !important;
+  background: color-mix(in srgb, var(--color-surface-secondary) 80%, transparent);
+}
+
+[data-testid="tasks-page"] .tasks-create-plan-cta {
+  width: 100%;
+  min-height: calc(2.35rem * 0.9604); /* OPT-K146 — −2% again vs K145 */
+}
+
+[data-testid="tasks-page"] [data-testid="tasks-session-card-grid"] > * {
+  min-width: 0;
+  height: 100%;
+}
+
+/*
+ * OPT-K144 — Tasks epitome pass (screenshot residual):
+ * text-first session cards (no decorative icons), equal visible washes,
+ * equal quiet tab washes, no opaque trailing Target.
+ * OPT-K147/K151 — Tasks type tokens × 0.99 (restored denser Tasks scale).
+ */
+[data-testid="tasks-page"][data-type-rhythm="tasks"] {
+  --tasks-type-scale: 0.99;
+  --type-micro: calc(0.6875rem * var(--tasks-type-scale));
+  --type-caption: calc(0.75rem * var(--tasks-type-scale));
+  --type-body-sm: calc(0.8125rem * var(--tasks-type-scale));
+  --type-meta: calc(0.8125rem * var(--tasks-type-scale));
+  --type-body: calc(0.875rem * var(--tasks-type-scale));
+  --type-title: calc(0.9375rem * var(--tasks-type-scale));
+  --type-display-sm: calc(1rem * var(--tasks-type-scale));
+  --type-display: calc(1.0625rem * var(--tasks-type-scale));
+  --ux-type-hero: calc(1.0625rem * var(--tasks-type-scale));
+}
+
+[data-testid="tasks-page"][data-type-rhythm="tasks"] .ux-section-header .ux-section-title,
+[data-testid="tasks-page"][data-type-rhythm="tasks"] .ux-section-header h2 {
+  font-size: var(--type-title);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+[data-testid="tasks-page"][data-type-rhythm="tasks"] .ux-section-subtitle {
+  font-size: var(--type-caption);
+  line-height: 1.4;
+}
+
+[data-testid="tasks-page"][data-border-diet="cta-only"] .ux-session-card {
+  min-height: 6.25rem;
+  background: color-mix(in srgb, var(--color-surface-secondary) 70%, transparent) !important;
+}
+
+[data-testid="tasks-page"][data-border-diet="cta-only"] .ux-session-card:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-surface-secondary) 86%, transparent) !important;
+}
+
+[data-testid="tasks-page"][data-border-diet="cta-only"] .ux-session-card-recommended:not(.ux-session-card-active) {
+  background: color-mix(in srgb, var(--color-brand-500) 10%, var(--color-surface-secondary)) !important;
+}
+
+[data-testid="tasks-page"][data-border-diet="cta-only"] .ux-session-card-active {
+  background: color-mix(in srgb, var(--color-brand-500) 14%, var(--color-surface-secondary)) !important;
+}
+
+[data-testid="tasks-page"][data-border-diet="cta-only"] [data-testid^="session-launcher-"] {
+  min-height: 6.25rem;
+}
+
+[data-testid="tasks-page"] .descriptive-sticky-tab {
+  background: color-mix(in srgb, var(--color-surface-secondary) 42%, transparent);
+  border-radius: var(--radius-control, 0.65rem);
+}
+
+[data-testid="tasks-page"] .descriptive-sticky-tab-active {
+  background: color-mix(in srgb, var(--color-surface-secondary) 72%, transparent) !important;
+}
+
+[data-testid="tasks-page"][data-border-diet="cta-only"] [data-testid="tasks-daily-goal"] {
+  background: transparent !important;
+}
+
+[data-testid="tasks-page"][data-border-diet="cta-only"] .tasks-danger-zone,
+[data-testid="tasks-page"][data-border-diet="cta-only"] [data-testid="tasks-danger-zone"] {
+  background: color-mix(in srgb, var(--palette-amber, #d4a017) 9%, var(--color-surface-secondary)) !important;
+}
+
+[data-testid="tasks-page"] .tasks-create-plan-cta {
+  min-height: calc(2.35rem * 0.9604); /* OPT-K146 — −2% again vs K145 */
+  font-size: var(--type-meta);
+}
+
+/*
+ * OPT-K145 — Tasks flush type column + quieter danger + −2% Create Plan:
+ * kill inset padding that pushed hint / minutes / danger off the title edge;
+ * drop approximate "~" copy; tighten danger type.
+ */
+[data-testid="tasks-page"] :is(
+  [data-testid="tasks-entry-hint"],
+  [data-testid="tasks-daily-goal"],
+  [data-testid="tasks-danger-zone"],
+  .tasks-danger-zone
+) {
+  padding-inline: 0 !important;
+}
+
+[data-testid="tasks-page"] [data-testid="tasks-entry-hint"] {
+  background: transparent !important;
+}
+
+[data-testid="tasks-page"] .tasks-danger-zone .ux-callout-title,
+[data-testid="tasks-page"] [data-testid="tasks-danger-zone"] .ux-callout-title {
+  font-size: var(--type-caption);
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+[data-testid="tasks-page"] .tasks-danger-zone .type-body,
+[data-testid="tasks-page"] .tasks-danger-zone .type-caption,
+[data-testid="tasks-page"] [data-testid="tasks-danger-zone"] .type-body,
+[data-testid="tasks-page"] [data-testid="tasks-danger-zone"] .type-caption {
+  font-size: var(--type-caption);
+  line-height: 1.4;
+}
+
+[data-testid="tasks-page"] .tasks-danger-zone [aria-hidden] > svg,
+[data-testid="tasks-page"] [data-testid="tasks-danger-zone"] [aria-hidden] > svg {
+  width: 0.875rem !important;
+  height: 0.875rem !important;
+}
+
+[data-testid="tasks-page"] .tasks-danger-zone .flex.items-start,
+[data-testid="tasks-page"] [data-testid="tasks-danger-zone"] .flex.items-start {
+  gap: 0.5rem;
+}
+
+/*
+ * OPT-K146/K151 — Tasks quieter titles + empty text-first + Create Plan densify;
+ * section title near body scale (restored denser Tasks type).
+ */
+[data-testid="tasks-page"][data-type-rhythm="tasks"] .ux-section-header h2 {
+  font-size: var(--type-meta);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+[data-testid="tasks-page"] .tasks-empty-state,
+[data-testid="tasks-page"] .platform-empty-state.tasks-empty-state {
+  padding-block: 1.75rem !important;
+  padding-inline: 0.5rem !important;
+  background: color-mix(in srgb, var(--color-surface-secondary) 38%, transparent) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="tasks-page"] .tasks-empty-state .platform-empty-state-title,
+[data-testid="tasks-page"] .tasks-empty-state h3 {
+  font-size: var(--type-title);
+  font-weight: 600;
+  line-height: 1.35;
+  margin-bottom: 0.35rem;
+}
+
+[data-testid="tasks-page"] .tasks-empty-state .type-body {
+  font-size: var(--type-caption);
+  line-height: 1.45;
+  margin-bottom: 0;
+}
+
+/*
+ * OPT-K148 — Dashboard Tasks-parity clarity (Canon / industry):
+ * text-first icon diet (markup), equal KPI/course washes, no hairline cages,
+ * type tokens ×0.99 exactly, panel titles near body scale.
+ */
+[data-testid="dashboard-page"][data-type-rhythm="dashboard"] {
+  --dashboard-type-scale: 0.99;
+  --type-micro: calc(0.6875rem * var(--dashboard-type-scale));
+  --type-caption: calc(0.75rem * var(--dashboard-type-scale));
+  --type-body-sm: calc(0.75rem * var(--dashboard-type-scale));
+  --type-meta: calc(0.8125rem * var(--dashboard-type-scale));
+  --type-body: calc(0.875rem * var(--dashboard-type-scale));
+  --type-title: calc(1.125rem * var(--dashboard-type-scale));
+  --type-display-sm: calc(1.375rem * var(--dashboard-type-scale));
+  --type-display: calc(1.5rem * var(--dashboard-type-scale));
+  --ux-type-hero: calc(1.25rem * var(--dashboard-type-scale));
+  --type-hero-app: calc(1.25rem * var(--dashboard-type-scale));
+}
+
+[data-testid="dashboard-page"] .dashboard-today-stat {
+  background: color-mix(in srgb, var(--color-surface-secondary) 68%, transparent) !important;
+  border: none !important;
+  box-shadow: none !important;
+  min-height: 100%;
+}
+
+[data-testid="dashboard-page"] .dashboard-today-stat-top {
+  justify-content: flex-start;
+}
+
+[data-testid="dashboard-page"] .dashboard-today-stat-value {
+  text-align: left;
+  font-size: var(--type-meta);
+}
+
+[data-testid="dashboard-page"] .dashboard-today-stat-icon {
+  display: none !important;
+}
+
+[data-testid="dashboard-page"] .dashboard-course-grid > * {
+  background: color-mix(in srgb, var(--color-surface-secondary) 58%, transparent) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="dashboard-page"] .dashboard-course-grid > *:hover {
+  background: color-mix(in srgb, var(--color-surface-secondary) 78%, transparent) !important;
+}
+
+[data-testid="dashboard-page"] .dashboard-panel-title {
+  font-size: var(--type-title);
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+[data-testid="dashboard-page"][data-border-diet="cta-only"] :is(
+  .ux-callout,
+  .dashboard-urgency-signal,
+  .platform-banner-warn,
+  .blueprint-surface,
+  .ux-card
+) {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="dashboard-page"][data-border-diet="cta-only"] .ux-primary-cta {
+  border: none !important;
+}
+
+[data-testid="dashboard-page"] .collapsible-chrome-section {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/*
  * OPT-K142 — Workspace Studio panels (all tools via ToolFrame):
  * Canon / Obsidian-style unbox: wash surfaces, quiet secondary controls,
  * keep PrimaryCTA solids + focus rings + semantic graph/quiz feedback.
@@ -3677,3 +4197,827 @@ body::-webkit-scrollbar-corner,
   line-height: 1.4;
 }
 
+/*
+ * OPT-K152 — Workspace epitome clarity (notebook 3-col + all ToolFrame panels):
+ * Nuclear outline kill → wash surfaces; quieter secondary CTAs; text-first chrome;
+ * invisible panel seams at rest; quality footer no-overlap; denser control scale.
+ * Keep: PrimaryCTAs, focus rings, resize hit targets, semantic graph/quiz feedback.
+ */
+[data-testid="notebook-workspace-layout"][data-border-diet="cta-only"],
+[data-testid="study-workspace"][data-border-diet="cta-only"] {
+  --btn-height: 2.5rem;
+  --btn-height-sm: 2.25rem;
+}
+
+/* Column wash differentiation (shade > outline) */
+[data-testid="notebook-workspace-layout"] [data-testid="notebook-sources-panel"] {
+  background: color-mix(in srgb, var(--color-surface-secondary) 32%, var(--color-surface-card)) !important;
+}
+[data-testid="notebook-workspace-layout"] [data-testid="notebook-chat-panel"] {
+  background: var(--color-surface-card) !important;
+}
+[data-testid="notebook-workspace-layout"] [data-testid="notebook-studio-panel"],
+[data-testid="study-workspace"] [data-testid="workspace-tool-frame"] {
+  background: color-mix(in srgb, var(--color-surface-secondary) 16%, var(--color-surface-card)) !important;
+}
+
+/* Resizers: invisible at rest; brand whisper only on hover/drag */
+[data-testid="notebook-workspace-layout"] .notebook-panel-resizer,
+[data-testid="notebook-workspace-layout"] [data-testid^="notebook-resizer-"] {
+  background: transparent !important;
+}
+[data-testid="notebook-workspace-layout"] .notebook-panel-resizer:hover,
+[data-testid="notebook-workspace-layout"] [data-testid^="notebook-resizer-"]:hover {
+  background: color-mix(in srgb, var(--color-brand-500) 28%, transparent) !important;
+}
+[data-testid="notebook-workspace-layout"] .notebook-panel-resizer:active,
+[data-testid="notebook-workspace-layout"] [data-testid^="notebook-resizer-"]:active {
+  background: color-mix(in srgb, var(--color-brand-500) 45%, transparent) !important;
+}
+
+/* Nuclear unbox — nested tool surfaces + notebook chrome */
+[data-testid="notebook-workspace-layout"][data-border-diet="cta-only"] :is(
+  .ux-card,
+  .blueprint-surface,
+  .blueprint-surface-nest,
+  .ux-callout,
+  .ws-pill,
+  button.ws-pill,
+  .ws-chip,
+  .ws-chip-warn,
+  .ws-chip-brand,
+  .platform-pill,
+  .platform-meta-chip,
+  .platform-banner-warn,
+  [data-testid="agent-context-banner"],
+  [data-testid="agent-session-offline-strip"],
+  [data-testid="workspace-tool-frame"],
+  .ws-tool-header,
+  .ws-tool-howto,
+  .ws-tool-why-outcome,
+  .ws-tool-context,
+  .ux-tier-b-toolbar
+):not([role="menu"]):not([role="listbox"]):not(.shadow-lg):not(.react-flow__node):not(.react-flow__edge),
+[data-testid="study-workspace"][data-border-diet="cta-only"]
+  [data-testid="workspace-tool-frame"]
+  :is(
+    .ux-card,
+    .blueprint-surface,
+    .blueprint-surface-nest,
+    .ux-callout,
+    .ws-pill,
+    button.ws-pill,
+    .ws-chip,
+    .ws-chip-warn,
+    .ws-chip-brand,
+    .platform-pill,
+    .platform-meta-chip,
+    .platform-banner-warn,
+    [class*="border-border"],
+    [class*="border-accent-"],
+    [class*="border-brand-"],
+    button.border,
+    a.border,
+    .ux-secondary-cta,
+    .ux-workspace-tool-tab,
+    input,
+    textarea,
+    select
+  ):not([type="range"]):not([type="checkbox"]):not([type="radio"]):not(.ux-primary-cta):not(.bg-brand-600):not([class*="bg-brand-600"]):not([role="menu"]):not([role="listbox"]):not(.shadow-lg):not(.react-flow__node):not(.react-flow__edge):not(table):not(th):not(td) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Wash wells that used to rely on hairlines */
+[data-testid="study-workspace"][data-border-diet="cta-only"]
+  [data-testid="workspace-tool-frame"]
+  :is(
+    [class*="rounded-xl"][class*="border"],
+    [class*="rounded-lg"][class*="border"],
+    .ux-callout,
+    .platform-banner-warn
+  ):not(.ux-primary-cta):not(.bg-brand-600):not([class*="bg-brand-600"]) {
+  background: color-mix(in srgb, var(--color-surface-secondary) 48%, transparent);
+}
+
+/* Compact secondary controls */
+[data-testid="notebook-workspace-layout"] [data-testid="notebook-add-source"],
+[data-testid="notebook-workspace-layout"] [data-testid="notebook-source-reprocess"],
+[data-testid="study-workspace"] [data-testid="workspace-tool-header-toggle"],
+[data-testid="study-workspace"] .ux-secondary-cta,
+[data-testid="study-workspace"] .ux-workspace-tool-tab {
+  min-height: 2rem !important;
+  font-size: var(--type-caption) !important;
+}
+
+[data-testid="notebook-workspace-layout"] .notebook-source-quality-footer {
+  gap: 0.375rem;
+}
+[data-testid="notebook-workspace-layout"] [data-testid="notebook-source-quality"] {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Type: slightly tighter tool titles vs body (self-explanatory hierarchy) */
+[data-testid="study-workspace"][data-type-rhythm="workspace-tools"]
+  [data-testid="workspace-tool-header"]
+  .ws-display-title {
+  font-size: var(--type-title);
+  line-height: 1.3;
+  letter-spacing: -0.012em;
+}
+
+[data-testid="notebook-workspace-layout"] [data-testid="notebook-sources-panel"] h2,
+[data-testid="notebook-workspace-layout"] [data-testid="notebook-chat-panel"] h2,
+[data-testid="notebook-workspace-layout"] [data-testid="notebook-studio-panel"] h2 {
+  font-size: var(--type-meta);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/*
+ * OPT-K153 — Quiz / Progress / Annotations epitome residual:
+ * text-first status strips; wash toolbars; quieter secondary controls;
+ * keep PrimaryCTA solids + focus + color swatches (semantic).
+ */
+[data-testid="study-workspace"] :is(
+  [data-testid="quiz-panel"],
+  [data-testid="dashboard-panel"],
+  [data-testid="annotation-toolbar"],
+  [data-testid="mini-dashboard-embedded"]
+) {
+  --btn-height-sm: 2rem;
+}
+
+[data-testid="study-workspace"] .ws-status-strip svg {
+  display: none !important;
+}
+
+[data-testid="study-workspace"] [data-testid="quiz-panel"] .border-b,
+[data-testid="study-workspace"] [data-testid="dashboard-panel"] .border-b {
+  border-color: transparent !important;
+}
+
+[data-testid="study-workspace"] [data-testid="mini-dashboard-embedded"] .grid > div {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* OPT-K153b — MCQ / annotation document wells use wash, not hairlines */
+[data-testid="study-workspace"] [data-testid="quiz-session"] :is(.ux-quiz-option, .ux-tier-b-panel, .ux-tier-b-input, [class*="border-border"]) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+[data-testid="study-workspace"] [data-testid="annotation-overlay"] [data-testid="annotation-source-scroll"] {
+  border: none !important;
+  box-shadow: none !important;
+  background: color-mix(in srgb, var(--color-surface-secondary) 22%, var(--color-surface-card));
+  border-radius: var(--radius-lg);
+}
+[data-testid="study-workspace"] [data-testid="quiz-session"] .ux-quiz-option {
+  background: color-mix(in srgb, var(--color-surface-secondary) 50%, transparent);
+}
+
+/*
+ * OPT-K154 — Timer epitome residual:
+ * wash mode strip / inputs / secondary CTAs; text-first exam + export;
+ * keep Play/Pause/Reset affordances on primary controls.
+ */
+[data-testid="study-workspace"] :is(
+  [data-testid="timer-panel"],
+  [data-testid="study-timer"]
+) {
+  --btn-height-sm: 2rem;
+}
+
+[data-testid="study-workspace"] [data-testid="timer-panel"] :is(
+  [class*="border-border"],
+  input,
+  select,
+  textarea
+):not([type="range"]):not([type="checkbox"]):not([type="radio"]):not(.ux-primary-cta):not([data-testid="timer-play-pause"]) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+[data-testid="study-workspace"] [data-testid="study-timer"] :is(
+  [class*="border-border"],
+  input,
+  select
+):not([type="range"]):not(.ux-primary-cta):not([data-testid="timer-play-pause"]) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+[data-testid="study-workspace"] [data-testid="timer-mode-strip"] {
+  border-color: transparent !important;
+  background: color-mix(in srgb, var(--color-surface-secondary) 30%, transparent);
+}
+
+[data-testid="study-workspace"] [data-testid="timer-export-calendar"],
+[data-testid="study-workspace"] [data-testid="timer-reset"] {
+  min-height: 2.25rem !important;
+}
+
+/*
+ * OPT-K155 — Workspace epitome (all ToolFrame panels + notebook studio):
+ * Harmonized type (title ≈ body); ghost Guide; no disclosure triangles;
+ * equal secondary control height/width rhythm; last outline purge → wash.
+ * Keep: PrimaryCTA solids, focus rings, resize seams on hover, color swatches,
+ * semantic quiz/graph feedback.
+ */
+[data-testid="study-workspace"][data-type-rhythm="workspace-tools"] {
+  --ws-ctrl-h: 2rem;
+}
+
+[data-testid="study-workspace"][data-type-rhythm="workspace-tools"]
+  [data-testid="workspace-tool-header"]
+  .ws-display-title {
+  font-size: var(--type-display-sm);
+  line-height: 1.3;
+  letter-spacing: -0.014em;
+  font-weight: 600;
+}
+
+[data-testid="study-workspace"][data-type-rhythm="workspace-tools"]
+  [data-testid="workspace-tool-header"]
+  .ws-purpose-line {
+  font-size: var(--type-caption);
+  line-height: var(--leading-caption, 1.4);
+}
+
+[data-testid="study-workspace"][data-type-rhythm="workspace-tools"]
+  [data-testid="workspace-tool-frame"]
+  :is(h2, h3, .type-title, .ws-title) {
+  font-size: var(--type-title);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+[data-testid="study-workspace"][data-type-rhythm="workspace-tools"]
+  [data-testid="workspace-tool-frame"]
+  :is(p, li, label, .type-body, .type-meta) {
+  font-size: var(--type-body);
+  line-height: var(--leading-body, 1.45);
+}
+
+[data-testid="study-workspace"][data-type-rhythm="workspace-tools"]
+  [data-testid="workspace-tool-frame"]
+  :is(.type-caption, .type-micro, summary, .ws-pill) {
+  font-size: var(--type-caption);
+  line-height: 1.4;
+}
+
+/* Hide native details triangles (purple/markers) — text carries meaning */
+[data-testid="study-workspace"] details > summary {
+  list-style: none;
+}
+[data-testid="study-workspace"] details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Equal secondary control footprint across panels */
+[data-testid="study-workspace"][data-border-diet="cta-only"]
+  [data-testid="workspace-tool-frame"]
+  :is(
+    .ux-secondary-cta,
+    .ws-tool-guide-btn,
+    .ws-panel-tool-btn,
+    .ux-workspace-tool-tab,
+    [data-testid^="timer-mode-"],
+    [data-testid="timer-export-calendar"],
+    [data-testid="dashboard-open-reader"],
+    [data-testid="quiz-open-reader"],
+    [data-testid="crosslink-open-reader"],
+    [data-testid="crosslink-ask-agent"]
+  ):not(.ux-primary-cta) {
+  min-height: var(--ws-ctrl-h, 2rem) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Guide disclosures: whisper wash, full width rhythm */
+[data-testid="study-workspace"]
+  :is(.ws-tool-howto, .ws-tool-why-outcome, .ws-tool-context) {
+  border: none !important;
+  box-shadow: none !important;
+  width: 100%;
+}
+
+/* Panel chrome rows: no hairline separators */
+[data-testid="study-workspace"]
+  :is(
+    [data-testid="workspace-tool-header"],
+    [data-testid="timer-mode-strip"],
+    [data-testid="quiz-panel"] > div:first-child,
+    [data-testid="dashboard-panel"] > div:first-child,
+    [data-testid="timer-panel"] > div:first-child
+  ) {
+  border-color: transparent !important;
+}
+
+/* Soft equal washes for secondary tags / pills inside tools */
+[data-testid="study-workspace"][data-border-diet="cta-only"]
+  [data-testid="workspace-tool-frame"]
+  :is(.ws-pill, .ws-chip, .ws-chip-warn, .ws-chip-brand, .platform-pill) {
+  border: none !important;
+  background: color-mix(in srgb, var(--color-surface-secondary) 52%, transparent) !important;
+}
+
+/*
+ * OPT-K156 — Reader + Debate / ArgumentMap epitome residual:
+ * text-first chrome; equal control heights; wash toolbars & aids;
+ * softer debate nodes (1px semantic hue, no shadow); no guide hairlines.
+ * Keep: PrimaryCTA, focus, TTS icon-only affordance, graph edge semantics.
+ */
+[data-testid="study-workspace"] :is(
+  [data-testid="cognitive-reader"],
+  [data-testid="debate-panel"],
+  [data-testid="argument-map"]
+) {
+  --ws-ctrl-h: 2rem;
+}
+
+[data-testid="study-workspace"] [data-testid="cognitive-reader"] :is(
+  [data-testid="reader-primary-strip"],
+  [data-testid="reader-aids-chrome"] > div,
+  [data-testid="reader-section-actions"]
+) {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+[data-testid="study-workspace"] [data-testid="cognitive-reader"] .ws-tool-toggle,
+[data-testid="study-workspace"] [data-testid="cognitive-reader"] .ws-chip-brand,
+[data-testid="study-workspace"] [data-testid="cognitive-reader"] .ws-chip-warn {
+  border: none !important;
+  box-shadow: none !important;
+  min-height: var(--ws-ctrl-h) !important;
+  font-size: var(--type-caption) !important;
+}
+
+[data-testid="study-workspace"] [data-testid="argument-map"] [data-testid="debate-canvas"] {
+  background: color-mix(in srgb, var(--color-surface-secondary) 18%, var(--color-surface-primary));
+}
+
+[data-testid="study-workspace"] [data-testid="debate-panel"] :is(input, select):not([type="range"]) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+[data-testid="study-workspace"][data-type-rhythm="workspace-tools"]
+  :is([data-testid="cognitive-reader"], [data-testid="debate-panel"], [data-testid="argument-map"])
+  :is(.type-caption, .type-meta, label, summary, button) {
+  font-size: var(--type-caption);
+  line-height: 1.4;
+}
+
+[data-testid="study-workspace"] [data-testid="reader-section-nav"] button {
+  border: none !important;
+  box-shadow: none !important;
+  min-height: var(--ws-ctrl-h, 2rem) !important;
+}
+
+[data-testid="study-workspace"] [data-testid="workspace-tool-header"] .ws-info-strip {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Near-flat titles inside Reader/Debate chrome */
+[data-testid="study-workspace"]
+  :is([data-testid="cognitive-reader"], [data-testid="debate-panel"], [data-testid="argument-map"])
+  :is(.type-title, .type-display-sm, .type-display) {
+  font-size: var(--type-title) !important;
+  line-height: 1.35 !important;
+}
+
+/*
+ * OPT-K157 — Whiteboard epitome residual:
+ * wash toolbar / notes rail / coach / stamps; text-first labeled chrome;
+ * Lucide only for icon-only draw tools + undo/redo/explain/layer toggles;
+ * equal control height; no hairline cages; keep focus + color swatches.
+ */
+[data-testid="study-workspace"] :is(
+  [data-testid="study-whiteboard"],
+  [data-testid="whiteboard-panel"],
+  [data-testid="whiteboard-diagram-coach"]
+) {
+  --ws-ctrl-h: 2rem;
+}
+
+[data-testid="study-workspace"] [data-testid="whiteboard-draw-toolbar"] {
+  border-color: transparent !important;
+  width: 100%;
+}
+
+[data-testid="study-workspace"] [data-testid="whiteboard-draw-toolbar"] :is(button, summary) {
+  border: none !important;
+  box-shadow: none !important;
+  min-height: var(--ws-ctrl-h) !important;
+}
+
+[data-testid="study-workspace"] [data-testid="whiteboard-diagram-coach"] :is(button) {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="study-workspace"] [data-testid="whiteboard-notes-rail"],
+[data-testid="study-workspace"] [data-testid="whiteboard-stamp-panel"],
+[data-testid="study-workspace"] [data-testid="whiteboard-layers"] {
+  border-color: transparent !important;
+}
+
+[data-testid="study-workspace"] [data-testid="whiteboard-canvas"] {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="study-workspace"][data-type-rhythm="workspace-tools"]
+  :is(
+    [data-testid="study-whiteboard"],
+    [data-testid="whiteboard-panel"],
+    [data-testid="whiteboard-diagram-coach"]
+  )
+  :is(.type-caption, .type-meta, label, summary, button, .ws-status-strip) {
+  font-size: var(--type-caption);
+  line-height: 1.4;
+}
+
+[data-testid="study-workspace"]
+  :is([data-testid="study-whiteboard"], [data-testid="whiteboard-panel"])
+  :is(.type-title, .type-display-sm, .type-display) {
+  font-size: var(--type-title) !important;
+  line-height: 1.35 !important;
+}
+
+/*
+ * OPT-K158 — Debate epitome + shared ToolFrame residual:
+ * wash-only argument nodes; text-first agent chips; denser caption rhythm;
+ * no Guide label echo; keep PrimaryCTA + focus + chevron disclosure.
+ */
+[data-testid="study-workspace"] :is(
+  [data-testid="debate-panel"],
+  [data-testid="argument-map"]
+) {
+  --ws-ctrl-h: 2rem;
+}
+
+[data-testid="study-workspace"] [data-testid="argument-map"] [data-testid="debate-canvas"] {
+  background: color-mix(in srgb, var(--color-surface-secondary) 14%, var(--color-surface-primary));
+}
+
+[data-testid="study-workspace"] [data-testid^="workspace-agent-chips-"] .ux-agent-chip {
+  border: none !important;
+  box-shadow: none !important;
+  min-height: 2rem !important;
+  font-size: var(--type-caption) !important;
+  background: color-mix(in srgb, var(--color-surface-secondary) 55%, transparent) !important;
+}
+
+[data-testid="study-workspace"][data-type-rhythm="workspace-tools"]
+  :is([data-testid="debate-panel"], [data-testid="argument-map"], [data-testid^="workspace-agent-chips-"])
+  :is(.type-caption, .type-meta, label, summary, button, .ws-status-strip, .ws-eyebrow) {
+  font-size: var(--type-caption);
+  line-height: 1.4;
+}
+
+[data-testid="study-workspace"] [data-testid="workspace-tool-header"] :is(.type-title, .type-display-sm, .type-display) {
+  font-size: var(--type-title) !important;
+  line-height: 1.35 !important;
+}
+
+[data-testid="study-workspace"] [data-testid="workspace-tool-frame"] .collapsible-chrome-section > button {
+  min-height: 2rem;
+  font-size: var(--type-caption) !important;
+}
+
+/*
+ * OPT-K159 — Quiz + Concept Map + Simulator residual epitome:
+ * shared wash chrome; text-first labeled actions; softer map nodes (fill hue);
+ * no redundant quiz count; equal control height; Lucide-only (no emoji chrome).
+ */
+[data-testid="study-workspace"] :is(
+  [data-testid="quiz-panel"],
+  [data-testid="quiz-session"],
+  [data-testid="concept-map-root"],
+  [data-testid="simulator-panel"],
+  [data-testid="simulator-sandbox"]
+) {
+  --ws-ctrl-h: 2rem;
+}
+
+[data-testid="study-workspace"] :is(
+  [data-testid="quiz-panel"],
+  [data-testid="concept-map-toolbar"],
+  [data-testid="simulator-exam-chrome"],
+  [data-testid="simulator-sandbox"] > div:first-child
+) {
+  border-color: transparent !important;
+}
+
+[data-testid="study-workspace"] .ux-quiz-option {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="study-workspace"] [data-testid="source-citation-chip"] {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="study-workspace"][data-type-rhythm="workspace-tools"]
+  :is(
+    [data-testid="quiz-panel"],
+    [data-testid="quiz-session"],
+    [data-testid="concept-map-root"],
+    [data-testid="simulator-panel"],
+    [data-testid="simulator-sandbox"]
+  )
+  :is(.type-caption, .type-meta, label, summary, button, .ws-status-strip) {
+  font-size: var(--type-caption);
+  line-height: 1.4;
+}
+
+[data-testid="study-workspace"]
+  :is([data-testid="quiz-panel"], [data-testid="simulator-panel"], [data-testid="concept-map-root"])
+  :is(.type-title, .type-display-sm, .type-display) {
+  font-size: var(--type-title) !important;
+  line-height: 1.35 !important;
+}
+/*
+ * OPT-K160 — Feynman + Flashcards (Leitner) residual epitome:
+ * wash composer/card chrome; text-first labeled CTAs; no topic echo;
+ * equal control height; Lucide only when icon-only / loading.
+ */
+[data-testid="study-workspace"] :is(
+  [data-testid="feynman-check"],
+  [data-testid="leitner-panel"],
+  .leitner-box-shell
+) {
+  --ws-ctrl-h: 2rem;
+}
+
+[data-testid="study-workspace"] :is(
+  [data-testid="feynman-check"] textarea,
+  [data-testid="feynman-score-panel"],
+  [data-testid="leitner-weak-extraction"],
+  [data-testid="leitner-due-badge"],
+  [data-testid="leitner-card-type"],
+  [data-testid="leitner-card-source"],
+  [data-testid="leitner-filter"],
+  [data-testid="leitner-type-filter"] button,
+  [data-testid="leitner-interleave-toggle"],
+  [data-testid="leitner-open-reader"],
+  [data-testid="leitner-quiz-this-card"],
+  [data-testid="leitner-due-heatmap"] > div > div
+) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+[data-testid="study-workspace"] .leitner-flip-card {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="study-workspace"][data-type-rhythm="workspace-tools"]
+  :is(
+    [data-testid="feynman-check"],
+    [data-testid="leitner-panel"],
+    .leitner-box-shell
+  )
+  :is(.type-caption, .type-meta, label, summary, button, .ws-status-strip) {
+  font-size: var(--type-caption);
+  line-height: 1.4;
+}
+
+[data-testid="study-workspace"]
+  :is([data-testid="feynman-check"], [data-testid="leitner-panel"])
+  :is(.type-title, .type-display-sm, .type-display) {
+  font-size: var(--type-title) !important;
+  line-height: 1.35 !important;
+}
+/*
+ * OPT-K161 — Study Room lobby + collab panels residual epitome:
+ * text-first explainer (no decorative Lucide); wash sheet/cards;
+ * equal control height; quieter status accents.
+ */
+[data-testid="study-room-page"] {
+  --ws-ctrl-h: 2rem;
+}
+
+[data-testid="study-room-page"][data-type-rhythm="dashboard"]
+  :is(.type-caption, .type-meta, label, button, input, code) {
+  font-size: var(--type-caption);
+  line-height: 1.4;
+}
+
+[data-testid="study-room-page"] :is(.type-title, .type-display-sm, .type-display, .dashboard-panel-title) {
+  font-size: var(--type-title) !important;
+  line-height: 1.35 !important;
+}
+
+[data-testid="study-room-page"] [data-testid="study-room-feature-grid"] > li {
+  min-height: 0 !important;
+}
+
+[data-testid="study-room-panel"],
+[data-testid="co-reading-hub"],
+[data-testid="study-room-note-proposals"],
+[data-testid="study-room-coview-banner"],
+[data-testid="study-room-coview-controls"] {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+[data-testid="study-room-panel"] {
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.12) !important;
+}
+
+[data-testid="study-room-page"] :is(
+  [data-testid="study-room-hub-create"],
+  [data-testid="study-room-hub-join"],
+  [data-testid="study-room-hub-open-workspace"],
+  [data-testid="study-room-hub-name"],
+  [data-testid="study-room-hub-invite"]
+) {
+  min-height: 2rem !important;
+}
+/*
+ * OPT-K162 — Concept Map + Scratchpad + shared tool chrome residual:
+ * text-first toolbars/tabs; wash composers; quieter Guide disclosures;
+ * equal control height; Lucide only when icon-only.
+ */
+[data-testid="study-workspace"] :is(
+  [data-testid="concept-map-root"],
+  [data-testid="scratchpad-root"],
+  [data-testid="scratchpad-notes"],
+  [data-testid="feynman-check"],
+  [data-testid="leitner-panel"],
+  [data-testid="whiteboard-panel"],
+  [data-testid="workspace-tool-header"]
+) {
+  --ws-ctrl-h: 2rem;
+}
+
+[data-testid="study-workspace"] :is(
+  [data-testid="concept-map-toolbar"],
+  [data-testid="scratchpad-main-tabs"],
+  [data-testid="scratchpad-composer-surface"],
+  [data-testid="scratchpad-formula-list"],
+  [data-testid="scratchpad-graph-panel"],
+  [data-testid="scratchpad-solution"],
+  [data-testid="scratchpad-step-hint-text"]
+) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+[data-testid="study-workspace"] [data-testid="concept-map-add-node"],
+[data-testid="study-workspace"] [data-testid="concept-map-connect"],
+[data-testid="study-workspace"] [data-testid="scratchpad-tab-formulas"],
+[data-testid="study-workspace"] [data-testid="scratchpad-tab-notes"],
+[data-testid="study-workspace"] [data-testid="scratchpad-composer-start"],
+[data-testid="study-workspace"] [data-testid="scratchpad-compute"] {
+  min-height: 2rem !important;
+}
+
+[data-testid="study-workspace"] [data-testid="workspace-tool-header-guide"] details {
+  background: transparent !important;
+}
+
+[data-testid="study-workspace"][data-type-rhythm="workspace-tools"]
+  :is(
+    [data-testid="concept-map-root"],
+    [data-testid="scratchpad-root"],
+    [data-testid="leitner-panel"],
+    [data-testid="feynman-check"]
+  )
+  :is(.type-caption, .type-meta, label, summary, button) {
+  font-size: var(--type-caption);
+  line-height: 1.4;
+}
+/*
+ * OPT-K163 — Study Room lobby type +1% (page-scoped token scale).
+ * Applies to explainer copy, feature/how-to text, and lobby form labels/hints.
+ */
+[data-testid="study-room-page"] {
+  --study-room-type-scale: 1.07; /* OPT-K163b: +1% then +2% more */
+  --type-micro: calc(0.6875rem * var(--study-room-type-scale));
+  --type-caption: calc(0.75rem * var(--study-room-type-scale));
+  --type-body-sm: calc(0.8125rem * var(--study-room-type-scale));
+  --type-meta: calc(0.8125rem * var(--study-room-type-scale));
+  --type-body: calc(0.875rem * var(--study-room-type-scale));
+  --type-title: calc(0.9375rem * var(--study-room-type-scale));
+  --type-display-sm: calc(1rem * var(--study-room-type-scale));
+  --type-display: calc(1.0625rem * var(--study-room-type-scale));
+  --ux-type-hero: calc(1.0625rem * var(--study-room-type-scale));
+}
+/*
+ * OPT-K164 — Study Room header/body type balance:
+ * eyebrow + page title + subtitle + section heads share one tight ladder
+ * with lobby body copy (no hero / lg panel-title jumps).
+ */
+[data-testid="study-room-page"] {
+  /* Keep page title one step above caption body; match section heads to body emphasis */
+  --ux-type-hero: var(--type-title);
+}
+
+[data-testid="study-room-page"] .ux-page-header h1 {
+  font-size: var(--type-title) !important;
+  line-height: 1.3 !important;
+  letter-spacing: -0.01em;
+}
+
+[data-testid="study-room-page"] .ux-page-subtitle {
+  font-size: var(--type-caption) !important;
+  line-height: 1.4 !important;
+}
+
+[data-testid="study-room-page"] .ux-page-header .ws-eyebrow,
+[data-testid="study-room-page"] .ux-page-header .type-caption {
+  font-size: var(--type-caption) !important;
+  line-height: 1.35 !important;
+}
+
+[data-testid="study-room-page"] :is(.dashboard-panel-title, .type-meta) {
+  font-size: var(--type-caption) !important;
+  line-height: 1.4 !important;
+}
+/*
+ * OPT-K165 — Study Room content/lobby type +1% (excludes page header cluster).
+ * Eyebrow / page title / subtitle stay at K164 balance; hub grid copy grows.
+ */
+[data-testid="study-room-page"] [data-testid="study-room-hub-grid"] {
+  --study-room-content-scale: 1.01;
+  --type-micro: calc(0.6875rem * var(--study-room-type-scale) * var(--study-room-content-scale));
+  --type-caption: calc(0.75rem * var(--study-room-type-scale) * var(--study-room-content-scale));
+  --type-body-sm: calc(0.8125rem * var(--study-room-type-scale) * var(--study-room-content-scale));
+  --type-meta: calc(0.8125rem * var(--study-room-type-scale) * var(--study-room-content-scale));
+  --type-body: calc(0.875rem * var(--study-room-type-scale) * var(--study-room-content-scale));
+  --type-title: calc(0.9375rem * var(--study-room-type-scale) * var(--study-room-content-scale));
+  --type-display-sm: calc(1rem * var(--study-room-type-scale) * var(--study-room-content-scale));
+  --type-display: calc(1.0625rem * var(--study-room-type-scale) * var(--study-room-content-scale));
+}
+/*
+ * OPT-K166 — Dashboard residual epitome:
+ * sentence-case section labels; equal progress tracks; quieter list chrome;
+ * text-first task/course rows (no decorative icon stacks).
+ */
+[data-testid="dashboard-page"] {
+  --dashboard-progress-h: 0.375rem;
+}
+
+[data-testid="dashboard-page"] .ux-section-label-title {
+  text-transform: none !important;
+  letter-spacing: 0.01em !important;
+  font-size: var(--type-micro) !important;
+}
+
+[data-testid="dashboard-page"] :is(
+  .dashboard-progress-track,
+  .ux-progress-track,
+  .concept-mastery-bars [style*="viz-bar-track"]
+) {
+  height: var(--dashboard-progress-h);
+}
+
+[data-testid="dashboard-page"] .dashboard-panel-title {
+  font-size: var(--type-title) !important;
+  line-height: 1.3 !important;
+}
+
+[data-testid="dashboard-page"] [data-testid="syllabus-coverage-widget-compact"] {
+  border: none !important;
+  box-shadow: none !important;
+}
+/* OPT-K166b — quieter secondary hues + denser dashboard list rhythm */
+[data-testid="dashboard-page"] .mastery-bar-fill,
+[data-testid="dashboard-page"] .dashboard-progress-fill--weak {
+  opacity: 0.72;
+}
+[data-testid="dashboard-page"] .ux-chip-soft-danger,
+[data-testid="dashboard-page"] .ux-chip-soft-warn {
+  background-color: color-mix(in srgb, var(--surface-secondary) 82%, transparent) !important;
+  color: var(--text-secondary) !important;
+}
+[data-testid="dashboard-page"] .ux-chip-soft-danger {
+  color: color-mix(in srgb, var(--text-primary) 70%, var(--accent-rose, #b45353)) !important;
+}
+[data-testid="dashboard-page"] .dashboard-horizon-cell .ux-kpi-value {
+  font-size: var(--type-title) !important;
+  line-height: 1.2 !important;
+}
+[data-testid="dashboard-page"] [data-testid="exam-calendar-panel"] .platform-section-icon {
+  display: none !important;
+}
+/* OPT-K166c — live preview eyebrow sentence-case */
+[data-testid="dashboard-page"] .dashboard-live-preview-eyebrow,
+[data-testid="dashboard-live-preview"] .dashboard-live-preview-eyebrow,
+[data-testid="dashboard-live-preview"] .dashboard-live-preview-status {
+  text-transform: none !important;
+  letter-spacing: 0.01em !important;
+}

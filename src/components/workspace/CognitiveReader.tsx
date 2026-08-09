@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { Sparkles, Volume2, Highlighter, Download, StickyNote, X, Languages, BookOpen, AlertTriangle, Loader2 } from '@/lib/lucide-shim';
+import { Volume2, Download, StickyNote, X, AlertTriangle, Loader2 } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { prepareWorkspaceDisplayText } from '../../lib/workspaceDisplayText';
 import { reanchorOcrCorrections } from '../../lib/readerOcrCorrectionStore';
@@ -745,7 +745,7 @@ export function CognitiveReader({
       <p
         id={`reader-para-body-${bodyIndex}`}
         className={cn(
-          'rounded-lg p-2 text-[15px] transition-colors',
+          'rounded-lg p-2 type-body transition-colors',
           dyslexia ? 'leading-loose tracking-wide' : 'leading-relaxed',
           heatmapMode === 'complexity'
             ? complexityClass
@@ -832,7 +832,7 @@ export function CognitiveReader({
                 key={`seg-${i}`}
                 id={`reader-para-body-${idx}`}
                 className={cn(
-                  'ux-tier-b-segment space-y-1.5 rounded-lg border border-border-subtle/40 bg-surface-card/30 px-5 py-3 text-[15px] text-text-primary',
+                  'ux-tier-b-segment space-y-1.5 rounded-lg border-0 bg-surface-secondary/25 px-5 py-3 type-body text-text-primary',
                   seg.listOrdered ? 'list-decimal pl-8' : 'list-disc pl-5',
                 )}
               >
@@ -857,17 +857,17 @@ export function CognitiveReader({
               <div
                 key={`seg-${i}`}
                 id={`reader-seg-${i}`}
-                className="ux-tier-b-segment overflow-x-auto rounded-lg border border-border-subtle/50 bg-surface-card/40"
+                className="ux-tier-b-segment overflow-x-auto rounded-lg border-0 bg-surface-secondary/30"
                 data-testid="reader-table-segment"
               >
                 {title && (
-                  <p className="border-b border-border-subtle/40 px-3 py-2 type-caption font-semibold text-text-secondary">
+                  <p className="border-b border-transparent px-3 py-2 type-caption font-semibold text-text-secondary">
                     {title}
                   </p>
                 )}
-                <table id={`reader-para-body-${idx}`} className="min-w-full text-left type-meta">
+                <table id={`reader-para-body-${idx}`} className="min-w-full text-left type-caption">
                   <thead>
-                    <tr className="border-b border-border-subtle/60 bg-surface-secondary/50">
+                    <tr className="bg-surface-secondary/50">
                       {headers.map((h, hi) => (
                         <th key={hi} className="px-3 py-2 font-semibold text-text-primary">{h}</th>
                       ))}
@@ -875,7 +875,7 @@ export function CognitiveReader({
                   </thead>
                   <tbody>
                     {rows.map((row, ri) => (
-                      <tr key={ri} className="border-b border-border-subtle/30 last:border-0">
+                      <tr key={ri} className="bg-surface-card/20 odd:bg-transparent">
                         {row.map((cell, ci) => (
                           <td key={ci} className="px-3 py-2 text-text-primary align-top">{cell}</td>
                         ))}
@@ -892,7 +892,7 @@ export function CognitiveReader({
               <div
                 key={`seg-${i}`}
                 id={`reader-para-body-${idx}`}
-                className="ux-tier-b-segment rounded-lg border border-border-subtle/40 bg-surface-card/30 px-4 py-3"
+                className="ux-tier-b-segment rounded-lg border-0 bg-surface-secondary/25 px-4 py-3"
                 data-testid="reader-math-segment"
               >
                 <FormulaLatexPreview formula={seg.mathLatex} display />
@@ -906,7 +906,7 @@ export function CognitiveReader({
                 key={`seg-${i}`}
                 id={`reader-para-body-${idx}`}
                 className={cn(
-                  'rounded-lg p-2 text-[15px] text-text-primary',
+                  'rounded-lg p-2 type-body text-text-primary',
                   dyslexia ? 'leading-loose tracking-wide' : 'leading-relaxed',
                   ttsActiveIndex === idx && 'ws-focus-line',
                 )}
@@ -930,7 +930,7 @@ export function CognitiveReader({
     const start = Math.max(0, Math.min(highlight.charStart, displayText.length));
     const end = Math.max(start, Math.min(highlight.charEnd, displayText.length));
     return (
-      <div className={cn('text-[15px] text-text-primary whitespace-pre-wrap', dyslexia ? 'leading-loose tracking-wide' : 'leading-relaxed')}>
+      <div className={cn('type-body text-text-primary whitespace-pre-wrap', dyslexia ? 'leading-loose tracking-wide' : 'leading-relaxed')}>
         {renderAnnotatedSlice(displayText.slice(0, start), 0, 'pre')}
         <mark ref={markRef} className="rounded bg-brand-500/25 px-0.5 text-text-primary ring-1 ring-brand-400/40">
           {displayText.slice(start, end)}
@@ -945,10 +945,11 @@ export function CognitiveReader({
       className="ux-tier-b-tool ux-tier-b-reader flex h-full flex-col overflow-hidden bg-surface-card"
       data-testid="cognitive-reader"
       data-bleed="full"
+      data-clarity-pass="k156"
     >
       {/* Wave RD — primary: Annotate + Read all; no nested Reader title; aids nested */}
       <div
-        className="ux-tier-b-toolbar flex shrink-0 flex-wrap items-center gap-1.5 border-b border-border-subtle bg-surface-secondary/40 px-3 py-1.5"
+        className="ux-tier-b-toolbar flex shrink-0 flex-wrap items-center gap-1.5 border-b border-transparent bg-surface-secondary/30 px-3 py-1.5"
         data-testid="reader-primary-strip"
       >
         <button
@@ -956,12 +957,11 @@ export function CognitiveReader({
           data-testid="reader-annotate-toggle"
           onClick={() => setAnnotateMode(!annotateMode)}
           className={cn(
-            'ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border px-2.5 type-caption font-medium',
+            'ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 px-2.5 type-caption font-medium',
             annotateMode ? 'ws-chip-warn' : 'ws-tool-toggle',
           )}
           aria-pressed={annotateMode}
         >
-          <Highlighter className="h-3.5 w-3.5" aria-hidden />
           {t('readerAnnotate')}
           {annotations.length > 0 && (
             <span className="type-caption font-normal text-text-muted">· {annotations.length}</span>
@@ -972,17 +972,16 @@ export function CognitiveReader({
           data-testid="reader-tts-paragraphs"
           onClick={readAllParagraphs}
           className={cn(
-            'ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border px-2.5 type-caption font-medium',
+            'ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 px-2.5 type-caption font-medium',
             ttsActiveIndex !== null ? 'ws-chip-brand' : 'ws-tool-toggle',
           )}
         >
-          <Volume2 className="h-3.5 w-3.5" aria-hidden />
           {t('readerReadAll')}
         </button>
         <button
           type="button"
           onClick={speakSelection}
-          className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover"
+          className="ws-touch-floor inline-flex min-h-8 min-w-8 items-center justify-center rounded-md border-0 bg-surface-secondary/55 text-text-secondary hover:bg-surface-hover"
           title={t('readerReadAloud')}
           aria-label={t('readerReadAloud')}
         >
@@ -991,7 +990,7 @@ export function CognitiveReader({
         <PanelOverflowMenu
           ariaLabel={t('wsMore')}
           triggerTestId="reader-more-menu"
-          summaryClassName="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover"
+          summaryClassName="ws-touch-floor inline-flex min-h-8 min-w-8 items-center justify-center rounded-md border-0 bg-surface-secondary/55 text-text-secondary hover:bg-surface-hover"
         >
           {annotations.length > 0 && (
             <>
@@ -1027,7 +1026,7 @@ export function CognitiveReader({
             data-testid="reader-full-source-toggle"
             onClick={() => setFullSource(!fullSource)}
             className={cn(
-              'ws-touch-floor inline-flex min-h-9 items-center rounded-lg border px-2.5 type-caption font-medium',
+              'ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 px-2.5 type-caption font-medium',
               fullSource ? 'ws-chip-brand' : 'ws-tool-toggle',
             )}
             aria-pressed={fullSource}
@@ -1038,7 +1037,7 @@ export function CognitiveReader({
             type="button"
             onClick={() => setDyslexia(!dyslexia)}
             className={cn(
-              'ws-touch-floor inline-flex min-h-9 items-center rounded-lg border px-2.5 type-caption font-medium',
+              'ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 px-2.5 type-caption font-medium',
               dyslexia ? 'ws-chip-brand' : 'ws-tool-toggle',
             )}
             aria-pressed={dyslexia}
@@ -1057,12 +1056,11 @@ export function CognitiveReader({
                 });
               }}
               className={cn(
-                'ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border px-2.5 type-caption font-medium',
+                'ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 px-2.5 type-caption font-medium',
                 translationMode !== 'off' ? 'ws-chip-brand' : 'ws-tool-toggle',
               )}
               title={t('readerSideBySideTitle')}
             >
-              <Languages className="h-3 w-3" aria-hidden />
               {translationMode === 'off'
                 ? t('readerTranslate')
                 : translationMode === 'glossary'
@@ -1076,7 +1074,7 @@ export function CognitiveReader({
             onClick={() => setBionic(!bionic)}
             disabled={!!highlight}
             className={cn(
-              'ws-touch-floor inline-flex min-h-9 items-center rounded-lg border px-2.5 type-caption font-medium disabled:opacity-40',
+              'ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 px-2.5 type-caption font-medium disabled:opacity-40',
               bionic ? 'ws-chip-brand' : 'ws-tool-toggle',
             )}
             aria-pressed={bionic}
@@ -1089,7 +1087,7 @@ export function CognitiveReader({
               data-testid="reader-ocr-overlay-toggle"
               onClick={() => setOcrOverlayOn(!ocrOverlayOn)}
               className={cn(
-                'ws-touch-floor inline-flex min-h-9 items-center rounded-lg border px-2.5 type-caption font-medium',
+                'ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 px-2.5 type-caption font-medium',
                 ocrOverlayOn ? 'ws-chip-warn' : 'ws-tool-toggle',
               )}
             >
@@ -1102,7 +1100,7 @@ export function CognitiveReader({
             onClick={cycleHeatmapMode}
             disabled={!!highlight}
             className={cn(
-              'ws-touch-floor inline-flex min-h-9 items-center rounded-lg border px-2.5 type-caption font-medium disabled:opacity-40',
+              'ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 px-2.5 type-caption font-medium disabled:opacity-40',
               heatmapActive
                 ? heatmapMode === 'learning'
                   ? 'border-accent-rose/30 bg-accent-rose/20 text-text-primary'
@@ -1206,7 +1204,7 @@ export function CognitiveReader({
               type="button"
               data-testid="reader-define-btn"
               aria-pressed="true"
-              className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-1 type-caption font-medium text-text-secondary"
+              className="rounded-md border-0 bg-surface-secondary/70 px-2 py-1 type-caption font-medium text-text-secondary"
             >
               {t('readerDefine')}
             </button>
@@ -1218,7 +1216,7 @@ export function CognitiveReader({
                   onTermFocus(glossaryPopover.term);
                   setGlossaryPopover(null);
                 }}
-                className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-1 type-caption font-medium text-text-secondary"
+                className="rounded-md border-0 bg-surface-secondary/70 px-2 py-1 type-caption font-medium text-text-secondary"
               >
                 {t('readerFocusInText')}
               </button>
@@ -1236,7 +1234,7 @@ export function CognitiveReader({
       )}
 
       {annotateMode && (
-        <div className="flex shrink-0 items-center gap-2 border-b border-border-subtle bg-surface-secondary/40 px-4 py-1.5">
+        <div className="flex shrink-0 items-center gap-2 border-b border-transparent bg-surface-secondary/30 px-4 py-1.5">
           <span className="type-caption text-text-muted">{t('readerColorColon')}</span>
           {ANN_COLORS.map((c) => (
             <button
@@ -1244,7 +1242,10 @@ export function CognitiveReader({
               type="button"
               aria-label={lang === 'el' ? `Χρώμα ${c}` : `Color ${c}`}
               onClick={() => setActiveColor(c)}
-              className={cn('h-5 w-5 rounded-full border-2', activeColor === c ? 'border-white' : 'border-transparent')}
+              className={cn(
+                'h-5 w-5 rounded-full',
+                activeColor === c ? 'ring-2 ring-brand-500/45 ring-offset-1 ring-offset-surface-card' : '',
+              )}
               style={{ backgroundColor: c }}
             />
           ))}
@@ -1254,7 +1255,7 @@ export function CognitiveReader({
 
       {sectionNav.length >= 2 && (
         <div
-          className="ux-tier-b-nav flex shrink-0 gap-1.5 overflow-x-auto border-b border-border-subtle bg-surface-secondary/40 px-3 py-2 hide-scrollbar"
+          className="ux-tier-b-nav flex shrink-0 gap-1.5 overflow-x-auto border-b border-transparent bg-surface-secondary/30 px-3 py-2 hide-scrollbar"
           data-testid="reader-section-nav"
         >
           <span className="shrink-0 self-center type-caption font-medium text-text-muted">
@@ -1274,10 +1275,10 @@ export function CognitiveReader({
               }}
               className={cn(
                 /* Wave RD — CSS truncate only; no mid-label .slice() */
-                'ws-touch-floor shrink-0 max-w-[12rem] truncate rounded-full border px-2.5 py-1 type-caption transition-colors',
+                'ws-touch-floor shrink-0 max-w-[12rem] truncate rounded-md border-0 px-2.5 py-1 type-caption transition-colors',
                 isActive
                   ? 'ws-chip-brand font-medium'
-                  : 'border-border-subtle bg-surface-card text-text-secondary hover:border-border-default hover:text-text-primary',
+                  : 'bg-surface-secondary/55 text-text-secondary hover:bg-surface-hover hover:text-text-primary',
               )}
               title={item.label}
               aria-current={isActive ? 'true' : undefined}
@@ -1291,7 +1292,7 @@ export function CognitiveReader({
 
       {activeSectionLabel && (onSectionStudy || onSectionAskAgent) && (
         <div
-          className="flex shrink-0 flex-wrap items-center gap-1.5 border-b border-border-subtle bg-surface-secondary/30 px-3 py-1.5"
+          className="flex shrink-0 flex-wrap items-center gap-1.5 border-b border-transparent bg-surface-secondary/25 px-3 py-1.5"
           data-testid="reader-section-actions"
         >
           <span className="min-w-0 flex-1 truncate type-caption font-medium text-text-secondary" title={activeSectionLabel}>
@@ -1303,9 +1304,8 @@ export function CognitiveReader({
               size="sm"
               data-testid="reader-section-study"
               onClick={() => onSectionStudy(activeSectionLabel)}
-              className="ws-touch-floor min-h-9 rounded-lg px-3"
+              className="ws-touch-floor min-h-8 rounded-md px-2.5"
             >
-              <BookOpen className="h-3.5 w-3.5" aria-hidden />
               {t('readerSectionStudy')}
             </PrimaryCTA>
           )}
@@ -1313,15 +1313,14 @@ export function CognitiveReader({
             <PanelOverflowMenu
               ariaLabel={t('wsMore')}
               triggerTestId="reader-section-more-menu"
-              summaryClassName="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover"
+              summaryClassName="ws-touch-floor inline-flex min-h-8 min-w-8 items-center justify-center rounded-md border-0 bg-surface-secondary/55 text-text-secondary hover:bg-surface-hover"
             >
               <button
                 type="button"
                 data-testid="reader-section-ask-agent"
                 onClick={() => onSectionAskAgent(activeSectionLabel)}
-                className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
+                className="flex w-full items-center px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
               >
-                <Sparkles className="h-3.5 w-3.5" aria-hidden />
                 {t('readerAskAgentBtn')}
               </button>
             </PanelOverflowMenu>
@@ -1343,7 +1342,7 @@ export function CognitiveReader({
           />
         ) : (
         <div
-          className="flex shrink-0 items-center gap-2 ws-info-strip border-b px-3 py-1.5"
+          className="flex shrink-0 items-center gap-2 ws-info-strip border-b border-transparent px-3 py-1.5"
           data-testid="reader-selection-ask-agent"
         >
           <span className="ws-excerpt flex-1 truncate">
@@ -1352,9 +1351,8 @@ export function CognitiveReader({
           <button
             type="button"
             onClick={() => handleReaderSelectionAction('ask-agent')}
-            className="shrink-0 inline-flex items-center gap-1 rounded-lg border border-accent-cyan/40 bg-accent-cyan/15 px-2 py-1 type-caption font-medium text-text-secondary"
+            className="shrink-0 inline-flex items-center rounded-md border-0 bg-surface-secondary/70 px-2 py-1 type-caption font-medium text-text-secondary"
           >
-            <Sparkles className="h-3 w-3" />
             {t('readerAskAgentChip')}
           </button>
           <button
@@ -1372,11 +1370,10 @@ export function CognitiveReader({
       {(inlineAiLoading || inlineAiResult) && (
         <div
           data-testid="reader-inline-ai-result"
-          className="shrink-0 border-b border-brand-500/20 bg-brand-500/6 px-4 py-3 space-y-1.5"
+          className="shrink-0 border-b border-transparent bg-brand-500/6 px-4 py-3 space-y-1.5"
         >
           <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1 type-caption font-semibold text-text-secondary">
-              <Sparkles className="w-3 h-3" />
+            <span className="inline-flex items-center type-caption font-semibold text-text-secondary">
               {lang === 'el' ? 'AI Εξήγηση' : 'AI Explanation'}
             </span>
             <button
@@ -1454,7 +1451,7 @@ export function CognitiveReader({
                     onClick={() => scrollToParagraph(i)}
                     onKeyDown={(e) => { if (e.key === 'Enter') scrollToParagraph(i); }}
                     className={cn(
-                      'rounded-lg p-2 text-[15px] leading-relaxed text-text-primary scroll-mt-4 cursor-pointer hover:bg-surface-hover/40',
+                      'rounded-lg p-2 type-body leading-relaxed text-text-primary scroll-mt-4 cursor-pointer hover:bg-surface-hover/40',
                       dyslexia && 'leading-loose tracking-wide',
                       focusTerm && pair.source.toLowerCase().includes(focusTerm.toLowerCase()) && 'ring-1 ring-brand-500/40 bg-brand-600/10',
                       ttsActiveIndex === i && 'ws-focus-line',
@@ -1485,7 +1482,7 @@ export function CognitiveReader({
                     onClick={() => scrollToParagraph(i)}
                     onKeyDown={(e) => { if (e.key === 'Enter') scrollToParagraph(i); }}
                     className={cn(
-                      'rounded-lg border border-border-subtle/50 bg-surface-card/40 p-2 type-body text-text-primary scroll-mt-4 cursor-pointer hover:bg-surface-hover/30',
+                      'rounded-lg border-0 bg-surface-secondary/30 p-2 type-body text-text-primary scroll-mt-4 cursor-pointer hover:bg-surface-hover/30',
                       dyslexia && 'leading-loose tracking-wide',
                       focusTerm && pair.source.toLowerCase().includes(focusTerm.toLowerCase()) && 'ring-1 ring-brand-600/35',
                     )}
@@ -1541,16 +1538,14 @@ export function CognitiveReader({
           )}
           {renderStructuredBody()}
           {heatmapMode === 'learning' && !highlight && (
-            <div className="mx-auto mt-6 flex max-w-xl items-start gap-2 rounded-lg border border-accent-rose/20 bg-accent-rose/5 p-3 type-caption text-accent-rose" data-testid="reader-learning-heatmap-legend">
-              <Sparkles className="w-4 h-4 shrink-0" />
+            <div className="mx-auto mt-6 flex max-w-xl items-start gap-2 rounded-lg border-0 bg-accent-rose/8 p-3 type-caption text-accent-rose" data-testid="reader-learning-heatmap-legend">
               <span>
                 {t('readerLearningHeatLegend')}
               </span>
             </div>
           )}
           {heatmapMode === 'complexity' && !highlight && (
-            <div className="mx-auto mt-6 flex max-w-xl items-start gap-2 rounded-lg border border-accent-amber/20 bg-accent-amber/5 p-3 type-caption text-accent-amber">
-              <Sparkles className="w-4 h-4 shrink-0" />
+            <div className="mx-auto mt-6 flex max-w-xl items-start gap-2 rounded-lg border-0 bg-accent-amber/8 p-3 type-caption text-accent-amber">
               <span>{t('readerDenseTermHint')}</span>
             </div>
           )}
@@ -1558,10 +1553,10 @@ export function CognitiveReader({
         )}
 
         {showMargin && annotations.length > 0 && (
-          <aside className="hidden sm:block w-44 shrink-0 border-l border-border-subtle overflow-y-auto p-2 space-y-2 bg-surface-card/50">
+          <aside className="hidden sm:block w-44 shrink-0 border-l border-transparent bg-surface-secondary/20 overflow-y-auto p-2 space-y-2">
             <p className="type-caption font-semibold text-text-muted px-1">{t('readerMargin')}</p>
             {annotations.map((ann) => (
-              <div key={ann.id} className="rounded-lg border border-border-subtle p-2 type-caption group relative" style={{ borderLeftColor: ann.color, borderLeftWidth: 3 }}>
+              <div key={ann.id} className="rounded-md border-0 bg-surface-secondary/45 p-2 type-caption group relative" style={{ boxShadow: `inset 3px 0 0 ${ann.color}` }}>
                 <button type="button" onClick={() => removeAnnotation(ann.id)} className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 text-text-muted">
                   <X className="w-3 h-3" />
                 </button>
@@ -1579,13 +1574,13 @@ export function CognitiveReader({
       </div>
 
       {pendingNote && (
-        <div className="shrink-0 border-t border-border-subtle bg-surface-card p-3 space-y-2">
+        <div className="shrink-0 border-t border-transparent bg-surface-secondary/25 p-3 space-y-2">
           <p className="type-caption text-text-muted">{t('readerSelectedColon')} <span className="ws-excerpt">"{pendingNote.excerpt.slice(0, 80)}"</span></p>
           <input
             value={noteDraft}
             onChange={(e) => setNoteDraft(e.target.value)}
             placeholder={t('readerOptionalMarginNote')}
-            className="w-full px-3 py-1.5 rounded-lg bg-surface-input border border-border-subtle type-caption text-text-primary"
+            className="w-full px-3 py-1.5 rounded-md border-0 bg-surface-secondary/55 type-caption text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/35"
             onKeyDown={(e) => e.key === 'Enter' && confirmAnnotation()}
           />
           <div className="flex gap-2 justify-end">

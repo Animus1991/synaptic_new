@@ -41,6 +41,8 @@ interface LeitnerBoxProps {
   onAcknowledgeStale?: () => void;
   lang?: 'en' | 'el';
   interleaved?: boolean;
+  /** When false, skip deck topic line (parent already shows section meta). OPT-K160 */
+  showDeckTopic?: boolean;
 }
 /* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function LeitnerBox({
@@ -61,6 +63,7 @@ export function LeitnerBox({
   onAcknowledgeStale,
   lang: langProp,
   interleaved = false,
+  showDeckTopic = true,
 }: LeitnerBoxProps) {
   const { t, lang: i18nLang } = useI18n();
   const lang = langProp ?? i18nLang;
@@ -223,7 +226,7 @@ export function LeitnerBox({
   };
 
   return (
-    <div className="leitner-box-shell flex h-full flex-col px-4 pb-4 pt-2">
+    <div className="leitner-box-shell flex h-full flex-col px-4 pb-4 pt-2" data-clarity-pass="k162">
       {artifactStale && onAcknowledgeStale && (
         <LeitnerStaleArtifactBanner
           lang={lang}
@@ -231,10 +234,10 @@ export function LeitnerBox({
           onDismiss={onAcknowledgeStale}
         />
       )}
-      {/* Wave FC — no nested “Leitner/FSRS” title; due badge + deck ⋯ only */}
+      {/* OPT-K160 — due badge + deck ⋯; topic optional to avoid section echo */}
       <div className="mb-2 flex items-center gap-2">
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          {concept ? (
+          {showDeckTopic && concept ? (
             <p className="truncate type-caption font-medium text-text-secondary" data-testid="leitner-deck-topic">
               {concept}
             </p>
@@ -242,7 +245,7 @@ export function LeitnerBox({
           {dueCount > 0 && (
             <span
               data-testid="leitner-due-badge"
-              className="shrink-0 rounded-lg border border-accent-rose/25 bg-accent-rose/10 px-2 py-0.5 type-caption font-medium text-text-secondary"
+              className="shrink-0 rounded-lg border-0 bg-accent-rose/10 px-2 py-0.5 type-caption font-medium text-text-secondary"
             >
               {dueCount} {t('leitnerDueBadge')}
             </span>
@@ -339,7 +342,7 @@ export function LeitnerBox({
               <div className="mb-2 flex flex-wrap items-center gap-1.5">
                 {card && (
                   <span
-                    className="inline-block rounded-lg border border-border-subtle bg-surface-secondary px-2 py-0.5 type-caption font-medium text-text-secondary"
+                    className="inline-block rounded-lg border-0 bg-surface-secondary/70 px-2 py-0.5 type-caption font-medium text-text-secondary"
                     data-testid="leitner-card-type"
                   >
                     {leitnerCardTypeLabel(inferLeitnerCardType(card), lang)}
@@ -347,7 +350,7 @@ export function LeitnerBox({
                 )}
                 {card?.source && (
                   <span
-                    className="inline-block rounded-lg border border-border-subtle bg-surface-secondary/80 px-2 py-0.5 type-caption font-medium text-text-secondary"
+                    className="inline-block rounded-lg border-0 bg-surface-secondary/55 px-2 py-0.5 type-caption font-medium text-text-secondary"
                     data-testid="leitner-card-source"
                   >
                     {leitnerCardSourceLabel(card.source, lang)}
@@ -380,7 +383,7 @@ export function LeitnerBox({
               type="button"
               data-testid="leitner-quiz-this-card"
               onClick={() => onQuizCard(card.front)}
-              className="ws-touch-floor mt-2 w-full min-h-10 rounded-lg border border-border-subtle bg-surface-secondary py-2 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary"
+              className="ws-touch-floor mt-2 w-full min-h-8 rounded-lg border-0 bg-surface-secondary/70 py-2 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
             >
               {t('leitnerQuizThisCard')}
             </button>
@@ -393,17 +396,17 @@ export function LeitnerBox({
           {flipped && !finished && (
             <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
               {([
-                { rating: 'again' as FsrsRating, key: 'leitnerAgain' as const, color: 'border-accent-rose/35 bg-accent-rose/5 text-text-secondary hover:text-accent-rose' },
-                { rating: 'hard' as FsrsRating, key: 'leitnerHard' as const, color: 'border-accent-orange/35 bg-accent-orange/5 text-text-secondary hover:text-accent-orange' },
-                { rating: 'good' as FsrsRating, key: 'leitnerGood' as const, color: 'border-accent-amber/35 bg-accent-amber/5 text-text-secondary hover:text-accent-amber' },
-                { rating: 'easy' as FsrsRating, key: 'leitnerEasy' as const, color: 'border-accent-emerald/35 bg-accent-emerald/5 text-text-secondary hover:text-accent-emerald' },
+                { rating: 'again' as FsrsRating, key: 'leitnerAgain' as const, color: 'bg-accent-rose/8 text-text-secondary hover:text-accent-rose' },
+                { rating: 'hard' as FsrsRating, key: 'leitnerHard' as const, color: 'bg-accent-orange/8 text-text-secondary hover:text-accent-orange' },
+                { rating: 'good' as FsrsRating, key: 'leitnerGood' as const, color: 'bg-accent-amber/8 text-text-secondary hover:text-accent-amber' },
+                { rating: 'easy' as FsrsRating, key: 'leitnerEasy' as const, color: 'bg-accent-emerald/8 text-text-secondary hover:text-accent-emerald' },
               ]).map(({ rating, key, color }) => (
                 <button
                   key={rating}
                   type="button"
                   onClick={() => rate(rating)}
                   className={cn(
-                    'ws-touch-floor min-h-11 rounded-lg border py-2 type-caption font-medium transition-colors touch-manipulation',
+                    'ws-touch-floor min-h-8 rounded-lg border-0 py-2 type-caption font-medium transition-colors touch-manipulation',
                     color,
                   )}
                 >
@@ -430,7 +433,7 @@ export function LeitnerBox({
                   <div
                     key={day.dayOffset}
                     title={`${day.label}: ${day.dueCount}`}
-                    className="flex-1 rounded-lg border border-border-subtle/60 p-1 text-center"
+                    className="flex-1 rounded-lg border-0 p-1 text-center"
                     style={{ backgroundColor: `rgba(251, 191, 36, ${0.08 + day.intensity * 0.45})` }}
                   >
                     <p className="truncate type-caption text-text-muted">{day.label}</p>

@@ -1431,10 +1431,12 @@
 }
 [data-theme="blueprint"] .ux-callout-danger {
   border-radius: var(--radius-panel); /* UIUX-AUDIT-2026-08: was hardcoded 1.5rem */
-  border-color: var(--color-banner-warn-border);
+  /* OPT-K143 — wash alert, no outline cage (Tasks / shared callouts) */
+  border-color: transparent;
   background: color-mix(in srgb, var(--palette-amber) 8%, var(--color-surface-primary));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  box-shadow: none;
 }
 [data-theme="blueprint"] .ux-banner-warn {
   border-color: var(--color-banner-warn-border);
@@ -4932,7 +4934,7 @@ input[type="range"]::-webkit-slider-thumb {
   color: var(--color-accent-amber);
 }
 
-/* OPT-K140 — session launchers: wash cards, equal min-height, no outline cages */
+/* OPT-K140/K144 — session launchers: wash cards, equal min-height, no outline cages */
 .ux-session-card {
   display: flex;
   gap: 0.75rem;
@@ -4940,7 +4942,7 @@ input[type="range"]::-webkit-slider-thumb {
   min-height: 7.5rem;
   border-radius: var(--radius-panel);
   border: none;
-  background: color-mix(in srgb, var(--color-surface-secondary) 48%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary) 58%, transparent);
   padding: 0.875rem 1rem;
   text-align: left;
   box-shadow: none;
@@ -4948,16 +4950,21 @@ input[type="range"]::-webkit-slider-thumb {
     background var(--motion-duration-ui) var(--motion-ease),
     transform var(--motion-duration-ui) var(--motion-ease);
 }
+.ux-session-card--text-only {
+  gap: 0;
+  min-height: 6.25rem;
+  padding: 0.75rem 0.875rem;
+}
 .ux-session-card:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--color-surface-secondary) 72%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary) 78%, transparent);
 }
 .ux-session-card-active {
-  background: color-mix(in srgb, var(--color-brand-500) 10%, var(--color-surface-secondary));
+  background: color-mix(in srgb, var(--color-brand-500) 12%, var(--color-surface-secondary));
   box-shadow: none;
 }
-/* Tasks: recommended session is the primary visual path; others stay available */
+/* Recommended: same cage as peers + badge; wash only a hair warmer */
 .ux-session-card-recommended:not(.ux-session-card-active) {
-  background: color-mix(in srgb, var(--color-brand-500) 9%, var(--color-surface-secondary));
+  background: color-mix(in srgb, var(--color-brand-500) 8%, var(--color-surface-secondary));
   box-shadow: none;
 }
 .ux-session-card-recommended .ux-session-card-icon {
@@ -4965,7 +4972,8 @@ input[type="range"]::-webkit-slider-thumb {
   background: color-mix(in srgb, var(--color-brand-500) 18%, transparent);
 }
 .tasks-create-plan-cta {
-  min-height: 2.35rem;
+  /* OPT-K146 — −2% again vs K145 (2.35 × 0.98 × 0.98) */
+  min-height: calc(2.35rem * 0.9604);
   gap: 0.5rem;
 }
 .tasks-row-start-cta {
@@ -5038,7 +5046,8 @@ input[type="range"]::-webkit-slider-thumb {
 [data-testid="study-workspace"] button.ws-pill {
   color: var(--color-text-primary) !important;
   background: var(--color-surface-tertiary) !important;
-  border: 1px solid var(--color-border-default) !important;
+  /* OPT-K152 — wash pills, no outline cage */
+  border: none !important;
   /* Wave F / E13 — match workspace caption floor (was 11px) */
   font-size: var(--type-caption) !important;
   line-height: var(--leading-caption) !important;
@@ -5055,7 +5064,7 @@ input[type="range"]::-webkit-slider-thumb {
 [data-testid="study-workspace"] .ws-pill[data-active="true"],
 [data-testid="study-workspace"] button.ws-pill[data-active="true"] {
   background: var(--color-brand-600) !important;
-  border-color: var(--color-brand-600) !important;
+  border: none !important;
   color: #ffffff !important;
 }
 [data-theme="minimal-dark"] [data-testid="study-workspace"] .ws-pill[data-active="true"],
@@ -5065,8 +5074,9 @@ input[type="range"]::-webkit-slider-thumb {
   color: var(--color-surface-primary) !important;
 }
 [data-testid="study-workspace"] .ws-pill[data-hydrating="true"] {
-  border-style: dashed !important;
+  border: none !important;
   opacity: 1 !important;
+  background: color-mix(in srgb, var(--color-surface-secondary) 70%, transparent) !important;
 }
 .ws-fab {
   background: var(--color-brand-600);
@@ -5124,20 +5134,20 @@ input[type="range"]::-webkit-slider-thumb {
 [data-theme="light"] [data-ws-theme="warm"] .border-accent-rose\/40 { border-color: color-mix(in srgb, var(--color-accent-rose) 45%, var(--color-border-subtle)); }
 [data-theme="light"] [data-ws-theme="warm"] .ws-status-strip {
   border-radius: 0.75rem;
-  border-width: 1px;
-  border-style: solid;
+  /* OPT-K153 — wash only, no outline cage */
+  border: none;
   padding: 0.5rem 0.75rem;
   font-size: 11px;
   line-height: 1.35;
 }
 [data-theme="light"] [data-ws-theme="warm"] .ws-status-ok {
-  border-color: color-mix(in srgb, var(--color-accent-emerald) 45%, var(--color-border-subtle));
+  border: none;
   background: color-mix(in srgb, var(--color-accent-emerald) 9%, #faf8f5);
   color: var(--color-accent-emerald);
   font-weight: 600;
 }
 [data-theme="light"] [data-ws-theme="warm"] .ws-status-warn {
-  border-color: color-mix(in srgb, var(--color-accent-amber) 50%, var(--color-border-subtle));
+  border: none;
   background: color-mix(in srgb, var(--color-accent-amber) 10%, #faf8f5);
   color: var(--color-accent-amber);
   font-weight: 600;
@@ -5464,13 +5474,16 @@ input[type="range"]::-webkit-slider-thumb {
   background: var(--color-surface-hover);
 }
 
+/* OPT-K153 — annotation toolbar wash (no outline cage) */
 [data-theme="light"] [data-ws-theme="warm"] .ws-panel-toolbar {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
   padding: 0.375rem 0.625rem;
-  border-bottom: 1px solid var(--color-border-subtle);
-  background: color-mix(in srgb, var(--color-surface-secondary) 55%, #faf8f5);
+  border: none;
+  border-bottom: none;
+  box-shadow: none;
+  background: color-mix(in srgb, var(--color-surface-secondary) 42%, transparent);
   flex-shrink: 0;
 }
 @media (min-width: 640px) {
@@ -5573,22 +5586,24 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* WS-5: Workspace accent sweep — semantic tool controls (Warm Sand) */
 [data-theme="light"] [data-ws-theme="warm"] .ws-tool-toggle {
-  border: 1px solid var(--color-border-subtle);
-  background: color-mix(in srgb, var(--color-surface-card) 90%, #faf8f5);
+  /* OPT-K156 — wash toggle, no outline cage */
+  border: none;
+  background: color-mix(in srgb, var(--color-surface-secondary) 55%, #faf8f5);
   color: var(--color-text-secondary);
-  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  transition: background 0.12s ease, color 0.12s ease;
 }
 [data-theme="light"] [data-ws-theme="warm"] .ws-tool-toggle:hover {
   color: var(--color-text-primary);
-  border-color: color-mix(in srgb, var(--color-brand-600) 30%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-surface-secondary) 75%, #faf8f5);
 }
 [data-theme="light"] [data-ws-theme="warm"] .ws-focus-line {
   background: color-mix(in srgb, var(--color-brand-700) 8%, #faf8f5);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-brand-600) 35%, transparent);
 }
 [data-theme="light"] [data-ws-theme="warm"] .ws-info-strip {
+  /* OPT-K156 — wash only; no outline cage on guide strips */
   background: color-mix(in srgb, var(--color-brand-700) 6%, #faf8f5);
-  border-color: color-mix(in srgb, var(--color-brand-600) 25%, var(--color-border-subtle));
+  border-color: transparent;
 }
 [data-theme="light"] [data-ws-theme="warm"] .ws-link-action {
   color: var(--color-brand-800);
@@ -6872,22 +6887,26 @@ body { letter-spacing: -0.005em; }
  */
 /* OPT-K142 — tight workspace type band (≈12–17px): titles stay near body, less hierarchy jump */
 [data-testid="study-workspace"] {
+  /* OPT-K155/K156 — tight type ladder (12→15px): near-flat hierarchy, less eye jump */
   --type-micro: 0.75rem;        /* 12 */
   --type-caption: 0.8125rem;    /* 13 */
-  --type-body-sm: 0.875rem;     /* 14 */
-  --type-meta: 0.875rem;        /* 14 */
-  --type-body: 0.9375rem;       /* 15 */
-  --type-title: 1rem;           /* 16 */
-  --type-display-sm: 1.0625rem; /* 17 — tool titles (was 20) */
-  --type-display: 1.125rem;     /* 18 — was 24 */
-  --radius-sm: 0.5rem;        /* 8 — chips / dense controls */
-  --radius-md: 0.5rem;        /* 8 — buttons */
-  --radius-lg: 0.75rem;       /* 12 — cards / tool wells */
-  --radius-xl: 1rem;          /* 16 */
-  --radius-panel: 1rem;       /* 16 — sheets / modals / notebook columns */
-  --radius-bubble: 1rem;
-  --btn-height: 2.75rem;
-  --btn-height-sm: 2.5rem;
+  --type-body-sm: 0.8125rem;    /* 13 */
+  --type-meta: 0.8125rem;       /* 13 */
+  --type-body: 0.875rem;        /* 14 */
+  --type-title: 0.875rem;       /* 14 — titles ≈ body */
+  --type-display-sm: 0.9375rem; /* 15 — tool titles near body */
+  --type-display: 0.9375rem;    /* 15 */
+  --leading-caption: 1.4;
+  --leading-body: 1.45;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;      /* slightly tighter wells */
+  --radius-xl: 0.75rem;
+  --radius-panel: 0.875rem;
+  --radius-bubble: 0.875rem;
+  /* OPT-K152/K155 — denser, equal secondary controls */
+  --btn-height: 2.35rem;
+  --btn-height-sm: 2rem;
   /* Slightly stronger muted ink — gray-on-white was the top screenshot complaint */
   --color-text-muted: color-mix(in srgb, var(--color-text-secondary) 82%, var(--color-text-primary));
 }
@@ -6895,8 +6914,9 @@ body { letter-spacing: -0.005em; }
 @media (min-width: 768px) and (max-width: 1023px) {
   [data-testid="study-workspace"] {
     --type-body: 0.875rem;
-    --type-title: 0.9375rem;
-    --type-display-sm: 1rem;
+    --type-title: 0.875rem;
+    --type-display-sm: 0.9375rem;
+    --type-display: 0.9375rem;
   }
 }
 
@@ -7259,6 +7279,194 @@ body { letter-spacing: -0.005em; }
   -webkit-text-fill-color: #ffffff !important;
 }
 
+
+/*
+ * OPT-K152 — cascade beater (after early @import of cursor-clarity).
+ * Force wash/outline diet for workspace + notebook; keep focus + PrimaryCTA.
+ */
+[data-testid="study-workspace"] .platform-banner-warn,
+[data-testid="notebook-workspace-layout"] .platform-banner-warn,
+[data-testid="agent-embedded"] .platform-banner-warn {
+  border: none !important;
+  box-shadow: none !important;
+  background: color-mix(in srgb, var(--palette-amber) 9%, var(--color-surface-card)) !important;
+}
+
+[data-testid="study-workspace"][data-border-diet="cta-only"]
+  [data-testid="workspace-tool-frame"]
+  :is([class*="border-border"], [class*="border-accent-"], [class*="border-brand-"]) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+[data-testid="notebook-workspace-layout"][data-border-diet="cta-only"]
+  :is(.ws-pill, button.ws-pill) {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+
+/*
+ * OPT-K153 — Quiz / Progress / Annotations residual clarity (cascade beater).
+ * Status strips + panel toolbars: wash only; compact secondary controls.
+ */
+[data-testid="study-workspace"] :is(.ws-status-strip, .ws-status-ok, .ws-status-warn) {
+  border: none !important;
+  box-shadow: none !important;
+}
+[data-testid="study-workspace"] .ws-panel-toolbar {
+  border: none !important;
+  box-shadow: none !important;
+}
+[data-testid="study-workspace"] .ws-panel-tool-btn {
+  min-height: 2rem !important;
+  padding-inline: 0.5rem !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+[data-testid="study-workspace"] [data-testid="quiz-panel"] :is(input, textarea, select):not([type="range"]),
+[data-testid="study-workspace"] [data-testid="dashboard-panel"] :is(input, textarea, select):not([type="range"]) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+[data-testid="study-workspace"] [data-testid="annotation-toolbar"] + *,
+[data-testid="study-workspace"] [data-testid="cognitive-reader"],
+[data-testid="study-workspace"] [data-testid="annotation-overlay"] {
+  /* keep document readable; no extra cage from parent washes */
+}
+
+
+/*
+ * OPT-K154 — Timer wash cascade beater.
+ */
+[data-testid="study-workspace"] [data-testid="timer-panel"] .border-b,
+[data-testid="study-workspace"] [data-testid="study-timer"] .border-b,
+[data-testid="study-workspace"] [data-testid="study-timer"] .border-t {
+  border-color: transparent !important;
+}
+
+
+/*
+ * OPT-K155 — Workspace panels: last outline kill + equal control rhythm.
+ * Ghost Guide; no details markers; wash secondary chips; keep PrimaryCTA + focus.
+ */
+[data-testid="study-workspace"] [data-testid="workspace-tool-header"] details > summary {
+  list-style: none !important;
+}
+[data-testid="study-workspace"] [data-testid="workspace-tool-header"] details > summary::-webkit-details-marker {
+  display: none !important;
+}
+[data-testid="study-workspace"] .ws-tool-guide-btn {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+[data-testid="study-workspace"][data-border-diet="cta-only"]
+  [data-testid="workspace-tool-frame"]
+  :is(button, a, .ws-pill, .ws-chip, span.rounded-lg, span.rounded-md):not(.ux-primary-cta):not([class*="bg-brand-600"]):not([data-testid="timer-play-pause"]):not([data-testid="agent-send"]) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+[data-testid="study-workspace"] .collapsible-chrome-section > button {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+[data-testid="study-workspace"] [data-testid="workspace-tool-frame"] {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+
+
+
+
+/*
+ * OPT-K159 — Quiz / Concept Map / Simulator residual clarity (cascade beater).
+ */
+[data-testid="study-workspace"] :is(
+  [data-testid="concept-map-toolbar"],
+  [data-testid="simulator-exam-chrome"],
+  [data-testid="quiz-irt-badge"]
+) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+[data-testid="study-workspace"] [data-testid="simulator-course-presets"] button,
+[data-testid="study-workspace"] [data-testid="concept-map-add-node"],
+[data-testid="study-workspace"] [data-testid="concept-map-connect"] {
+  border: none !important;
+  box-shadow: none !important;
+  min-height: 2rem !important;
+}
+
+/*
+ * OPT-K158 — Debate + shared ToolFrame residual clarity (cascade beater).
+ */
+[data-testid="study-workspace"] [data-testid^="workspace-agent-chips-"] .ux-agent-chip {
+  border: none !important;
+  box-shadow: none !important;
+}
+[data-testid="study-workspace"] [data-testid="argument-map"] [class*="rounded-xl"] {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/*
+ * OPT-K157 — Whiteboard residual clarity (cascade beater).
+ */
+[data-testid="study-workspace"] :is(
+  [data-testid="whiteboard-draw-toolbar"],
+  [data-testid="whiteboard-stamp-panel"],
+  [data-testid="whiteboard-layers"],
+  [data-testid="whiteboard-diagram-coach"],
+  [data-testid="whiteboard-notes-rail"]
+) {
+  border-color: transparent !important;
+}
+[data-testid="study-workspace"] [data-testid="whiteboard-panel"] > .order-2 {
+  border-color: transparent !important;
+}
+[data-testid="study-workspace"] [data-testid="whiteboard-filter"],
+[data-testid="study-workspace"] [data-testid="whiteboard-open-reader"] {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/*
+ * OPT-K156 — Reader + Debate residual clarity (cascade beater).
+ * Equal strip widths; no hairline toolbars; wash aids; keep PrimaryCTA + node hue.
+ */
+[data-testid="study-workspace"] :is(
+  [data-testid="cognitive-reader"],
+  [data-testid="debate-panel"],
+  [data-testid="argument-map"]
+) :is(
+  .ux-tier-b-toolbar,
+  .ux-tier-b-nav,
+  [data-testid="reader-primary-strip"],
+  [data-testid="debate-tree-toolbar"],
+  [data-testid="reader-section-actions"],
+  [data-testid="reader-section-nav"]
+) {
+  border-color: transparent !important;
+  width: 100%;
+}
+[data-testid="study-workspace"] [data-testid="reader-aids-chrome"] .ws-tool-toggle,
+[data-testid="study-workspace"] [data-testid="reader-primary-strip"] .ws-tool-toggle {
+  border: none !important;
+  box-shadow: none !important;
+  min-height: 2rem !important;
+}
+[data-testid="study-workspace"] [data-testid="workspace-tool-header-guide"] details {
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+[data-testid="study-workspace"] [data-testid="workspace-tool-header-guide"] {
+  gap: 0.375rem;
+}
+
 /*
  * OPT-K135 — FINAL kill-switch (must stay last in this file).
  * Fully hide scrollbar chrome app-wide. Overflow/scroll behavior unchanged.
@@ -7297,4 +7505,165 @@ body::-webkit-scrollbar,
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
+}
+/*
+ * OPT-K160 — Feynman / Flashcards residual clarity (cascade beater).
+ */
+[data-testid="study-workspace"] :is(
+  [data-testid="feynman-check"] textarea,
+  [data-testid="feynman-score-panel"],
+  [data-testid="leitner-panel"] > div:first-child,
+  [data-testid="leitner-due-badge"],
+  [data-testid="leitner-card-type"],
+  [data-testid="leitner-card-source"]
+) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+[data-testid="study-workspace"] [data-testid="feynman-coach-primary"],
+[data-testid="study-workspace"] [data-testid="feynman-ask-agent"],
+[data-testid="study-workspace"] [data-testid="leitner-interleave-toggle"],
+[data-testid="study-workspace"] [data-testid="leitner-open-reader"],
+[data-testid="study-workspace"] [data-testid="leitner-quiz-this-card"],
+[data-testid="study-workspace"] [data-testid="leitner-type-filter"] button {
+  min-height: 2rem !important;
+}
+[data-testid="study-workspace"] .leitner-flip-card {
+  border: none !important;
+  box-shadow: none !important;
+}
+/*
+ * OPT-K161 — Study Room residual clarity (cascade beater).
+ */
+[data-testid="study-room-page"] [data-testid="study-room-feature-grid"] > li {
+  min-height: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+[data-testid="study-room-panel"] .ws-cognitive-sheet-header,
+[data-testid="study-room-coview-controls"],
+[data-testid="co-reading-hub"],
+[data-testid="study-room-note-proposals"],
+[data-testid="study-room-coview-banner"] {
+  border-color: transparent !important;
+}
+[data-testid="study-room-page"] :is(
+  [data-testid="study-room-hub-create"],
+  [data-testid="study-room-hub-join"],
+  [data-testid="study-room-hub-open-workspace"]
+),
+[data-testid="study-room-panel"] :is(
+  .ws-empty-cta-primary,
+  .ws-empty-cta-secondary,
+  .ws-chrome-btn
+) {
+  min-height: 2rem !important;
+}
+/*
+ * OPT-K162 — Concept Map / Scratchpad / Guide residual clarity (cascade beater).
+ */
+[data-testid="study-workspace"] :is(
+  [data-testid="concept-map-toolbar"],
+  [data-testid="scratchpad-main-tabs"],
+  [data-testid="scratchpad-composer-surface"]
+) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+[data-testid="study-workspace"] [data-testid="concept-map-add-node"],
+[data-testid="study-workspace"] [data-testid="concept-map-connect"],
+[data-testid="study-workspace"] [data-testid="scratchpad-composer-input"],
+[data-testid="study-workspace"] [data-testid="scratchpad-composer-start"],
+[data-testid="study-workspace"] [data-testid="scratchpad-tab-formulas"],
+[data-testid="study-workspace"] [data-testid="scratchpad-tab-notes"] {
+  border: none !important;
+  min-height: 2rem !important;
+}
+[data-testid="study-workspace"] [data-testid="workspace-tool-header-guide"] :is(
+  .ws-tool-howto,
+  .ws-tool-why-outcome,
+  .ws-tool-context
+) {
+  background: transparent !important;
+}
+/*
+ * OPT-K163 — Study Room lobby type +1% (page-scoped token scale).
+ * Applies to explainer copy, feature/how-to text, and lobby form labels/hints.
+ */
+[data-testid="study-room-page"] {
+  --study-room-type-scale: 1.07; /* OPT-K163b: +1% then +2% more */
+  --type-micro: calc(0.6875rem * var(--study-room-type-scale));
+  --type-caption: calc(0.75rem * var(--study-room-type-scale));
+  --type-body-sm: calc(0.8125rem * var(--study-room-type-scale));
+  --type-meta: calc(0.8125rem * var(--study-room-type-scale));
+  --type-body: calc(0.875rem * var(--study-room-type-scale));
+  --type-title: calc(0.9375rem * var(--study-room-type-scale));
+  --type-display-sm: calc(1rem * var(--study-room-type-scale));
+  --type-display: calc(1.0625rem * var(--study-room-type-scale));
+  --ux-type-hero: calc(1.0625rem * var(--study-room-type-scale));
+}
+/*
+ * OPT-K164 — Study Room header/body type balance (cascade beater).
+ */
+[data-testid="study-room-page"] .ux-page-header h1 {
+  font-size: var(--type-title) !important;
+  line-height: 1.3 !important;
+}
+[data-testid="study-room-page"] .ux-page-subtitle,
+[data-testid="study-room-page"] .ux-page-header .ws-eyebrow,
+[data-testid="study-room-page"] .ux-page-header .type-caption,
+[data-testid="study-room-page"] :is(.dashboard-panel-title, .type-meta) {
+  font-size: var(--type-caption) !important;
+  line-height: 1.4 !important;
+}
+/*
+ * OPT-K165 — Study Room content/lobby type +1% (excludes page header cluster).
+ * Eyebrow / page title / subtitle stay at K164 balance; hub grid copy grows.
+ */
+[data-testid="study-room-page"] [data-testid="study-room-hub-grid"] {
+  --study-room-content-scale: 1.01;
+  --type-micro: calc(0.6875rem * var(--study-room-type-scale) * var(--study-room-content-scale));
+  --type-caption: calc(0.75rem * var(--study-room-type-scale) * var(--study-room-content-scale));
+  --type-body-sm: calc(0.8125rem * var(--study-room-type-scale) * var(--study-room-content-scale));
+  --type-meta: calc(0.8125rem * var(--study-room-type-scale) * var(--study-room-content-scale));
+  --type-body: calc(0.875rem * var(--study-room-type-scale) * var(--study-room-content-scale));
+  --type-title: calc(0.9375rem * var(--study-room-type-scale) * var(--study-room-content-scale));
+  --type-display-sm: calc(1rem * var(--study-room-type-scale) * var(--study-room-content-scale));
+  --type-display: calc(1.0625rem * var(--study-room-type-scale) * var(--study-room-content-scale));
+}
+/*
+ * OPT-K166 — Dashboard residual clarity (cascade beater).
+ */
+[data-testid="dashboard-page"] .ux-section-label-title {
+  text-transform: none !important;
+  letter-spacing: 0.01em !important;
+}
+[data-testid="dashboard-page"] .dashboard-panel-title {
+  font-size: var(--type-title) !important;
+}
+[data-testid="dashboard-page"] :is(.dashboard-progress-track, .ux-progress-track) {
+  height: 0.375rem !important;
+}
+/* OPT-K166b — cascade beaters for quieter dashboard accents */
+[data-testid="dashboard-page"] .mastery-bar-fill,
+[data-testid="dashboard-page"] .dashboard-progress-fill--weak {
+  opacity: 0.72 !important;
+}
+[data-testid="dashboard-page"] .ux-section-label-title {
+  font-size: var(--type-micro) !important;
+}
+/* OPT-K166d — beat uppercase live-preview chrome + nested step cages on dashboard */
+[data-testid="dashboard-page"] .dashboard-live-preview-eyebrow,
+[data-testid="dashboard-page"] .dashboard-live-preview-status,
+[data-testid="dashboard-live-preview"] .dashboard-live-preview-eyebrow,
+[data-testid="dashboard-live-preview"] .dashboard-live-preview-status {
+  text-transform: none !important;
+  letter-spacing: 0.01em !important;
+}
+[data-testid="dashboard-page"] .dashboard-live-preview-step {
+  border: none !important;
+  background: transparent !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  border-radius: 0 !important;
 }

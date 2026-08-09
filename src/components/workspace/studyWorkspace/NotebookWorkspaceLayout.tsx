@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import {
-  ChevronRight, FileText, LayoutGrid, MessageSquare, Plus, RefreshCw,
+  ChevronRight, FileText, LayoutGrid, MessageSquare, RefreshCw,
 } from '@/lib/lucide-shim';
 import { cn } from '../../../utils/cn';
 import {
@@ -356,20 +356,24 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     </div>
   );
 
+  /* OPT-K152 — stacked/wrapping quality strip (no pill/reprocess overlap) */
   const sourcesFooter = showQualityStrip ? (
-    <footer className="flex items-center justify-between gap-2 border-t border-transparent px-3 py-2 shrink-0">
+    <footer
+      className="notebook-source-quality-footer flex flex-col gap-1.5 border-t border-transparent px-3 py-2 shrink-0"
+      data-testid="notebook-source-quality-footer"
+    >
       <div className="flex min-w-0 items-center gap-1">
         <button
           type="button"
           onClick={openSourceCheck}
           title={tx('Άνοιγμα ανάλυσης πηγής', 'Open source analysis')}
-          className="ws-pill type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors cursor-pointer text-left"
+          className="ws-pill max-w-full truncate type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors cursor-pointer text-left"
           data-testid="notebook-source-quality"
         >
           {showPre24Greek
             ? tx('Προ-v2.4 ελληνικά', 'Pre-v2.4 Greek')
             : sourceQualityScore != null
-              ? `${sourceQualityScore}% ${tx('ποιότητα πηγής', 'source quality')}`
+              ? `${sourceQualityScore}% ${tx('ποιότητα', 'quality')}`
               : tx('Έλεγχος πηγής', 'Source check')}
         </button>
         <InfoHint
@@ -385,7 +389,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         disabled={reprocessingMaterial}
         data-testid="notebook-source-reprocess"
         title={t('agentSourceQualityHint')}
-        className="flex min-h-9 items-center gap-1 type-caption font-medium text-text-secondary hover:text-text-primary transition-colors disabled:opacity-50 px-1"
+        className="inline-flex min-h-8 w-fit items-center gap-1 self-start rounded-md bg-surface-secondary/55 px-2 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors disabled:opacity-50"
       >
         {reprocessingMaterial && (
           <RefreshCw className="h-3.5 w-3.5 animate-spin" aria-hidden />
@@ -590,6 +594,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         data-layout="phone"
         data-border-diet="cta-only"
         data-type-rhythm="dashboard"
+        data-clarity-pass="k152"
       >
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-2 pb-0">
           {studioToolOpen ? (
@@ -607,9 +612,8 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                     <h2 className="type-caption font-semibold text-text-primary">
                       {notebookCalm ? tx('Τα αρχεία σου', 'Your files') : tx('Πηγές', 'Sources')}
                     </h2>
-                    <button type="button" onClick={addSource} data-testid="notebook-add-source" className="flex items-center gap-1 rounded-lg border-0 bg-surface-secondary/70 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover">
-                      <Plus className="h-3.5 w-3.5" />
-                      {tx('Προσθήκη', 'Add')}
+                    <button type="button" onClick={addSource} data-testid="notebook-add-source" className="flex items-center rounded-lg border-0 bg-surface-secondary/70 px-2 py-0.5 type-caption font-medium text-text-secondary hover:bg-surface-hover">
+                      {tx('+ Προσθήκη', '+ Add')}
                     </button>
                   </header>
                   {sourcesBody}
@@ -676,11 +680,12 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
       id="workspace-main"
       role="main"
       tabIndex={-1}
-      /* OPT-K126 — Workspace Agent clarity: CTA-only border diet */
+      /* OPT-K126/K152 — Workspace Agent clarity: CTA-only border diet + epitome wash */
       data-testid="notebook-workspace-layout"
       data-layout={nbViewport}
       data-border-diet="cta-only"
       data-type-rhythm="dashboard"
+      data-clarity-pass="k152"
     >
       {/* OPT-K133/K134 — thin 1px panel rules (no wide gutters); panels stay flexible */}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-2">
@@ -703,9 +708,8 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               <h2 className="font-sans type-meta font-semibold normal-case tracking-normal text-text-primary">
                 {notebookCalm ? tx('Τα αρχεία σου', 'Your files') : tx('Πηγές', 'Sources')}
               </h2>
-              <button type="button" onClick={addSource} data-testid="notebook-add-source" className="flex items-center gap-1 rounded-lg border-0 bg-surface-secondary/70 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors">
-                <Plus className="h-3.5 w-3.5" />
-                {tx('Προσθήκη', 'Add')}
+              <button type="button" onClick={addSource} data-testid="notebook-add-source" className="flex items-center rounded-lg border-0 bg-surface-secondary/70 px-2 py-0.5 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors">
+                {tx('+ Προσθήκη', '+ Add')}
               </button>
             </header>
             {sourcesBody}

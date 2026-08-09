@@ -55,4 +55,13 @@ describe('Wave WB — Whiteboard productization', () => {
     expect(board).toContain('whiteboard-notes-rail');
     expect(panel).toContain('data-testid="whiteboard-panel"');
   });
+
+  it('OPT-K157 — wash toolbar + text-first coach (no decorative icons)', () => {
+    expect(board).toContain('data-clarity-pass="k157"');
+    expect(board).not.toMatch(/w-px bg-border-subtle/);
+    expect(coach).toContain('data-clarity-pass="k157"');
+    expect(coach).not.toMatch(/Sparkles|PenLine|LayoutTemplate/);
+    expect(panel).toContain('data-clarity-pass="k157"');
+  });
 });
+

@@ -448,6 +448,7 @@ export function AnnotationOverlay({
     <div
       className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-card"
       data-testid="annotation-overlay"
+      data-clarity-pass="k153"
       data-bleed="full"
       data-rail={annotations.length > 0 ? 'on' : 'off'}
     >
@@ -474,7 +475,7 @@ export function AnnotationOverlay({
       />
 
       {annotationConflicts.length > 0 && onResolveAnnotationConflict && (
-        <div className="shrink-0 border-b border-border-subtle px-3 py-2">
+        <div className="shrink-0 border-b border-transparent px-3 py-2">
           <AnnotationConflictPanel
             conflicts={annotationConflicts}
             language={lang}
@@ -485,7 +486,7 @@ export function AnnotationOverlay({
       )}
 
       {tool === 'highlight' && (
-        <p className="shrink-0 border-b border-border-subtle px-3 py-1 type-caption text-text-muted" data-testid="annotation-span-hint">
+        <p className="shrink-0 border-b border-transparent px-3 py-1 type-caption text-text-muted" data-testid="annotation-span-hint">
           {t('annoSelectSpan')}
         </p>
       )}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bot, ChevronDown, ChevronUp, LayoutTemplate, PenLine, Sparkles } from '@/lib/lucide-shim';
+import { ChevronDown, ChevronUp } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { DiagramCoachPlan, DiagramCoachStep } from '../../lib/whiteboardDiagramCoach';
 import type { WhiteboardBlueprintCoverageReport } from '../../lib/whiteboardBlueprintCoverageQA';
@@ -39,16 +39,16 @@ export function WhiteboardDiagramCoach({
 
   return (
     <div
-      className="shrink-0 border-b border-border-subtle bg-surface-primary/30"
+      className="shrink-0 border-b border-transparent bg-surface-secondary/20"
       data-testid="whiteboard-diagram-coach"
+      data-clarity-pass="k162"
     >
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
         className="flex w-full items-center justify-between gap-2 px-4 py-2 text-left hover:bg-surface-hover/40"
       >
-        <div className="flex items-center gap-2 min-w-0">
-          <LayoutTemplate className="w-3.5 h-3.5 text-text-secondary shrink-0" />
+        <div className="min-w-0">
           <span className="type-caption font-semibold text-text-secondary truncate">
             {t('wbDiagramCoach')}
             {' · '}
@@ -73,27 +73,24 @@ export function WhiteboardDiagramCoach({
               type="button"
               data-testid="whiteboard-coach-insert-labels"
               onClick={() => onInsertLabels(plan.nodeLabels)}
-              className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2.5 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary"
+              className="ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 bg-surface-secondary/55 px-2.5 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
             >
-              <PenLine className="h-3 w-3" aria-hidden />
               {t('wbInsertLabels')}
             </button>
             <button
               type="button"
               data-testid="whiteboard-coach-ask-guide"
               onClick={() => onAskAgent('guide')}
-              className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2.5 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary"
+              className="ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 bg-surface-secondary/55 px-2.5 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
             >
-              <Sparkles className="h-3 w-3" aria-hidden />
               {t('wbAgentGuide')}
             </button>
             <button
               type="button"
               data-testid="whiteboard-coach-ask-critique"
               onClick={() => onAskAgent('critique')}
-              className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
+              className="ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 bg-surface-secondary/55 px-2.5 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
             >
-              <Bot className="w-3 h-3" />
               {t('wbCritiqueSketch')}
             </button>
           </div>
@@ -108,17 +105,17 @@ export function WhiteboardDiagramCoach({
                     data-testid={`whiteboard-coach-step-${step.order}`}
                     onClick={() => selectStep(step)}
                     className={cn(
-                      'flex w-full items-start gap-2 rounded-lg border px-2 py-1.5 text-left type-caption transition-colors',
+                      'flex w-full items-start gap-2 rounded-md border-0 px-2 py-1.5 text-left type-caption transition-colors',
                       isActive
-                        ? 'border-accent-cyan/40 bg-accent-cyan/8 text-text-secondary'
-                        : 'border-border-subtle text-text-muted hover:bg-surface-hover/50',
+                        ? 'bg-surface-secondary/70 text-text-secondary'
+                        : 'bg-surface-secondary/35 text-text-muted hover:bg-surface-hover/50',
                     )}
                   >
                     <span className="font-mono text-text-secondary shrink-0">{step.order}</span>
                     <span>
                       <span className="font-medium text-text-secondary">{step.label}</span>
                       <span
-                        className="ml-1 rounded border border-brand-500/25 px-1 py-0 type-caption text-text-secondary"
+                        className="ml-1 rounded border-0 bg-surface-secondary/60 px-1 py-0 type-caption text-text-secondary"
                         data-testid={`whiteboard-coach-tool-${step.order}`}
                       >
                         {step.toolHint}
@@ -138,7 +135,7 @@ export function WhiteboardDiagramCoach({
                 <button
                   type="button"
                   onClick={() => onInsertLabels([activeStep.boardLabel!])}
-                  className="rounded-lg border border-border-subtle px-2 py-0.5 type-caption text-text-muted hover:text-text-primary"
+                  className="rounded-md border-0 bg-surface-secondary/50 px-2 py-0.5 type-caption text-text-muted hover:bg-surface-hover hover:text-text-primary"
                 >
                   {t('wbLabel')}: {activeStep.boardLabel}
                 </button>
@@ -147,9 +144,8 @@ export function WhiteboardDiagramCoach({
                 type="button"
                 data-testid="whiteboard-coach-ask-step"
                 onClick={() => onAskAgent('step', activeStep)}
-                className="inline-flex items-center gap-1 rounded-lg border border-accent-cyan/25 px-2 py-0.5 type-caption text-text-secondary hover:bg-accent-cyan/10"
+                className="inline-flex items-center rounded-md border-0 bg-surface-secondary/55 px-2 py-0.5 type-caption text-text-secondary hover:bg-surface-hover"
               >
-                <Sparkles className="w-3 h-3" />
                 {t('wbAgentStep').replace('{order}', String(activeStep.order))}
               </button>
             </div>

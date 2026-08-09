@@ -114,6 +114,7 @@ const fileTypeIcons: Record<string, typeof FileText> = {
 };
 
 /* OPT-K98 — markup debt: decorative brand type -> ink */
+/* OPT-K122/K149 — Library CTA-only diet + Tasks-parity icon/type/wash */
 export function Library({
   courses,
   uploadedFiles,
@@ -303,8 +304,8 @@ export function Library({
       className={cn('w-full max-w-none', isMinimal && 'library-calm library-files-density')}
       data-testid="library-page"
       data-bleed="full"
-      data-type-rhythm="dashboard"
-      /* OPT-K122 — Library clarity: CTA-only border diet (wash cards, no outline cages) */
+      data-type-rhythm="library"
+      /* OPT-K122/K149 — Library clarity: CTA-only + Tasks-parity washes/type */
       data-border-diet="cta-only"
     >
     <Page gap="sm">
@@ -312,10 +313,15 @@ export function Library({
         eyebrow={t('library', userLanguage)}
         title={t('libraryPageTitle', userLanguage)}
         subtitle={t('librarySubtitle', userLanguage)}
-        icon={BookOpen}
         actions={
-          <PrimaryCTA onClick={() => onUpload()} data-testid="library-upload" data-tour="library-upload" className="whitespace-nowrap">
-            <Upload className="w-4 h-4" aria-hidden="true" />
+          <PrimaryCTA
+            onClick={() => onUpload()}
+            data-testid="library-upload"
+            data-tour="library-upload"
+            size="sm"
+            className="library-upload-cta whitespace-nowrap"
+          >
+            <Upload className="w-3.5 h-3.5" aria-hidden="true" />
             {t('libUpload', userLanguage)}
           </PrimaryCTA>
         }
@@ -399,10 +405,11 @@ export function Library({
                 />
               )}
 
+              {/* OPT-K149 — flush tip (no inset wash nest) */}
               {!entryHintDismissed && (
                 <div
                   data-testid="library-tip-banner"
-                  className="flex items-start justify-between gap-3 rounded-xl border-0 bg-surface-secondary/55 px-3 py-2"
+                  className="flex items-start justify-between gap-2 border-0 bg-transparent px-0 py-1"
                 >
                   <p className="type-caption text-text-secondary">
                     <span className="font-semibold text-text-secondary">{t('libraryTipLabel', userLanguage)}</span>{' '}
@@ -438,10 +445,10 @@ export function Library({
           onClick={() => onUpload()}
           data-testid="library-drop-zone-compact"
           data-bleed="full"
-          className="ux-library-drop-zone ux-library-drop-zone--compact ux-prompt-bar-surface flex w-full flex-row items-center justify-center gap-3 px-4 py-3 text-text-secondary hover:text-text-primary transition-colors"
+          className="ux-library-drop-zone ux-library-drop-zone--compact ux-prompt-bar-surface flex w-full flex-row items-center justify-center gap-2 px-3 py-2 text-text-secondary hover:text-text-primary transition-colors"
         >
-          <Upload className="h-5 w-5 text-text-secondary shrink-0" aria-hidden />
-          <span className="type-meta font-medium">{t('libDropZoneCompactTitle', userLanguage)}</span>
+          <Upload className="h-4 w-4 text-text-secondary shrink-0" aria-hidden />
+          <span className="type-caption font-medium">{t('libDropZoneCompactTitle', userLanguage)}</span>
         </button>
       )}
 
@@ -546,9 +553,9 @@ export function Library({
                 onClick={() => onUpload()}
                 data-testid="library-drop-zone"
                 data-bleed="full"
-                className="ux-library-drop-zone ux-prompt-bar-surface mb-2 flex w-full max-w-none flex-col items-center gap-2 px-6 py-12 text-center text-text-secondary hover:text-text-primary transition-colors"
+                className="ux-library-drop-zone ux-prompt-bar-surface mb-2 flex w-full max-w-none flex-col items-center gap-1.5 px-4 py-8 text-center text-text-secondary hover:text-text-primary transition-colors"
               >
-                <Upload className="h-8 w-8 text-text-secondary" aria-hidden />
+                <Upload className="h-5 w-5 text-text-secondary" aria-hidden />
                 <span className="type-meta font-medium">
                   {t('libDropZoneTitle', userLanguage)}
                 </span>
@@ -561,6 +568,8 @@ export function Library({
               <PlatformEmptyState
                 title={search.trim() || filter !== 'all' ? t('libNoMatchingCoursesTitle', userLanguage) : t('libraryEmptyCoursesTitle', userLanguage)}
                 description={search.trim() || filter !== 'all' ? t('libNoMatchingCoursesDescription', userLanguage) : t('libraryEmptyCoursesDescription', userLanguage)}
+                icon={null}
+                className="library-empty-state"
                 actionLabel={search.trim() || filter !== 'all' ? undefined : t('libUploadMaterial', userLanguage)}
                 onAction={search.trim() || filter !== 'all' ? undefined : () => onUpload()}
                 secondaryActionLabel={search.trim() || filter !== 'all' ? t('libResetFilters', userLanguage) : uploadedFiles.length > 0 ? t('libViewFiles', userLanguage) : undefined}
@@ -705,6 +714,8 @@ export function Library({
               <PlatformEmptyState
                 title={search.trim() ? t('libNoMatchingFilesTitle', userLanguage) : t('libraryEmptyFilesTitle', userLanguage)}
                 description={search.trim() ? t('libNoMatchingFilesDescription', userLanguage) : t('libraryEmptyFilesDescription', userLanguage)}
+                icon={null}
+                className="library-empty-state"
                 actionLabel={search.trim() ? undefined : t('libUploadMaterial', userLanguage)}
                 onAction={search.trim() ? undefined : () => onUpload()}
                 secondaryActionLabel={search.trim() ? t('libClearSearch', userLanguage) : t('libViewCourses', userLanguage)}

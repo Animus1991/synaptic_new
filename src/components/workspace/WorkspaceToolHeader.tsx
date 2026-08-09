@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, Target, ArrowRight, Sparkles, CircleDot, BookOpen, HelpCircle } from '@/lib/lucide-shim';
+import { ChevronDown, ChevronRight } from '@/lib/lucide-shim';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
-import { getWorkspaceToolMeta, workspaceToolLabel } from '../../lib/workspaceToolRegistry';
+import { workspaceToolLabel } from '../../lib/workspaceToolRegistry';
 import { toolPurposeLine, toolLearnerProblem, getToolS20 } from '../../lib/workspaceToolS20Spine';
 import { toolHowToSteps, toolProduces } from '../../lib/workspaceToolGuide';
 import { getToolCrossLinkDef } from '../../lib/workspaceToolCrossLinks';
@@ -31,6 +31,7 @@ const COLLAPSE_KEY = 'tool-guide-collapsed';
  * outcome, live context, source/agent shortcuts, and related tools live under one
  * "Guide" disclosure. Merges the former WorkspaceToolHeader + WorkspaceToolCrossLinkBar
  * so there is exactly one guidance surface and no competing primary CTAs.
+ * OPT-K96 ink chrome · OPT-K152/K155/K158 — text-first; calm Guide; no label echo.
  */
 export function WorkspaceToolHeader({
   activeTool,
@@ -58,8 +59,6 @@ export function WorkspaceToolHeader({
     });
   };
 
-  const meta = getWorkspaceToolMeta(activeTool);
-  const Icon = meta.icon;
   const name = workspaceToolLabel(activeTool, lang);
   const purpose = toolPurposeLine(activeTool, lang);
   const why = toolLearnerProblem(activeTool, lang);
@@ -75,16 +74,13 @@ export function WorkspaceToolHeader({
 
   return (
     <div
-      /* OPT-K142 — wash header (no hairline cage); title stays near body scale */
+      /* OPT-K142/K152 — wash header (no hairline cage); title stays near body scale */
       className="ws-tool-header shrink-0 border-b border-transparent bg-surface-card/70"
-      data-testid="workspace-tool-header"
+      data-testid="workspace-tool-header" data-clarity-pass="k162"
       data-tool={activeTool}
     >
-      {/* Always-visible title row — compact density (WS-4) · OPT-K96 ink chrome */}
+      {/* OPT-K152 — text-first title row (no decorative icon tile) */}
       <div className="ws-tool-header-row relative flex items-start gap-2 overflow-hidden sm:gap-2.5">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-surface-secondary sm:h-8 sm:w-8">
-          <Icon className="h-3.5 w-3.5 text-text-secondary" aria-hidden />
-        </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
             <h2 className="ws-display-title type-meta min-w-0 break-words font-semibold leading-snug text-text-primary sm:truncate">
@@ -111,17 +107,16 @@ export function WorkspaceToolHeader({
           aria-label={t('toolGuideAria')}
           /* No title= — native yellow tips near GUIDE were mistaken for a Close chip (F0). */
           className={cn(
-            /* Wave E2 — quiet ghost control (not a filled GUIDE chip) */
-            'ws-tool-guide-btn relative z-10 inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-0.5 rounded-md type-caption text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary sm:min-w-0 sm:gap-1 sm:px-2 sm:py-1.5',
-            !collapsed && 'bg-surface-secondary text-text-secondary',
+            /* OPT-K155 — ghost text Guide (no button cage / wash chip) */
+            'ws-tool-guide-btn relative z-10 inline-flex min-h-8 shrink-0 items-center justify-center gap-0.5 rounded-md px-1.5 py-0.5 type-caption text-text-secondary transition-colors hover:text-text-primary',
+            !collapsed && 'text-text-primary',
           )}
         >
-          <HelpCircle className="h-3.5 w-3.5" aria-hidden />
-          <span className="hidden type-caption text-text-secondary sm:inline">{t('toolGuide')}</span>
+          <span className="type-caption">{t('toolGuide')}</span>
           {collapsed ? (
-            <ChevronRight className="hidden h-3 w-3 sm:block" aria-hidden />
+            <ChevronRight className="h-3 w-3" aria-hidden />
           ) : (
-            <ChevronDown className="hidden h-3 w-3 sm:block" aria-hidden />
+            <ChevronDown className="h-3 w-3" aria-hidden />
           )}
         </button>
       </div>
@@ -133,7 +128,7 @@ export function WorkspaceToolHeader({
         <div className="ws-tool-header-guide space-y-1.5 px-3 pb-2.5 sm:px-3.5" data-testid="workspace-tool-header-guide">
           {/* Wave SP2 — how-to collapsed by default so GUIDE never buries the work surface */}
           <details
-            className="ws-tool-howto rounded-lg border-0 bg-surface-secondary/35 px-2"
+            className="ws-tool-howto rounded-md border-0 bg-transparent px-0"
             data-testid="workspace-tool-header-howto"
           >
             <summary className="select-none type-caption text-text-secondary">
@@ -152,24 +147,17 @@ export function WorkspaceToolHeader({
           </details>
 
           {/* OPT-K77 — Why/outcome nested disclosure (less chrome density by default) */}
-          <details className="ws-tool-why-outcome rounded-lg border-0 bg-surface-secondary/40 px-2">
+          <details className="ws-tool-why-outcome rounded-md border-0 bg-transparent px-0">
             <summary className="select-none type-caption text-text-secondary">
               {t('toolWhyLabel').replace(/[:：]\s*$/, '')} · {t('toolYoullGetLabel').replace(/[:：]\s*$/, '')}
             </summary>
             <div className="flex flex-col gap-1 pb-2 sm:flex-row sm:items-stretch">
-              <p className="type-caption flex flex-1 items-start gap-1.5 rounded-lg ws-info-strip px-2 py-1.5 text-text-secondary">
-                <Sparkles className="mt-0.5 h-3 w-3 shrink-0 text-text-tertiary" aria-hidden />
-                <span>
-                  <span className="font-semibold text-text-secondary">{t('toolWhyLabel')}</span>
-                  {why}
-                </span>
+              {/* OPT-K158 — no repeated Γιατί/Θα πάρεις labels (summary already names both) */}
+              <p className="type-caption flex flex-1 items-start rounded-md border-0 ws-info-strip px-2 py-1.5 text-text-secondary">
+                {why}
               </p>
-              <p className="type-caption flex flex-1 items-start gap-1.5 rounded-lg bg-surface-primary/60 px-2 py-1.5 text-text-secondary">
-                <Target className="mt-0.5 h-3 w-3 shrink-0 text-text-tertiary" aria-hidden />
-                <span>
-                  <span className="font-semibold text-text-secondary">{t('toolYoullGetLabel')}</span>
-                  {produces}
-                </span>
+              <p className="type-caption flex flex-1 items-start rounded-md border-0 bg-surface-secondary/40 px-2 py-1.5 text-text-secondary">
+                {produces}
               </p>
             </div>
           </details>
@@ -177,7 +165,7 @@ export function WorkspaceToolHeader({
           {/* Wave SP3 — focus + tool jumps nested so GUIDE stays two thin rows by default */}
           {(hasSource && (concept || sourceName) || relatedTools.length > 0 || showSourceBtn || onAskAgent) && (
             <details
-              className="ws-tool-context rounded-lg border-0 bg-surface-secondary/35 px-2"
+              className="ws-tool-context rounded-md border-0 bg-transparent px-0"
               data-testid="workspace-tool-header-context"
             >
               <summary className="select-none type-caption text-text-secondary">
@@ -192,7 +180,6 @@ export function WorkspaceToolHeader({
                   >
                     {concept && (
                       <span className="inline-flex min-w-0 items-center gap-1" data-testid="workspace-tool-header-concept">
-                        <CircleDot className="h-2.5 w-2.5 shrink-0 text-text-tertiary" aria-hidden />
                         <span className="truncate">
                           {t('focusColon')}{' '}
                           <span className="font-medium text-text-primary">{concept}</span>
@@ -219,10 +206,9 @@ export function WorkspaceToolHeader({
                       onClick={() => onJumpTool?.(link.tool)}
                       disabled={!onJumpTool}
                       data-testid={i === 0 ? 'workspace-tool-header-next' : `crosslink-jump-${link.tool}`}
-                      className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border-0 bg-surface-secondary/60 px-2 type-caption font-medium text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary disabled:opacity-50"
+                      className="ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 bg-surface-secondary/45 px-2 type-caption font-medium text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary disabled:opacity-50"
                     >
                       {lang === 'el' ? link.labelEl : link.labelEn}
-                      <ArrowRight className="h-3 w-3 opacity-50" aria-hidden />
                     </button>
                   ))}
                   <span className="min-w-[0.25rem] flex-1" />
@@ -231,11 +217,10 @@ export function WorkspaceToolHeader({
                       type="button"
                       data-testid="crosslink-open-reader"
                       onClick={onOpenReader}
-                      className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center gap-1 rounded-lg border-0 bg-surface-secondary/60 px-2 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary sm:min-w-0 sm:px-2.5"
+                      className="ws-touch-floor inline-flex min-h-8 items-center justify-center rounded-md border-0 bg-surface-secondary/45 px-2.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                       aria-label={t('toolSource')}
                     >
-                      <BookOpen className="h-3.5 w-3.5" aria-hidden />
-                      <span className="hidden sm:inline">{t('toolSource')}</span>
+                      {t('toolSource')}
                     </button>
                   )}
                   {onAskAgent && (
@@ -243,10 +228,9 @@ export function WorkspaceToolHeader({
                       type="button"
                       data-testid="crosslink-ask-agent"
                       onClick={onAskAgent}
-                      className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border-0 bg-surface-secondary/60 px-2 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary sm:px-2.5"
+                      className="ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 bg-surface-secondary/45 px-2.5 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                     >
-                      <Sparkles className="h-3.5 w-3.5" aria-hidden />
-                      <span className="hidden sm:inline">{t('askAgentShort')}</span>
+                      {t('askAgentShort')}
                     </button>
                   )}
                 </div>

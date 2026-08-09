@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { AlertTriangle, BookOpen, Search } from '@/lib/lucide-shim';
+import { Search } from '@/lib/lucide-shim';
 import type { FsrsRating } from '../../lib/pedagogy';
 import type { SpacingData } from '../../types';
 import type { LeitnerSessionContent } from '../../lib/leitnerSessionModel';
@@ -96,10 +96,10 @@ export function LeitnerPanel({
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden" data-testid="leitner-panel">
-      <div className="shrink-0 border-b border-border-subtle">
-        {/* Wave FC — one compact meta strip: section + count; warn soft-ink */}
-        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-4 pt-2.5 pb-1.5">
+    <div className="flex h-full flex-col overflow-hidden" data-testid="leitner-panel" data-clarity-pass="k162">
+      <div className="shrink-0 border-b border-transparent">
+        {/* OPT-K160 — meta strip only; filters wash; no decorative warn icon */}
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-4 pt-2 pb-1">
           <div className="min-w-0 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
             {session.sectionLabel && (
               <p className="type-caption text-text-muted" data-testid="leitner-section-label">
@@ -128,10 +128,9 @@ export function LeitnerPanel({
         {(session.weakExtraction || session.passageGrounded) && (
           <div className="px-4 pb-2">
             <div
-              className="flex items-start gap-2 rounded-xl border border-accent-amber/25 bg-accent-amber/8 px-3 py-2 type-caption leading-snug text-text-secondary"
+              className="rounded-xl border-0 bg-accent-amber/8 px-3 py-2 type-caption leading-snug text-text-secondary"
               data-testid="leitner-weak-extraction"
             >
-              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-amber" aria-hidden />
               <p>
                 {session.passageGrounded
                   ? t('panelPassageGroundedLeitner')
@@ -159,7 +158,7 @@ export function LeitnerPanel({
                   value={filterQuery}
                   onChange={(e) => setFilterQuery(e.target.value)}
                   placeholder={t('panelSearchCards')}
-                  className="w-full min-h-9 rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-8 pr-2 type-caption text-text-primary placeholder:text-text-muted focus:border-border-default focus:outline-none"
+                  className="w-full min-h-8 rounded-lg border-0 bg-surface-secondary/55 py-1.5 pl-8 pr-2 type-caption text-text-primary placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/35"
                   data-testid="leitner-filter"
                 />
               </div>
@@ -167,20 +166,19 @@ export function LeitnerPanel({
                 <button
                   type="button"
                   onClick={() => onOpenInReader(concept)}
-                  className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
+                  className="ws-touch-floor inline-flex min-h-8 items-center rounded-lg border-0 bg-surface-secondary/55 px-2.5 py-1.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                   data-testid="leitner-open-reader"
                 >
-                  <BookOpen className="h-3.5 w-3.5" aria-hidden />
                   {t('cognitiveReader')}
                 </button>
               )}
               <button
                 type="button"
                 onClick={() => setInterleaved((v) => !v)}
-                className={`ws-touch-floor min-h-9 rounded-lg border px-2.5 py-1 type-caption font-medium transition-colors ${
+                className={`ws-touch-floor min-h-8 rounded-lg border-0 px-2.5 py-1 type-caption font-medium transition-colors ${
                   interleaved
-                    ? 'border-brand-500/40 bg-brand-500/10 text-text-primary'
-                    : 'border-border-subtle text-text-secondary hover:border-border-default hover:text-text-primary'
+                    ? 'bg-brand-500/10 text-text-primary'
+                    : 'bg-surface-secondary/55 text-text-secondary hover:bg-surface-hover hover:text-text-primary'
                 }`}
                 data-testid="leitner-interleave-toggle"
               >
@@ -192,10 +190,10 @@ export function LeitnerPanel({
               <button
                 type="button"
                 onClick={() => setTypeFilter('all')}
-                className={`rounded-lg border px-2.5 py-1 type-caption font-medium transition-colors ${
+                className={`rounded-lg border-0 px-2.5 py-1 type-caption font-medium transition-colors ${
                   typeFilter === 'all'
-                    ? 'border-brand-500/40 bg-brand-500/10 text-text-primary'
-                    : 'border-border-subtle text-text-muted hover:text-text-secondary'
+                    ? 'bg-brand-500/10 text-text-primary'
+                    : 'bg-surface-secondary/40 text-text-muted hover:text-text-secondary'
                 }`}
               >
                 {t('leitnerCardTypeAll')} ({session.cards.length})
@@ -208,10 +206,10 @@ export function LeitnerPanel({
                     key={type}
                     type="button"
                     onClick={() => setTypeFilter(type)}
-                    className={`rounded-lg border px-2.5 py-1 type-caption font-medium transition-colors ${
+                    className={`rounded-lg border-0 px-2.5 py-1 type-caption font-medium transition-colors ${
                       typeFilter === type
-                        ? 'border-brand-500/40 bg-surface-secondary text-text-primary'
-                        : 'border-border-subtle text-text-muted hover:text-text-secondary'
+                        ? 'bg-surface-secondary text-text-primary'
+                        : 'bg-surface-secondary/40 text-text-muted hover:text-text-secondary'
                     }`}
                     data-testid={`leitner-type-${type}`}
                   >
@@ -228,7 +226,7 @@ export function LeitnerPanel({
                     key={card.front}
                     type="button"
                     onClick={() => onOpenInReader?.(card.front)}
-                    className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-0.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
+                    className="rounded-lg border-0 bg-surface-secondary/70 px-2 py-0.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                   >
                     {card.front.slice(0, 48)}{card.front.length > 48 ? '…' : ''}
                   </button>
@@ -260,6 +258,7 @@ export function LeitnerPanel({
             onAcknowledgeStale={onAcknowledgeStale}
             lang={lang}
             interleaved={interleaved}
+            showDeckTopic={false}
           />
         )}
       </div>

@@ -1,4 +1,3 @@
-import { Users } from '@/lib/lucide-shim';
 import { t, type Lang } from '../../lib/i18n';
 import { cn } from '../../utils/cn';
 
@@ -12,7 +11,7 @@ type Props = {
   onFollowLead?: () => void;
 };
 
-/** Persistent strip while a Study Room session wraps the Study Hub viewport. */
+/** Persistent strip while a Study Room session wraps the Study Hub viewport. OPT-K161 — text-first wash. */
 export function StudyRoomCoViewBanner({
   lang,
   visible,
@@ -28,26 +27,24 @@ export function StudyRoomCoViewBanner({
   return (
     <div
       className={cn(
-        'flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-b type-caption',
+        'flex flex-wrap items-center justify-between gap-2 border-b border-transparent px-3 py-2 type-caption',
         mode === 'leading'
-          ? 'border-brand-500/30 bg-brand-500/10 text-text-primary'
-          : 'border-border-subtle bg-surface-secondary/90 text-text-secondary',
+          ? 'bg-brand-500/8 text-text-primary'
+          : 'bg-surface-secondary/70 text-text-secondary',
       )}
       data-testid="study-room-coview-banner"
+      data-clarity-pass="k161"
       role="status"
     >
-      <div className="flex items-center gap-2 min-w-0">
-        <Users className="h-3.5 w-3.5 shrink-0" aria-hidden />
-        <div className="min-w-0">
-          <p className="font-medium truncate">{tr('studyRoomCoViewTitle')}</p>
-          <p className="type-caption text-text-muted truncate">{status}</p>
-        </div>
+      <div className="min-w-0">
+        <p className="font-medium truncate">{tr('studyRoomCoViewTitle')}</p>
+        <p className="type-caption text-text-muted truncate">{status}</p>
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
         {mode === 'following' && onClaimLead && (
           <button
             type="button"
-            className="ws-chrome-btn type-caption px-2 py-1 min-h-9"
+            className="ws-chrome-btn type-caption min-h-8 px-2 py-1"
             data-testid="study-room-claim-lead"
             onClick={onClaimLead}
           >
@@ -57,7 +54,7 @@ export function StudyRoomCoViewBanner({
         {mode === 'leading' && onFollowLead && (
           <button
             type="button"
-            className="ws-chrome-btn type-caption px-2 py-1 min-h-9"
+            className="ws-chrome-btn type-caption min-h-8 px-2 py-1"
             data-testid="study-room-follow-lead"
             onClick={onFollowLead}
           >
@@ -66,7 +63,7 @@ export function StudyRoomCoViewBanner({
         )}
         <button
           type="button"
-          className="ws-empty-cta-secondary type-caption px-2 py-1 min-h-9"
+          className="ws-empty-cta-secondary type-caption min-h-8 px-2 py-1"
           data-testid="study-room-banner-open"
           onClick={onOpenRoom}
         >

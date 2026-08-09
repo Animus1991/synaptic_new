@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { CheckCircle2, AlertTriangle } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import {
   reactNodeToStatusText,
@@ -16,7 +15,8 @@ type Props = {
   statusSource?: string;
 };
 
-/** Minimal QA / sync banner — high-contrast on Warm Sand via `.ws-status-*` tokens. */
+/** Minimal QA / sync banner — high-contrast on Warm Sand via `.ws-status-*` tokens.
+ * OPT-K153 — text-first (no check/warn glyphs). */
 export function WorkspaceQaStatusStrip({
   ok,
   children,
@@ -34,7 +34,6 @@ export function WorkspaceQaStatusStrip({
     source: statusSource ?? 'workspace',
   });
   const mirrored = Boolean(bus?.mirrorInPanel) && !bus?.revealedIds.has(testId);
-  const Icon = ok ? CheckCircle2 : AlertTriangle;
 
   return (
     <div
@@ -47,7 +46,6 @@ export function WorkspaceQaStatusStrip({
       data-ws-status={ok ? 'ok' : 'warn'}
       data-status-mirrored={mirrored || undefined}
     >
-      <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
       <p className="min-w-0 flex-1 leading-snug">{children}</p>
       {trailing}
     </div>

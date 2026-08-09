@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type MutableRefObject } from 'react';
 import {
-  ArrowRight, Bot, Calculator, Circle, Eraser, Eye, EyeOff, Highlighter, Lock, Minus, Pen,
-  Plus, Redo2, Ruler, Square, Type, Undo2, BookOpen, X, Unlock,
+  ArrowRight, Bot, Circle, Eraser, Eye, EyeOff, Highlighter, Lock, Minus, Pen,
+  Plus, Redo2, Ruler, Square, Type, Undo2, X, Unlock,
 } from '@/lib/lucide-shim';
 import { buildWhiteboardSvg, downloadWhiteboardPng, downloadWhiteboardSvg } from '../../lib/whiteboardExport';
 import { cn } from '../../utils/cn';
@@ -545,17 +545,17 @@ export function StudyWhiteboard({
   }, [activeLayerLocked, redo, t, tool, undo]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden lg:flex-row min-w-0" data-testid="study-whiteboard">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden lg:flex-row min-w-0" data-testid="study-whiteboard"
+      data-clarity-pass="k162">
       {hasNotesRail && notesOpen && (
         <aside
-          className="shrink-0 border-b lg:border-b-0 lg:border-r border-border-subtle lg:w-56 overflow-y-auto p-3 space-y-3"
+          className="shrink-0 border-b border-transparent lg:border-b-0 lg:border-r lg:border-transparent lg:w-56 overflow-y-auto bg-surface-secondary/15 p-3 space-y-3"
           data-testid="whiteboard-notes-rail"
         >
           {scratchpadImport && (
-            <div className="p-3 rounded-xl border border-accent-cyan/30 bg-accent-cyan/5 space-y-2">
+            <div className="p-3 rounded-xl border-0 bg-surface-secondary/45 space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 type-caption font-semibold text-text-secondary">
-                  <Calculator className="w-3.5 h-3.5" />
+                <div className="type-caption font-semibold text-text-secondary">
                   {t('wbFromScratchpad')}
                 </div>
                 <button
@@ -594,12 +594,11 @@ export function StudyWhiteboard({
               </button>
             </div>
           )}
-          <div className="flex items-center gap-1.5 type-caption font-semibold text-text-secondary">
-            <BookOpen className="w-3.5 h-3.5 text-text-secondary" />
+          <div className="type-caption font-semibold text-text-secondary">
             {t('wbFromNotes')}
           </div>
           {referenceFormulas.map((f) => (
-            <div key={f.id} className="p-2 rounded-lg bg-surface-card border border-border-subtle">
+            <div key={f.id} className="p-2 rounded-lg border-0 bg-surface-secondary/40">
               <p className="type-caption font-medium text-text-primary truncate">{f.name}</p>
               <div className="mt-1 overflow-x-auto">
                 <FormulaLatexPreview formula={f.formula} display={false} />
@@ -624,7 +623,7 @@ export function StudyWhiteboard({
       {/* Wave WB — no nested “Study Whiteboard” title; tool header already names the panel */}
       {/* Wave F4/WB — icon tools + ink popover; notes toggle; advanced in ⋯ */}
       <div
-        className="ws-wb-toolbar flex shrink-0 flex-wrap items-center gap-1 border-b border-border-subtle px-2 py-1.5 sm:gap-1.5 sm:px-3"
+        className="ws-wb-toolbar flex shrink-0 flex-wrap items-center gap-1 border-b border-transparent bg-surface-secondary/25 px-2 py-1.5 sm:gap-1.5 sm:px-3"
         data-testid="whiteboard-draw-toolbar"
       >
         {DRAW_TOOLS.map(({ id, icon: Icon, label }) => (
@@ -637,15 +636,14 @@ export function StudyWhiteboard({
             disabled={activeLayerLocked}
             onClick={() => setTool(id)}
             className={cn(
-              'ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg transition-colors',
-              tool === id ? 'bg-surface-secondary text-text-secondary border border-border-subtle' : 'text-text-muted hover:bg-surface-hover',
+              'ws-touch-floor inline-flex min-h-8 min-w-8 items-center justify-center rounded-md border-0 transition-colors',
+              tool === id ? 'bg-surface-secondary/80 text-text-primary' : 'text-text-muted hover:bg-surface-hover',
               activeLayerLocked && 'opacity-40 cursor-not-allowed',
             )}
           >
             <Icon className="w-3.5 h-3.5" aria-hidden />
           </button>
         ))}
-        <div className="mx-0.5 h-5 w-px bg-border-subtle" aria-hidden />
         {SHAPE_TOOLS.map(({ id, icon: Icon, label }) => (
           <button
             key={id}
@@ -656,22 +654,21 @@ export function StudyWhiteboard({
             disabled={activeLayerLocked}
             onClick={() => setTool(id)}
             className={cn(
-              'ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg transition-colors',
-              tool === id ? 'bg-surface-secondary text-text-secondary border border-border-subtle' : 'text-text-muted hover:bg-surface-hover',
+              'ws-touch-floor inline-flex min-h-8 min-w-8 items-center justify-center rounded-md border-0 transition-colors',
+              tool === id ? 'bg-surface-secondary/80 text-text-primary' : 'text-text-muted hover:bg-surface-hover',
               activeLayerLocked && 'opacity-40 cursor-not-allowed',
             )}
           >
             <Icon className="w-3.5 h-3.5" aria-hidden />
           </button>
         ))}
-        <div className="mx-0.5 h-5 w-px bg-border-subtle" aria-hidden />
         <button
           type="button"
           aria-label={t('wbUndo')}
           title={t('wbUndo')}
           onClick={undo}
           disabled={doc.strokes.length === 0}
-          className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
+          className="ws-touch-floor inline-flex min-h-8 min-w-8 items-center justify-center rounded-md border-0 text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Undo2 className="w-3.5 h-3.5" aria-hidden />
         </button>
@@ -681,7 +678,7 @@ export function StudyWhiteboard({
           title={t('wbRedo')}
           onClick={redo}
           disabled={redoStack.length === 0}
-          className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
+          className="ws-touch-floor inline-flex min-h-8 min-w-8 items-center justify-center rounded-md border-0 text-text-muted hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Redo2 className="w-3.5 h-3.5" aria-hidden />
         </button>
@@ -693,7 +690,7 @@ export function StudyWhiteboard({
             title={t('wbExplainDiagram')}
             disabled={doc.strokes.length === 0}
             onClick={handleExplainDiagram}
-            className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
+            className="ws-touch-floor inline-flex min-h-8 min-w-8 items-center justify-center rounded-md border-0 bg-surface-secondary/55 text-text-secondary hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Bot className="w-3.5 h-3.5" aria-hidden />
           </button>
@@ -701,17 +698,17 @@ export function StudyWhiteboard({
         {/* Wave WB — ink (color + thickness) nested; not a permanent second toolbar row */}
         <details className="relative" data-testid="whiteboard-ink-menu">
           <summary
-            className="ws-touch-floor inline-flex min-h-9 cursor-pointer list-none items-center gap-1.5 rounded-lg border border-border-subtle px-2 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary [&::-webkit-details-marker]:hidden"
+            className="ws-touch-floor inline-flex min-h-8 cursor-pointer list-none items-center gap-1.5 rounded-md border-0 bg-surface-secondary/55 px-2 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary [&::-webkit-details-marker]:hidden"
             aria-label={t('wbInk')}
           >
             <span
-              className="h-3.5 w-3.5 shrink-0 rounded-full border border-border-subtle"
+              className="h-3.5 w-3.5 shrink-0 rounded-full"
               style={{ backgroundColor: color }}
               aria-hidden
             />
             <span className="hidden sm:inline">{t('wbInk')}</span>
           </summary>
-          <div className="absolute left-0 top-full z-20 mt-1 min-w-[12rem] rounded-lg border border-border-subtle bg-surface-elevated p-3 shadow-lg">
+          <div className="absolute left-0 top-full z-20 mt-1 min-w-[12rem] rounded-lg border-0 bg-surface-elevated p-3 shadow-md">
             <p className="mb-1.5 type-caption text-text-muted">{t('wbColor')}</p>
             <div className="mb-3 flex flex-wrap gap-1.5">
               {COLORS.map((c) => (
@@ -722,8 +719,8 @@ export function StudyWhiteboard({
                   aria-pressed={color === c}
                   onClick={() => setColor(c)}
                   className={cn(
-                    'h-7 w-7 rounded-full border-2',
-                    color === c ? 'border-brand-500' : 'border-transparent',
+                    'h-7 w-7 rounded-full',
+                    color === c ? 'ring-2 ring-brand-500/45 ring-offset-1 ring-offset-surface-elevated' : '',
                   )}
                   style={{ backgroundColor: c }}
                 />
@@ -750,23 +747,22 @@ export function StudyWhiteboard({
             aria-pressed={notesOpen}
             onClick={() => setNotesOpen((v) => !v)}
             className={cn(
-              'ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border px-2 type-caption font-medium sm:px-2.5',
+              'ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 px-2.5 type-caption font-medium',
               notesOpen
-                ? 'border-border-default bg-surface-secondary text-text-primary'
-                : 'border-border-subtle text-text-secondary hover:border-border-default',
+                ? 'bg-surface-secondary/80 text-text-primary'
+                : 'bg-surface-secondary/55 text-text-secondary hover:bg-surface-hover',
             )}
           >
-            <BookOpen className="h-3.5 w-3.5" aria-hidden />
-            <span className="hidden sm:inline">{t('wbNotesToggle')}</span>
+            {t('wbNotesToggle')}
           </button>
         )}
         {crdt && (
           <span
             className={cn(
-              'rounded-lg border px-2 py-1 type-caption font-medium',
+              'rounded-md border-0 px-2 py-1 type-caption font-medium',
               crdt.synced
-                ? 'border-accent-emerald/35 bg-accent-emerald/10 text-text-secondary'
-                : 'border-border-subtle bg-surface-hover text-text-secondary',
+                ? 'bg-accent-emerald/12 text-text-secondary'
+                : 'bg-surface-secondary/55 text-text-secondary',
             )}
             data-testid="whiteboard-crdt-status"
           >
@@ -778,7 +774,7 @@ export function StudyWhiteboard({
           ariaLabel={t('wbMoreTools')}
           triggerTestId="whiteboard-more-menu"
           menuClassName="min-w-[11rem]"
-          summaryClassName="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover"
+          summaryClassName="ws-touch-floor inline-flex min-h-8 min-w-8 items-center justify-center rounded-md border-0 bg-surface-secondary/55 text-text-secondary hover:bg-surface-hover"
         >
           <button
             type="button"
@@ -828,7 +824,7 @@ export function StudyWhiteboard({
           >
             {t('wbExportSvg')}
           </button>
-          <p className="border-t border-border-subtle px-3 py-2 type-caption leading-snug text-text-muted">
+          <p className="border-t border-transparent px-3 py-2 type-caption leading-snug text-text-muted">
             {t('wbHintLocalSave')}
           </p>
         </PanelOverflowMenu>
@@ -840,7 +836,7 @@ export function StudyWhiteboard({
 
       {showStamps && (
         <div
-          className="flex shrink-0 flex-wrap gap-2 border-b border-border-subtle px-3 py-2 max-h-28 overflow-y-auto"
+          className="flex shrink-0 flex-wrap gap-2 border-b border-transparent bg-surface-secondary/20 px-3 py-2 max-h-28 overflow-y-auto"
           data-testid="whiteboard-stamp-panel"
         >
           {stampLibrary.map((stamp) => (
@@ -849,7 +845,7 @@ export function StudyWhiteboard({
               type="button"
               aria-label={t('wbInsertStamp').replace('{label}', stamp.label)}
               onClick={() => insertLatexStamp(stamp)}
-              className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 type-caption text-text-secondary hover:border-accent-cyan/40 hover:text-text-primary"
+              className="rounded-md border-0 bg-surface-secondary/55 px-2 py-1 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
             >
               {stamp.label}
             </button>
@@ -859,7 +855,7 @@ export function StudyWhiteboard({
 
       {showLayers && (
         <div
-          className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border-subtle px-3 py-2 type-caption"
+          className="flex shrink-0 flex-wrap items-center gap-2 border-b border-transparent bg-surface-secondary/20 px-3 py-2 type-caption"
           data-testid="whiteboard-layers"
         >
           <span className="text-text-tertiary font-semibold">
@@ -872,8 +868,8 @@ export function StudyWhiteboard({
               <div
                 key={layer.id}
                 className={cn(
-                  'flex items-center gap-1 rounded-lg border px-2 py-1',
-                  active ? 'border-brand-500/40 bg-brand-600/10' : 'border-border-subtle bg-surface-primary/40',
+                  'flex items-center gap-1 rounded-md border-0 px-2 py-1',
+                  active ? 'bg-brand-600/12' : 'bg-surface-secondary/40',
                 )}
               >
                 <button
@@ -914,7 +910,7 @@ export function StudyWhiteboard({
             type="button"
             data-testid="whiteboard-layer-add"
             onClick={addLayer}
-            className="inline-flex items-center gap-1 rounded-lg border border-dashed border-border-subtle px-2 py-1 text-text-muted hover:border-brand-500/30 hover:text-text-primary"
+            className="inline-flex items-center gap-1 rounded-md border-0 bg-surface-secondary/45 px-2 py-1 text-text-muted hover:bg-surface-hover hover:text-text-primary"
           >
             <Plus className="w-3 h-3" />
             {t('wbAddLayer')}
@@ -931,7 +927,7 @@ export function StudyWhiteboard({
           tabIndex={0}
           aria-label={t('wbCanvasLabel')}
           className={cn(
-            'touch-none h-full w-full rounded-xl border border-border-subtle outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
+            'touch-none h-full w-full rounded-xl border-0 bg-surface-primary outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
             activeLayerLocked && 'cursor-not-allowed opacity-90',
           )}
           onKeyDown={handleCanvasKeyDown}
@@ -945,7 +941,7 @@ export function StudyWhiteboard({
             className="pointer-events-none absolute inset-0 flex items-center justify-center px-6"
             data-testid="whiteboard-empty-hint"
           >
-            <p className="max-w-xs rounded-xl border border-border-subtle bg-surface-card/90 px-4 py-3 text-center type-caption leading-relaxed text-text-secondary shadow-sm">
+            <p className="max-w-xs rounded-xl border-0 bg-surface-secondary/55 px-4 py-3 text-center type-caption leading-relaxed text-text-secondary">
               {t('wbEmptyCanvasHint')}
             </p>
           </div>

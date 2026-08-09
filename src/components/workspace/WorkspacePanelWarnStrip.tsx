@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { AlertTriangle } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import {
   reactNodeToStatusText,
@@ -19,7 +18,8 @@ type Props = {
   statusSource?: string;
 };
 
-/** Warm Sand warn banner for panel-level extraction / quality notices. */
+/** Warm Sand warn banner for panel-level extraction / quality notices.
+ * OPT-K153 — text-first (no decorative triangle); wash only. */
 export function WorkspacePanelWarnStrip({
   children,
   testId,
@@ -53,9 +53,6 @@ export function WorkspacePanelWarnStrip({
       data-status-mirrored={mirrored || undefined}
       role="status"
     >
-      {layout === 'strip' && (
-        <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 opacity-90" aria-hidden />
-      )}
       <div className={cn('min-w-0 flex-1 leading-snug', layout === 'strip' && 'type-caption')}>
         {children}
       </div>

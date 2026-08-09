@@ -22,7 +22,7 @@ type Props = {
 
 /**
  * Visible workspace handoff strip in the Agent panel (Prompt 3 · Wave E13 / AG).
- * OPT-K136 — icon diet (warn + InfoHint only). OPT-K138 — merge offline into same strip.
+ * OPT-K136/K152 — icon diet. OPT-K138 — merge offline into same strip.
  */
 export function AgentContextBanner({
   context,
@@ -69,12 +69,10 @@ export function AgentContextBanner({
             {sessionNotice}
           </span>
         )}
-        {showWarn && (
+        {/* OPT-K152 — text-first offline strip (skip decorative triangle when notice is present) */}
+        {showWarn && !sessionNotice && (
           <AlertTriangle
-            className={cn(
-              'h-3.5 w-3.5 shrink-0',
-              sessionNotice ? 'text-[var(--color-banner-warn-ink)]' : 'text-accent-amber',
-            )}
+            className="h-3.5 w-3.5 shrink-0 text-accent-amber"
             aria-hidden
           />
         )}

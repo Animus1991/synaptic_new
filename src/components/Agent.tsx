@@ -28,7 +28,7 @@ import { GoToSourceButton } from './GoToSourceButton';
 import { AgentContextBanner } from './AgentContextBanner';
 import { AgentFlowRail } from './AgentFlowRail';
 import { RichText } from './RichText';
-import { getAgentContent, type AgentUiCopy, AGENT_MODE_VISUALS } from '../features/agent';
+import { getAgentContent, type AgentUiCopy } from '../features/agent';
 import { AgentModeCatalogGrid, AgentModeSidebar } from './agent/AgentModeSidebar';
 import { useI18n } from '../lib/i18n';
 import { PlatformSection, PrimaryCTA } from './ui/primitives';
@@ -144,6 +144,7 @@ const AGENT_MODE_META: { mode: AgentMode; icon: typeof Brain; color: string }[] 
 ];
 
 /* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K150 — Agent Tasks-parity: text-first header chrome + quieter washes */
 export function Agent({
   messages,
   mode,
@@ -1032,7 +1033,6 @@ export function Agent({
   };
 
   const currentMode = agentModes.find(m => m.mode === mode)!;
-  const currentVisual = AGENT_MODE_VISUALS[mode];
   /** OPT-C2 — mute rainbow mode chrome under Minimal. */
   const quietModes = useMinimalTheme();
   /* OPT-K85 — non-Minimal: scrollbar-sized L/R pad; Minimal keeps prior gutters */
@@ -1090,33 +1090,20 @@ export function Agent({
       {/* Agent Header */}
       {!embedded && (
       <div className={cn(pagePadX, 'py-2.5 border-b border-transparent bg-surface-secondary/25')}>
-        <BlueprintSurface hint className="flex items-center justify-between max-w-none w-full min-w-0 border-0 bg-transparent px-3 py-2.5 shadow-none">
-          <div className="flex items-center gap-3">
-            <div
-              className={cn(
-                'agent-header-mode-icon w-9 h-9 rounded-xl flex items-center justify-center border-0',
-                quietModes && 'bg-surface-secondary text-text-secondary',
-              )}
-              style={quietModes ? undefined : { backgroundColor: `${currentVisual.color}18` }}
-            >
-              <currentMode.icon
-                className={cn('w-5 h-5', quietModes && 'text-text-secondary')}
-                style={quietModes ? undefined : { color: currentVisual.color }}
-              />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
+        <BlueprintSurface hint className="flex items-center justify-between max-w-none w-full min-w-0 border-0 bg-transparent px-0 py-2 shadow-none">
+          {/* OPT-K150 — text-first header (no decorative mode icon tile) */}
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="ws-serif type-meta font-semibold text-text-primary">{ui.title}</span>
                 <button
                   onClick={() => setShowModes(!showModes)}
                   className="lg:hidden flex items-center gap-1 px-2 py-0.5 rounded-md type-caption font-medium bg-surface-secondary border-0 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
                 >
-                  <currentMode.icon className={cn('w-3 h-3', quietModes ? 'text-text-secondary' : currentMode.color)} />
                   {currentMode.label}
                   <ChevronDown className={cn('w-3 h-3 transition-transform', showModes && 'rotate-180')} />
                 </button>
-                <span className="hidden lg:inline-flex items-center gap-1 px-2 py-0.5 rounded-md type-caption font-medium bg-surface-secondary border-0 text-text-secondary">
-                  <currentMode.icon className={cn('w-3 h-3', quietModes ? 'text-text-secondary' : currentMode.color)} />
+                <span className="hidden lg:inline-flex items-center px-2 py-0.5 rounded-md type-caption font-medium bg-surface-secondary border-0 text-text-secondary">
                   {currentMode.label}
                 </span>
               </div>
@@ -1617,24 +1604,27 @@ export function Agent({
                   title={voiceListening ? t('agentVoiceListening') : t('agentComposerVoice')}
                   className={cn(
                     /* OPT-K138 — icon-only composer tools (aria/title carry the label) */
-                    'inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg hover:bg-surface-hover text-text-secondary',
+                    embedded ? 'inline-flex min-h-8 min-w-8 items-center justify-center rounded-lg hover:bg-surface-hover text-text-secondary' : 'inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg hover:bg-surface-hover text-text-secondary',
                     voiceListening && 'text-accent-rose bg-accent-rose/10',
                   )}
                 >
                   <Mic className={cn('w-4 h-4', voiceListening && 'animate-pulse')} aria-hidden="true" />
                 </button>
+                {/* OPT-K152 — in notebook, Sources panel + attach cover search; keep on full Agent page */}
+                {!embedded && (
                 <button
                   type="button"
                   aria-label={t('agentSearchSources')}
                   onClick={handleSearchSources}
                   title={t('agentComposerSources')}
                   className={cn(
-                    'inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg hover:bg-surface-hover text-text-secondary',
+                    'inline-flex min-h-8 min-w-8 items-center justify-center rounded-lg hover:bg-surface-hover text-text-secondary',
                     attachSource && 'text-text-primary',
                   )}
                 >
                   <Search className="w-4 h-4" aria-hidden="true" />
                 </button>
+                )}
                 <div className="relative">
                   <button
                     type="button"
@@ -1646,7 +1636,7 @@ export function Agent({
                       setShowSourceSettings(false);
                     }}
                     className={cn(
-                      'inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg hover:bg-surface-hover text-text-secondary',
+                      embedded ? 'inline-flex min-h-8 min-w-8 items-center justify-center rounded-lg hover:bg-surface-hover text-text-secondary' : 'inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg hover:bg-surface-hover text-text-secondary',
                       pinnedFileId && 'text-text-primary',
                     )}
                   >
@@ -1687,11 +1677,11 @@ export function Agent({
                 data-testid="agent-send"
                 className={cn(
                   'agent-composer-send ws-touch-floor ml-auto shrink-0 rounded-xl !px-0',
-                  embedded ? 'min-h-9 min-w-9' : 'min-h-11 min-w-11',
+                  embedded ? 'min-h-9 min-w-9' : 'min-h-10 min-w-10',
                   (!input.trim() || isThinking) && 'opacity-50',
                 )}
               >
-                <Send className={cn(embedded ? 'h-4 w-4' : 'h-5 w-5')} aria-hidden="true" />
+                <Send className={cn(embedded ? 'h-4 w-4' : 'h-4 w-4')} aria-hidden="true" />
               </PrimaryCTA>
             </div>
           </div>

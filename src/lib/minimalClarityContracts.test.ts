@@ -990,6 +990,21 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(indexCss).toMatch(/Library drop zones/);
   });
 
+  it('K149 — Library Tasks-parity: icon diet + type ×0.99 + equal washes', () => {
+    const lib = read('src/components/Library.tsx');
+    expect(lib).toMatch(/OPT-K122\/K149|OPT-K149/);
+    expect(lib).toContain('data-type-rhythm="library"');
+    expect(lib).not.toMatch(/icon=\{BookOpen\}/);
+    expect(lib).toMatch(/icon=\{null\}/);
+    expect(lib).toMatch(/library-empty-state/);
+    expect(lib).toMatch(/library-upload-cta/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K149/);
+    expect(clarity).toContain('--library-type-scale: 0.99');
+    expect(clarity).toMatch(/Library Tasks-parity/);
+  });
+
   it('K142 — Workspace tool panels CTA-only unbox + tight type band', () => {
     const body = read('src/components/workspace/StudyWorkspaceBody.tsx');
     expect(body).toContain('data-testid="study-workspace"');
@@ -1005,7 +1020,7 @@ describe('OPT-K69 engineering clarity contracts', () => {
     const header = read('src/components/workspace/WorkspaceToolHeader.tsx');
     expect(header).toMatch(/OPT-K142/);
     expect(header).toMatch(/border-b border-transparent/);
-    expect(header).toMatch(/ws-tool-howto rounded-lg border-0/);
+    expect(header).toMatch(/ws-tool-howto rounded-(?:lg|md) border-0/);
 
     const clarity = read('src/styles/cursor-clarity.css');
     expect(clarity).toMatch(/OPT-K142/);
@@ -1037,6 +1052,513 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(indexCss).toMatch(/session launchers: wash cards/);
   });
 
+  it('K143 — Tasks equal session/tab rhythm + tight KPI type + no danger outline', () => {
+    const tasks = read('src/components/Tasks.tsx');
+    expect(tasks).toMatch(/OPT-K140–K146|OPT-K140–K145|OPT-K140\/K143|OPT-K143/);
+    expect(tasks).toContain('data-type-rhythm="tasks"');
+    expect(tasks).toContain('ux-kpi-value-sm');
+    expect(tasks).toContain('tasks-session-card-grid');
+    expect(tasks).toMatch(/tasks-danger-zone border-0 shadow-none/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K143/);
+    expect(clarity).toMatch(/Tasks densify pass/);
+    expect(clarity).toMatch(/force equal columns/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K143/);
+    expect(indexCss).toMatch(/wash alert, no outline cage/);
+  });
+
+  it('K144 — Tasks text-first sessions + icon diet + equal washes', () => {
+    const tasks = read('src/components/Tasks.tsx');
+    expect(tasks).toMatch(/OPT-K140\/K143\/K144|OPT-K144|OPT-K140–K145|OPT-K140–K146/);
+    /* Page header is text-first; empty-state icons remain intentional */
+    expect(tasks).not.toMatch(/PageHeader[\s\S]{0,120}icon=\{CheckCircle2\}/);
+    expect(tasks).not.toMatch(/tasks-tab-filter/);
+    expect(tasks).not.toMatch(/icon=\{Icon\}/);
+    expect(tasks).not.toMatch(/eyebrow=\{c\.sessionSectionEyebrow\}/);
+
+    const chrome = read('src/components/ui/platformChrome.tsx');
+    expect(chrome).toMatch(/OPT-K144/);
+    expect(chrome).toMatch(/ux-session-card--text-only/);
+    expect(chrome).toMatch(/icon\?: LucideIcon/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K144/);
+    expect(clarity).toMatch(/Tasks epitome pass/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K140\/K144|text-only/);
+    expect(indexCss).toMatch(/ux-session-card--text-only/);
+  });
+
+  it('K145 — Tasks flush type column + no tilde minutes + quieter danger + CTA −2%', () => {
+    const tasks = read('src/components/Tasks.tsx');
+    expect(tasks).toMatch(/OPT-K140–K145|OPT-K140–K146|OPT-K145/);
+    expect(tasks).toMatch(/tasks-entry-hint/);
+    expect(tasks).toMatch(/px-0 py-2/);
+    expect(tasks).toMatch(/tasks-danger-zone[\s\S]{0,160}type-caption/);
+
+    const content = read('src/lib/tasksContent.ts');
+    expect(content).not.toMatch(/`~\$\{minutes\}/);
+    expect(content).not.toMatch(/`~\$\{min\}/);
+    expect(content).toContain('λεπτά συνολικά');
+    expect(content).toContain('λεπτά απομένουν');
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K145/);
+    expect(clarity).toMatch(/flush type column/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K145|OPT-K146/);
+  });
+
+  it('K146 — Tasks quieter section/empty titles + CTA −2% + text-first empty', () => {
+    const tasks = read('src/components/Tasks.tsx');
+    expect(tasks).toMatch(/OPT-K140–K146|OPT-K140–K147|OPT-K146/);
+    expect(tasks).toMatch(/icon=\{null\}/);
+    expect(tasks).toMatch(/tasks-empty-state/);
+
+    const empty = read('src/components/ui/PlatformEmptyState.tsx');
+    expect(empty).toMatch(/OPT-K146/);
+    expect(empty).toMatch(/platform-empty-state-title/);
+    expect(empty).toMatch(/LucideIcon \| null/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K146/);
+    expect(clarity).toMatch(/0\.9604/);
+    expect(clarity).toMatch(/quieter titles/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/0\.9604/);
+  });
+
+  it('K147/K151 — Tasks denser type scale restored (×0.99)', () => {
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K147|OPT-K151/);
+    expect(clarity).toContain('--tasks-type-scale: 0.99');
+    expect(clarity).toMatch(/calc\(0\.6875rem \* var\(--tasks-type-scale\)\)/);
+  });
+
+  it('K150 — Agent text-first header chrome (Tasks type stays denser)', () => {
+    const agent = read('src/components/Agent.tsx');
+    expect(agent).toMatch(/OPT-K150/);
+    expect(agent).toContain('data-type-rhythm="dashboard"');
+    expect(agent).toContain('data-border-diet="cta-only"');
+    expect(agent).not.toMatch(/agent-header-mode-icon/);
+    expect(agent).not.toMatch(/AGENT_MODE_VISUALS/);
+    expect(agent).toMatch(/min-h-10 min-w-10/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K150/);
+    expect(clarity).toMatch(/Agent Tasks-parity/);
+  });
+
+  it('K151 — Tasks type restored to pre-K150 denser band', () => {
+    const tasks = read('src/components/Tasks.tsx');
+    expect(tasks).toMatch(/OPT-K151|OPT-K140–K151/);
+    expect(tasks).toContain('data-type-rhythm="tasks"');
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K151/);
+    expect(clarity).toContain('--tasks-type-scale: 0.99');
+  });
+
+  it('K148 — Dashboard Tasks-parity: icon diet + equal washes + type ×0.99', () => {
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/OPT-K148/);
+    expect(dash).toContain('data-border-diet="cta-only"');
+    expect(dash).toContain('data-type-rhythm="dashboard"');
+    expect(dash).not.toMatch(/greetingIconKind/);
+    expect(dash).not.toMatch(/SectionLabel icon=\{/);
+    expect(dash).not.toMatch(/dashboard-today-stat-icon/);
+    expect(dash).not.toMatch(/icon=\{<Lightbulb/);
+    expect(dash).not.toMatch(/BookOpen className/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K148/);
+    expect(clarity).toContain('--dashboard-type-scale: 0.99');
+    expect(clarity).toMatch(/Dashboard Tasks-parity/);
+  });
+
+  it('K152 — Workspace epitome: nuclear unbox + text-first tool chrome + quality footer', () => {
+    const body = read('src/components/workspace/StudyWorkspaceBody.tsx');
+    expect(body).toContain('data-testid="study-workspace"');
+    expect(body).toContain('data-border-diet="cta-only"');
+
+    const nb = read('src/components/workspace/studyWorkspace/NotebookWorkspaceLayout.tsx');
+    expect(nb).toMatch(/OPT-K152|OPT-K126\/K152/);
+    expect(nb).toContain('data-clarity-pass="k152"');
+    expect(nb).toContain('notebook-source-quality-footer');
+    expect(nb).toContain("tx('+ Προσθήκη', '+ Add')");
+    expect(nb).not.toMatch(/<Plus /);
+
+    const header = read('src/components/workspace/WorkspaceToolHeader.tsx');
+    expect(header).toMatch(/OPT-K152/);
+    expect(header).not.toMatch(/HelpCircle/);
+    expect(header).not.toMatch(/meta\.icon|const Icon =/);
+    expect(header).toMatch(/compact text guide control|ghost text Guide/);
+
+    const banner = read('src/components/AgentContextBanner.tsx');
+    expect(banner).toMatch(/OPT-K152|OPT-K136\/K152/);
+    expect(banner).toMatch(/!sessionNotice/);
+
+    const agent = read('src/components/Agent.tsx');
+    expect(agent).toMatch(/OPT-K152/);
+    expect(agent).toMatch(/!embedded &&/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K152/);
+    expect(clarity).toMatch(/Workspace epitome clarity/);
+    expect(clarity).toMatch(/invisible at rest/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K152/);
+    expect(indexCss).toMatch(/wash pills, no outline cage/);
+    expect(indexCss).toMatch(/cascade beater/);
+  });
+
+  it('K153 — Quiz/Progress/Annotations residual: text-first strips + wash toolbars', () => {
+    const warn = read('src/components/workspace/WorkspacePanelWarnStrip.tsx');
+    expect(warn).toMatch(/OPT-K153/);
+    expect(warn).not.toMatch(/AlertTriangle/);
+
+    const qa = read('src/components/workspace/WorkspaceQaStatusStrip.tsx');
+    expect(qa).toMatch(/OPT-K153/);
+    expect(qa).not.toMatch(/CheckCircle2|AlertTriangle/);
+
+    const quiz = read('src/components/workspace/QuizPanel.tsx');
+    expect(quiz).toMatch(/OPT-K153|Wave QZ \/ OPT-K153/);
+    expect(quiz).toMatch(/data-clarity-pass="k15[39]"/); /* K159 supersedes attribute */
+    expect(quiz).not.toMatch(/<Search |<BookOpen /);
+
+    const dash = read('src/components/workspace/DashboardPanel.tsx');
+    expect(dash).toMatch(/OPT-K153|OPT-K101\/K153/);
+    expect(dash).toContain('data-clarity-pass="k153"');
+    expect(dash).not.toMatch(/Lightbulb|icon=\{<Lightbulb/);
+    expect(dash).not.toMatch(/<BookOpen |<Target /);
+
+    const anno = read('src/components/workspace/AnnotationToolbar.tsx');
+    expect(anno).toMatch(/OPT-K153|OPT-K100\/K153/);
+    expect(anno).not.toMatch(/Highlighter|MessageSquare|UiIcon|FileText/);
+
+    const mini = read('src/components/workspace/MiniDashboard.tsx');
+    expect(mini).toMatch(/OPT-K153/);
+    expect(mini).toMatch(/icon\?: ReactNode \| null/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K153/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K153/);
+    expect(indexCss).toMatch(/wash only, no outline cage/);
+  });
+
+  it('K154 — Timer epitome: wash chrome + text-first secondary controls', () => {
+    const panel = read('src/components/workspace/TimerPanel.tsx');
+    expect(panel).toMatch(/OPT-K154|OPT-K101\/K154/);
+    expect(panel).toContain('data-clarity-pass="k154"');
+    expect(panel).not.toMatch(/<BookOpen |<Layers |<Search /);
+
+    const timer = read('src/components/workspace/StudyTimer.tsx');
+    expect(timer).toMatch(/OPT-K154/);
+    expect(timer).toContain('data-clarity-pass="k154"');
+    expect(timer).not.toMatch(/GraduationCap|<Calendar |Layers/);
+    expect(timer).toMatch(/Play|Pause|RotateCcw/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K154/);
+    expect(clarity).toMatch(/Timer epitome residual/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K154/);
+  });
+
+
+  it('K155 — Workspace panels: type parity + ghost Guide + last outline kill', () => {
+    const body = read('src/components/workspace/StudyWorkspaceBody.tsx');
+    expect(body).toContain('data-clarity-pass="k155"');
+    expect(body).toContain('data-type-rhythm="workspace-tools"');
+
+    const header = read('src/components/workspace/WorkspaceToolHeader.tsx');
+    expect(header).toMatch(/OPT-K155|OPT-K152\/K155/);
+    expect(header).toMatch(/ghost text Guide/);
+
+    const frame = read('src/components/workspace/ToolFrame.tsx');
+    expect(frame).toMatch(/OPT-K155|OPT-K142\/K152\/K155/);
+    expect(frame).toMatch(/data-clarity-pass="k15[58]"/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K155/);
+    expect(clarity).toMatch(/tight type ladder|type parity|Harmonized type/i);
+    expect(clarity).toMatch(/::-webkit-details-marker/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K155/);
+    expect(indexCss).toMatch(/--type-body: 0\.875rem/);
+    expect(indexCss).toMatch(/--type-display-sm: 0\.9375rem/);
+    expect(indexCss).toMatch(/last outline kill/);
+  });
+
+
+  it('K156 — Reader + Debate residual: text-first chrome + wash aids + soft nodes', () => {
+    const reader = read('src/components/workspace/CognitiveReader.tsx');
+    expect(reader).toContain('data-clarity-pass="k156"');
+    expect(reader).not.toMatch(/reader-annotate-toggle[\s\S]{0,200}<Highlighter/);
+    expect(reader).toMatch(/border-b border-transparent/);
+
+    const debate = read('src/components/workspace/DebatePanel.tsx');
+    expect(debate).toMatch(/data-clarity-pass="k15[68]"/);
+    expect(debate).not.toMatch(/<Search |<BookOpen /);
+
+    const map = read('src/components/workspace/ArgumentMap.tsx');
+    expect(map).toMatch(/data-clarity-pass="k15[68]"/);
+    expect(map).not.toMatch(/Shield|Sparkles/);
+    expect(map).toMatch(/rounded-xl border-0 p-2\.5|rounded-xl border p-3/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K156/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K156/);
+    expect(indexCss).toMatch(/wash toggle, no outline cage/);
+  });
+
+
+  it('K157 — Whiteboard residual: wash toolbar/coach + text-first chrome + Lucide-only tools', () => {
+    const board = read('src/components/workspace/StudyWhiteboard.tsx');
+    expect(board).toMatch(/data-clarity-pass="k(157|162)"/);
+    expect(board).not.toMatch(/whiteboard-notes-toggle[\s\S]{0,220}<BookOpen/);
+    expect(board).not.toMatch(/w-px bg-border-subtle/);
+    expect(board).toMatch(/border-b border-transparent/);
+
+    const coach = read('src/components/workspace/WhiteboardDiagramCoach.tsx');
+    expect(coach).toMatch(/data-clarity-pass="k(157|162)"/);
+    expect(coach).not.toMatch(/Sparkles|PenLine|LayoutTemplate|<Bot /);
+
+    const panel = read('src/components/workspace/WhiteboardPanel.tsx');
+    expect(panel).toMatch(/data-clarity-pass="k(157|162)"/);
+    expect(panel).not.toMatch(/<Search |<BookOpen /);
+
+    const strip = read('src/components/workspace/WhiteboardBlueprintCoverageStrip.tsx');
+    expect(strip).toMatch(/data-clarity-pass="k(157|162)"/);
+    expect(strip).not.toMatch(/CheckCircle2|AlertTriangle/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K157/);
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K157/);
+  });
+
+
+  it('K158 — Debate epitome: wash nodes + text-first agent chips + no Guide label echo', () => {
+    const debate = read('src/components/workspace/DebatePanel.tsx');
+    expect(debate).toMatch(/data-clarity-pass="k(158|162)"/);
+    expect(debate).not.toMatch(/AllCapsLabel/);
+
+    const map = read('src/components/workspace/ArgumentMap.tsx');
+    expect(map).toMatch(/data-clarity-pass="k(158|162)"/);
+    expect(map).toMatch(/rounded-xl border-0/);
+    expect(map).not.toMatch(/borderColor: colorStyle\.border/);
+
+    const chips = read('src/components/workspace/WorkspaceToolAgentChipBar.tsx');
+    expect(chips).toMatch(/data-clarity-pass="k(158|162)"/);
+    expect(chips).not.toMatch(/<Sparkles|AllCapsLabel/);
+
+    const header = read('src/components/workspace/WorkspaceToolHeader.tsx');
+    expect(header).toMatch(/OPT-K158|no repeated/);
+    expect(header).not.toMatch(/ArrowRight/);
+
+    const strip = read('src/components/workspace/DebateRebuttalPersistStrip.tsx');
+    expect(strip).toMatch(/data-clarity-pass="k(158|162)"/);
+    expect(strip).not.toMatch(/AlertTriangle/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K158/);
+  });
+
+
+  it('K159 — Quiz/ConceptMap/Simulator residual: wash chrome + text-first + soft nodes', () => {
+    const quiz = read('src/components/workspace/QuizPanel.tsx');
+    expect(quiz).toContain('data-clarity-pass="k159"');
+    expect(quiz).toMatch(/sr-only[\s\S]{0,40}quiz-item-count/);
+
+    const irt = read('src/components/workspace/QuizIrtBadge.tsx');
+    expect(irt).toContain('data-clarity-pass="k159"');
+    expect(irt).toMatch(/border-0/);
+
+    const wq = read('src/components/workspace/WorkspaceQuiz.tsx');
+    expect(wq).toMatch(/border-0 p-3 text-left type-body/);
+
+    const map = read('src/components/workspace/DraggableConceptMap.tsx');
+    expect(map).toMatch(/data-clarity-pass="k(159|162)"/); /* K162 supersedes */
+    expect(map).not.toMatch(/cm-node-shadow/);
+    expect(map).toMatch(/stroke="none"/);
+
+    const sim = read('src/components/workspace/SimulatorPanel.tsx');
+    expect(sim).toContain('data-clarity-pass="k159"');
+    expect(sim).not.toMatch(/<Timer |<BookOpen |<Search /);
+
+    const sandbox = read('src/components/workspace/InteractiveSimulator.tsx');
+    expect(sandbox).toContain('data-clarity-pass="k159"');
+    expect(sandbox).not.toMatch(/<Target |<Zap /);
+
+    const cite = read('src/components/workspace/SourceCitationChip.tsx');
+    expect(cite).toContain('data-clarity-pass="k159"');
+    expect(cite).not.toMatch(/<BookOpen/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K159/);
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K159/);
+  });
+
+
+
+it('K160 — Feynman/Flashcards residual: wash chrome + text-first + no topic echo', () => {
+    const feynman = read('src/components/workspace/FeynmanCheck.tsx');
+    expect(feynman).toMatch(/data-clarity-pass="k(160|162)"/);
+    expect(feynman).not.toMatch(/<Sparkles|<Bot /);
+    expect(feynman).toMatch(/border-0 bg-surface-secondary\/55/);
+
+    const strip = read('src/components/workspace/FeynmanRubricExportDiscoverabilityStrip.tsx');
+    expect(strip).toMatch(/data-clarity-pass="k(160|162)"/);
+    expect(strip).not.toMatch(/<CheckCircle2|<FileText|<Download|<Printer/);
+
+    const panel = read('src/components/workspace/LeitnerPanel.tsx');
+    expect(panel).toMatch(/data-clarity-pass="k(160|162)"/);
+    expect(panel).toMatch(/showDeckTopic=\{false\}/);
+    expect(panel).not.toMatch(/<AlertTriangle|<BookOpen /);
+
+    const box = read('src/components/workspace/LeitnerBox.tsx');
+    expect(box).toMatch(/data-clarity-pass="k(160|162)"/);
+    expect(box).toMatch(/showDeckTopic/);
+
+    const overflow = read('src/components/workspace/PanelOverflowMenu.tsx');
+    expect(overflow).toMatch(/border-0 bg-surface-secondary\/50/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K160/);
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K160/);
+  });
+
+it('K161 — Study Room residual: text-first lobby + wash collab panels', () => {
+    const page = read('src/components/StudyRoom.tsx');
+    expect(page).toContain('data-clarity-pass="k161"');
+    expect(page).toMatch(/OPT-K161|OPT-K127 \/ OPT-K161/);
+    expect(page).not.toMatch(/icon=\{Users\}|icon=\{BookOpen\}|icon=\{HelpCircle\}/);
+    expect(page).not.toMatch(/<Plus |<Eye |<Video |<StickyNote |<ArrowRight |<LogOut /);
+    expect(page).toMatch(/study-room-feature-grid/);
+
+    const panel = read('src/components/workspace/StudyRoomPanel.tsx');
+    expect(panel).toContain('data-clarity-pass="k161"');
+    expect(panel).not.toMatch(/<Users |<Plus |<Eye |<Video |<LogOut |<Clock |AllCapsLabel/);
+
+    const hub = read('src/components/workspace/CoReadingHubPanel.tsx');
+    expect(hub).toContain('data-clarity-pass="k161"');
+    expect(hub).toMatch(/border-0 bg-surface-secondary\/45/);
+
+    const banner = read('src/components/workspace/StudyRoomCoViewBanner.tsx');
+    expect(banner).toContain('data-clarity-pass="k161"');
+    expect(banner).not.toMatch(/<Users /);
+
+    const proposals = read('src/components/workspace/StudyRoomNoteProposalsPanel.tsx');
+    expect(proposals).toContain('data-clarity-pass="k161"');
+    expect(proposals).not.toMatch(/AllCapsLabel/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K161/);
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K161/);
+  });
+
+it('K162 — Map/Scratchpad/Guide residual: text-first chrome + wash composers', () => {
+    const map = read('src/components/workspace/DraggableConceptMap.tsx');
+    expect(map).toContain('data-clarity-pass="k162"');
+    expect(map).not.toMatch(/<Plus |<Link2 /);
+    expect(map).not.toMatch(/<BookOpen |<Pencil |<FileText |<Trash2 /);
+
+    const scratch = read('src/components/workspace/FormulaScratchpad.tsx');
+    expect(scratch).toContain('data-clarity-pass="k162"');
+    expect(scratch).not.toMatch(/<Calculator |<PenSquare |<Sparkles /);
+    expect(scratch).toMatch(/border-0 bg-surface-secondary\/45|border-0 bg-surface-secondary\/55/);
+
+    const header = read('src/components/workspace/WorkspaceToolHeader.tsx');
+    expect(header).toContain('data-clarity-pass="k162"');
+    expect(header).toMatch(/bg-transparent px-0/);
+
+    const frame = read('src/components/workspace/ToolFrame.tsx');
+    expect(frame).toContain('data-clarity-pass="k162"');
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K162/);
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K162/);
+  });
+
+it('K163 — Study Room lobby type scale +1%', () => {
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K163/);
+    expect(clarity).toMatch(/--study-room-type-scale:\s*1\.07/);
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K163/);
+    expect(indexCss).toMatch(/--study-room-type-scale:\s*1\.07/);
+  });
+
+it('K164 — Study Room header type balanced with lobby body', () => {
+    const page = read('src/components/StudyRoom.tsx');
+    expect(page).not.toMatch(/studyRoomHubWhatTitle'\) size="lg"/);
+    expect(page).toMatch(/OPT-K164/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K164/);
+    expect(clarity).toMatch(/Study Room header\/body type balance/);
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K164/);
+  });
+
+it('K165 — Study Room content type +1% (header excluded)', () => {
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K165/);
+    expect(clarity).toMatch(/study-room-hub-grid/);
+    expect(clarity).toMatch(/--study-room-content-scale:\s*1\.01/);
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K165/);
+    expect(indexCss).toMatch(/--study-room-content-scale:\s*1\.01/);
+  });
+
+it('K166 — Dashboard residual: sentence-case labels + text-first list chrome', () => {
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toContain('data-clarity-pass="k166"');
+    expect(dash).toMatch(/OPT-K166/);
+    expect(dash).not.toMatch(/<Sparkles /);
+    expect(dash).not.toMatch(/CourseIcon icon=\{task\.courseIcon\}/);
+    expect(dash).toMatch(/reasons\[0\]\.id !== 'low-mastery'/);
+    expect(dash).not.toMatch(/t\(\\'dashHorizon/);
+    expect(dash).toMatch(/\{t\('dashHorizonToday'\)\}/);
+    expect(dash).not.toMatch(/import \{ CourseIcon \}/);
+
+    const section = read('src/components/ui/SectionLabel.tsx');
+    expect(section).toMatch(/OPT-K166/);
+    expect(section).not.toMatch(/AllCapsLabel|uppercase/);
+
+    const syllabus = read('src/components/examPrep/SyllabusCoverageWidget.tsx');
+    expect(syllabus).not.toMatch(/<AllCapsLabel/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K166/);
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K166/);
+
+    const hub = read('src/components/DashboardActionHub.tsx');
+    expect(hub).toContain('data-clarity-pass="k166"');
+    expect(hub).not.toMatch(/AllCapsLabel/);
+    const live = read('src/components/DashboardLivePreview.tsx');
+    expect(live).not.toMatch(/AllCapsLabel/);
+    expect(live).not.toMatch(/border-l-accent-emerald/);
+  });
+
   it('K121 — Dashboard type rhythm applied platform-wide', () => {
     const prim = read('src/components/ui/primitives.tsx');
     expect(prim).toMatch(/OPT-K121/);
@@ -1061,9 +1583,11 @@ describe('OPT-K69 engineering clarity contracts', () => {
     const dash = read('src/components/Dashboard.tsx');
     expect(dash).toMatch(/data-type-rhythm="dashboard"/);
     const library = read('src/components/Library.tsx');
-    expect(library).toMatch(/data-type-rhythm="dashboard"/);
+    /* Library uses dedicated library rhythm (K149+); still page-scoped type diet */
+    expect(library).toMatch(/data-type-rhythm="library"/);
     const tasks = read('src/components/Tasks.tsx');
-    expect(tasks).toMatch(/data-type-rhythm="dashboard"/);
+    /* Tasks uses dedicated tasks rhythm (K143+); still page-scoped type diet */
+    expect(tasks).toMatch(/data-type-rhythm="tasks"/);
     const analytics = read('src/components/Analytics.tsx');
     expect(analytics).toMatch(/data-type-rhythm="dashboard"/);
   });

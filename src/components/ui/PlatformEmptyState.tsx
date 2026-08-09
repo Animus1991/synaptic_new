@@ -9,7 +9,8 @@ type Props = {
   description: string;
   actionLabel?: string;
   onAction?: () => void;
-  icon?: LucideIcon;
+  /** OPT-K146 — pass `null` for text-first empty (no decorative icon tile). */
+  icon?: LucideIcon | null;
   className?: string;
   secondaryActionLabel?: string;
   onSecondaryAction?: () => void;
@@ -36,10 +37,12 @@ export function PlatformEmptyState({
       )}
       data-testid={testId}
     >
-      <div className="platform-empty-state-icon grid h-14 w-14 place-items-center rounded-2xl border border-border-subtle bg-surface-secondary mb-5">
-        <Icon className="h-7 w-7 text-text-tertiary" aria-hidden />
-      </div>
-      <h3 className="ws-serif text-xl font-medium tracking-tight text-text-primary mb-2 max-w-lg leading-snug">{title}</h3>
+      {Icon ? (
+        <div className="platform-empty-state-icon grid h-14 w-14 place-items-center rounded-2xl border border-border-subtle bg-surface-secondary mb-5">
+          <Icon className="h-7 w-7 text-text-tertiary" aria-hidden />
+        </div>
+      ) : null}
+      <h3 className="platform-empty-state-title ws-serif text-xl font-medium tracking-tight text-text-primary mb-2 max-w-lg leading-snug">{title}</h3>
       <p className="type-body text-text-secondary mb-7 max-w-md leading-relaxed">{description}</p>
       <div className="flex flex-wrap items-center justify-center gap-3">
         {actionLabel && onAction && (

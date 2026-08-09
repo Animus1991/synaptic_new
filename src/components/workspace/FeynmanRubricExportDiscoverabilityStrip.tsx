@@ -1,4 +1,3 @@
-import { CheckCircle2, Download, FileText, Printer } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { FeynmanRubricExportDiscoverabilityReport } from '../../lib/feynmanRubricExportDiscoverabilityQA';
 import { useI18n } from '../../lib/i18n';
@@ -11,6 +10,7 @@ type Props = {
   onOpenDashboard?: () => void;
 };
 
+/** OPT-K160 — text-first status strip; wash actions (no decorative Lucide). */
 export function FeynmanRubricExportDiscoverabilityStrip({
   report,
   lang: _lang,
@@ -26,17 +26,13 @@ export function FeynmanRubricExportDiscoverabilityStrip({
   return (
     <div
       className={cn(
-        'ws-status-strip mb-3 flex flex-col gap-2 sm:flex-row sm:items-center',
+        'ws-status-strip mb-2 flex flex-col gap-2 border-0 bg-surface-secondary/35 sm:flex-row sm:items-center',
         ready ? 'ws-status-ok' : 'ws-status-warn',
       )}
       data-testid="feynman-rubric-export-discoverability-strip"
+      data-clarity-pass="k162"
     >
       <div className="flex min-w-0 flex-1 items-start gap-2">
-        {ready ? (
-          <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-        ) : (
-          <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-        )}
         <p className="min-w-0 leading-snug">{report.bannerSummary}</p>
       </div>
 
@@ -47,9 +43,8 @@ export function FeynmanRubricExportDiscoverabilityStrip({
               type="button"
               data-testid="feynman-strip-export-download"
               onClick={onExportDownload}
-              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-card px-2 py-1 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary"
+              className="inline-flex min-h-8 items-center rounded-lg border-0 bg-surface-secondary/70 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
             >
-              <Download className="h-3 w-3" />
               HTML
             </button>
           )}
@@ -58,9 +53,8 @@ export function FeynmanRubricExportDiscoverabilityStrip({
               type="button"
               data-testid="feynman-strip-export-print"
               onClick={onExportPrint}
-              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-card px-2 py-1 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary"
+              className="inline-flex min-h-8 items-center rounded-lg border-0 bg-surface-secondary/70 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
             >
-              <Printer className="h-3 w-3" />
               PDF
             </button>
           )}
@@ -69,7 +63,7 @@ export function FeynmanRubricExportDiscoverabilityStrip({
               type="button"
               data-testid="feynman-strip-open-dashboard"
               onClick={onOpenDashboard}
-              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2 py-1 type-caption font-medium text-text-secondary hover:text-text-primary"
+              className="inline-flex min-h-8 items-center rounded-lg border-0 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
             >
               {t('stripDashboardExport')}
             </button>

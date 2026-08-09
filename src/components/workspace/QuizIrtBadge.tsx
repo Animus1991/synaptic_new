@@ -40,8 +40,9 @@ export function QuizIrtBadge({ irt, lang, responseCount = 0 }: Props) {
 
   return (
     <div
-      className="rounded-xl border border-border-subtle bg-surface-secondary/30 px-3 py-2 space-y-1.5"
+      className="rounded-md border-0 bg-surface-secondary/35 px-2.5 py-1.5 space-y-1"
       data-testid="quiz-irt-badge"
+      data-clarity-pass="k159"
       role="status"
     >
       <p className="type-caption font-medium leading-snug text-text-secondary" data-testid="quiz-irt-meta-line">

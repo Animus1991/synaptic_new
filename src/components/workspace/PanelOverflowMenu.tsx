@@ -70,7 +70,8 @@ export function PanelOverflowMenu({
     >
       <summary
         className={cn(
-          'flex min-h-9 min-w-9 cursor-pointer list-none items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover hover:text-text-primary [&::-webkit-details-marker]:hidden',
+          /* OPT-K160 — wash trigger; keep focus ring via focus-visible utilities elsewhere */
+          'flex min-h-8 min-w-8 cursor-pointer list-none items-center justify-center rounded-lg border-0 bg-surface-secondary/50 text-text-secondary hover:bg-surface-hover hover:text-text-primary [&::-webkit-details-marker]:hidden',
           summaryLabel != null && 'gap-1 px-2.5 py-1',
           summaryClassName,
         )}
@@ -94,7 +95,7 @@ export function PanelOverflowMenu({
       <div
         role="menu"
         className={cn(
-          'absolute right-0 top-full z-20 mt-1 min-w-[10.5rem] rounded-lg border border-border-subtle bg-surface-elevated py-1 shadow-lg',
+          'absolute right-0 top-full z-20 mt-1 min-w-[10.5rem] rounded-lg border-0 bg-surface-elevated py-1 shadow-md ring-1 ring-black/5',
           menuClassName,
         )}
         onClick={() => {

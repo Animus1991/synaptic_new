@@ -2,8 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { emphasizedTransition, expandHeight } from '../lib/motion';
 import {
-  CheckCircle2, Circle, Clock, AlertTriangle, RotateCcw, Calendar,
-  Play, Flame, Brain, Target, Zap,
+  CheckCircle2, Circle, Clock, AlertTriangle, Calendar,
+  Play, Flame, Brain,
   HelpCircle, XCircle, RefreshCw, ArrowDownRight, TrendingUp, Minus, ArrowRight,
   List, LayoutGrid,
 } from '@/lib/lucide-shim';
@@ -33,7 +33,7 @@ import { useMinimalTheme } from '../lib/useMinimalTheme';
 import { AllCapsLabel } from './ui/AllCapsLabel';
 
 /* OPT-K98 — markup debt: decorative brand type -> ink */
-/* OPT-K140 — Tasks CTA-only border diet: wash surfaces, keep all actions */
+/* OPT-K140–K151 — Tasks CTA-only diet; denser Tasks type (restored pre-K150) */
 export type { TaskFilter } from '../lib/tasksContent';
 
 type CommandTab = 'today' | 'weak' | 'reviews' | 'mistakes';
@@ -271,14 +271,13 @@ export function Tasks({
       data-testid="tasks-page"
       data-border-diet="cta-only"
       data-tasks-layout={layoutMode}
-      data-type-rhythm="dashboard"
+      data-type-rhythm="tasks"
       className={cn('min-w-0 w-full', isMinimal && 'tasks-quiet')}
     >
     <Page className="max-w-none ux-fade-up !pt-0" gap="sm">
       <PageHeader
         title={c.pageTitle}
         subtitle={subtitle}
-        icon={CheckCircle2}
         actions={
           <div className="flex items-center gap-2">
             <div
@@ -329,11 +328,12 @@ export function Tasks({
       />
 
       {!entryHintDismissed && (
+        /* OPT-K145 — flush with page title (no inset padding / wash nest) */
         <div
-          className="flex items-start gap-2 rounded-xl border-0 bg-surface-secondary/50 px-3 py-2"
+          className="flex items-start gap-2 border-0 px-0 py-1"
           data-testid="tasks-entry-hint"
         >
-          <p className="flex-1 type-body text-text-secondary leading-snug">{c.entryHint}</p>
+          <p className="flex-1 type-caption text-text-secondary leading-snug">{c.entryHint}</p>
           <button
             type="button"
             onClick={dismissEntryHint}
@@ -341,7 +341,7 @@ export function Tasks({
             aria-label={t('tasksEntryHintDismiss', lang)}
             title={t('tasksEntryHintDismiss', lang)}
           >
-            <XCircle className="h-4 w-4" aria-hidden />
+            <XCircle className="h-3.5 w-3.5" aria-hidden />
           </button>
         </div>
       )}
@@ -359,19 +359,19 @@ export function Tasks({
         </div>
       )}
 
-      {/* Daily progress */}
-      <BlueprintSurface hint className="p-3" data-testid="tasks-daily-goal">
-        <div className="flex items-center justify-between mb-2">
-          <div>
+      {/* Daily progress — OPT-K145 flush type column (no inset wash padding) */}
+      <BlueprintSurface hint className="border-0 shadow-none px-0 py-2" data-testid="tasks-daily-goal">
+        <div className="flex items-center justify-between gap-3 mb-2">
+          <div className="min-w-0 flex-1">
             <p className="type-meta font-semibold text-text-primary">{c.tasksComplete(doneCount, totalCount)}</p>
             <p className="type-caption text-text-tertiary">{c.totalMinutes(totalMin)} · {c.minRemaining(remainingMin)}</p>
           </div>
-          <div className="text-right">
-            <p className="ux-kpi-value">{progressPct}%</p>
-            <p className="type-caption font-medium tracking-wide text-text-tertiary">{c.dailyGoal}</p>
+          <div className="text-right shrink-0">
+            <p className="ux-kpi-value-sm">{progressPct}%</p>
+            <p className="type-caption font-medium text-text-tertiary">{c.dailyGoal}</p>
           </div>
         </div>
-        <div className="ux-progress-track h-2.5" role="progressbar" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100} aria-label={c.dailyGoal}>
+        <div className="ux-progress-track h-1.5" role="progressbar" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100} aria-label={c.dailyGoal}>
           <div className="ux-progress-fill" style={{ width: `${progressPct}%` }} />
         </div>
       </BlueprintSurface>
@@ -403,8 +403,8 @@ export function Tasks({
       <div id="tasks-session-launchers" data-testid="tasks-session-launchers">
         <CollapsibleChromeSection title={t('chromeSessions', lang)} data-testid="tasks-sessions-chrome">
           <div className="space-y-2 pb-1">
+            {/* OPT-K144 — title+hint only (no eyebrow); session cards text-first */}
             <SectionHeader
-              eyebrow={c.sessionSectionEyebrow}
               title={c.sessionSectionTitle}
               subtitle={c.sessionSectionSubtitle}
             />
@@ -425,10 +425,12 @@ export function Tasks({
               {c.createPlanCta}
             </PrimaryCTA>
             <p className="type-caption text-text-muted text-center sm:text-left -mt-0.5">{c.createPlanHint}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2">
+            <div
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 items-stretch"
+              data-testid="tasks-session-card-grid"
+            >
               {orderedSessionTypes.map((s) => {
                 const sessionTasks = filterTasksForSession(visibleTasks, s.type);
-                const Icon = s.icon;
                 const isRecommended = recommendedSession === s.type;
                 return (
                   <SessionLauncherCard
@@ -438,7 +440,6 @@ export function Tasks({
                     desc={s.desc}
                     durationTag={c.sessionDurationTag(s.minutes)}
                     taskHint={sessionTasks.length > 0 ? c.sessionTaskCount(s.minutes, sessionTasks.length) : undefined}
-                    icon={Icon}
                     active={sessionMode === s.type}
                     recommended={isRecommended}
                     recommendedLabel={t('sessionRecommendedBadge', lang)}
@@ -479,6 +480,7 @@ export function Tasks({
         </div>
       )}
 
+      {/* OPT-K144 — no trailing Target: tabs are self-explanatory; scroll affordance was opaque */}
       <DescriptiveStickyTabBar
         items={tabs}
         activeId={tab}
@@ -486,20 +488,6 @@ export function Tasks({
         testIdPrefix="tasks-tab"
         panelIdPrefix="tasks-panel"
         ariaLabel={lang === 'el' ? 'Κατηγορίες εργασιών' : 'Task categories'}
-        trailing={
-          <button
-            type="button"
-            data-testid="tasks-tab-filter"
-            className="rounded-xl border-0 bg-surface-secondary/55 p-2.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
-            aria-label={t('tasksTabFilterAria', lang)}
-            title={t('tasksTabFilterAria', lang)}
-            onClick={() => {
-              document.getElementById('tasks-session-launchers')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }}
-          >
-            <Target className="w-4 h-4" aria-hidden />
-          </button>
-        }
       />
 
       {/* Today's Plan */}
@@ -509,11 +497,11 @@ export function Tasks({
             <UxCallout
               variant={daysToExam <= 3 ? 'danger' : 'warn'}
               title={c.dangerZoneTitle}
-              icon={<AlertTriangle />}
+              icon={<AlertTriangle className="h-3.5 w-3.5" />}
               testId="tasks-danger-zone"
-              className="mb-1 py-2 tasks-danger-zone"
+              className="mb-1 py-1.5 px-0 tasks-danger-zone border-0 shadow-none"
             >
-              <p className="type-body leading-snug text-text-secondary">{c.dangerZoneBody(daysToExam)}</p>
+              <p className="type-caption leading-snug text-text-secondary">{c.dangerZoneBody(daysToExam)}</p>
             </UxCallout>
           )}
           {showInsightStrip && (
@@ -530,12 +518,9 @@ export function Tasks({
             >
               {almostKnownPreview.length > 0 && (
                 <div className="tasks-insight-card ux-banner-warn rounded-xl border-0 bg-accent-amber/5 p-3 space-y-1.5">
-                  <div className="flex items-center gap-1.5">
-                    <TrendingUp className="w-3.5 h-3.5 ux-banner-warn-accent shrink-0" aria-hidden />
-                    <p className="ux-banner-warn-accent type-caption font-semibold tracking-wide">
-                      {c.almostThereTitle}
-                    </p>
-                  </div>
+                  <p className="ux-banner-warn-accent type-caption font-semibold tracking-wide">
+                    {c.almostThereTitle}
+                  </p>
                   <p className="type-caption text-text-tertiary leading-snug">{c.almostThereHint}</p>
                   <ul className="space-y-1">
                     {almostKnownPreview.map((item) => (
@@ -558,12 +543,9 @@ export function Tasks({
               )}
               {antiPassiveAlert && (
                 <div className="tasks-insight-card rounded-xl border-0 bg-brand-600/5 p-3 space-y-1.5">
-                  <div className="flex items-center gap-1.5">
-                    <Zap className="w-3.5 h-3.5 text-text-secondary shrink-0" aria-hidden />
-                    <p className="type-caption font-semibold tracking-wide text-text-secondary">
-                      {c.recallReminderTitle}
-                    </p>
-                  </div>
+                  <p className="type-caption font-semibold tracking-wide text-text-secondary">
+                    {c.recallReminderTitle}
+                  </p>
                   <p className="type-caption text-text-secondary leading-snug">{c.recallReminderBody}</p>
                   <button
                     type="button"
@@ -586,7 +568,13 @@ export function Tasks({
             />
           )}
           {todayTasks.length === 0 ? (
-            <PlatformEmptyState title={c.emptyTitle} description={c.emptyDescription} icon={CheckCircle2} />
+            <PlatformEmptyState
+              title={c.emptyTitle}
+              description={c.emptyDescription}
+              icon={null}
+              className="tasks-empty-state"
+              data-testid="tasks-empty-today"
+            />
           ) : (
             todayTasks.map((task, i) => {
               const isExpanded = expandedTask === task.id;
@@ -722,7 +710,12 @@ export function Tasks({
       {tab === 'weak' && (
         <div className="space-y-3" id="tasks-panel-weak" data-testid="tasks-panel-weak" role="tabpanel" aria-labelledby="tasks-tab-weak">
           {scopedWeak.length === 0 ? (
-            <PlatformEmptyState title={c.weakAreasEmpty} description={c.emptyDescription} icon={Target} />
+            <PlatformEmptyState
+              title={c.weakAreasEmpty}
+              description={c.emptyDescription}
+              icon={null}
+              className="tasks-empty-state"
+            />
           ) : (
             scopedWeak.map((area) => {
               const errors = Math.round(area.errorRate * 10);
@@ -832,7 +825,12 @@ export function Tasks({
             variant="card"
           />
           {reviewTasks.length === 0 && fsrsQueue.length === 0 && (
-            <PlatformEmptyState title={c.emptyTitle} description={c.emptyDescription} icon={RotateCcw} />
+            <PlatformEmptyState
+              title={c.emptyTitle}
+              description={c.emptyDescription}
+              icon={null}
+              className="tasks-empty-state"
+            />
           )}
         </div>
       )}
@@ -847,7 +845,12 @@ export function Tasks({
           </div>
           )}
           {openMistakes.length === 0 ? (
-            <PlatformEmptyState title={c.emptyTitle} description={c.emptyDescription} icon={CheckCircle2} />
+            <PlatformEmptyState
+              title={c.emptyTitle}
+              description={c.emptyDescription}
+              icon={null}
+              className="tasks-empty-state"
+            />
           ) : (
             openMistakes.map((mistake) => {
               const ago = daysSince(mistake.createdAt);

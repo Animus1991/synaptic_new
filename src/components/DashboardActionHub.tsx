@@ -5,7 +5,6 @@ import {
 } from '@phosphor-icons/react';
 import { cn } from '../utils/cn';
 import { useI18n } from '../lib/i18n';
-import { AllCapsLabel } from './ui/AllCapsLabel';
 import { PrimaryCTA } from './ui/primitives';
 import {
   buildDashboardHubActions,
@@ -84,7 +83,8 @@ interface Props {
   flushTop?: boolean;
 }
 
-/* OPT-K98 — markup debt: decorative brand type -> ink */
+/* OPT-K166 — sentence-case hero + quieter hub chrome.
+ * OPT-K98 — markup debt: decorative brand type -> ink */
 export function DashboardActionHub({
   reviewsDue,
   canWorkspace,
@@ -191,7 +191,7 @@ export function DashboardActionHub({
         onDoubleClick={() => handleCardDoubleClick(action.scrollTargetId)}
         className={cn(
           /* OPT-K109 — wash chips; no per-chip outline */
-          'dashboard-hub-chip relative flex min-w-0 flex-col items-center gap-1 rounded-xl border border-transparent bg-surface-secondary/70 px-2 py-2.5 text-center transition-colors',
+          'dashboard-hub-chip relative flex min-w-0 flex-col items-center gap-0.5 rounded-lg border border-transparent bg-surface-secondary/55 px-2 py-2 text-center transition-colors',
           'hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-500/50',
           action.disabled && 'opacity-50 pointer-events-none',
           glassCard,
@@ -203,7 +203,7 @@ export function DashboardActionHub({
           {t(action.chipLabelKey)}
         </span>
         {action.badge && (
-          <span className="absolute -right-1 -top-1 min-w-[1.1rem] rounded-md bg-accent-rose px-1 py-0.5 type-micro font-bold leading-none text-white">
+          <span className="absolute -right-1 -top-1 min-w-[1.1rem] rounded-md bg-surface-secondary px-1 py-0.5 type-micro font-semibold leading-none text-text-secondary">
             {action.badge}
           </span>
         )}
@@ -222,7 +222,7 @@ export function DashboardActionHub({
           overflowOpen && 'z-40',
           !flushTop && 'rounded-none',
         )}
-        data-testid="dashboard-action-hub"
+        data-testid="dashboard-action-hub" data-clarity-pass="k166"
         data-bleed="full"
         data-tour="dashboard-hero-panel"
         style={
@@ -241,7 +241,7 @@ export function DashboardActionHub({
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0" id="dashboard-hero-greeting">
                 {greetingEyebrow && (
-                  <p className="ws-eyebrow mb-1 text-text-secondary"><AllCapsLabel>{greetingEyebrow}</AllCapsLabel></p>
+                  <p className="ws-eyebrow mb-1 type-micro font-semibold text-text-secondary">{greetingEyebrow}</p>
                 )}
                 {greetingTitle && (
                   <h1 className="ws-serif font-semibold tracking-tight text-[length:var(--ux-type-hero)] leading-tight">
@@ -291,8 +291,8 @@ export function DashboardActionHub({
                 data-bleed="full"
               >
                 <div className="min-w-0 flex-1 px-0.5">
-                  <p className={cn('type-micro font-semibold uppercase tracking-[0.08em]', onHero ? 'text-white/80' : 'text-text-secondary')}>
-                    <AllCapsLabel>{t('dashboardLivePreviewEyebrow')}</AllCapsLabel>
+                  <p className={cn('type-micro font-semibold', onHero ? 'text-white/80' : 'text-text-secondary')}>
+                    {t('dashboardLivePreviewEyebrow')}
                   </p>
                   <p className={cn('mt-0.5 type-meta font-medium', onHero ? 'text-white' : 'text-text-primary')}>
                     {t('dashboardHeroHubSideTitle')}

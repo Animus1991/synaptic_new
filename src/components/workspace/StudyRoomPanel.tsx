@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Users, Copy, Video, LogOut, Plus, X, Clock, Pause, Play as PlayIcon, Eye } from '@/lib/lucide-shim';
+import { Copy, X, Pause, Play as PlayIcon } from '@/lib/lucide-shim';
 import type { UserSettings } from '../../types';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import { workspaceToolLabel } from '../../lib/workspaceToolRegistry';
@@ -10,7 +10,6 @@ import { JitsiMeetEmbed } from './JitsiMeetEmbed';
 import { StudyRoomSharedNotes } from './StudyRoomSharedNotes';
 import { CoReadingHubPanel } from './CoReadingHubPanel';
 import { resolveCollabWebSocketUrl } from '../../lib/studyRoomCollab';
-import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 export type StudyRoomCoViewBridge = {
   active: boolean;
@@ -36,7 +35,7 @@ type Props = {
   onCoViewBridge?: (bridge: StudyRoomCoViewBridge | null) => void;
 };
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 / OPT-K161 — residual markup debt + wash sheet chrome; text-first labeled actions */
 export function StudyRoomPanel(props: Props) {
   const { open, onClose, lang, activeTool, onFollowSharedTool, onCoViewBridge } = props;
   const tr = (key: Parameters<typeof t>[0]) => t(key, lang);
@@ -119,32 +118,30 @@ export function StudyRoomPanel(props: Props) {
         onClick={onClose}
       />
       <div
-        className="ws-cognitive-sheet fixed top-0 right-0 bottom-0 z-[200] flex w-full max-w-sm flex-col border-l border-border-subtle bg-surface-secondary shadow-2xl"
+        className="ws-cognitive-sheet fixed top-0 right-0 bottom-0 z-[200] flex w-full max-w-sm flex-col border-0 bg-surface-secondary shadow-xl ring-1 ring-black/5"
         data-ws-theme="warm"
         role="dialog"
         aria-modal
         aria-label={tr('studyRoomAria')}
         data-testid="study-room-panel"
+        data-clarity-pass="k161"
       >
-        <header className="ws-cognitive-sheet-header flex shrink-0 items-center justify-between gap-3 border-b border-border-subtle px-4 py-3.5">
-          <div className="flex items-center gap-2 min-w-0">
-            <Users className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
-            <div className="min-w-0">
-              <h2 className="type-meta font-semibold truncate">{tr('studyRoomTitle')}</h2>
-              {apiStatus?.localFallback && (
-                <p className="type-caption text-text-muted truncate">
-                  {tr('studyRoomLocalMode')}
-                </p>
-              )}
-            </div>
+        <header className="ws-cognitive-sheet-header flex shrink-0 items-center justify-between gap-3 border-b border-transparent px-4 py-3">
+          <div className="min-w-0">
+            <h2 className="type-caption font-semibold truncate text-text-primary">{tr('studyRoomTitle')}</h2>
+            {apiStatus?.localFallback && (
+              <p className="type-caption text-text-muted truncate">
+                {tr('studyRoomLocalMode')}
+              </p>
+            )}
           </div>
-          <button type="button" onClick={onClose} className="ws-chrome-btn p-1.5" aria-label={tr('close')}>
+          <button type="button" onClick={onClose} className="ws-chrome-btn min-h-8 min-w-8 p-1.5" aria-label={tr('close')}>
             <X className="h-4 w-4" />
           </button>
         </header>
 
         {error && (
-          <div className="mx-4 mt-3 ws-chip-danger rounded-lg border px-3 py-2 type-caption" role="alert">
+          <div className="mx-4 mt-3 rounded-lg border-0 bg-accent-rose/10 px-3 py-2 type-caption text-accent-rose" role="alert">
             {error}
           </div>
         )}
@@ -152,7 +149,7 @@ export function StudyRoomPanel(props: Props) {
         <div className="ws-cognitive-sheet-body flex-1 overflow-y-auto p-4">
           {!room ? (
             <form
-              className="space-y-4"
+              className="space-y-3"
               onSubmit={(e) => {
                 e.preventDefault();
                 void handleCreate();
@@ -162,30 +159,28 @@ export function StudyRoomPanel(props: Props) {
                 {tr('studyRoomIntroCoView')}
               </p>
               <label className="block">
-                <span className="ws-field-label"><AllCapsLabel>{tr('studyRoomDisplayName')}</AllCapsLabel></span>
+                <span className="mb-1 block type-caption font-medium text-text-secondary">{tr('studyRoomDisplayName')}</span>
                 <input
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="ws-field-input mt-1"
+                  className="ws-field-input mt-0 min-h-8"
                   placeholder={tr('studyRoomDisplayNamePlaceholder')}
                   autoComplete="nickname"
                   required
                 />
               </label>
-              <button type="submit" disabled={busy} aria-busy={busy || undefined} className="ws-empty-cta-primary w-full justify-center gap-2">
-                <Plus className="h-4 w-4" aria-hidden />
+              <button type="submit" disabled={busy} aria-busy={busy || undefined} className="ws-empty-cta-primary w-full min-h-8 justify-center">
                 {busy ? tr('studyRoomCreating') : tr('studyRoomNewRoom')}
               </button>
-              <div className="relative py-1 text-center type-caption text-text-muted">
-                <span className="relative z-10 bg-surface-secondary px-2">{tr('studyRoomOr')}</span>
-                <div className="absolute inset-x-0 top-1/2 border-t border-border-subtle" />
+              <div className="py-0.5 text-center type-caption text-text-muted" data-testid="study-room-panel-or-divider">
+                {tr('studyRoomOr')}
               </div>
               <label className="block">
-                <span className="ws-field-label"><AllCapsLabel>{tr('studyRoomInviteCode')}</AllCapsLabel></span>
+                <span className="mb-1 block type-caption font-medium text-text-secondary">{tr('studyRoomInviteCode')}</span>
                 <input
                   value={inviteInput}
                   onChange={(e) => setInviteInput(e.target.value)}
-                  className="ws-field-input mt-1 font-mono"
+                  className="ws-field-input mt-0 min-h-8 font-mono"
                   placeholder="a1b2c3d4"
                 />
               </label>
@@ -194,13 +189,13 @@ export function StudyRoomPanel(props: Props) {
                 disabled={busy}
                 aria-busy={busy || undefined}
                 onClick={() => void handleJoin()}
-                className="ws-empty-cta-secondary w-full justify-center"
+                className="ws-empty-cta-secondary w-full min-h-8 justify-center"
               >
                 {busy ? tr('studyRoomJoining') : tr('studyRoomJoinRoom')}
               </button>
             </form>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="ws-info-strip type-caption">
                 <span className="font-semibold">{room.name}</span>
                 <span className="text-text-muted">
@@ -210,11 +205,10 @@ export function StudyRoomPanel(props: Props) {
                 </span>
               </div>
               <div
-                className="rounded-lg border border-border-subtle bg-surface-secondary/60 px-3 py-2 space-y-2"
+                className="rounded-lg border-0 bg-surface-secondary/55 px-3 py-2 space-y-2"
                 data-testid="study-room-coview-controls"
               >
-                <p className="flex items-center gap-1.5 type-caption font-semibold text-text-secondary">
-                  <Eye className="h-3.5 w-3.5 text-brand-500" aria-hidden />
+                <p className="type-caption font-semibold text-text-secondary">
                   {tr('studyRoomCoViewHeading')}
                 </p>
                 <p className="type-caption leading-snug text-text-muted">
@@ -229,7 +223,7 @@ export function StudyRoomPanel(props: Props) {
                   {coViewMode === 'following' ? (
                     <button
                       type="button"
-                      className="ws-chrome-btn type-caption px-2 py-1 min-h-9"
+                      className="ws-chrome-btn type-caption min-h-8 px-2 py-1"
                       data-testid="study-room-panel-claim-lead"
                       onClick={claimLead}
                     >
@@ -238,7 +232,7 @@ export function StudyRoomPanel(props: Props) {
                   ) : (
                     <button
                       type="button"
-                      className="ws-chrome-btn type-caption px-2 py-1 min-h-9"
+                      className="ws-chrome-btn type-caption min-h-8 px-2 py-1"
                       data-testid="study-room-panel-follow-lead"
                       onClick={followLead}
                     >
@@ -251,9 +245,9 @@ export function StudyRoomPanel(props: Props) {
                 <p className="type-caption font-semibold text-text-secondary">{tr('studyRoomInviteHeading')}</p>
                 <p className="type-caption leading-snug text-text-muted">{tr('studyRoomInviteExplain')}</p>
                 <div className="flex items-center gap-2">
-                  <code className="ws-field-input flex-1 py-1.5 type-caption font-mono">{room.inviteCode}</code>
-                  <button type="button" onClick={() => void copyInvite()} className="ws-chrome-btn p-2" title={tr('studyRoomCopy')} aria-label={tr('studyRoomCopy')}>
-                    <Copy className="h-4 w-4" />
+                  <code className="ws-field-input flex-1 min-h-8 py-1.5 type-caption font-mono">{room.inviteCode}</code>
+                  <button type="button" onClick={() => void copyInvite()} className="ws-chrome-btn min-h-8 min-w-8 p-1.5" title={tr('studyRoomCopy')} aria-label={tr('studyRoomCopy')}>
+                    <Copy className="h-3.5 w-3.5" />
                   </button>
                 </div>
               </div>
@@ -270,9 +264,9 @@ export function StudyRoomPanel(props: Props) {
               <div className="space-y-1.5">
               <p className="type-caption font-semibold text-text-secondary">{tr('studyRoomMembersHeading')}</p>
               <p className="type-caption leading-snug text-text-muted">{tr('studyRoomMembersExplain')}</p>
-              <ul className="space-y-1.5" data-testid="study-room-members">
+              <ul className="space-y-1" data-testid="study-room-members">
                 {room.members.map((m) => (
-                  <li key={m.id} className={`rounded-lg border px-3 py-2 type-caption ${m.id === memberId ? 'ws-chip-brand' : 'ws-chip-neutral'}`}>
+                  <li key={m.id} className={`rounded-lg border-0 px-3 py-1.5 type-caption ${m.id === memberId ? 'ws-chip-brand' : 'ws-chip-neutral'}`}>
                     <span className="font-medium">{m.displayName}</span>
                     {m.id === memberId && <span className="text-text-muted"> ({tr('studyRoomYou')})</span>}
                     {m.leading && <span className="text-text-muted"> · {tr('studyRoomLeadingBadge')}</span>}
@@ -291,20 +285,18 @@ export function StudyRoomPanel(props: Props) {
               </div>
               {/* Shared Study Timer (cross-pollinated from ai_tutor_studio) */}
               <div className="space-y-1.5">
-              <p className="flex items-center gap-1.5 type-caption font-semibold text-text-secondary">
-                <Clock className="h-3.5 w-3.5 text-brand-500" aria-hidden />
+              <p className="type-caption font-semibold text-text-secondary">
                 {tr('studyRoomTimerHeading')}
               </p>
               <p className="type-caption leading-snug text-text-muted">{tr('studyRoomTimerExplain')}</p>
-              <div className="flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-secondary/50 px-3 py-2">
-                <Clock className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
-                <span className="font-mono type-meta font-bold text-text-primary flex-1">
+              <div className="flex items-center gap-2 rounded-lg border-0 bg-surface-secondary/55 px-3 py-2">
+                <span className="font-mono type-caption font-semibold tabular-nums text-text-primary flex-1">
                   {Math.floor(timerSeconds / 60).toString().padStart(2, '0')}:{(timerSeconds % 60).toString().padStart(2, '0')}
                 </span>
                 <button
                   type="button"
                   onClick={() => setTimerRunning(!timerRunning)}
-                  className={`ws-chrome-btn p-1.5 rounded-lg ${timerRunning ? 'text-accent-amber' : 'text-text-secondary'}`}
+                  className={`ws-chrome-btn min-h-8 min-w-8 p-1.5 rounded-lg ${timerRunning ? 'text-accent-amber' : 'text-text-secondary'}`}
                   aria-label={timerRunning ? tr('studyRoomTimerPause') : tr('studyRoomTimerStart')}
                 >
                   {timerRunning ? <Pause className="h-3.5 w-3.5" /> : <PlayIcon className="h-3.5 w-3.5" />}
@@ -313,7 +305,7 @@ export function StudyRoomPanel(props: Props) {
                   <button
                     type="button"
                     onClick={() => { setTimerRunning(false); setTimerSeconds(0); }}
-                    className="ws-chrome-btn p-1.5 rounded-lg text-text-muted hover:text-accent-rose"
+                    className="ws-chrome-btn min-h-8 min-w-8 p-1.5 rounded-lg text-text-muted hover:text-accent-rose"
                     aria-label={tr('studyRoomTimerReset')}
                   >
                     <X className="h-3 w-3" />
@@ -340,23 +332,21 @@ export function StudyRoomPanel(props: Props) {
                 />
               ) : null}
               <div className="space-y-2">
-                <p className="ws-field-label"><AllCapsLabel>{tr('studyRoomVideoCall')}</AllCapsLabel></p>
+                <p className="type-caption font-medium text-text-secondary">{tr('studyRoomVideoCall')}</p>
                 {showVideo ? (
                   <JitsiMeetEmbed roomName={room.jitsiRoom} lang={lang} />
                 ) : (
-                  <button type="button" onClick={() => setShowVideo(true)} className="ws-empty-cta-secondary w-full justify-center gap-2">
-                    <Video className="h-3.5 w-3.5" />
+                  <button type="button" onClick={() => setShowVideo(true)} className="ws-empty-cta-secondary w-full min-h-8 justify-center">
                     {tr('studyRoomShowVideo')}
                   </button>
                 )}
                 {showVideo && (
-                  <button type="button" onClick={() => setShowVideo(false)} className="ws-chrome-btn type-caption">
+                  <button type="button" onClick={() => setShowVideo(false)} className="ws-chrome-btn type-caption min-h-8">
                     {tr('studyRoomHideVideo')}
                   </button>
                 )}
               </div>
-              <button type="button" onClick={handleLeave} className="ws-empty-cta-secondary w-full justify-center gap-2">
-                <LogOut className="h-3.5 w-3.5" />
+              <button type="button" onClick={handleLeave} className="ws-empty-cta-secondary w-full min-h-8 justify-center">
                 {tr('studyRoomLeave')}
               </button>
             </div>

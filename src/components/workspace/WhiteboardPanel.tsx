@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { BookOpen, Search } from '@/lib/lucide-shim';
 import type { ScratchpadExport } from '../../lib/workspaceScratchpadBridge';
 import type { WhiteboardSessionContent } from '../../lib/whiteboardSessionModel';
 import { filterWhiteboardFormulas } from '../../lib/whiteboardSessionModel';
@@ -143,7 +142,8 @@ export function WhiteboardPanel({
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden" data-testid="whiteboard-panel">
+    <div className="flex h-full flex-col overflow-hidden" data-testid="whiteboard-panel"
+      data-clarity-pass="k162">
       {/* Wave E3 — canvas first; chrome/coach demoted */}
       <div className="flex-1 min-h-0 overflow-hidden order-1">
         <StudyWhiteboard
@@ -163,7 +163,7 @@ export function WhiteboardPanel({
         />
       </div>
 
-      <div className="shrink-0 order-2 border-t border-border-subtle">
+      <div className="shrink-0 order-2 border-t border-transparent">
         {(session.weakExtraction || session.passageGrounded) && (
           <WorkspacePanelWarnStrip testId="whiteboard-weak-extraction">
             {session.passageGrounded
@@ -200,15 +200,14 @@ export function WhiteboardPanel({
             )}
             <div className="flex flex-wrap items-center gap-2">
               {session.formulas.length > 0 && (
-                <div className="relative flex-1 min-w-[140px] max-w-xs">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted" aria-hidden />
+                <div className="min-w-[140px] max-w-xs flex-1">
                   <input
                     type="search"
                     value={filterQuery}
                     onChange={(e) => setFilterQuery(e.target.value)}
                     placeholder={t('panelSearchFormulas')}
                     aria-label={t('panelSearchFormulasAria')}
-                    className="w-full rounded-lg border border-border-subtle bg-surface-card py-1.5 pl-8 pr-2 type-caption text-text-secondary placeholder:text-text-muted focus:border-border-default focus:outline-none"
+                    className="w-full min-h-8 rounded-md border-0 bg-surface-secondary/55 py-1.5 px-2.5 type-caption text-text-secondary placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/35"
                     data-testid="whiteboard-filter"
                   />
                 </div>
@@ -222,10 +221,9 @@ export function WhiteboardPanel({
                 <button
                   type="button"
                   onClick={() => onOpenInReader(concept)}
-                  className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border-subtle px-2.5 py-1 type-caption text-text-secondary hover:text-text-primary"
+                  className="ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 bg-surface-secondary/55 px-2.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                   data-testid="whiteboard-open-reader"
                 >
-                  <BookOpen className="w-3 h-3" aria-hidden />
                   {t('panelReaderSource')}
                 </button>
               )}
@@ -237,7 +235,7 @@ export function WhiteboardPanel({
                     key={formula.id}
                     type="button"
                     onClick={() => onOpenInReader?.(formula.name)}
-                    className="rounded-lg border border-border-subtle bg-surface-secondary px-2 py-1 type-caption text-text-secondary hover:border-brand-500/40"
+                    className="rounded-md border-0 bg-surface-secondary/50 px-2 py-1 type-caption text-text-secondary hover:bg-surface-hover"
                   >
                     {formula.name.slice(0, 48)}{formula.name.length > 48 ? '…' : ''}
                   </button>

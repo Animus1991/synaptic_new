@@ -18,7 +18,7 @@ import { filterConceptNodes } from '../../lib/conceptGraphModel';
 import { WorkspaceSelectionActionBar } from './WorkspaceSelectionActionBar';
 import type { WorkspaceSelectionActionId, WorkspaceSelectionContext } from '../../lib/workspaceSelectionActions';
 import { ConceptTypeIcon } from '../ui/ConceptTypeIcon';
-import { BookOpen, Pencil, FileText, X, Plus, Trash2, Link2 } from '@/lib/lucide-shim';
+import { X } from '@/lib/lucide-shim';
 import { InfoHint } from '../ui/InfoHint';
 import { CollapsibleChromeSection } from './CollapsibleChromeSection';
 import { PanelOverflowMenu } from './PanelOverflowMenu';
@@ -677,15 +677,14 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
                   : t('conceptMapEmptyHintGeneric'))}
             </p>
           </div>
-          <div className="space-y-2 rounded-xl border border-border-subtle bg-surface-secondary/40 p-3">
+          <div className="space-y-2 rounded-xl border-0 bg-surface-secondary/40 p-3">
             <PrimaryCTA
               type="button"
               size="md"
               onClick={addNode}
               data-testid="concept-map-empty-start"
-              className="ws-touch-floor w-full min-h-11 rounded-lg"
+              className="ws-touch-floor w-full min-h-8 rounded-lg"
             >
-              <Plus className="h-3.5 w-3.5" aria-hidden />
               {t('conceptMapAddNode')}
             </PrimaryCTA>
           </div>
@@ -717,11 +716,12 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
     <div
       className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-card"
       data-testid="concept-map-root"
+      data-clarity-pass="k162"
       data-bleed="full"
     >
       {/* Wave CM — primary: find + add/link; tidy/zoom/export in ⋯; zoom HUD on canvas */}
       <div
-        className="flex flex-wrap items-center gap-1.5 px-3 py-1.5 border-b border-border-subtle bg-surface-secondary/40 shrink-0"
+        className="flex flex-wrap items-center gap-1.5 px-3 py-1.5 border-b border-transparent bg-surface-secondary/25 shrink-0"
         data-testid="concept-map-toolbar"
       >
         <div className="relative flex min-w-[8rem] max-w-[14rem] flex-1 items-center">
@@ -734,7 +734,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             value={filterQuery}
             onChange={(e) => setFilterQuery(e.target.value)}
             placeholder={t('conceptMapFilterPlaceholder')}
-            className="w-full min-h-9 rounded-lg border border-border-subtle bg-surface-card px-2.5 py-1.5 type-caption text-text-primary placeholder:text-text-muted focus:border-border-default focus:outline-none"
+            className="w-full min-h-8 rounded-md border-0 bg-surface-secondary/55 px-2.5 py-1.5 type-caption text-text-primary placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/35"
             data-testid="concept-map-filter"
           />
           {filterQuery && (
@@ -762,12 +762,11 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             type="button"
             data-testid="concept-map-add-node"
             onClick={addNode}
-            className="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary sm:min-w-0 sm:px-2.5"
+            className="ws-touch-floor inline-flex min-h-8 items-center gap-1 rounded-md border-0 bg-surface-secondary/55 px-2.5 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
             aria-label={t('conceptMapAddNode')}
             title={t('conceptMapAddNode')}
           >
-            <Plus className="h-3.5 w-3.5" aria-hidden />
-            <span className="hidden sm:inline">{t('conceptMapAddNode')}</span>
+            <span>{t('conceptMapAddNode')}</span>
           </button>
           <button
             type="button"
@@ -778,21 +777,20 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             }}
             disabled={!selected && !connectFrom}
             className={cn(
-              'ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center gap-1 rounded-lg border px-2 type-caption font-medium sm:min-w-0 sm:px-2.5',
+              'ws-touch-floor inline-flex min-h-8 items-center gap-1 rounded-md border-0 px-2.5 type-caption font-medium',
               connectFrom
-                ? 'border-brand-500/40 bg-brand-500/10 text-text-primary'
-                : 'border-border-subtle text-text-secondary hover:border-border-default hover:text-text-primary disabled:opacity-40',
+                ? 'bg-brand-500/15 text-text-primary'
+                : 'bg-surface-secondary/55 text-text-secondary hover:bg-surface-hover hover:text-text-primary disabled:opacity-40',
             )}
             aria-label={t('conceptMapConnect')}
             title={t('conceptMapConnectHint')}
           >
-            <Link2 className="h-3.5 w-3.5" aria-hidden />
-            <span className="hidden sm:inline">{t('conceptMapConnect')}</span>
+            <span>{t('conceptMapConnect')}</span>
           </button>
           <PanelOverflowMenu
             ariaLabel={t('wsMore')}
             triggerTestId="concept-map-more-menu"
-            summaryClassName="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover"
+            summaryClassName="ws-touch-floor inline-flex min-h-8 min-w-8 items-center justify-center rounded-md border-0 bg-surface-secondary/55 text-text-secondary hover:bg-surface-hover"
           >
             <button
               type="button"
@@ -1020,9 +1018,6 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
             <marker id="dm-arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
               <polygon points="0 0, 10 3.5, 0 7" fill="var(--color-border-strong)" />
             </marker>
-            <filter id="cm-node-shadow" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="0" dy="1.5" stdDeviation="2.5" floodOpacity="0.14" />
-            </filter>
           </defs>
           <rect width="100%" height="100%" fill="url(#cm-dot-grid)" />
           <g transform={`translate(${pan.x},${pan.y}) scale(${zoom})`}>
@@ -1138,10 +1133,8 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
                     width={w}
                     height={h}
                     rx={16}
-                    fill={`color-mix(in srgb, ${color} 18%, var(--color-surface-card))`}
-                    stroke={color}
-                    strokeWidth={isSel ? 2.5 : 1.75}
-                    filter="url(#cm-node-shadow)"
+                    fill={`color-mix(in srgb, ${color} 16%, var(--color-surface-card))`}
+                    stroke="none"
                     data-testid="concept-map-node-chip"
                   />
                   {/* Mastery progress along the chip floor */}
@@ -1192,8 +1185,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
                         height={16}
                         rx={8}
                         fill={`color-mix(in srgb, ${color} 14%, var(--color-surface-secondary))`}
-                        stroke={`color-mix(in srgb, ${color} 35%, var(--color-border-subtle))`}
-                        strokeWidth={1}
+                        stroke="none"
                       />
                       <text
                         x={node.x}
@@ -1230,7 +1222,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
       </div>
       {/* Wave CM — zoom lives on the canvas (Miro-style), not competing in the toolbar */}
       <div
-        className="pointer-events-auto absolute bottom-3 right-3 z-10 flex items-center overflow-hidden rounded-lg border border-border-subtle bg-surface-card/95 shadow-sm"
+        className="pointer-events-auto absolute bottom-3 right-3 z-10 flex items-center overflow-hidden rounded-md border-0 bg-surface-secondary/80"
         data-testid="concept-map-zoom-hud"
         role="group"
         aria-label={t('conceptMapZoomGroup')}
@@ -1270,7 +1262,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
       </div>
 
       {selectedEdge && !editingNote && !editingLabel && (
-        <div className="absolute bottom-0 left-0 right-0 glass-strong border-t border-border-subtle" data-testid="concept-map-edge-panel">
+        <div className="absolute bottom-0 left-0 right-0 border-t border-transparent bg-surface-card/95 backdrop-blur-sm" data-testid="concept-map-edge-panel">
           <div className="flex items-center gap-3 p-3 pb-2">
             <div className="flex-1 min-w-0">
               <p className="type-meta font-semibold truncate">
@@ -1287,7 +1279,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
               type="button"
               data-testid="concept-map-cycle-relation"
               onClick={cycleSelectedEdgeRelation}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg type-caption font-medium border border-border-subtle text-text-secondary hover:text-text-primary"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg type-caption font-medium border-0 text-text-secondary hover:text-text-primary"
             >
               {t('conceptMapChangeRelation')}
             </button>
@@ -1295,9 +1287,8 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
               type="button"
               data-testid="concept-map-delete-edge"
               onClick={deleteSelectedEdge}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg type-caption font-medium border border-accent-rose/30 bg-accent-rose/10 text-accent-rose hover:bg-accent-rose/15"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border-0 bg-accent-rose/10 type-caption font-medium text-accent-rose hover:bg-accent-rose/15 min-h-8"
             >
-              <Trash2 className="w-3 h-3" />
               {t('conceptMapDeleteEdge')}
             </button>
             <button onClick={() => setSelectedEdgeKey(null)} className="text-text-muted hover:text-text-secondary" aria-label={t('close')}><X className="w-3.5 h-3.5" /></button>
@@ -1306,7 +1297,7 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
       )}
 
       {selectedNode && !selectedEdge && !editingNote && !editingLabel && (
-        <div className="absolute bottom-0 left-0 right-0 glass-strong border-t border-border-subtle">
+        <div className="absolute bottom-0 left-0 right-0 border-t border-transparent bg-surface-card/95 backdrop-blur-sm">
           <div className="flex items-start gap-2 px-3 pt-3 pb-1.5">
             <ConceptTypeIcon type={selectedNode.type} size="lg" />
             <div className="flex-1 min-w-0">
@@ -1320,22 +1311,20 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
               <button
                 type="button"
                 onClick={() => onFocusTerm(selectedNode.label)}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg type-caption font-medium bg-accent-cyan/15 text-text-secondary border border-accent-cyan/30 hover:bg-accent-cyan/25"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg type-caption font-medium bg-accent-cyan/15 text-text-secondary border-0 accent-cyan/30 hover:bg-accent-cyan/25"
               >
-                <BookOpen className="w-3 h-3" />
                 {t('cognitiveReader')}
               </button>
             )}
-            <button onClick={() => startNote(selectedNode.id)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg type-caption font-medium bg-surface-secondary text-text-secondary border border-border-subtle hover:bg-brand-600/30">
-              {selectedNode.note ? <><Pencil className="w-3 h-3" /> {t('editNote')}</> : <><FileText className="w-3 h-3" /> {t('addNote')}</>}
+            <button onClick={() => startNote(selectedNode.id)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg type-caption font-medium bg-surface-secondary text-text-secondary border-0 hover:bg-brand-600/30">
+              {selectedNode.note ? t('editNote') : t('addNote')}
             </button>
             <button
               type="button"
               data-testid="concept-map-rename-node"
               onClick={() => { setEditingLabel(selectedNode.id); setLabelDraft(selectedNode.label); }}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg type-caption font-medium border border-border-subtle text-text-secondary hover:text-text-primary"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg type-caption font-medium border-0 text-text-secondary hover:text-text-primary"
             >
-              <Pencil className="w-3 h-3" />
               {t('conceptMapRename')}
             </button>
             <span className="w-px h-4 bg-border-subtle mx-0.5 self-center" aria-hidden />
@@ -1343,9 +1332,8 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
               type="button"
               data-testid="concept-map-delete-node"
               onClick={deleteSelectedNode}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg type-caption font-medium border border-accent-rose/30 bg-accent-rose/10 text-accent-rose hover:bg-accent-rose/15"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border-0 bg-accent-rose/10 type-caption font-medium text-accent-rose hover:bg-accent-rose/15 min-h-8"
             >
-              <Trash2 className="w-3 h-3" />
               {t('conceptMapDeleteNode')}
             </button>
           </div>
@@ -1373,12 +1361,12 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
       )}
 
       {editingLabel && (
-        <div className="absolute bottom-0 left-0 right-0 p-3 glass-strong border-t border-border-subtle">
+        <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-transparent bg-surface-card/95 backdrop-blur-sm">
           <p className="type-caption font-semibold mb-2">{t('conceptMapRename')}</p>
           <input
             value={labelDraft}
             onChange={(e) => setLabelDraft(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg bg-surface-input border border-border-subtle type-body text-text-primary focus:outline-none focus:border-brand-500/50"
+            className="w-full px-3 py-2 rounded-lg border-0 bg-surface-secondary/55 type-body text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/35/50"
             autoFocus
             onKeyDown={(e) => { if (e.key === 'Enter') saveLabel(); if (e.key === 'Escape') setEditingLabel(null); }}
           />
@@ -1391,15 +1379,14 @@ export function DraggableConceptMap({ initialNodes, initialEdges, onNodeUpdate, 
 
       {/* Note Editor */}
       {editingNote && (
-        <div className="absolute bottom-0 left-0 right-0 p-3 glass-strong border-t border-border-subtle">
+        <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-transparent bg-surface-card/95 backdrop-blur-sm">
           <p className="type-caption font-semibold mb-2 inline-flex items-center gap-1.5">
-            <FileText className="w-3.5 h-3.5 text-text-secondary" />
             {t('noteFor')} "{nodeMap[editingNote]?.label}"
           </p>
           <textarea
             value={noteText} onChange={e => setNoteText(e.target.value)}
             placeholder={t('notePlaceholder')}
-            className="w-full px-3 py-2 rounded-lg bg-surface-input border border-border-subtle type-body text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500/50 resize-none"
+            className="w-full px-3 py-2 rounded-lg border-0 bg-surface-secondary/55 type-body text-text-primary placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/35/50 resize-none"
             rows={2} autoFocus
           />
           <div className="flex justify-end gap-2 mt-2">

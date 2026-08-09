@@ -209,7 +209,7 @@ export function WorkspaceQuizSession({
         )}
         {wrongSummaries.length > 0 && (
           <div
-            className="rounded-xl border border-accent-rose/25 bg-accent-rose/5 p-3 space-y-2"
+            className="rounded-xl border-0 bg-accent-rose/8 p-3 space-y-2"
             data-testid="quiz-session-wrong-review"
           >
             <p className="type-caption font-medium text-accent-rose ink-allow-accent">
@@ -222,7 +222,7 @@ export function WorkspaceQuizSession({
                 type="button"
                 data-testid="quiz-review-feynman-cluster"
                 onClick={() => onRemediateWrongCluster(wrongItems)}
-                className="mb-2 inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption font-medium text-text-secondary hover:text-text-primary"
+                className="mb-2 inline-flex items-center rounded-md border-0 bg-surface-secondary/55 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
               >
                 {t('quizSessFeynmanCluster')}
               </button>
@@ -232,7 +232,7 @@ export function WorkspaceQuizSession({
                 const item = session.items.find((i) => i.id === w.itemId);
                 if (!item) return null;
                 return (
-                <li key={w.itemId} className="rounded-lg border border-border-subtle bg-surface-primary/40 p-2">
+                <li key={w.itemId} className="rounded-md border-0 bg-surface-secondary/40 p-2">
                   <p className="type-caption text-text-secondary line-clamp-2">{w.question}</p>
                   <p className="mt-1 type-caption text-accent-emerald ink-allow-accent">{w.correctAnswer}</p>
                   {onRemediateWrong && (
@@ -241,7 +241,7 @@ export function WorkspaceQuizSession({
                         type="button"
                         data-testid={`quiz-review-make-card-${w.itemId}`}
                         onClick={() => onRemediateWrong('make-card', item)}
-                        className="rounded border border-border-subtle bg-surface-secondary px-2 py-0.5 type-caption text-text-secondary"
+                        className="rounded-md border-0 bg-surface-secondary/55 px-2 py-0.5 type-caption text-text-secondary"
                       >
                         {t('quizSessCard')}
                       </button>
@@ -249,7 +249,7 @@ export function WorkspaceQuizSession({
                         type="button"
                         data-testid={`quiz-review-feynman-${w.itemId}`}
                         onClick={() => onRemediateWrong('feynman', item)}
-                        className="rounded border border-border-subtle bg-surface-secondary px-2 py-0.5 type-caption text-text-secondary"
+                        className="rounded-md border-0 bg-surface-secondary/55 px-2 py-0.5 type-caption text-text-secondary"
                       >
                         Feynman
                       </button>
@@ -258,7 +258,7 @@ export function WorkspaceQuizSession({
                           type="button"
                           data-testid={`quiz-review-reader-${w.itemId}`}
                           onClick={() => onOpenQuestionInReader(w.question)}
-                          className="rounded border border-border-subtle px-2 py-0.5 type-caption text-text-secondary hover:text-text-primary"
+                          className="rounded-md border-0 bg-surface-secondary/45 px-2 py-0.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                         >
                           {t('toolReader')}
                         </button>
@@ -277,7 +277,7 @@ export function WorkspaceQuizSession({
               type="button"
               data-testid="quiz-open-flashcards"
               onClick={onOpenFlashcards}
-              className="rounded-lg border border-border-subtle bg-surface-secondary px-3 py-1.5 type-caption font-medium text-text-secondary"
+              className="rounded-md border-0 bg-surface-secondary/55 px-3 py-1.5 type-caption font-medium text-text-secondary hover:bg-surface-hover"
             >
               {t('quizSessReviewFlashcards')}
             </button>
@@ -287,7 +287,7 @@ export function WorkspaceQuizSession({
               type="button"
               data-testid="quiz-open-feynman"
               onClick={onOpenFeynman}
-              className="rounded-lg border border-border-subtle bg-surface-secondary px-3 py-1.5 type-caption font-medium text-text-secondary"
+              className="rounded-md border-0 bg-surface-secondary/55 px-3 py-1.5 type-caption font-medium text-text-secondary hover:bg-surface-hover"
             >
               {t('quizSessFeynmanExplain')}
             </button>
@@ -297,7 +297,7 @@ export function WorkspaceQuizSession({
               type="button"
               data-testid="quiz-open-reader"
               onClick={onOpenReader}
-              className="rounded-lg border border-border-subtle px-3 py-1.5 type-caption font-medium text-text-secondary hover:text-text-primary"
+              className="rounded-md border-0 bg-surface-secondary/45 px-3 py-1.5 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
             >
               {t('quizSessBackToReader')}
             </button>
@@ -312,7 +312,8 @@ export function WorkspaceQuizSession({
   const progressPct = Math.round((session.currentIndex / session.items.length) * 100);
 
   return (
-    <div className="ux-tier-b-tool ux-tier-b-quiz-session space-y-4" data-testid="quiz-session">
+    <div className="ux-tier-b-tool ux-tier-b-quiz-session space-y-4" data-testid="quiz-session"
+      data-clarity-pass="k159">
       {/* Wave E6 — one progress strip + one IRT meta strip (not repeated under options) */}
       <div className="space-y-2" data-testid="quiz-session-meta">
         <div className="ux-quiz-session-header flex items-center justify-between gap-2 type-caption text-text-secondary">
@@ -354,7 +355,7 @@ export function WorkspaceQuizSession({
 
       {current.provenance && (
         <span
-          className="inline-flex rounded-lg border border-border-subtle bg-surface-secondary px-2 py-0.5 type-caption font-medium text-text-secondary"
+          className="inline-flex rounded-md border-0 bg-surface-secondary/55 px-2 py-0.5 type-caption font-medium text-text-secondary"
           data-testid="quiz-provenance-badge"
         >
           {t(provenanceLabelKey(current.provenance) as never)}
@@ -376,7 +377,7 @@ export function WorkspaceQuizSession({
           </p>
           {lastCorrect === false && (
             <div
-              className="rounded-xl border border-accent-rose/25 bg-accent-rose/5 p-3 space-y-2"
+              className="rounded-xl border-0 bg-accent-rose/8 p-3 space-y-2"
               data-testid="quiz-wrong-remediation"
             >
               <p className="type-caption font-medium text-accent-rose ink-allow-accent">
@@ -445,7 +446,7 @@ export function WorkspaceQuizSession({
                       type="button"
                       data-testid="quiz-remediate-reader"
                       onClick={() => onOpenQuestionInReader(quizItemQuestion(current))}
-                      className="rounded-lg border border-border-subtle px-3 py-1.5 type-caption font-medium text-text-secondary hover:text-text-primary"
+                      className="rounded-md border-0 bg-surface-secondary/45 px-3 py-1.5 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                     >
                       {t('panelOpenReader')}
                     </button>

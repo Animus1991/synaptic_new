@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Pencil, BookOpen, Shield, Sparkles } from '@/lib/lucide-shim';
+import { Plus, Pencil, BookOpen } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { useI18n, type I18nKey } from '../../lib/i18n';
 import { suggestCounterArguments } from '../../lib/debateCounterArgs';
@@ -33,29 +33,24 @@ export interface ArgNode {
 }
 
 /**
- * Theme-aware soft fills — dark jewel nodes (#1e1b4b / #064e3b) were AA on
- * themselves but jarring against the light notebook canvas and washed out
- * under dark themes. Signal lives in the border; body ink stays primary.
+ * Theme-aware soft fills — OPT-K156/K158: signal lives in wash hue only
+ * (no outline cage); body ink stays primary.
  */
-const NODE_COLORS: Record<ArgNodeType, { bg: string; border: string; text: string }> = {
+const NODE_COLORS: Record<ArgNodeType, { bg: string; text: string }> = {
   claim: {
-    bg: 'color-mix(in srgb, var(--color-brand-600) 14%, var(--color-surface-card))',
-    border: 'color-mix(in srgb, var(--color-brand-600) 48%, var(--color-border-subtle))',
+    bg: 'color-mix(in srgb, var(--color-brand-600) 12%, var(--color-surface-card))',
     text: 'var(--color-text-primary)',
   },
   premise: {
-    bg: 'color-mix(in srgb, var(--palette-cyan, #22d3ee) 12%, var(--color-surface-card))',
-    border: 'color-mix(in srgb, var(--palette-cyan, #22d3ee) 42%, var(--color-border-subtle))',
+    bg: 'color-mix(in srgb, var(--palette-cyan, #22d3ee) 11%, var(--color-surface-card))',
     text: 'var(--color-text-primary)',
   },
   support: {
-    bg: 'color-mix(in srgb, var(--mastery-strong) 14%, var(--color-surface-card))',
-    border: 'color-mix(in srgb, var(--mastery-strong) 48%, var(--color-border-subtle))',
+    bg: 'color-mix(in srgb, var(--mastery-strong) 12%, var(--color-surface-card))',
     text: 'var(--color-text-primary)',
   },
   refutation: {
-    bg: 'color-mix(in srgb, var(--color-accent-rose) 12%, var(--color-surface-card))',
-    border: 'color-mix(in srgb, var(--color-accent-rose) 48%, var(--color-border-subtle))',
+    bg: 'color-mix(in srgb, var(--color-accent-rose) 11%, var(--color-surface-card))',
     text: 'var(--color-text-primary)',
   },
 };
@@ -275,12 +270,12 @@ export function ArgumentMap({
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           className={cn(
-            'absolute group flex flex-col items-center justify-center rounded-xl border-2 p-3 text-center type-caption font-medium shadow-sm',
-            isSelected && 'ring-2 ring-brand-500/40',
+            'absolute group flex flex-col items-center justify-center rounded-xl border-0 p-2.5 text-center type-caption font-medium',
+            isSelected && 'ring-2 ring-brand-500/35',
           )}
           style={{
-            width: 150, minHeight: 84, left: node.x - 75, top: node.y - 42,
-            backgroundColor: colorStyle.bg, borderColor: colorStyle.border, color: colorStyle.text,
+            width: 148, minHeight: 68, left: node.x - 74, top: node.y - 34,
+            backgroundColor: colorStyle.bg, color: colorStyle.text,
           }}
         >
           {isEditing ? (
@@ -310,7 +305,7 @@ export function ArgumentMap({
                     type="button"
                     aria-label={t('feynmanReadInSource')}
                     onClick={() => onOpenInReader(node.text)}
-                    className="p-1 rounded bg-surface-primary/80 border border-border-subtle text-text-secondary"
+                    className="p-1 rounded border-0 bg-surface-primary/90 text-text-secondary"
                   >
                     <BookOpen className="w-3 h-3" aria-hidden />
                   </button>
@@ -319,7 +314,7 @@ export function ArgumentMap({
                   type="button"
                   aria-label={`${t('debateEditNode')} — ${typeLabel}`}
                   onClick={() => startEdit(node)}
-                  className="p-1 rounded bg-surface-primary/80 border border-border-subtle text-text-secondary"
+                  className="p-1 rounded border-0 bg-surface-primary/90 text-text-secondary"
                 >
                   <Pencil className="w-3 h-3" aria-hidden />
                 </button>
@@ -327,7 +322,7 @@ export function ArgumentMap({
                   type="button"
                   aria-label={t('debateAddSupport')}
                   onClick={() => addNode(node.id, 'support')}
-                  className="p-1 rounded bg-surface-primary/80 border border-border-subtle text-text-secondary"
+                  className="p-1 rounded border-0 bg-surface-primary/90 text-text-secondary"
                 >
                   <Plus className="w-3 h-3" aria-hidden />
                 </button>
@@ -336,19 +331,16 @@ export function ArgumentMap({
                   data-testid="debate-add-counter"
                   aria-label={t('debateCounterFromNotes')}
                   onClick={() => addCounterFromNotes(node.id)}
-                  className="p-1 rounded bg-surface-primary/80 border border-accent-rose/40 text-accent-rose"
+                  className="rounded border-0 bg-accent-rose/15 px-1.5 py-0.5 type-caption font-semibold text-accent-rose"
                 >
-                  <Shield className="w-3 h-3" aria-hidden />
+                  {t('debateCounterLabel')}
                 </button>
               </div>
             </>
           )}
           <div
-            className="absolute -top-2 z-10 rounded-full border px-2 py-0.5 type-caption font-semibold text-text-primary shadow-[0_0_0_2px_var(--color-surface-primary)]"
-            style={{
-              backgroundColor: colorStyle.bg,
-              borderColor: colorStyle.border,
-            }}
+            className="absolute -top-2 z-10 rounded-md border-0 px-1.5 py-0.5 type-caption font-semibold text-text-secondary"
+            style={{ backgroundColor: colorStyle.bg }}
           >
             {typeLabel}
           </div>
@@ -363,26 +355,23 @@ export function ArgumentMap({
       className="flex h-full min-h-0 flex-col overflow-hidden bg-surface-card"
       data-testid="argument-map"
       data-bleed="full"
+      data-clarity-pass="k158"
     >
-      {/* Wave DB — primary: Add a counter; Ask Tutor in ⋯; find/links nested */}
+      {/* Wave DB / OPT-K158 — primary CTA; topic already in Guide/section (no echo) */}
       <div
-        className="flex shrink-0 flex-wrap items-center gap-1.5 border-b border-border-subtle bg-surface-secondary/40 px-3 py-1.5"
+        className="flex shrink-0 flex-wrap items-center gap-1.5 border-b border-transparent bg-surface-secondary/25 px-3 py-1.5"
         data-testid="debate-tree-toolbar"
       >
         <span className="min-w-0 flex-1 truncate type-caption font-medium text-text-secondary">
           {t('debateTree')}
-          {concept ? (
-            <span className="text-text-muted"> · {concept}</span>
-          ) : null}
         </span>
         <PrimaryCTA
           type="button"
-          size="md"
+          size="sm"
           data-testid="debate-add-counter-primary"
           onClick={() => addCounterFromNotes(root.id)}
-          className="ws-touch-floor min-h-9 rounded-lg px-3"
+          className="ws-touch-floor min-h-8 rounded-md px-2.5"
         >
-          <Shield className="h-3.5 w-3.5" aria-hidden />
           {t('debateAddCounter')}
         </PrimaryCTA>
         <InfoHint
@@ -393,15 +382,14 @@ export function ArgumentMap({
           <PanelOverflowMenu
             ariaLabel={t('wsMore')}
             triggerTestId="debate-more-menu"
-            summaryClassName="ws-touch-floor inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover"
+            summaryClassName="ws-touch-floor inline-flex min-h-8 min-w-8 items-center justify-center rounded-md border-0 bg-surface-secondary/55 text-text-secondary hover:bg-surface-hover"
           >
             <button
               type="button"
               data-testid="debate-ask-agent"
               onClick={() => onAskAgent(root.text)}
-              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
+              className="flex w-full items-center px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
             >
-              <Sparkles className="h-3.5 w-3.5" aria-hidden />
               {t('askAgentShort')}
             </button>
           </PanelOverflowMenu>
@@ -418,7 +406,7 @@ export function ArgumentMap({
               <button
                 key={i}
                 type="button"
-                className="ws-touch-floor max-w-full rounded-lg border border-border-subtle bg-surface-secondary/50 px-2.5 py-1 text-left text-text-secondary hover:border-border-default hover:text-text-primary"
+                className="ws-touch-floor max-w-full rounded-md border-0 bg-surface-secondary/50 px-2.5 py-1 text-left text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                 onClick={() => addNode(root.id, 'refutation', s.text)}
                 title={s.source}
               >
@@ -444,10 +432,10 @@ export function ArgumentMap({
                   <li
                     key={i}
                     className={cn(
-                      'rounded-lg border px-2.5 py-1.5 type-caption font-medium leading-snug',
+                      'rounded-md border-0 px-2.5 py-1.5 type-caption font-medium leading-snug',
                       e.kind === 'rebuts'
-                        ? 'border-accent-rose/45 bg-accent-rose/10 text-text-secondary'
-                        : 'border-border-subtle bg-surface-secondary/40 text-text-secondary',
+                        ? 'bg-accent-rose/10 text-text-secondary'
+                        : 'bg-surface-secondary/40 text-text-secondary',
                     )}
                   >
                     <span className="font-semibold text-text-primary">{e.label ?? e.kind}</span>
@@ -465,7 +453,7 @@ export function ArgumentMap({
         </CollapsibleChromeSection>
       )}
       <div
-        className="relative min-h-0 flex-1 cursor-grab overflow-auto bg-surface-primary active:cursor-grabbing"
+        className="relative min-h-0 flex-1 cursor-grab overflow-auto bg-surface-secondary/15 active:cursor-grabbing"
         data-testid="debate-canvas"
       >
         <div className="relative h-[600px] w-full min-w-[800px]">

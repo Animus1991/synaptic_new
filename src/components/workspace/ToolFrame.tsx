@@ -21,7 +21,7 @@ type Props = {
 
 /**
  * Uniform tool chrome — single header surface + optional cross-link footer (Phase B8).
- * OPT-K142 — CTA-only border diet + tight type rhythm for all Studio panels.
+ * OPT-K142/K152/K155/K158 — CTA-only diet + tight type parity for all Studio panels.
  */
 export function ToolFrame({
   activeTool,
@@ -42,6 +42,7 @@ export function ToolFrame({
       data-testid="workspace-tool-frame"
       data-tool={activeTool}
       data-border-diet="cta-only"
+      data-clarity-pass="k162"
     >
       <WorkspaceToolHeader
         activeTool={activeTool}

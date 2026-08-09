@@ -15,7 +15,6 @@ import {
 } from '../../lib/noteProposals';
 import { checkDailyProposalCap } from '../../lib/collabPeerReview';
 import { verifyContributionChain } from '../../lib/contributionLedger';
-import { AllCapsLabel } from '../ui/AllCapsLabel';
 import { CollabDeviceLocalBanner } from './CollabDeviceLocalBanner';
 
 type Props = {
@@ -91,9 +90,9 @@ export function StudyRoomNoteProposalsPanel({
   };
 
   return (
-    <div className="space-y-2 rounded-lg border border-border-subtle/80 bg-surface-card/40 p-2.5" data-testid="study-room-note-proposals">
+    <div className="space-y-2 rounded-lg border-0 bg-surface-secondary/45 p-2.5" data-testid="study-room-note-proposals" data-clarity-pass="k161">
       <div className="flex items-center justify-between gap-2">
-        <p className="ws-field-label"><AllCapsLabel>{tr('collabProposeTitle')}</AllCapsLabel></p>
+        <p className="type-caption font-medium text-text-secondary">{tr('collabProposeTitle')}</p>
         <span className="type-caption text-text-muted" data-testid="collab-note-verify">
           {chainOk ? tr('collabVerified') : tr('collabLedgerBroken')}
         </span>
@@ -145,7 +144,7 @@ export function StudyRoomNoteProposalsPanel({
         <div className="space-y-2" data-testid="collab-note-pending-list">
           <p className="type-caption font-medium text-text-secondary">{tr('collabPending')}</p>
           {pending.map((p) => (
-            <div key={p.id} className="rounded-md border border-border-subtle/60 p-2 space-y-1.5" data-testid={`collab-note-proposal-${p.id}`}>
+            <div key={p.id} className="rounded-md border-0 bg-surface-secondary/40 p-2 space-y-1.5" data-testid={`collab-note-proposal-${p.id}`}>
               <p className="type-caption text-text-muted">
                 {p.authorName}
                 {p.aiAssisted ? ` · ${tr('collabAiAssistedBadge')}` : ` · ${tr('collabHumanBadge')}`}

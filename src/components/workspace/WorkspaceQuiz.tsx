@@ -1,5 +1,4 @@
 import { useMemo, useState, type KeyboardEvent } from 'react';
-import { HelpCircle } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import { isMcQuiz, type QuizDef } from '../../lib/lessonTypes';
 import type { Lang } from '../../lib/i18n';
@@ -45,6 +44,7 @@ function normalizeAnswer(s: string): string {
 }
 
 /* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K153 — wash MCQ options (no outline cages) */
 export function WorkspaceQuiz({
   quizDef,
   lang,
@@ -74,10 +74,9 @@ export function WorkspaceQuiz({
     if (quizDef.placeholder) {
       return (
         <div
-          className="ux-tier-b-tool ux-tier-b-quiz rounded-xl border border-dashed border-border-default bg-surface-card/50 px-4 py-6 text-center"
+          className="ux-tier-b-tool ux-tier-b-quiz rounded-xl border-0 bg-surface-secondary/40 bg-surface-card/50 px-4 py-6 text-center"
           data-testid="workspace-quiz-empty"
         >
-          <HelpCircle className="mx-auto mb-2 h-6 w-6 text-text-secondary" aria-hidden />
           <p className="type-meta font-medium text-text-secondary">{quizDef.question}</p>
           <p className="mx-auto mt-1.5 max-w-xs type-caption text-text-muted">{t('wsQuizEmptyHint')}</p>
         </div>
@@ -85,7 +84,7 @@ export function WorkspaceQuiz({
     }
     const passed = mcAnswer !== null && mcAnswer === quizDef.correctIndex;
     return (
-      <div className="ux-tier-b-tool ux-tier-b-quiz space-y-3" data-testid="workspace-quiz">
+      <div className="ux-tier-b-tool ux-tier-b-quiz space-y-3" data-testid="workspace-quiz" data-clarity-pass="k159">
         {showIrtBadge && irt && (
           <QuizIrtBadge irt={irt} lang={lang} responseCount={irtResponseCount} />
         )}
@@ -102,15 +101,15 @@ export function WorkspaceQuiz({
               onComplete(i === quizDef.correctIndex);
             }}
             className={cn(
-              'ux-quiz-option ws-touch-floor flex w-full min-h-11 min-w-0 items-start gap-2.5 rounded-xl border p-3 text-left type-body transition-colors sm:p-3.5',
+              'ux-quiz-option ws-touch-floor flex w-full min-h-11 min-w-0 items-start gap-2.5 rounded-xl border-0 p-3 text-left type-body transition-colors sm:p-3.5',
               mcAnswer === i
                 ? i === quizDef.correctIndex
-                  ? 'border-accent-emerald/40 bg-accent-emerald/8 text-text-primary'
-                  : 'border-accent-rose/40 bg-accent-rose/8 text-text-primary'
-                : 'border-border-subtle text-text-primary hover:border-border-default hover:bg-surface-hover',
+                  ? 'bg-accent-emerald/12 text-text-primary'
+                  : 'bg-accent-rose/12 text-text-primary'
+                : 'bg-surface-secondary/40 text-text-primary hover:bg-surface-hover',
             )}
           >
-            <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border-subtle type-caption font-medium text-text-secondary">
+            <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-0 bg-surface-secondary/45 type-caption font-medium text-text-secondary">
               {String.fromCharCode(65 + i)}
             </span>
             <span className="min-w-0 flex-1 whitespace-normal break-words text-pretty leading-relaxed">
@@ -148,7 +147,7 @@ export function WorkspaceQuiz({
           type="text"
           value={shortText}
           onChange={(e) => { setShortText(e.target.value); setShortChecked(null); }}
-          className="ux-tier-b-input w-full rounded-lg border border-border-subtle bg-surface-primary px-3 py-2 type-body"
+          className="ux-tier-b-input w-full rounded-lg border-0 bg-surface-secondary/45 bg-surface-primary px-3 py-2 type-body"
           placeholder={t('quizWkYourAnswer')}
         />
         <button
@@ -188,7 +187,7 @@ export function WorkspaceQuiz({
         <p {...questionProps(ord.question, onQuestionSelect)}>{ord.question}</p>
         <ul className="space-y-2">
           {order.map((itemIdx, pos) => (
-            <li key={itemIdx} className="ux-quiz-option flex items-center gap-2 p-2 rounded-lg border border-border-subtle bg-surface-card type-body">
+            <li key={itemIdx} className="ux-quiz-option flex items-center gap-2 p-2 rounded-lg border-0 bg-surface-secondary/45 bg-surface-card type-body">
               <span className="text-text-muted w-5">{pos + 1}.</span>
               <span className="flex-1">{ord.items[itemIdx]}</span>
               <button type="button" onClick={() => move(pos, -1)} className="px-2 py-0.5 type-caption rounded border border-white/10">↑</button>
@@ -221,7 +220,7 @@ export function WorkspaceQuiz({
         <div className="grid gap-2">
           {match.left.map((left, li) => (
             <div key={li} className="flex items-center gap-2 type-body">
-              <span className="ux-tier-b-panel flex-1 p-2 rounded-lg bg-surface-card border border-border-subtle">{left}</span>
+              <span className="ux-tier-b-panel flex-1 p-2 rounded-lg bg-surface-card border-0 bg-surface-secondary/45">{left}</span>
               <select
                 value={matches[li] ?? ''}
                 onChange={(e) => {
@@ -234,7 +233,7 @@ export function WorkspaceQuiz({
                   });
                   setMatchChecked(null);
                 }}
-                className="ux-tier-b-input flex-1 rounded-lg border border-border-subtle bg-surface-primary px-2 py-2 type-body"
+                className="ux-tier-b-input flex-1 rounded-lg border-0 bg-surface-secondary/45 bg-surface-primary px-2 py-2 type-body"
               >
                 <option value="">{t('quizWkSelectOption')}</option>
                 {shuffledRight.map(({ label, orig }) => (
