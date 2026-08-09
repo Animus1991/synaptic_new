@@ -159,16 +159,16 @@ export function SessionLauncherCard({
       onClick={onClick}
       disabled={disabled}
       className={cn(
+        /* OPT-K140 — wash session cards (no ring cages); recommended via wash + badge */
         'ux-session-card relative',
         active && 'ux-session-card-active',
         recommended && 'ux-session-card-recommended',
-        recommended && !active && 'ring-1 ring-brand-500/40',
         disabled && 'opacity-50 cursor-not-allowed',
       )}
     >
       {recommended && recommendedLabel ? (
         <span
-          className="absolute -top-1.5 right-2 rounded-md border border-brand-500/35 bg-brand-600/20 px-1.5 py-0.5 type-caption font-semibold uppercase tracking-wide text-text-primary"
+          className="absolute -top-1.5 right-2 rounded-md border-0 bg-brand-600/20 px-1.5 py-0.5 type-caption font-semibold uppercase tracking-wide text-text-primary"
           data-testid="session-recommended-badge"
         >
           <AllCapsLabel>{recommendedLabel}</AllCapsLabel>

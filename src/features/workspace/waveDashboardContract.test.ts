@@ -327,6 +327,16 @@ describe('Wave H2 — Dashboard productization', () => {
     expect(indexCss).toMatch(/OPT-K122/);
   });
 
+  it('OPT-K140 — Tasks CTA-only unbox + wash session cards', () => {
+    const tasks = read('components/Tasks.tsx');
+    expect(tasks).toMatch(/OPT-K140/);
+    expect(tasks).toContain('data-border-diet="cta-only"');
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K140/);
+    const indexCss = read('index.css');
+    expect(indexCss).toMatch(/OPT-K140/);
+  });
+
   it('OPT-K121 — Dashboard type rhythm on all platform pages', () => {
     const prim = read('components/ui/primitives.tsx');
     expect(prim).toMatch(/OPT-K121/);

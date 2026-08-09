@@ -980,6 +980,27 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(indexCss).toMatch(/Library drop zones/);
   });
 
+  it('K140 — Tasks page CTA-only unbox + wash session cards + type rhythm', () => {
+    const tasks = read('src/components/Tasks.tsx');
+    expect(tasks).toMatch(/OPT-K140/);
+    expect(tasks).toContain('data-testid="tasks-page"');
+    expect(tasks).toContain('data-border-diet="cta-only"');
+    expect(tasks).not.toMatch(/border-l-\[3px\]/);
+    expect(tasks).not.toMatch(/type-metafont-/);
+
+    const chrome = read('src/components/ui/platformChrome.tsx');
+    expect(chrome).toMatch(/OPT-K140/);
+    expect(chrome).not.toMatch(/ring-1 ring-brand-500\/40/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K140/);
+    expect(clarity).toMatch(/Tasks page clarity/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K140/);
+    expect(indexCss).toMatch(/session launchers: wash cards/);
+  });
+
   it('K121 — Dashboard type rhythm applied platform-wide', () => {
     const prim = read('src/components/ui/primitives.tsx');
     expect(prim).toMatch(/OPT-K121/);

@@ -3483,3 +3483,83 @@ body::-webkit-scrollbar-corner,
   font-size: var(--type-caption);
   font-weight: 500;
 }
+
+/*
+ * OPT-K140 — Tasks page clarity (Canon / industry, Obsidian-style unbox):
+ * Surfaces/panels/callouts/session cards: no outline cages — wash + type hierarchy.
+ * Keep: PrimaryCTA (Create Plan / Start), focus rings, FSRS color meaning, status dots.
+ */
+[data-testid="tasks-page"] {
+  width: 100%;
+  max-width: none;
+}
+
+[data-testid="tasks-page"][data-border-diet="cta-only"] :is(
+  .ux-card,
+  .blueprint-surface,
+  .ux-callout,
+  .ux-banner-warn,
+  .ux-session-card,
+  .tasks-insight-card,
+  .tasks-mistake-banner,
+  .tasks-kanban-column,
+  .tasks-layout-toggle,
+  [data-testid="tasks-entry-hint"],
+  [data-testid="tasks-session-status"],
+  [data-testid="tasks-sr-banner"],
+  [data-testid="tasks-daily-goal"],
+  [data-testid="session-recommended-badge"],
+  .collapsible-chrome-section-body > *,
+  .ux-session-card-icon
+) {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="tasks-page"][data-border-diet="cta-only"] .ux-card {
+  background: color-mix(in srgb, var(--color-surface-secondary) 42%, transparent);
+}
+
+[data-testid="tasks-page"][data-border-diet="cta-only"] .ux-card:hover,
+[data-testid="tasks-page"][data-border-diet="cta-only"] .blueprint-surface:hover {
+  border-color: transparent !important;
+}
+
+[data-testid="tasks-page"][data-border-diet="cta-only"] .ux-primary-cta,
+[data-testid="tasks-page"][data-border-diet="cta-only"] .tasks-create-plan-cta {
+  border: none !important;
+}
+
+[data-testid="tasks-page"] .descriptive-sticky-tabs {
+  width: 100%;
+}
+
+[data-testid="tasks-page"] .descriptive-sticky-tab {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+[data-testid="tasks-page"][data-border-diet="cta-only"] [data-testid^="session-launcher-"] {
+  min-height: 7.5rem;
+}
+
+[data-testid="tasks-page"] .tasks-kanban-card .type-body {
+  font-size: var(--type-meta);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+[data-testid="tasks-page"] .ux-session-card .type-meta {
+  font-size: var(--type-meta);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+[data-testid="tasks-page"] .ux-session-card .type-caption {
+  font-size: var(--type-caption);
+  line-height: 1.4;
+}
+
+[data-testid="tasks-page"] .tasks-row-start-cta {
+  font-size: var(--type-meta);
+}

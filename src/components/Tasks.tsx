@@ -33,6 +33,7 @@ import { useMinimalTheme } from '../lib/useMinimalTheme';
 import { AllCapsLabel } from './ui/AllCapsLabel';
 
 /* OPT-K98 — markup debt: decorative brand type -> ink */
+/* OPT-K140 — Tasks CTA-only border diet: wash surfaces, keep all actions */
 export type { TaskFilter } from '../lib/tasksContent';
 
 type CommandTab = 'today' | 'weak' | 'reviews' | 'mistakes';
@@ -195,10 +196,10 @@ export function Tasks({
   );
 
   const fsrsRatings: { rating: FsrsRating; label: string; color: string }[] = [
-    { rating: 'again', label: c.fsrsAgain, color: 'bg-accent-rose/15 text-accent-rose border-accent-rose/30' },
-    { rating: 'hard', label: c.fsrsHard, color: 'bg-accent-orange/15 text-accent-orange border-accent-orange/30' },
-    { rating: 'good', label: c.fsrsGood, color: 'bg-accent-amber/15 text-accent-amber border-accent-amber/30' },
-    { rating: 'easy', label: c.fsrsEasy, color: 'bg-accent-emerald/15 text-accent-emerald border-accent-emerald/30' },
+    { rating: 'again', label: c.fsrsAgain, color: 'border-0 bg-accent-rose/15 text-accent-rose' },
+    { rating: 'hard', label: c.fsrsHard, color: 'border-0 bg-accent-orange/15 text-accent-orange' },
+    { rating: 'good', label: c.fsrsGood, color: 'border-0 bg-accent-amber/15 text-accent-amber' },
+    { rating: 'easy', label: c.fsrsEasy, color: 'border-0 bg-accent-emerald/15 text-accent-emerald' },
   ];
 
   const subtitle = useMemo(() => {
@@ -268,6 +269,7 @@ export function Tasks({
     <div
       {...warmSandScopeProps(warmSandPage)}
       data-testid="tasks-page"
+      data-border-diet="cta-only"
       data-tasks-layout={layoutMode}
       data-type-rhythm="dashboard"
       className={cn('min-w-0 w-full', isMinimal && 'tasks-quiet')}
@@ -280,7 +282,7 @@ export function Tasks({
         actions={
           <div className="flex items-center gap-2">
             <div
-              className="tasks-layout-toggle inline-flex items-center rounded-lg border border-border-subtle p-0.5"
+              className="tasks-layout-toggle inline-flex items-center rounded-lg border-0 bg-surface-secondary/55 p-0.5"
               role="group"
               aria-label={t('tasksViewToggleAria', lang)}
               data-testid="tasks-layout-toggle"
@@ -328,7 +330,7 @@ export function Tasks({
 
       {!entryHintDismissed && (
         <div
-          className="flex items-start gap-2 rounded-xl border border-border-subtle bg-surface-secondary/50 px-3 py-2"
+          className="flex items-start gap-2 rounded-xl border-0 bg-surface-secondary/50 px-3 py-2"
           data-testid="tasks-entry-hint"
         >
           <p className="flex-1 type-body text-text-secondary leading-snug">{c.entryHint}</p>
@@ -376,7 +378,7 @@ export function Tasks({
 
       {sessionActive && activeSessionType && (
         <div
-          className="ux-card ux-chip-info border-brand-500/25 p-3 space-y-1.5"
+          className="ux-card ux-chip-info border-0 bg-brand-600/5 p-3 space-y-1.5"
           data-testid="tasks-session-status"
           role="status"
           aria-live="polite"
@@ -461,7 +463,7 @@ export function Tasks({
             <button
               key={block.label}
               type="button"
-              className="rounded-lg border border-border-subtle bg-surface-secondary/50 px-2.5 py-1.5 type-caption font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover"
+              className="rounded-lg border-0 bg-surface-secondary/55 px-2.5 py-1.5 type-caption font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover"
               onClick={() => {
                 const label = block.label.toLowerCase();
                 if (label.includes('mistake') || label.includes('λάθ')) setTab('mistakes');
@@ -488,7 +490,7 @@ export function Tasks({
           <button
             type="button"
             data-testid="tasks-tab-filter"
-            className="rounded-xl border border-border-subtle bg-surface-card/70 p-2.5 text-text-secondary transition-colors hover:border-brand-500/30 hover:bg-surface-hover hover:text-text-primary"
+            className="rounded-xl border-0 bg-surface-secondary/55 p-2.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
             aria-label={t('tasksTabFilterAria', lang)}
             title={t('tasksTabFilterAria', lang)}
             onClick={() => {
@@ -527,7 +529,7 @@ export function Tasks({
               data-testid="tasks-insight-strip"
             >
               {almostKnownPreview.length > 0 && (
-                <div className="tasks-insight-card ux-banner-warn rounded-xl border bg-accent-amber/5 p-3 space-y-1.5">
+                <div className="tasks-insight-card ux-banner-warn rounded-xl border-0 bg-accent-amber/5 p-3 space-y-1.5">
                   <div className="flex items-center gap-1.5">
                     <TrendingUp className="w-3.5 h-3.5 ux-banner-warn-accent shrink-0" aria-hidden />
                     <p className="ux-banner-warn-accent type-caption font-semibold tracking-wide">
@@ -555,7 +557,7 @@ export function Tasks({
                 </div>
               )}
               {antiPassiveAlert && (
-                <div className="tasks-insight-card rounded-xl border border-brand-500/20 bg-brand-600/5 p-3 space-y-1.5">
+                <div className="tasks-insight-card rounded-xl border-0 bg-brand-600/5 p-3 space-y-1.5">
                   <div className="flex items-center gap-1.5">
                     <Zap className="w-3.5 h-3.5 text-text-secondary shrink-0" aria-hidden />
                     <p className="type-caption font-semibold tracking-wide text-text-secondary">
@@ -598,12 +600,12 @@ export function Tasks({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.02 }}
                   className={cn(
-                    'tasks-kanban-card ux-card flex flex-col gap-0 p-0 overflow-hidden',
+                    'tasks-kanban-card ux-card flex flex-col gap-0 p-0 overflow-hidden border-0',
                     `tasks-kanban-card-${kanbanStatus}`,
                     layoutMode === 'list' && 'tasks-list-row',
-                    isInProgress && 'border-brand-500/30 bg-brand-600/5',
-                    task.priority === 'critical' && 'border-l-[3px] border-l-accent-rose border-accent-rose/30',
-                    task.priority === 'high' && 'border-l-[3px] border-l-accent-amber',
+                    isInProgress && 'bg-brand-600/5',
+                    task.priority === 'critical' && 'bg-accent-rose/[0.06]',
+                    task.priority === 'high' && !isInProgress && 'bg-accent-amber/[0.05]',
                   )}
                 >
                   <div
@@ -658,7 +660,7 @@ export function Tasks({
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); onStartTask?.(task.id); }}
-                        className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-lg bg-surface-secondary text-text-secondary type-metafont-semibold hover:bg-brand-600/20 hover:text-text-primary"
+                        className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-lg bg-surface-secondary text-text-secondary type-meta font-semibold hover:bg-brand-600/20 hover:text-text-primary"
                       >
                         <Play className="w-3.5 h-3.5" /> {startButtonLabel(task, lang)}
                       </button>
@@ -672,7 +674,7 @@ export function Tasks({
                         animate="animate"
                         exit="exit"
                         transition={emphasizedTransition}
-                        className="overflow-hidden border-t border-border-subtle"
+                        className="overflow-hidden border-t border-transparent"
                       >
                         {/* L-T02: high-priority / flashcard expand chrome */}
                         <div
@@ -697,7 +699,7 @@ export function Tasks({
                                     key={rating}
                                     type="button"
                                     onClick={() => onReviewRating(task.id, rating)}
-                                    className={cn('tasks-fsrs-rating min-h-8 px-2.5 py-1.5 rounded-lg type-caption font-medium border', color)}
+                                    className={cn('tasks-fsrs-rating min-h-8 px-2.5 py-1.5 rounded-lg type-caption font-medium', color)}
                                   >
                                     {label}
                                   </button>
@@ -758,11 +760,11 @@ export function Tasks({
                     <div className="h-full rounded-full bg-accent-rose/80" style={{ width: `${area.mastery}%` }} />
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <button type="button" onClick={() => onFocusWeakArea?.(area.concept)} className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl bg-surface-secondary text-text-secondary type-metafont-semibold hover:bg-brand-600/20 hover:text-text-primary">
+                    <button type="button" onClick={() => onFocusWeakArea?.(area.concept)} className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl bg-surface-secondary text-text-secondary type-meta font-semibold hover:bg-brand-600/20 hover:text-text-primary">
                       <Brain className="w-3.5 h-3.5" /> {c.studyNow}
                     </button>
                     {onOpenAgent && (
-                      <button type="button" onClick={() => onOpenAgent(area.concept)} className="flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl border border-border-subtle type-metafont-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover">
+                      <button type="button" onClick={() => onOpenAgent(area.concept)} className="flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl border-0 bg-surface-secondary/55 type-meta font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover">
                         <HelpCircle className="w-3.5 h-3.5" /> {c.askAi}
                       </button>
                     )}
@@ -779,7 +781,7 @@ export function Tasks({
         <div className="space-y-3" id="tasks-panel-reviews" data-testid="tasks-panel-reviews" role="tabpanel" aria-labelledby="tasks-tab-reviews">
           {!srBannerDismissed && (reviewTasks.length > 0 || fsrsQueue.length > 0) && (
             <div
-              className="ux-card ux-chip-info border-brand-500/20 type-body flex items-start gap-2 p-3"
+              className="ux-card ux-chip-info border-0 bg-brand-600/5 type-body flex items-start gap-2 p-3"
               data-testid="tasks-sr-banner"
             >
               <Calendar className="w-4 h-4 shrink-0 mt-0.5" aria-hidden />
@@ -808,14 +810,14 @@ export function Tasks({
                 <p className="type-caption text-text-tertiary mt-1">{task.courseName} · {task.estimatedMinutes} min</p>
               </div>
               {typeof intervalDays === 'number' && (
-                <span className="shrink-0 rounded-md border border-border-subtle bg-surface-secondary/60 px-2 py-1 type-caption font-semibold tabular-nums text-text-secondary">
+                <span className="shrink-0 rounded-md border-0 bg-surface-secondary/60 px-2 py-1 type-caption font-semibold tabular-nums text-text-secondary">
                   {c.intervalLabel(`${intervalDays}d`)}
                 </span>
               )}
               <button
                 type="button"
                 onClick={() => onStartTask?.(task.id)}
-                className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl bg-surface-secondary text-text-secondary type-metafont-semibold shrink-0 hover:bg-brand-600/20 hover:text-text-primary"
+                className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl bg-surface-secondary text-text-secondary type-meta font-semibold shrink-0 hover:bg-brand-600/20 hover:text-text-primary"
               >
                 <Play className="w-3.5 h-3.5" /> {c.startReview}
               </button>
@@ -839,7 +841,7 @@ export function Tasks({
       {tab === 'mistakes' && (
         <div className="space-y-4" id="tasks-panel-mistakes" data-testid="tasks-panel-mistakes" role="tabpanel" aria-labelledby="tasks-tab-mistakes">
           {openMistakes.length > 0 && (
-          <div className="tasks-mistake-banner ux-card border-accent-amber/25 bg-accent-amber/[0.04] type-body text-text-secondary flex items-start gap-2 p-3">
+          <div className="tasks-mistake-banner ux-card border-0 bg-accent-amber/[0.06] type-body text-text-secondary flex items-start gap-2 p-3">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-accent-amber" aria-hidden />
             <p className="leading-snug">{c.mistakeBanner}</p>
           </div>
@@ -859,13 +861,13 @@ export function Tasks({
                     <XCircle className="w-4 h-4 text-accent-rose shrink-0" />
                   </div>
                   {mistake.wrongAnswer && (
-                    <div className="p-3 rounded-xl border border-accent-rose/20 bg-accent-rose/5">
+                    <div className="p-3 rounded-xl border-0 bg-accent-rose/5">
                       <p className="type-caption font-medium text-accent-rose mb-1">{c.yourMistake}</p>
                       <p className="type-caption text-text-secondary">{mistake.wrongAnswer || mistake.questionSummary}</p>
                     </div>
                   )}
                   {mistake.correctAnswer && (
-                    <div className="p-3 rounded-xl border border-accent-emerald/20 bg-accent-emerald/5">
+                    <div className="p-3 rounded-xl border-0 bg-accent-emerald/5">
                       <p className="type-caption font-medium text-accent-emerald mb-1">{c.correctUnderstanding}</p>
                       <p className="type-caption text-text-secondary">{mistake.correctAnswer}</p>
                     </div>
@@ -874,16 +876,16 @@ export function Tasks({
                     <button
                       type="button"
                       onClick={() => onFocusWeakArea?.(mistake.concept)}
-                      className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl bg-surface-secondary text-text-secondary type-metafont-semibold hover:bg-brand-600/20 hover:text-text-primary"
+                      className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl bg-surface-secondary text-text-secondary type-meta font-semibold hover:bg-brand-600/20 hover:text-text-primary"
                     >
                       <RefreshCw className="w-3.5 h-3.5" /> {c.similarPractice}
                     </button>
                     {onOpenAgent && (
-                      <button type="button" onClick={() => onOpenAgent(mistake.concept)} className="flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl border border-border-subtle type-metafont-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover">
+                      <button type="button" onClick={() => onOpenAgent(mistake.concept)} className="flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl border-0 bg-surface-secondary/55 type-meta font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover">
                         <Brain className="w-3.5 h-3.5" /> {c.deepExplanation}
                       </button>
                     )}
-                    <button type="button" onClick={() => onResolveMistake?.(mistake.id)} className="flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl border border-border-subtle type-metafont-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover">
+                    <button type="button" onClick={() => onResolveMistake?.(mistake.id)} className="flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl border-0 bg-surface-secondary/55 type-meta font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover">
                       <CheckCircle2 className="w-3.5 h-3.5" /> {c.markResolved}
                     </button>
                   </div>
