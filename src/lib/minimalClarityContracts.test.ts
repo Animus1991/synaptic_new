@@ -882,6 +882,16 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(chrome).not.toMatch(/workspace-zen-exit-chip[\s\S]{0,400}wsFocusStudyOn/);
   });
 
+  it('K141 — opening a Studio tool exits zen so ToolSurface mounts', () => {
+    const ws = read('src/components/workspace/studyWorkspace/useStudyWorkspace.ts');
+    expect(ws).toMatch(/OPT-K139\/K141|OPT-K141/);
+    expect(ws).toMatch(/layout === 'focus-lesson' \|\| layout === 'zen'/);
+    expect(ws).toMatch(/setLayout\(isMobile \? 'focus-tool' : 'split'\)/);
+
+    const surface = read('src/components/workspace/studyWorkspace/StudyWorkspaceToolSurface.tsx');
+    expect(surface).toMatch(/layout === 'split' \|\| layout === 'focus-tool'/);
+  });
+
   it('K138 — one role line; studio title-only; unified chat status', () => {
     const nb = read('src/components/workspace/studyWorkspace/NotebookWorkspaceLayout.tsx');
     expect(nb).toMatch(/OPT-K138/);

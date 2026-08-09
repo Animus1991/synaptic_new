@@ -765,7 +765,10 @@ export function useStudyWorkspace({
 
   const openWorkspaceTool = useCallback((tool: WorkspaceTool) => {
     setActiveTool(tool);
-    if (layout === 'focus-lesson') setLayout(isMobile ? 'focus-tool' : 'split');
+    /* OPT-K139/K141 — ToolSurface only mounts for split/focus-tool; leave zen/focus-lesson so Studio cards open panels. */
+    if (layout === 'focus-lesson' || layout === 'zen') {
+      setLayout(isMobile ? 'focus-tool' : 'split');
+    }
   }, [layout, isMobile]);
 
   const enterSplitLesson = useCallback(() => {

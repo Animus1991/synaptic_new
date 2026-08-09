@@ -195,6 +195,11 @@ describe('Wave H2 — Dashboard productization', () => {
     expect(chrome).toMatch(/layout === 'zen' && !notebookMode/);
   });
 
+  it('OPT-K141 — Studio tools leave zen to mount ToolSurface', () => {
+    const ws = read('components/workspace/studyWorkspace/useStudyWorkspace.ts');
+    expect(ws).toMatch(/layout === 'focus-lesson' \|\| layout === 'zen'/);
+  });
+
   it('OPT-K138 — quieter role copy + unified chat status', () => {
     const nb = read('components/workspace/studyWorkspace/NotebookWorkspaceLayout.tsx');
     expect(nb).toMatch(/OPT-K138/);
