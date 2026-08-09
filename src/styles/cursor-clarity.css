@@ -1901,8 +1901,8 @@
 .dashboard-hub-chrome-panel {
   margin-top: 0.5rem;
   padding-top: 0.35rem;
-  /* Divider only — no second boxed frame */
-  border-top: 1px solid color-mix(in srgb, var(--color-border-subtle) 55%, transparent);
+  /* OPT-K115 — spacing only; no hairline under tabs */
+  border-top: none;
 }
 
 /*
@@ -2086,11 +2086,15 @@
   box-shadow: none !important;
 }
 
-/* Navigational course cards: ultra-light hairline (CTA-class interactive) */
+/* OPT-K115 — course cards: wash/hover only (no outline cages) */
 [data-testid="dashboard-page"] .dashboard-course-grid > * {
-  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 45%, transparent) !important;
+  border: none !important;
   box-shadow: none !important;
   background: transparent;
+}
+
+[data-testid="dashboard-page"] .dashboard-course-grid > *:hover {
+  background: color-mix(in srgb, var(--color-surface-secondary) 70%, transparent);
 }
 
 [data-testid="dashboard-page"] .dashboard-hub-chrome-tablist {
@@ -2144,12 +2148,16 @@
 
 [data-testid="dashboard-page"][data-border-diet="cta-only"] :is(
   .ux-secondary-cta,
-  .dashboard-exam-cta,
-  .dashboard-course-grid > *
+  .dashboard-exam-cta
 ) {
   border-style: solid !important;
   border-width: 1px !important;
   border-color: color-mix(in srgb, var(--color-border-subtle) 55%, transparent) !important;
+  box-shadow: none !important;
+}
+
+[data-testid="dashboard-page"][data-border-diet="cta-only"] .dashboard-course-grid > * {
+  border: none !important;
   box-shadow: none !important;
 }
 
@@ -2254,13 +2262,41 @@
   shrink: 0;
 }
 
-/* OPT-K114 — percent is sole centered ink inside the ring */
+/* OPT-K114/K115 — percent is sole centered ink inside the ring */
 .dashboard-readiness-ring .dashboard-readiness-pct {
   display: block;
   line-height: 1 !important;
   letter-spacing: -0.02em;
   margin: 0;
   padding: 0;
+}
+
+/*
+ * OPT-K115 — Aggressive divider diet (Canon / industry):
+ * Prefer spacing + wash over divide-y / hairline cages on Dashboard + shared chrome.
+ * Keep outlines on: PrimaryCTA, SecondaryCTA, inputs, dialogs/popovers, focus rings.
+ */
+[data-testid="dashboard-page"] .collapsible-chrome-section {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="dashboard-page"] [data-testid="dashboard-action-hub"] {
+  border-bottom: none !important;
+}
+
+[data-testid="dashboard-page"] .dashboard-hub-chrome-panel {
+  border-top: none !important;
+}
+
+[data-testid="dashboard-page"] .dashboard-alert-list,
+[data-testid="dashboard-page"] [data-testid="exam-calendar-panel"] ul {
+  border: none !important;
+}
+
+.app-shell .collapsible-chrome-section {
+  border-color: transparent !important;
+  border-bottom-width: 0 !important;
 }
 
 /* Quiet step timeline (Canon numbered circles) ? keep rounded-full nodes */

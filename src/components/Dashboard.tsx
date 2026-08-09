@@ -229,7 +229,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 type="button"
                 onClick={onExploreDemo}
                 data-tour="dashboard-explore-demo"
-                className="flex items-center justify-center gap-2 px-8 py-3.5 bg-brand-500/5 hover:bg-surface-secondary text-text-primary border border-border-subtle rounded-xl font-semibold type-meta transition-all"
+                className="flex items-center justify-center gap-2 px-8 py-3.5 bg-brand-500/5 hover:bg-surface-secondary text-text-primary border-0 rounded-xl font-semibold type-meta transition-all"
               >
                 <Sparkles className="w-4 h-4" />
                 {t('exploreDemo')}
@@ -272,6 +272,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       data-border-diet="cta-only"
       data-dashboard-layout={layoutMode}
     >
+      {/* OPT-K115 / OPT-K111 — divider diet + CTA-only borders; readiness −0.5% / SVG-centered percent */}
       <MotionSection
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -333,7 +334,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 aria-label={t('dashLayoutGroup')}
                 title={t(layoutLabelKey)}
                 data-testid="dashboard-layout-toggle"
-                className="inline-flex h-8 items-center rounded-lg border border-border-subtle bg-surface-primary p-0.5"
+                className="inline-flex h-8 items-center rounded-lg border-0 bg-surface-secondary p-0.5"
               >
                 {(
                   [
@@ -624,6 +625,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   value={learnerModel.overallMastery}
                   label={t('examReadiness')}
                   sublabel={t('dashReadinessSublabel')}
+                  size={127}
                 />
                 {/* OPT-K9b — signals use proximity UtilityRows inside a tight track */}
                 <div className="proximity-track space-y-1 min-w-0">
@@ -654,7 +656,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 value={learnerModel.overallMastery}
                 label={t('examReadiness')}
                 sublabel={t('dashReadinessSublabel')}
-                size={128}
+                size={127}
               />
               <div className="min-w-0 flex-1">
                 {/* OPT-K107 — secondary vs hub Continue (one PrimaryCTA in first study band). */}
@@ -853,13 +855,13 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {fixTasks.length > 0 && (
             <div className="py-1" data-testid="dashboard-needs-fixing">
               <SectionLabel icon={Shield}>{t('dashNeedsFixing')}</SectionLabel>
-              <div className="divide-y divide-border-subtle/70">
+              <div className="flex flex-col gap-0.5">
                 {fixTasks.slice(0, 3).map(task => (
                   <button
                     type="button"
                     key={task.id}
                     onClick={() => onStartTask?.(task.id)}
-                    className="w-full flex items-center gap-3 py-2.5 first:pt-1 hover:bg-surface-secondary/50 cursor-pointer transition-all group text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
+                    className="w-full flex items-center gap-3 rounded-lg py-2 px-1 hover:bg-surface-secondary/50 cursor-pointer transition-all group text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
                   >
                     <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-text-secondary shrink-0" />
                     <span className="type-meta flex-1 truncate group-hover:text-text-primary transition-colors">{task.title}</span>
@@ -901,7 +903,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                         onSelectCourse(course);
                       }
                     }}
-                    className="p-3 sm:p-3.5 rounded-lg border border-border-subtle/45 bg-transparent hover:bg-surface-secondary/55 cursor-pointer transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
+                    className="p-3 sm:p-3.5 rounded-lg border-0 bg-transparent hover:bg-surface-secondary/55 cursor-pointer transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
                   >
                     <div className="proximity-row mb-3">
                       <CourseIcon icon={course.icon} size="lg" colorClassName="text-text-secondary" />
@@ -1325,9 +1327,9 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             <div className="dashboard-pair-row" data-testid="dashboard-pair-misconceptions-spaced">
               <div className="min-w-0">
                 <SectionLabel icon={AlertTriangle}>{t('dashActiveMisconceptions')}</SectionLabel>
-                <div className="proximity-track-wide divide-y divide-border-subtle">
+                <div className="proximity-track-wide flex flex-col gap-2">
                   {unresolvedMisconceptions.slice(0, 2).map(m => (
-                    <div key={m.id} className="py-2 first:pt-0 last:pb-0 type-caption">
+                    <div key={m.id} className="type-caption">
                       <p className="font-medium text-text-primary">{m.concept}</p>
                       <p className="text-text-secondary mt-0.5">{m.description}</p>
                       {onResolveMisconception && (
@@ -1381,9 +1383,9 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               {unresolvedMisconceptions.length > 0 && (
                 <BlueprintSurface className="p-3">
                   <SectionLabel icon={AlertTriangle}>{t('dashActiveMisconceptions')}</SectionLabel>
-                  <div className="proximity-track-wide divide-y divide-border-subtle">
+                  <div className="proximity-track-wide flex flex-col gap-2">
                     {unresolvedMisconceptions.slice(0, 2).map(m => (
-                      <div key={m.id} className="py-2 first:pt-0 last:pb-0 type-caption">
+                      <div key={m.id} className="type-caption">
                         <p className="font-medium text-text-primary">{m.concept}</p>
                         <p className="text-text-secondary mt-0.5">{m.description}</p>
                         {onResolveMisconception && (
@@ -1461,16 +1463,26 @@ function MasteryRing({ mastery, size }: { mastery: number; size: number }) {
   const offset = c - (mastery / 100) * c;
   const stroke = courseRingColor(mastery);
   const mid = size / 2;
+  const pctFont = Math.max(9, Math.round(size * 0.28));
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90" aria-hidden>
         <circle cx={mid} cy={mid} r={r} fill="none" stroke="var(--viz-track)" strokeWidth={3} />
         <circle cx={mid} cy={mid} r={r} fill="none" stroke={stroke} strokeWidth={3} strokeDasharray={c} strokeDashoffset={offset} strokeLinecap="round" className="mastery-ring" />
       </svg>
-      {/* OPT-K114 — percent centered outside rotated SVG (avoids rotate-90 text skew) */}
-      <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 type-micro font-bold tabular-nums leading-none text-text-primary">
-        {mastery}%
-      </span>
+      {/* OPT-K115 — unrotated SVG text for true geometric center */}
+      <svg width={size} height={size} className="pointer-events-none absolute inset-0" aria-hidden>
+        <text
+          x={mid}
+          y={mid}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fill="var(--color-text-primary)"
+          style={{ fontSize: pctFont, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}
+        >
+          {mastery}%
+        </text>
+      </svg>
     </div>
   );
 }

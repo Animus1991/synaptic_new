@@ -216,8 +216,8 @@ export function DashboardActionHub({
       <div
         id="dashboard-action-hub"
         className={cn(
-          /* Wave H2 / OPT-K110 — full-bleed hero; hairline bottom only (no framed card) */
-          'relative overflow-visible border-0 border-b border-border-subtle/60 bg-transparent',
+          /* OPT-K115 — full-bleed hero; spacing only (no hairline cage) */
+          'relative overflow-visible border-0 bg-transparent',
           hubQuiet && 'hub-quiet-surface',
           overflowOpen && 'z-40',
           !flushTop && 'rounded-none',

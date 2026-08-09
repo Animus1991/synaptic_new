@@ -28,7 +28,9 @@ type Slot = {
 
 /**
  * Semantic alert list (exam / quiz / forgetting / misconception).
+ * OPT-K90 / OPT-K91 — ink owns type; neutral washes.
  * OPT-K111 — interactive rows (hover wash + chevron), no 2×2 outline cages.
+ * OPT-K115 — spacing stack (no row hairlines).
  */
 export function DashboardAlertGrid({
   daysToExam,
@@ -118,7 +120,7 @@ export function DashboardAlertGrid({
 
   return (
     <div
-      className={cn('dashboard-alert-list divide-y divide-border-subtle/60', className)}
+      className={cn('dashboard-alert-list flex flex-col gap-0.5', className)}
       data-testid="dashboard-alert-grid"
       data-layout="list"
     >
@@ -131,7 +133,7 @@ export function DashboardAlertGrid({
             onClick={slot.onClick}
             disabled={!slot.onClick}
             className={cn(
-              'dashboard-alert-row flex w-full items-start gap-2.5 border-0 bg-transparent px-0.5 py-2.5 text-left transition-colors',
+              'dashboard-alert-row flex w-full items-start gap-2.5 rounded-lg border-0 bg-transparent px-1.5 py-2 text-left transition-colors',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
               slot.onClick && 'cursor-pointer hover:bg-surface-secondary/55',
               !slot.onClick && 'cursor-default',

@@ -120,19 +120,22 @@ describe('Wave H2 — Dashboard productization', () => {
     expect(hub).toContain("hubChromeTab === 'prompts'");
     expect(page).toContain('promptsSlot=');
     expect(page).toContain('dashboard-today-glance-grid');
-    expect(page).toMatch(/size=\{128\}/);
+    expect(page).toMatch(/size=\{127\}/);
     const ring = read('components/visuals/ReadinessRing.tsx');
-    expect(ring).toMatch(/size = 174/);
-    expect(ring).toMatch(/-translate-x-1\/2 -translate-y-1\/2/);
+    expect(ring).toMatch(/size = 173/);
+    expect(ring).toMatch(/dominantBaseline="central"/);
     const clarity = read('styles/cursor-clarity.css');
     expect(clarity).toMatch(/OPT-K112/);
   });
 
-  it('OPT-K114 — readiness ring −1% with geometric percent center', () => {
+  it('OPT-K115 — readiness ring −0.5% with SVG geometric percent center', () => {
     const ring = read('components/visuals/ReadinessRing.tsx');
-    expect(ring).toMatch(/OPT-K114/);
-    expect(ring).toMatch(/size = 174/);
-    expect(page).toMatch(/size=\{128\}/);
+    expect(ring).toMatch(/OPT-K115/);
+    expect(ring).toMatch(/size = 173/);
+    expect(ring).toMatch(/dominantBaseline="central"/);
+    expect(page).toMatch(/size=\{127\}/);
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K115/);
   });
 
   it('learner copy drops forgetting-curve / first-attempts / Synapse Agent jargon', () => {

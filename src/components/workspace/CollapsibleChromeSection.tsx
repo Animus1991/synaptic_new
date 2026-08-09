@@ -46,8 +46,8 @@ export function CollapsibleChromeSection({
   return (
     <div
       className={cn(
-        /* OPT-K109 — hairline divider only; no framed chrome box */
-        'collapsible-chrome-section shrink-0 border-b border-border-subtle bg-transparent',
+        /* OPT-K115 — spacing only; no framed chrome box / hairline cage */
+        'collapsible-chrome-section shrink-0 border-0 bg-transparent',
         className,
       )}
       data-testid={testId}

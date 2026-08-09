@@ -48,11 +48,12 @@ export function ExamCalendarPanel() {
         ))}
       </div>
 
-      <ul className="proximity-track-wide divide-y divide-border-subtle/70">
+      {/* OPT-K115 — spacing stack (no row hairlines) */}
+      <ul className="proximity-track-wide flex flex-col gap-3">
         {entries.map((entry) => (
           <li
             key={entry.id}
-            className="py-3 first:pt-0 last:pb-0"
+            className="min-w-0"
             data-testid={`exam-calendar-entry-${entry.id}`}
           >
             {/* OPT-K9b — link beside title cluster, not far-right of ultrawide card */}

@@ -201,7 +201,8 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(dash).toMatch(/dashboard-breath-stack/);
 
     const ring = read('src/components/visuals/ReadinessRing.tsx');
-    expect(ring).toMatch(/size = 165/);
+    /* Lineage: 165 → … → 173 (OPT-K115) */
+    expect(ring).toMatch(/size = 173/);
   });
 
   it('K82 — panel type −2% more + non-Minimal accent rebalance', () => {
@@ -478,7 +479,8 @@ describe('OPT-K69 engineering clarity contracts', () => {
     /* Alerts + Study prompts live in hub tablist (OPT-K108/K112) */
     expect(dash).toContain('alertsSlot');
     expect(dash).toContain('promptsSlot');
-    expect(dash).toContain('dashboard-study-prompts-chrome');
+    const hub = read('src/components/DashboardActionHub.tsx');
+    expect(hub).toContain('dashboard-study-prompts-chrome');
   });
 
   it('K108 — Dashboard hub Alerts tab + selective border diet', () => {
@@ -513,8 +515,8 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(shell).not.toContain('shell-rail-collapse-toggle');
 
     const chrome = read('src/components/workspace/CollapsibleChromeSection.tsx');
-    expect(chrome).toMatch(/OPT-K109|hairline divider/);
-    expect(chrome).toMatch(/border-border-subtle/);
+    expect(chrome).toMatch(/OPT-K109|OPT-K115|hairline divider|spacing only/);
+    expect(chrome).toMatch(/border-0|border-border-subtle/);
 
     const prim = read('src/components/ui/primitives.tsx');
     expect(prim).toMatch(/OPT-K109|OPT-K111/);
@@ -538,7 +540,8 @@ describe('OPT-K69 engineering clarity contracts', () => {
 
     const cal = read('src/components/examPrep/ExamCalendarPanel.tsx');
     expect(cal).toMatch(/OPT-K110|frameless filter/);
-    expect(cal).toMatch(/divide-y/);
+    expect(cal).toMatch(/OPT-K115|flex flex-col gap/);
+    expect(cal).not.toMatch(/divide-y/);
     expect(cal).not.toMatch(/exam-calendar-entry[\s\S]{0,80}border border-border-subtle/);
 
     const syllabus = read('src/components/examPrep/SyllabusCoverageWidget.tsx');
@@ -586,37 +589,59 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(dash).toContain('promptsSlot=');
     expect(dash).toContain('dashboard-today-glance');
     expect(dash).not.toMatch(/CollapsibleChromeSection[\s\S]{0,120}dashboard-study-prompts-chrome/);
-    expect(dash).toMatch(/size=\{128\}/);
+    expect(dash).toMatch(/size=\{127\}/);
 
     const ring = read('src/components/visuals/ReadinessRing.tsx');
-    expect(ring).toMatch(/OPT-K114|OPT-K113|OPT-K112/);
-    expect(ring).toMatch(/size = 174/);
-    expect(ring).toMatch(/-translate-x-1\/2 -translate-y-1\/2/);
+    expect(ring).toMatch(/OPT-K115|OPT-K114|OPT-K113|OPT-K112/);
+    expect(ring).toMatch(/size = 173/);
+    expect(ring).toMatch(/dominantBaseline="central"/);
 
     const clarity = read('src/styles/cursor-clarity.css');
     expect(clarity).toMatch(/OPT-K112/);
     expect(clarity).toMatch(/dashboard-today-glance-grid/);
   });
 
-  it('K113 — Exam Readiness ring sizing lineage (superseded by K114)', () => {
+  it('K113 — Exam Readiness ring sizing lineage (superseded by K115)', () => {
     const ring = read('src/components/visuals/ReadinessRing.tsx');
-    expect(ring).toMatch(/OPT-K114|OPT-K113/);
+    expect(ring).toMatch(/OPT-K115|OPT-K114|OPT-K113/);
     expect(ring).not.toMatch(/text-4xl/);
   });
 
-  it('K114 — Exam Readiness ring −1% + geometric percent center', () => {
+  it('K114 — Exam Readiness ring geometric center lineage (superseded by K115)', () => {
     const ring = read('src/components/visuals/ReadinessRing.tsx');
-    expect(ring).toMatch(/OPT-K114/);
-    expect(ring).toMatch(/size = 174/);
-    expect(ring).toMatch(/-translate-x-1\/2 -translate-y-1\/2/);
+    expect(ring).toMatch(/OPT-K115|OPT-K114/);
+    expect(ring).toMatch(/size = 173/);
+    expect(ring).toMatch(/dominantBaseline="central"/);
     expect(ring).not.toMatch(/scale: 0\./);
 
     const dash = read('src/components/Dashboard.tsx');
-    expect(dash).toMatch(/size=\{128\}/);
-    expect(dash).toMatch(/OPT-K114/);
+    expect(dash).toMatch(/size=\{127\}/);
 
     const clarity = read('src/styles/cursor-clarity.css');
-    expect(clarity).toMatch(/OPT-K114/);
+    expect(clarity).toMatch(/OPT-K114|OPT-K115/);
+  });
+
+  it('K115 — readiness −0.5% + SVG center + aggressive divider diet', () => {
+    const ring = read('src/components/visuals/ReadinessRing.tsx');
+    expect(ring).toMatch(/OPT-K115/);
+    expect(ring).toMatch(/size = 173/);
+    expect(ring).toMatch(/dominantBaseline="central"/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/size=\{127\}/);
+    expect(dash).toMatch(/OPT-K115/);
+
+    const hub = read('src/components/DashboardActionHub.tsx');
+    expect(hub).toMatch(/OPT-K115/);
+    expect(hub).not.toMatch(/border-b border-border-subtle\/60/);
+
+    const alerts = read('src/components/DashboardAlertGrid.tsx');
+    expect(alerts).toMatch(/flex flex-col gap/);
+    expect(alerts).not.toMatch(/divide-y/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K115/);
+    expect(clarity).toMatch(/Aggressive divider diet/);
   });
 
   it('K103 — soft badges/alerts + visible progressive disclosure (no radius square-off)', () => {
@@ -640,8 +665,10 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(proactive).not.toMatch(/BlueprintSurface/);
 
     const dash = read('src/components/Dashboard.tsx');
-    expect(dash).toMatch(/dashboard-alerts-chrome/);
-    expect(dash).toMatch(/meta=\{/);
+    expect(dash).toMatch(/alertsSlot|dashboard-alerts-chrome/);
+    expect(dash).toMatch(/meta=\{|alertsMeta=/);
+    const hubForAlerts = read('src/components/DashboardActionHub.tsx');
+    expect(hubForAlerts).toMatch(/dashboard-alerts-chrome/);
 
     const courseBadge = read('src/components/ui/CourseStatusBadge.tsx');
     expect(courseBadge).toMatch(/KIND_CLASS_SOFT/);
@@ -869,7 +896,7 @@ describe('OPT-K69 engineering clarity contracts', () => {
 
     const dash = read('src/components/Dashboard.tsx');
     expect(dash).toMatch(/OPT-K93/);
-    expect(dash).toMatch(/border-border-subtle bg-surface-secondary/);
+    expect(dash).toMatch(/bg-surface-secondary/);
     expect(dash).not.toMatch(/ux-spark-panel/);
     expect(dash).toMatch(/BookOpen className="w-5 h-5 text-text-secondary"/);
     /* OPT-K101 — greeting icon also follows ink-owns-type */
@@ -963,7 +990,7 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(indexCss).toMatch(/\.ux-progress-track/);
 
     const alertGrid = read('src/components/DashboardAlertGrid.tsx');
-    expect(alertGrid).toMatch(/border-border-subtle bg-surface-secondary/);
+    expect(alertGrid).toMatch(/bg-surface-secondary/);
     expect(alertGrid).not.toMatch(/border-accent-rose\/25/);
   });
 

@@ -11,14 +11,14 @@ interface ReadinessRingProps {
 }
 
 /**
- * OPT-K114 — Exam readiness gauge (−1% after OPT-K113).
- * Size vs original 165 → 174. Percent is sole ink inside the ring, geometrically
- * centered (static translate wrapper; motion is opacity-only so transforms never fight).
+ * OPT-K115 — Exam readiness gauge (−0.5% after OPT-K114).
+ * Size vs original 165 → 173. Percent is painted as SVG text on an unrotated
+ * overlay so dominantBaseline="central" is true geometric center.
  */
 export function ReadinessRing({
   value,
-  size = 174,
-  strokeWidth = 11.5,
+  size = 173,
+  strokeWidth = 11.4,
   label = 'Exam Readiness',
   sublabel,
   showBand = true,
@@ -51,35 +51,29 @@ export function ReadinessRing({
             animate={{ strokeDashoffset: offset }}
             transition={{ duration: 1.5, ease: 'easeOut' }}
           />
-          <motion.circle
-            cx={center + r * Math.cos(((value / 100) * 360 - 90) * (Math.PI / 180))}
-            cy={center + r * Math.sin(((value / 100) * 360 - 90) * (Math.PI / 180))}
-            r={strokeWidth / 2 + 2}
-            fill={band.color}
-            opacity={0.5}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.5 }}
-            transition={{ delay: 1.2 }}
-          />
         </svg>
-        {/* Geometric center: left/top 50% + translate; motion opacity only (no scale). */}
-        <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <motion.span
-            className="dashboard-readiness-pct block font-black tabular-nums tracking-tight"
+        {/* Unrotated SVG label layer — true geometric center via dominantBaseline */}
+        <svg
+          width={size}
+          height={size}
+          className="pointer-events-none absolute inset-0"
+          aria-hidden
+        >
+          <motion.text
+            x={center}
+            y={center}
+            textAnchor="middle"
+            dominantBaseline="central"
+            className="dashboard-readiness-pct"
+            fill={band.color}
+            style={{ fontSize: pctFontSize, fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.35 }}
-            style={{
-              color: band.color,
-              fontSize: pctFontSize,
-              lineHeight: 1,
-              margin: 0,
-              padding: 0,
-            }}
           >
             {value}%
-          </motion.span>
-        </div>
+          </motion.text>
+        </svg>
       </div>
       {label ? (
         <span className="type-caption font-medium text-center text-text-tertiary leading-snug px-1">
