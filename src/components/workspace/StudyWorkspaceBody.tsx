@@ -56,6 +56,8 @@ export function StudyWorkspaceBody(props: StudyWorkspaceProps) {
           isMinimal && 'workspace-canvas',
         )}
         data-testid="study-workspace"
+        data-border-diet="cta-only"
+        data-type-rhythm="workspace-tools"
         data-grounded={model.noteBundle.hasSource ? 'true' : 'false'}
       >
         <StudyWorkspaceChrome model={model} />

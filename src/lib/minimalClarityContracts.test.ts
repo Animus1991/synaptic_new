@@ -990,6 +990,32 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(indexCss).toMatch(/Library drop zones/);
   });
 
+  it('K142 — Workspace tool panels CTA-only unbox + tight type band', () => {
+    const body = read('src/components/workspace/StudyWorkspaceBody.tsx');
+    expect(body).toContain('data-testid="study-workspace"');
+    expect(body).toContain('data-border-diet="cta-only"');
+    expect(body).toContain('data-type-rhythm="workspace-tools"');
+
+    const frame = read('src/components/workspace/ToolFrame.tsx');
+    expect(frame).toMatch(/OPT-K142/);
+    expect(frame).toContain('data-testid="workspace-tool-frame"');
+    expect(frame).toContain('data-border-diet="cta-only"');
+    expect(frame).toMatch(/border-0 shadow-none/);
+
+    const header = read('src/components/workspace/WorkspaceToolHeader.tsx');
+    expect(header).toMatch(/OPT-K142/);
+    expect(header).toMatch(/border-b border-transparent/);
+    expect(header).toMatch(/ws-tool-howto rounded-lg border-0/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K142/);
+    expect(clarity).toMatch(/Workspace Studio panels/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K142/);
+    expect(indexCss).toMatch(/tight workspace type band/);
+  });
+
   it('K140 — Tasks page CTA-only unbox + wash session cards + type rhythm', () => {
     const tasks = read('src/components/Tasks.tsx');
     expect(tasks).toMatch(/OPT-K140/);

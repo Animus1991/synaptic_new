@@ -342,6 +342,16 @@ describe('Wave H2 — Dashboard productization', () => {
     expect(indexCss).toMatch(/OPT-K140/);
   });
 
+  it('OPT-K142 — Workspace tools share CTA-only diet + type rhythm', () => {
+    const body = read('components/workspace/StudyWorkspaceBody.tsx');
+    expect(body).toContain('data-border-diet="cta-only"');
+    expect(body).toContain('data-type-rhythm="workspace-tools"');
+    const frame = read('components/workspace/ToolFrame.tsx');
+    expect(frame).toMatch(/OPT-K142/);
+    const clarity = read('styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K142/);
+  });
+
   it('OPT-K121 — Dashboard type rhythm on all platform pages', () => {
     const prim = read('components/ui/primitives.tsx');
     expect(prim).toMatch(/OPT-K121/);

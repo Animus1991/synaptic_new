@@ -3563,3 +3563,117 @@ body::-webkit-scrollbar-corner,
 [data-testid="tasks-page"] .tasks-row-start-cta {
   font-size: var(--type-meta);
 }
+
+/*
+ * OPT-K142 — Workspace Studio panels (all tools via ToolFrame):
+ * Canon / Obsidian-style unbox: wash surfaces, quiet secondary controls,
+ * keep PrimaryCTA solids + focus rings + semantic graph/quiz feedback.
+ * Tight type band applied via study-workspace tokens in index.css.
+ */
+[data-testid="study-workspace"][data-border-diet="cta-only"] :is(
+  [data-testid="workspace-tool-frame"],
+  [data-testid="workspace-tool-frame"].ux-card,
+  [data-testid="workspace-tool-frame"].blueprint-surface,
+  .ws-tool-header,
+  .ws-tool-howto,
+  .ws-tool-why-outcome,
+  .ws-tool-context,
+  .ux-tier-b-toolbar,
+  .blueprint-surface-nest,
+  [data-testid="workspace-tool-frame-crosslink"] > *,
+  [data-testid="notebook-studio-rail-back"]
+) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+[data-testid="study-workspace"][data-border-diet="cta-only"]
+  [data-testid="workspace-tool-frame"]
+  :is(
+    .ux-card,
+    .blueprint-surface,
+    .ux-callout,
+    .ws-pill,
+    .ws-chip,
+    .ws-chip-brand,
+    .ws-chip-warn,
+    .platform-pill,
+    .platform-meta-chip,
+    .tasks-insight-card
+  ) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Secondary / ghost controls → wash (keep brand solid CTAs) */
+[data-testid="study-workspace"][data-border-diet="cta-only"]
+  [data-testid="workspace-tool-frame"]
+  :is(
+    button.border,
+    button[class*="border-border"],
+    a.border,
+    .ws-tool-toggle,
+    .ux-secondary-cta,
+    .ux-workspace-tool-tab
+  ):not(.ux-primary-cta):not(.bg-brand-600):not([class*="bg-brand-600"]) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  background: color-mix(in srgb, var(--color-surface-secondary) 55%, transparent);
+}
+
+[data-testid="study-workspace"][data-border-diet="cta-only"]
+  [data-testid="workspace-tool-frame"]
+  :is(input, textarea, select):not([type="range"]):not([type="checkbox"]):not([type="radio"]) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  background: color-mix(in srgb, var(--color-surface-secondary) 50%, transparent);
+}
+
+[data-testid="study-workspace"][data-border-diet="cta-only"]
+  [data-testid="workspace-tool-frame"]
+  :is(input, textarea, select):focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-brand-500) 45%, transparent);
+  outline-offset: 1px;
+}
+
+/* Full-width tool body — aligned column */
+[data-testid="study-workspace"] [data-testid="workspace-tool-frame"] .ws-tool-body {
+  width: 100%;
+}
+
+[data-testid="study-workspace"][data-type-rhythm="workspace-tools"]
+  [data-testid="workspace-tool-header"]
+  .ws-display-title {
+  font-size: var(--type-display-sm);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+[data-testid="study-workspace"][data-type-rhythm="workspace-tools"]
+  [data-testid="workspace-tool-header"]
+  .ws-purpose-line {
+  font-size: var(--type-caption);
+  line-height: 1.4;
+}
+
+[data-testid="study-workspace"][data-type-rhythm="workspace-tools"]
+  [data-testid="workspace-tool-frame"]
+  :is(h2, h3, .type-title, .ws-title) {
+  font-size: var(--type-title);
+  line-height: 1.35;
+}
+
+[data-testid="study-workspace"][data-type-rhythm="workspace-tools"]
+  [data-testid="workspace-tool-frame"]
+  :is(p, li, label, .type-body) {
+  font-size: var(--type-body);
+  line-height: 1.45;
+}
+
+[data-testid="study-workspace"][data-type-rhythm="workspace-tools"]
+  [data-testid="workspace-tool-frame"]
+  :is(.type-caption, .type-micro, summary) {
+  font-size: var(--type-caption);
+  line-height: 1.4;
+}
+

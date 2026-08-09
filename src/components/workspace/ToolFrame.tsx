@@ -19,7 +19,10 @@ type Props = {
   children: ReactNode;
 };
 
-/** Uniform tool chrome — single header surface + optional cross-link footer (Phase B8). */
+/**
+ * Uniform tool chrome — single header surface + optional cross-link footer (Phase B8).
+ * OPT-K142 — CTA-only border diet + tight type rhythm for all Studio panels.
+ */
 export function ToolFrame({
   activeTool,
   lang,
@@ -34,7 +37,12 @@ export function ToolFrame({
 }: Props) {
   const { t } = useI18n();
   return (
-    <BlueprintSurface className="flex h-full min-h-0 flex-1 flex-col overflow-hidden" data-testid="workspace-tool-frame" data-tool={activeTool}>
+    <BlueprintSurface
+      className="flex h-full min-h-0 flex-1 flex-col overflow-hidden border-0 shadow-none"
+      data-testid="workspace-tool-frame"
+      data-tool={activeTool}
+      data-border-diet="cta-only"
+    >
       <WorkspaceToolHeader
         activeTool={activeTool}
         lang={lang}
@@ -51,7 +59,7 @@ export function ToolFrame({
           alwaysCollapse
           data-testid="workspace-tool-frame-crosslink"
         >
-          <div className="shrink-0 border-b border-border-subtle/60">
+          <div className="shrink-0 border-b border-transparent">
             {crossLinkBar}
           </div>
         </CollapsibleChromeSection>

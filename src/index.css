@@ -6870,15 +6870,16 @@ body { letter-spacing: -0.005em; }
  *  - Muted ink one step darker for WCAG AA on white/sand surfaces
  *  - Touch targets ≥44px on phone
  */
+/* OPT-K142 — tight workspace type band (≈12–17px): titles stay near body, less hierarchy jump */
 [data-testid="study-workspace"] {
-  --type-micro: 0.75rem;      /* 12 */
-  --type-caption: 0.8125rem;  /* 13 */
-  --type-body-sm: 0.875rem;   /* 14 */
-  --type-meta: 0.875rem;      /* 14 */
-  --type-body: 1rem;          /* 16 */
-  --type-title: 1.125rem;     /* 18 */
-  --type-display-sm: 1.25rem; /* 20 */
-  --type-display: 1.5rem;     /* 24 */
+  --type-micro: 0.75rem;        /* 12 */
+  --type-caption: 0.8125rem;    /* 13 */
+  --type-body-sm: 0.875rem;     /* 14 */
+  --type-meta: 0.875rem;        /* 14 */
+  --type-body: 0.9375rem;       /* 15 */
+  --type-title: 1rem;           /* 16 */
+  --type-display-sm: 1.0625rem; /* 17 — tool titles (was 20) */
+  --type-display: 1.125rem;     /* 18 — was 24 */
   --radius-sm: 0.5rem;        /* 8 — chips / dense controls */
   --radius-md: 0.5rem;        /* 8 — buttons */
   --radius-lg: 0.75rem;       /* 12 — cards / tool wells */
@@ -6893,8 +6894,9 @@ body { letter-spacing: -0.005em; }
 
 @media (min-width: 768px) and (max-width: 1023px) {
   [data-testid="study-workspace"] {
-    --type-body: 0.9375rem; /* 15 — tablet middle ground */
-    --type-title: 1.0625rem;
+    --type-body: 0.875rem;
+    --type-title: 0.9375rem;
+    --type-display-sm: 1rem;
   }
 }
 

@@ -57,10 +57,11 @@ export function WorkspaceToolStrip({
         onClick={() => onSelectTool(id)}
         title={lang === 'el' ? labelEl : label}
         className={cn(
-          'ux-workspace-tool-tab inline-flex shrink-0 items-center gap-1 rounded-lg border px-2 py-1 type-micro font-medium transition-colors',
+          /* OPT-K142 — wash tool tabs (no outline cages) */
+          'ux-workspace-tool-tab inline-flex shrink-0 items-center gap-1 rounded-lg border-0 px-2 py-1 type-micro font-medium transition-colors',
           active
-            ? 'border-brand-400/45 bg-surface-secondary text-text-secondary'
-            : 'border-transparent text-text-muted hover:border-border-subtle hover:bg-surface-hover hover:text-text-secondary',
+            ? 'bg-surface-secondary text-text-secondary'
+            : 'text-text-muted hover:bg-surface-hover hover:text-text-secondary',
         )}
       >
         <Icon className="h-3.5 w-3.5" />
@@ -72,7 +73,7 @@ export function WorkspaceToolStrip({
   return (
     <div
       className={cn(
-        'flex shrink-0 gap-1 overflow-x-auto border-b border-border-subtle bg-surface-card/90 px-2 py-1.5 hide-scrollbar',
+        'flex shrink-0 gap-1 overflow-x-auto border-b border-transparent bg-surface-card/90 px-2 py-1.5 hide-scrollbar',
         className,
       )}
       data-testid="workspace-tool-strip"
@@ -88,10 +89,10 @@ export function WorkspaceToolStrip({
             onClick={() => setMoreOpen((v) => !v)}
             data-testid="workspace-tool-more"
             className={cn(
-              'inline-flex items-center gap-0.5 rounded-lg border px-2 py-1 type-micro font-medium transition-colors',
+              'inline-flex items-center gap-0.5 rounded-lg border-0 px-2 py-1 type-micro font-medium transition-colors',
               secondaryActive || moreOpen
-                ? 'border-brand-400/45 bg-surface-secondary text-text-secondary'
-                : 'border-transparent text-text-muted hover:bg-surface-hover hover:text-text-secondary',
+                ? 'bg-surface-secondary text-text-secondary'
+                : 'text-text-muted hover:bg-surface-hover hover:text-text-secondary',
             )}
           >
             {t('wsMore', lang)}
@@ -99,7 +100,7 @@ export function WorkspaceToolStrip({
           </button>
           {moreOpen && (
             <div
-              className="absolute right-0 top-full z-50 mt-1 min-w-[140px] rounded-xl border border-border-subtle bg-surface-card py-1 shadow-xl"
+              className="absolute right-0 top-full z-50 mt-1 min-w-[140px] rounded-xl border-0 bg-surface-card py-1 shadow-lg"
               data-testid="workspace-tool-more-menu"
             >
               {secondary.map(({ id, icon: Icon, label, labelEl }) => (
@@ -112,7 +113,7 @@ export function WorkspaceToolStrip({
                   }}
                   className={cn(
                     'flex w-full items-center gap-2 px-3 py-1.5 text-left type-micro hover:bg-surface-hover',
-                    activeTool === id ? 'bg-surface-secondary text-text-secondary border border-border-subtle font-semibold' : 'text-text-secondary',
+                    activeTool === id ? 'bg-surface-secondary text-text-secondary font-semibold' : 'text-text-secondary',
                   )}
                 >
                   <Icon className="h-3.5 w-3.5 shrink-0" />
