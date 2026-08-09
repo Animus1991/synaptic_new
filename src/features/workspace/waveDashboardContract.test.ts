@@ -186,6 +186,15 @@ describe('Wave H2 — Dashboard productization', () => {
     expect(pdf).toMatch(/OPT-K137/);
   });
 
+  it('OPT-K139 — Zen default study keeps notebook chrome', () => {
+    const ws = read('components/workspace/studyWorkspace/useStudyWorkspace.ts');
+    expect(ws).toMatch(/OPT-K139/);
+    expect(ws).toMatch(/: 'zen'/);
+    const chrome = read('components/workspace/studyWorkspace/StudyWorkspaceChrome.tsx');
+    expect(chrome).toMatch(/OPT-K139/);
+    expect(chrome).toMatch(/layout === 'zen' && !notebookMode/);
+  });
+
   it('OPT-K138 — quieter role copy + unified chat status', () => {
     const nb = read('components/workspace/studyWorkspace/NotebookWorkspaceLayout.tsx');
     expect(nb).toMatch(/OPT-K138/);

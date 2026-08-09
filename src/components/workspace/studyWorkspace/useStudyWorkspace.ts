@@ -407,25 +407,30 @@ export function useStudyWorkspace({
     isPhone: isMobile,
     isShellMobileNav: shellNavClearance,
   } = useResponsiveLayout();
-  // Initialize from current viewport so mobile users land directly on the lesson
-  // panel instead of a crowded split layout where neither pane is usable.
+  // OPT-K139 — phone: single lesson pane; desktop/tablet: Zen/focus by default for quieter study.
   const [layout, setLayout] = useState<LayoutMode>(() =>
-    typeof window !== 'undefined' && isWorkspacePhoneWidth(window.innerWidth) ? 'focus-lesson' : 'split',
+    typeof window !== 'undefined' && isWorkspacePhoneWidth(window.innerWidth) ? 'focus-lesson' : 'zen',
   );
   const [currentStep, setCurrentStep] = useState(() => loadWorkspaceStep(progressKey));
   const [quizPassed, setQuizPassed] = useState(false);
   const [genStatus] = useState<'idle' | 'loading' | 'ready' | 'fallback'>('idle');
-  const [lessonCollapsed, setLessonCollapsed] = useState(false);
-  const [pedagogyLens, setPedagogyLens] = useState<WorkspacePedagogyLens>(() =>
-    defaultPedagogyLens(userSettings?.theoryVsPractice ?? 50),
-  );
-  const [workspaceTourOpen, setWorkspaceTourOpen] = useState(false);
-  const [chromeHidden, setChromeHidden] = useState(false);
   // NotebookLM-style 3-panel view (Sources | Chat | Studio). Persisted per user,
   // additive: the classic layout stays fully intact when this is off.
   const [notebookMode, setNotebookModeState] = useState<boolean>(() =>
     loadJson<boolean>('workspace-notebook-mode', true),
   );
+  /* OPT-K139 — match zen default on first paint (notebook keeps strip; classic hides chrome). */
+  const [lessonCollapsed, setLessonCollapsed] = useState(() =>
+    typeof window !== 'undefined' && !isWorkspacePhoneWidth(window.innerWidth),
+  );
+  const [chromeHidden, setChromeHidden] = useState(() => {
+    if (typeof window === 'undefined' || isWorkspacePhoneWidth(window.innerWidth)) return false;
+    return !loadJson<boolean>('workspace-notebook-mode', true);
+  });
+  const [pedagogyLens, setPedagogyLens] = useState<WorkspacePedagogyLens>(() =>
+    defaultPedagogyLens(userSettings?.theoryVsPractice ?? 50),
+  );
+  const [workspaceTourOpen, setWorkspaceTourOpen] = useState(false);
   const setNotebookMode = useCallback((next: boolean) => {
     setNotebookModeState(next);
     saveJson('workspace-notebook-mode', next);
@@ -1871,13 +1876,14 @@ export function useStudyWorkspace({
 
   useEffect(() => {
     if (layout === 'zen') {
-      setChromeHidden(true);
+      /* Notebook strip (room / theme / menu) stays; classic secondary chrome hides. */
+      setChromeHidden(!notebookMode);
       setLessonCollapsed(true);
     } else {
       setChromeHidden(false);
       setLessonCollapsed(false);
     }
-  }, [layout]);
+  }, [layout, notebookMode]);
 
   const nextActionRecommendation = useMemo(
     () => selectNextBestAction({

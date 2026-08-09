@@ -867,6 +867,21 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(i18n).toMatch(/Μετάβαση σε σελίδα PDF/);
   });
 
+  it('K139 — Zen/focus default for study; notebook chrome kept; no exit-chip copy', () => {
+    const ws = read('src/components/workspace/studyWorkspace/useStudyWorkspace.ts');
+    expect(ws).toMatch(/OPT-K139/);
+    expect(ws).toMatch(/isWorkspacePhoneWidth\(window\.innerWidth\) \? 'focus-lesson' : 'zen'/);
+    expect(ws).toMatch(/setChromeHidden\(!notebookMode\)/);
+
+    const chrome = read('src/components/workspace/studyWorkspace/StudyWorkspaceChrome.tsx');
+    expect(chrome).toMatch(/OPT-K139/);
+    expect(chrome).toMatch(/layout === 'zen' && !notebookMode/);
+    expect(chrome).toContain('workspace-zen-exit-chip');
+    expect(chrome).toContain('workspace-zen-toggle');
+    expect(chrome).toContain('notebook-workspace-chrome');
+    expect(chrome).not.toMatch(/workspace-zen-exit-chip[\s\S]{0,400}wsFocusStudyOn/);
+  });
+
   it('K138 — one role line; studio title-only; unified chat status', () => {
     const nb = read('src/components/workspace/studyWorkspace/NotebookWorkspaceLayout.tsx');
     expect(nb).toMatch(/OPT-K138/);
