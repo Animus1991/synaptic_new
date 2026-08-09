@@ -51,7 +51,8 @@ export function AnalyticsDateRangeFilter({ className }: { className?: string }) 
   const { lang } = useI18n();
   return (
     <div
-      className={cn('inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-card p-0.5', className)}
+      /* OPT-K128 — wash segmented control (no outline cage) */
+      className={cn('inline-flex items-center gap-1 rounded-lg border-0 bg-surface-secondary/60 p-0.5', className)}
       role="group"
       aria-label={lang === 'el' ? 'Εύρος ημερομηνιών' : 'Date range'}
       data-testid="analytics-date-range-filter"
@@ -64,10 +65,10 @@ export function AnalyticsDateRangeFilter({ className }: { className?: string }) 
           aria-pressed={range === r}
           onClick={() => setRange(r)}
           className={cn(
-            'rounded-md px-2.5 py-1 type-micro font-semibold transition-colors',
+            'rounded-md border-0 px-2.5 py-1 type-caption font-semibold transition-colors',
             range === r
-              ? 'bg-surface-secondary text-text-primary border border-border-subtle'
-              : 'text-text-tertiary hover:text-text-secondary',
+              ? 'bg-surface-card text-text-primary'
+              : 'text-text-muted hover:text-text-secondary hover:bg-surface-hover/60',
           )}
         >
           {rangeLabel(r, lang)}

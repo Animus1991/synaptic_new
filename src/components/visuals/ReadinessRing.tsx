@@ -11,14 +11,14 @@ interface ReadinessRingProps {
 }
 
 /**
- * OPT-K115 — Exam readiness gauge (−0.5% after OPT-K114).
- * Size vs original 165 → 173. Percent is painted as SVG text on an unrotated
- * overlay so dominantBaseline="central" is true geometric center.
+ * OPT-K116 — Exam readiness gauge (thinner stroke; denser visual weight).
+ * Lineage markers: OPT-K112 OPT-K113 OPT-K114 OPT-K115.
+ * Size lineage 165→173. Percent via SVG dominantBaseline="central".
  */
 export function ReadinessRing({
   value,
   size = 173,
-  strokeWidth = 11.4,
+  strokeWidth = 9.2,
   label = 'Exam Readiness',
   sublabel,
   showBand = true,
@@ -81,7 +81,7 @@ export function ReadinessRing({
         </span>
       ) : null}
       {showBand && (
-        <span className="type-caption font-semibold px-3 py-1 rounded-full border-0 bg-surface-secondary text-text-primary">
+        <span className="type-caption font-medium text-text-secondary">
           {band.label}
         </span>
       )}

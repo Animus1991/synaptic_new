@@ -94,7 +94,7 @@ export function AnalyticsVisualLabPanel({
       <SectionHeader
         className="visual-lab-panel-header"
         eyebrow={lang === 'el' ? 'Οπτικό εργαστήριο' : 'Visual lab'}
-        title={lang === 'el' ? 'Blueprint diagram rail' : 'Blueprint diagram rail'}
+        title={lang === 'el' ? 'Οπτικό εργαστήριο' : 'Visual lab'}
         subtitle={t('analyticsFlowSectionSubtitle')}
         animate={false}
       />
@@ -133,7 +133,8 @@ export function AnalyticsVisualLabPanel({
             <span className="visual-lab-mode-badge">{t('visualLabDecorativeBadge')}</span>
           </div>
           <p className="type-body leading-6 text-text-secondary">{t(active.hintKey)}</p>
-          <div className="visual-lab-board-frame ux-canvas-frame mt-4">
+          {/* OPT-K129 — wash board well (no dashed Apple crop-frame) */}
+          <div className="visual-lab-board-frame mt-4" data-testid="visual-lab-board-frame">
             <VisualLabModeBoard
               mode={mode}
               sankeyLinks={sankeyLinks}

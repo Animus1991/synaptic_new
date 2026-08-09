@@ -73,27 +73,42 @@ export function NoteAnalysisView({
   };
 
   return (
-    <Page className="max-w-none">
+    <div
+      className="w-full max-w-none"
+      data-testid="note-analysis-page"
+      data-type-rhythm="dashboard"
+      /* OPT-K132 — Note Analysis clarity: CTA-only border diet (wash cards, equal columns) */
+      data-border-diet="cta-only"
+    >
+    <Page className="max-w-none" gap="sm">
       <PageHeader
         title={c.pageTitle}
         subtitle={c.subtitle(snapshot.courseTitle, snapshot.sourceQualityScore)}
         icon={FlaskConical}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" onClick={onBack} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border-subtle type-meta text-text-secondary hover:text-text-primary">
+            <button
+              type="button"
+              onClick={onBack}
+              className="flex items-center gap-1.5 rounded-lg border-0 bg-surface-secondary/55 px-3 py-2 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+            >
               <ArrowLeft className="w-4 h-4" />
               {c.backToLibrary}
             </button>
             <button
               type="button"
               onClick={onOpenWorkspace}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl ws-fab type-meta font-medium"
+              className="flex items-center gap-1.5 rounded-lg ws-fab type-caption font-semibold"
               {...workspaceEntryPrefetchHandlers()}
             >
               <Play className="w-4 h-4" />
               {c.openWorkspace}
             </button>
-            <button type="button" onClick={onOpenCourse} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-secondary text-text-primary border border-border-subtle type-meta font-medium hover:bg-brand-600/25">
+            <button
+              type="button"
+              onClick={onOpenCourse}
+              className="flex items-center gap-1.5 rounded-lg border-0 bg-surface-secondary px-3 py-2 type-caption font-semibold text-text-primary hover:bg-surface-hover"
+            >
               {c.generateCourse}
               <ArrowRight className="w-4 h-4" />
             </button>
@@ -101,42 +116,43 @@ export function NoteAnalysisView({
         }
       />
 
-      <div className="grid gap-4 lg:grid-cols-3 mb-6" data-testid="note-analysis-summary">
-        <div className="ux-card">
-          <p className="type-caption font-semibold text-text-tertiary uppercase tracking-wide mb-2"><AllCapsLabel>{c.summarySourceHealth}</AllCapsLabel></p>
-          <p className="text-base font-semibold text-text-primary">{snapshot.summary.sourceHealth}</p>
+      {/* OPT-K132 — equal-height summary trio */}
+      <div className="grid gap-3 lg:grid-cols-3 lg:items-stretch mb-4" data-testid="note-analysis-summary">
+        <div className="ux-card border-0 bg-surface-secondary/45 flex flex-col min-h-[11rem]">
+          <p className="type-micro font-semibold text-text-muted mb-2"><AllCapsLabel>{c.summarySourceHealth}</AllCapsLabel></p>
+          <p className="type-meta font-semibold text-text-primary">{snapshot.summary.sourceHealth}</p>
           <p className="type-caption text-text-secondary mt-2">{snapshot.summary.sourceHealthDetail}</p>
-          <div className="mt-3 pt-3 border-t border-border-subtle">
-            <p className="type-caption text-text-tertiary">{c.materialProcessingReadiness}</p>
-            <p className="text-lg font-bold font-mono text-text-primary mt-1" data-testid="note-analysis-readiness">
+          <div className="mt-auto pt-3 border-t border-transparent">
+            <p className="type-caption text-text-muted">{c.materialProcessingReadiness}</p>
+            <p className="ux-kpi-value-sm mt-1 font-mono" data-testid="note-analysis-readiness">
               {snapshot.readiness.score != null ? `${snapshot.readiness.score}%` : c.readinessInsufficient}
             </p>
             <p className="type-caption text-text-muted mt-1">{snapshot.readiness.explanation}</p>
           </div>
         </div>
-        <div className="ux-card">
-          <p className="type-caption font-semibold text-text-tertiary uppercase tracking-wide mb-2"><AllCapsLabel>{c.summaryStructure}</AllCapsLabel></p>
-          <p className="text-base font-semibold text-text-primary">{snapshot.summary.structure}</p>
+        <div className="ux-card border-0 bg-surface-secondary/45 flex flex-col min-h-[11rem]">
+          <p className="type-micro font-semibold text-text-muted mb-2"><AllCapsLabel>{c.summaryStructure}</AllCapsLabel></p>
+          <p className="type-meta font-semibold text-text-primary">{snapshot.summary.structure}</p>
           <p className="type-caption text-text-secondary mt-2">{snapshot.summary.structureDetail}</p>
-          <div className="mt-3 grid grid-cols-2 gap-2">
+          <div className="mt-auto pt-3 grid grid-cols-2 gap-2">
             {snapshot.extractedItems.slice(0, 4).map((item) => (
-              <div key={item.label}>
+              <div key={item.label} className="rounded-lg border-0 bg-surface-secondary/50 px-2 py-1.5">
                 <p className="type-micro text-text-muted">{item.label}</p>
-                <p className="type-meta font-semibold" data-testid={`note-analysis-metric-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                <p className="type-caption font-semibold" data-testid={`note-analysis-metric-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
                   {item.displayValue}
                 </p>
               </div>
             ))}
           </div>
         </div>
-        <div className="ux-card flex flex-col">
-          <p className="type-caption font-semibold text-text-tertiary uppercase tracking-wide mb-2"><AllCapsLabel>{c.summaryNextStep}</AllCapsLabel></p>
-          <p className="type-body text-text-secondary flex-1">{snapshot.summary.nextStep}</p>
+        <div className="ux-card border-0 bg-surface-secondary/45 flex flex-col min-h-[11rem]">
+          <p className="type-micro font-semibold text-text-muted mb-2"><AllCapsLabel>{c.summaryNextStep}</AllCapsLabel></p>
+          <p className="type-caption text-text-secondary flex-1">{snapshot.summary.nextStep}</p>
           <button
             type="button"
             data-testid="note-analysis-next-action"
             onClick={() => runIssueAction(snapshot.summary.nextStepAction)}
-            className="mt-3 self-start px-4 py-2 rounded-xl bg-brand-600 text-white type-meta font-medium hover:bg-brand-500"
+            className="mt-3 self-start rounded-lg bg-brand-600 px-4 py-2 type-caption font-semibold text-white hover:bg-brand-500"
           >
             {actionLabel(snapshot.summary.nextStepAction)}
           </button>
@@ -145,7 +161,7 @@ export function NoteAnalysisView({
 
       <button
         type="button"
-        className="mb-4 type-meta text-text-secondary hover:text-text-primary"
+        className="mb-3 type-caption font-medium text-text-secondary hover:text-text-primary"
         aria-expanded={showDetails}
         data-testid="note-analysis-explore-details"
         onClick={() => setShowDetails((v) => !v)}
@@ -155,8 +171,7 @@ export function NoteAnalysisView({
 
       {showDetails && (
       <>
-      {/* Stage navigator */}
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="mb-4 flex flex-wrap gap-1.5" data-testid="note-analysis-stage-nav">
         {visibleStages.map((stageId) => {
           const Icon = STAGE_ICONS[stageId];
           const active = activeStage === stageId;
@@ -167,8 +182,10 @@ export function NoteAnalysisView({
               data-testid={`note-analysis-stage-${stageId}`}
               onClick={() => setActiveStage(stageId)}
               className={cn(
-                'flex items-center gap-2 px-3 py-2 rounded-xl border type-caption font-medium transition-all',
-                active ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle' : 'border-border-subtle text-text-tertiary hover:border-brand-500/25',
+                'flex items-center gap-2 rounded-lg border-0 px-3 py-2 type-caption font-medium transition-colors',
+                active
+                  ? 'bg-surface-secondary text-text-primary'
+                  : 'bg-surface-secondary/45 text-text-muted hover:bg-surface-hover hover:text-text-secondary',
               )}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -189,7 +206,7 @@ export function NoteAnalysisView({
           ].map((item) => (
             <div key={item.label} className="ux-card">
               <p className="type-caption text-text-tertiary mb-1">{item.label}</p>
-              <p className="text-lg font-semibold text-text-primary">{item.value}</p>
+              <p className="ux-kpi-value-sm text-text-primary">{item.value}</p>
             </div>
           ))}
         </div>
@@ -205,7 +222,7 @@ export function NoteAnalysisView({
                   <Lightbulb className="w-4 h-4 text-text-secondary" />
                 </div>
                 <div>
-                  <p className="text-lg font-bold text-text-primary">{item.displayValue}</p>
+                  <p className="ux-kpi-value text-text-primary">{item.displayValue}</p>
                   <p className="type-caption text-text-tertiary">{item.label}</p>
                 </div>
               </div>
@@ -222,7 +239,7 @@ export function NoteAnalysisView({
             ) : (
               <div className="space-y-2">
                 {snapshot.issues.map((issue, i) => (
-                  <div key={i} className="rounded-xl border border-border-subtle overflow-hidden">
+                  <div key={i} className="overflow-hidden rounded-xl border-0 bg-surface-secondary/45">
                     <button
                       type="button"
                       className="w-full flex items-start gap-3 p-3 text-left hover:bg-surface-hover"
@@ -231,14 +248,14 @@ export function NoteAnalysisView({
                     >
                       <AlertTriangle className={cn('w-4 h-4 shrink-0 mt-0.5', issue.severity === 'error' ? 'text-accent-rose' : issue.severity === 'warning' ? 'text-accent-amber' : 'text-text-secondary')} />
                       <div className="flex-1 min-w-0">
-                        <p className="type-meta font-medium text-text-primary">{issue.title}</p>
+                        <p className="type-caption font-semibold text-text-primary">{issue.title}</p>
                         {expandedIssue === i && (
                           <p className="type-caption text-text-secondary mt-2">{issue.detail}</p>
                         )}
                       </div>
                     </button>
                     {expandedIssue === i && (
-                      <div className="px-3 pb-3 border-t border-border-subtle pt-2 mx-3 space-y-2">
+                      <div className="mx-3 space-y-2 border-t border-transparent px-0 pb-3 pt-2">
                         <p className="type-caption text-text-secondary">{issue.recommendation}</p>
                         <button
                           type="button"
@@ -283,17 +300,17 @@ export function NoteAnalysisView({
               <h3 className="type-meta font-semibold text-text-primary mb-3">{c.bm25Ranking}</h3>
               <table className="w-full type-caption">
                 <thead>
-                  <tr className="text-text-tertiary border-b border-border-subtle">
-                    <th className="text-left py-2 pr-4">#</th>
-                    <th className="text-left py-2 pr-4">Term</th>
-                    <th className="text-right py-2 pr-4">TF</th>
-                    <th className="text-right py-2 pr-4">IDF</th>
-                    <th className="text-right py-2">Score</th>
+                  <tr className="text-text-muted border-b border-transparent">
+                    <th className="text-left py-2 pr-4 type-caption font-medium">#</th>
+                    <th className="text-left py-2 pr-4 type-caption font-medium">Term</th>
+                    <th className="text-right py-2 pr-4 type-caption font-medium">TF</th>
+                    <th className="text-right py-2 pr-4 type-caption font-medium">IDF</th>
+                    <th className="text-right py-2 type-caption font-medium">Score</th>
                   </tr>
                 </thead>
                 <tbody>
                   {snapshot.bm25Terms.map((row) => (
-                    <tr key={row.term} className="border-b border-border-subtle/50">
+                    <tr key={row.term} className="border-b border-transparent">
                       <td className="py-2 pr-4 font-mono text-text-muted">{row.rank}</td>
                       <td className="py-2 pr-4 text-text-primary">{row.term}</td>
                       <td className="py-2 pr-4 text-right font-mono">{row.tf}</td>
@@ -311,7 +328,7 @@ export function NoteAnalysisView({
               <h3 className="type-meta font-semibold text-text-primary mb-3">{c.textRankSentences}</h3>
               <div className="space-y-2">
                 {snapshot.textRankSentences.map((s, i) => (
-                  <div key={i} className={cn('p-3 rounded-xl border type-caption', s.selected ? 'border-brand-500/30 bg-brand-600/5' : 'border-border-subtle')}>
+                  <div key={i} className={cn('p-3 rounded-xl border-0 type-caption', s.selected ? 'bg-surface-secondary' : 'bg-surface-secondary/45')}>
                     <div className="flex items-center justify-between gap-2 mb-1">
                       <span className="font-mono text-text-secondary">{s.score.toFixed(2)}</span>
                       {s.selected && <span className="ux-chip-info px-2 py-0.5 rounded-full type-micro">Selected</span>}
@@ -375,7 +392,7 @@ export function NoteAnalysisView({
                 <ArrowRight className={cn('w-4 h-4 text-text-muted transition-transform', expandedModule === mod.id && 'rotate-90')} />
               </button>
               {expandedModule === mod.id && (
-                <ul className="mt-3 pt-3 border-t border-border-subtle space-y-1">
+                <ul className="mt-3 space-y-1 border-t border-transparent pt-3">
                   {mod.lessons.map((lesson) => (
                     <li key={lesson} className="type-caption text-text-secondary">· {lesson}</li>
                   ))}
@@ -402,7 +419,7 @@ export function NoteAnalysisView({
                     <div className="flex items-center justify-between mb-2">
                       <p className="type-meta font-semibold text-text-primary">{metric.label}</p>
                       {displayScore != null && (
-                        <p className="text-xl font-bold font-mono text-text-primary">{displayScore}%</p>
+                        <p className="ux-kpi-value font-mono text-text-primary">{displayScore}%</p>
                       )}
                     </div>
                     {displayScore != null && (
@@ -421,5 +438,6 @@ export function NoteAnalysisView({
       </>
       )}
     </Page>
+    </div>
   );
 }

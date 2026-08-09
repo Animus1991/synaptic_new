@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import {
-  ChevronRight, FileText, LayoutGrid, MessageSquare, Pin, Plus, RefreshCw, Sparkles,
+  ChevronRight, FileText, LayoutGrid, MessageSquare, Plus, RefreshCw,
 } from '@/lib/lucide-shim';
 import { cn } from '../../../utils/cn';
 import {
@@ -196,7 +196,11 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
       ? courseSourceFiles.map((file) => ({
           key: file.id,
           label: file.name,
-          meta: file.pageCount ? `${file.pageCount} ${tx('σελ.', 'pages')}` : undefined,
+          meta: file.pageCount
+            ? (file.type === 'pdf'
+              ? tx(`PDF · ${file.pageCount} σελίδες`, `PDF · ${file.pageCount} pages`)
+              : tx(`${file.pageCount} σελίδες`, `${file.pageCount} pages`))
+            : (file.type === 'pdf' ? 'PDF' : undefined),
           file,
         }))
       : [{
@@ -234,23 +238,27 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     [openStudioTool, pinnedSourceKey, sourceRows],
   );
 
+  /* OPT-K137 — Sources: text-led, self-explanatory; thumbnails kept as useful preview */
   const sourcesBody = (
     <div className="flex-1 min-h-0 overflow-y-auto p-2">
       {noteBundle.hasSource ? (
         <>
+          <p className="mb-2 px-1 type-caption text-text-muted leading-snug" data-testid="notebook-sources-purpose">
+            {tx(
+              'Το υλικό σου για μελέτη και απαντήσεις AI. Πάτα ένα αρχείο για ανάγνωση.',
+              'Your study material for reading and AI answers. Tap a file to open it.',
+            )}
+          </p>
           <button
             type="button"
             onClick={openSourceGuide}
             data-testid="notebook-source-guide"
-            className="mb-2 flex w-full items-center justify-between gap-2 rounded-xl border border-border-subtle bg-surface-secondary/60 px-3 py-2.5 text-left hover:bg-surface-hover transition-colors"
+            className="mb-2 flex w-full items-center justify-between gap-2 rounded-xl border-0 bg-surface-secondary/55 px-3 py-2.5 text-left hover:bg-surface-hover transition-colors"
           >
-            <span className="flex items-center gap-2 min-w-0">
-              <Sparkles className="h-4 w-4 shrink-0 text-text-secondary" />
-              <span className="type-caption font-medium text-text-secondary truncate">
-                {tx('Τι κάνει αυτό το αρχείο', 'What this file does')}
-              </span>
+            <span className="type-caption font-medium text-text-secondary truncate">
+              {tx('Σύνοψη αρχείου & ιδέες μελέτης', 'File summary & study ideas')}
             </span>
-            <ChevronRight className="h-3.5 w-3.5 shrink-0 text-text-muted" />
+            <ChevronRight className="h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden />
           </button>
 
           <ul className="space-y-1.5" data-testid="notebook-source-list">
@@ -261,13 +269,13 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               <li key={source.key}>
                 <div
                   className={cn(
-                    'rounded-xl px-2.5 py-2 transition-colors',
-                    /* OPT-K96 — active source = surface + ink, not brand wash */
+                    /* OPT-K126 — wash source rows (no ring/outline cage) */
+                    'rounded-xl border-0 px-2.5 py-2 transition-colors',
                     isReaderActive
-                      ? 'bg-surface-secondary text-text-primary ring-1 ring-border-default'
+                      ? 'bg-surface-secondary text-text-primary'
                       : isPinned
-                        ? 'bg-surface-secondary/80 text-text-primary ring-1 ring-border-subtle'
-                        : 'text-text-secondary',
+                        ? 'bg-surface-secondary/70 text-text-primary'
+                        : 'bg-transparent text-text-secondary hover:bg-surface-secondary/40',
                   )}
                 >
                   <button
@@ -281,19 +289,16 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
                       !isReaderActive && !isPinned && 'hover:text-text-primary',
                     )}
                   >
-                    {isPinned && (
-                      <Pin
-                        className="h-3 w-3 shrink-0 text-text-tertiary"
-                        aria-hidden
-                        data-testid={`notebook-source-pinned-${source.key}`}
-                      />
-                    )}
                     <NotebookSourceThumbnail file={source.file} label={source.label} settings={userSettings} />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate type-caption font-medium">{source.label}</span>
-                      {source.meta && (
-                        <span className="block type-caption text-text-secondary">{source.meta}</span>
-                      )}
+                      <span className="block type-caption text-text-secondary">
+                        {isReaderActive
+                          ? tx('Ανοιχτό στον αναγνώστη', 'Open in reader')
+                          : isPinned
+                            ? tx('Επιλεγμένο · πάτα για ανάγνωση', 'Selected · tap to read')
+                            : (source.meta ?? tx('Πάτα για ανάγνωση', 'Tap to read'))}
+                      </span>
                     </span>
                   </button>
                   {needsSourceThumbnailReprocessHint(source.file) && (
@@ -316,9 +321,12 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
             const pages = pinned?.pageCount ?? 0;
             if (!pinned || pinned.type !== 'pdf' || pages <= 1) return null;
             return (
-              <div className="mt-2 px-0.5 space-y-1" data-testid="notebook-pdf-page-strip">
-                <p className="type-caption font-medium text-text-secondary px-0.5">
+              <div className="mt-3 px-0.5 space-y-1" data-testid="notebook-pdf-page-strip">
+                <p className="type-caption font-medium text-text-primary px-0.5">
                   {t('agentPdfPagesLabel')}
+                </p>
+                <p className="type-caption text-text-muted px-0.5 leading-snug">
+                  {t('agentPdfPagesHint')}
                 </p>
                 <PdfPageThumbnailStrip
                   pageCount={pages}
@@ -333,19 +341,20 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         </>
       ) : (
         <div className="flex h-full flex-col items-center justify-center gap-3 px-4 text-center">
-          <FileText className="h-8 w-8 text-text-muted" aria-hidden />
-          <p className="type-caption text-text-secondary">
+          <p className="type-meta font-medium text-text-primary">
+            {tx('Πρόσθεσε το υλικό σου', 'Add your material')}
+          </p>
+          <p className="type-caption text-text-secondary max-w-[16rem] leading-snug">
             {tx(
-              'Δεν υπάρχουν πηγές ακόμα. Πρόσθεσε υλικό για να ξεκινήσεις.',
-              'No sources yet. Add material to get started.',
+              'Ανέβασε PDF ή σημειώσεις. Από εδώ τις ανοίγεις, ελέγχεις ποιότητα και τις χρησιμοποιεί ο βοηθός.',
+              'Upload a PDF or notes. Open them here, check quality, and the tutor uses them to answer.',
             )}
           </p>
           <button
             type="button"
             onClick={() => handleToolUpload?.()}
-            className="flex items-center gap-1.5 rounded-full bg-brand-600 px-3.5 py-1.5 type-caption font-medium text-white hover:bg-brand-700 transition-colors"
+            className="rounded-full bg-brand-600 px-3.5 py-1.5 type-caption font-medium text-white hover:bg-brand-700 transition-colors"
           >
-            <Plus className="h-3.5 w-3.5" />
             {tx('Προσθήκη πηγής', 'Add source')}
           </button>
         </div>
@@ -354,7 +363,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
   );
 
   const sourcesFooter = showQualityStrip ? (
-    <footer className="flex items-center justify-between gap-2 border-t border-border-subtle px-3 py-2 shrink-0">
+    <footer className="flex items-center justify-between gap-2 border-t border-transparent px-3 py-2 shrink-0">
       <div className="flex min-w-0 items-center gap-1">
         <button
           type="button"
@@ -384,8 +393,10 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         title={t('agentSourceQualityHint')}
         className="flex min-h-9 items-center gap-1 type-caption font-medium text-text-secondary hover:text-text-primary transition-colors disabled:opacity-50 px-1"
       >
-        <RefreshCw className={cn('h-3.5 w-3.5', reprocessingMaterial && 'animate-spin')} aria-hidden />
-        {tx('Επανεπεξεργασία', 'Reprocess')}
+        {reprocessingMaterial && (
+          <RefreshCw className="h-3.5 w-3.5 animate-spin" aria-hidden />
+        )}
+        {reprocessingMaterial ? tx('Επεξεργασία…', 'Processing…') : tx('Επανεπεξεργασία', 'Reprocess')}
       </button>
     </footer>
   ) : null;
@@ -395,26 +406,22 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
       {renderCenterAgent ? (
         renderCenterAgent()
       ) : (
-        <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
-          <Sparkles className="h-8 w-8 text-text-tertiary" aria-hidden />
-          <div className="space-y-1">
-            <p className="type-meta font-semibold text-text-secondary">
-              {tx('Ρώτησε τον AI βοηθό', 'Ask the AI assistant')}
-            </p>
-            <p className="type-caption text-text-secondary max-w-sm">
-              {tx(
-                'Ο βοηθός απαντά με βάση τις πηγές σου, με παραπομπές στο σημείο του κειμένου.',
-                'The assistant answers based on your sources, with citations back to the text.',
-              )}
-            </p>
-          </div>
+        <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+          <p className="type-meta font-semibold text-text-primary">
+            {tx('Ρώτησε για το υλικό σου', 'Ask about your material')}
+          </p>
+          <p className="type-caption text-text-secondary max-w-sm leading-snug">
+            {tx(
+              'Απαντήσεις από τις πηγές σου, με παραπομπή στο σημείο του κειμένου.',
+              'Answers from your sources, with citations back to the text.',
+            )}
+          </p>
           <button
             type="button"
             onClick={handleOpenAgent}
             data-testid="notebook-chat-launcher"
-            className="flex items-center gap-1.5 rounded-full bg-brand-600 px-4 py-2 type-caption font-medium text-white hover:bg-brand-700 transition-colors"
+            className="rounded-full bg-brand-600 px-4 py-2 type-caption font-medium text-white hover:bg-brand-700 transition-colors"
           >
-            <Sparkles className="h-3.5 w-3.5" />
             {tx('Άνοιγμα συνομιλίας', 'Open chat')}
           </button>
         </div>
@@ -430,9 +437,8 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         data-generation-state={studioGen['quiz-from-source'] ?? 'idle'}
         disabled={studioGen['quiz-from-source'] === 'running'}
         onClick={() => runStudioQuickAction('quiz-from-source', 'quiz')}
-        className="flex items-center gap-1 rounded-full border border-border-subtle bg-surface-secondary/60 px-2.5 py-1 type-micro font-medium text-text-secondary hover:border-border-default hover:text-text-primary transition-colors disabled:opacity-60"
+        className="rounded-full border-0 bg-surface-secondary/70 px-2.5 py-1 type-micro font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors disabled:opacity-60"
       >
-        <Sparkles className="h-3 w-3" />
         {studioGen['quiz-from-source'] === 'running'
           ? tx('Δημιουργία…', 'Generating…')
           : tx('Φτιάξε κουίζ', 'Create quiz')}
@@ -443,9 +449,8 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         data-generation-state={studioGen['mindmap-from-source'] ?? 'idle'}
         disabled={studioGen['mindmap-from-source'] === 'running'}
         onClick={() => runStudioQuickAction('mindmap-from-source', 'concept-map')}
-        className="flex items-center gap-1 rounded-full border border-border-subtle bg-surface-secondary/60 px-2.5 py-1 type-micro font-medium text-text-secondary hover:border-border-default hover:text-text-primary transition-colors disabled:opacity-60"
+        className="rounded-full border-0 bg-surface-secondary/70 px-2.5 py-1 type-micro font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors disabled:opacity-60"
       >
-        <Sparkles className="h-3 w-3" />
         {studioGen['mindmap-from-source'] === 'running'
           ? tx('Δημιουργία…', 'Generating…')
           : tx('Mind map από πηγή', 'Mind map from source')}
@@ -469,14 +474,20 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
       title={tx('Ρώτα το AI', 'Ask AI')}
       aria-label={tx('Ρώτα το AI για το ενεργό εργαλείο', 'Ask AI about the active tool')}
       data-testid="notebook-studio-ask-ai-rail"
-      className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
+      className="flex h-8 min-w-8 items-center justify-center rounded-lg px-1 type-micro font-semibold text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
     >
-      <Sparkles className="h-4 w-4" />
+      AI
     </button>
   );
 
   const studioGrid = (
     <div className="flex-1 min-h-0 overflow-y-auto p-3">
+      <p className="px-0.5 pb-2 type-caption text-text-muted leading-snug" data-testid="notebook-studio-purpose">
+        {tx(
+          'Εργαλεία μελέτης πάνω στις πηγές σου. «AI» ζητά βοήθεια για το εργαλείο.',
+          'Study tools on your sources. “AI” asks for help with that tool.',
+        )}
+      </p>
       {studioQuickActions}
       <div
         className={cn(
@@ -485,7 +496,8 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         )}
         data-testid="notebook-studio-grid"
       >
-        {STUDIO_TOOLS.map(({ id, icon: Icon }) => {
+        {/* OPT-K137 — text-led studio cards (tool name + AI); no decorative glyphs */}
+        {STUDIO_TOOLS.map(({ id }) => {
           const genKey = id === 'quiz' ? 'quiz-from-source' : id === 'concept-map' ? 'mindmap-from-source' : null;
           const genState = genKey ? studioGen[genKey] : undefined;
           return (
@@ -499,28 +511,24 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               aria-pressed={studioToolOpen && activeTool === id}
               title={workspaceToolDescription(id, lang)}
               className={cn(
-                'flex w-full flex-col items-start gap-2 rounded-xl border px-3 py-3 text-left transition-colors min-h-[76px]',
+                /* OPT-K126 — denser wash studio cards (no outline / ring cage) */
+                'flex w-full flex-col items-start gap-1 rounded-xl border-0 px-2.5 py-2.5 pr-9 text-left transition-colors min-h-[4.25rem]',
                 studioToolOpen && activeTool === id
-                  ? 'border-border-default bg-surface-secondary text-text-primary ring-1 ring-border-subtle'
-                  : 'border-border-subtle bg-surface-secondary/50 hover:bg-surface-hover hover:border-border-default',
+                  ? 'bg-surface-secondary text-text-primary'
+                  : 'bg-surface-secondary/45 hover:bg-surface-hover',
               )}
             >
-              {/* OPT-K12 / OPT-K96 — monochrome glyph well on every theme */}
-              <span
-                className="studio-tool-icon flex h-7 w-7 items-center justify-center rounded-md border border-border-subtle bg-surface-card text-text-secondary"
-                data-tool-id={id}
-                aria-hidden
-              >
-                <Icon className="h-4 w-4" />
-              </span>
-              <span className="type-caption font-medium text-text-secondary leading-tight">
+              <span className="type-caption font-medium text-text-primary leading-tight">
                 {workspaceToolLabel(id, lang)}
+              </span>
+              <span className="type-micro text-text-muted leading-snug line-clamp-2">
+                {workspaceToolDescription(id, lang)}
               </span>
               {genState === 'running' && (
                 <span className="type-micro text-text-secondary">{tx('Δημιουργία…', 'Generating…')}</span>
               )}
               {genState === 'done' && (
-                <span className="type-micro text-accent-emerald ink-allow-accent">{tx('Έτοιμο', 'Ready')}</span>
+                <span className="type-micro text-text-secondary">{tx('Έτοιμο', 'Ready')}</span>
               )}
             </button>
             <button
@@ -529,9 +537,9 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               data-testid={`studio-card-ai-${id}`}
               title={buildToolDefaultAgentPrompt(id, lang, concept, sectionTitle)}
               aria-label={`${workspaceToolLabel(id, lang)} — ${tx('Ζήτα βοήθεια από το AI', 'Ask AI for help')}`}
-              className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full text-text-muted hover:bg-surface-hover hover:text-text-primary transition-colors"
+              className="absolute right-1.5 top-1.5 flex h-6 min-w-6 items-center justify-center rounded-md px-1 type-micro font-semibold text-text-muted hover:bg-surface-hover hover:text-text-primary transition-colors"
             >
-              <Sparkles className="h-3.5 w-3.5" />
+              AI
             </button>
           </div>
           );
@@ -542,7 +550,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
 
   const mobileTabs = (
     <nav
-      className="flex shrink-0 border-t border-border-subtle bg-surface-card"
+      className="flex shrink-0 border-t border-transparent bg-surface-card"
       aria-label={tx('Πλοήγηση notebook', 'Notebook navigation')}
       data-testid="notebook-mobile-tabs"
     >
@@ -595,24 +603,26 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
         tabIndex={-1}
         data-testid="notebook-workspace-layout"
         data-layout="phone"
+        data-border-diet="cta-only"
+        data-type-rhythm="dashboard"
       >
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-2 pb-0">
           {studioToolOpen ? (
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border-subtle bg-surface-card">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border-0 bg-surface-card shadow-none">
               <StudyWorkspaceToolSurface model={model} />
             </div>
           ) : (
             <>
               {mobileTab === 'sources' && (
                 <section
-                  className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border border-border-subtle bg-surface-card"
+                  className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border-0 bg-surface-card shadow-none"
                   data-testid="notebook-sources-panel"
                 >
-                  <header className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0">
+                  <header className="flex items-center justify-between gap-2 border-b border-transparent px-4 py-3 shrink-0">
                     <h2 className="type-caption font-semibold text-text-primary">
                       {notebookCalm ? tx('Τα αρχεία σου', 'Your files') : tx('Πηγές', 'Sources')}
                     </h2>
-                    <button type="button" onClick={addSource} data-testid="notebook-add-source" className="flex items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1 type-caption font-medium text-text-secondary">
+                    <button type="button" onClick={addSource} data-testid="notebook-add-source" className="flex items-center gap-1 rounded-lg border-0 bg-surface-secondary/70 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover">
                       <Plus className="h-3.5 w-3.5" />
                       {tx('Προσθήκη', 'Add')}
                     </button>
@@ -623,10 +633,10 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               )}
               {mobileTab === 'chat' && (
                 <section
-                  className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border border-border-subtle bg-surface-card"
+                  className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border-0 bg-surface-card shadow-none"
                   data-testid="notebook-chat-panel"
                 >
-                  <header className="border-b border-border-subtle px-4 py-3 shrink-0">
+                  <header className="border-b border-transparent px-4 py-3 shrink-0">
                     <h2 className="type-caption font-semibold text-text-primary">
                       {notebookCalm ? tx('Βοηθός', 'Tutor') : tx('Συνομιλία', 'Chat')}
                     </h2>
@@ -636,10 +646,10 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               )}
               {mobileTab === 'studio' && (
                 <section
-                  className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border border-border-subtle bg-surface-card"
+                  className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border-0 bg-surface-card shadow-none"
                   data-testid="notebook-studio-panel"
                 >
-                  <header className="border-b border-border-subtle px-4 py-3 shrink-0">
+                  <header className="border-b border-transparent px-4 py-3 shrink-0">
                     <h2 className="type-caption font-semibold text-text-primary">
                       {notebookCalm ? tx('Εργαλεία μελέτης', 'Study tools') : 'Studio'}
                     </h2>
@@ -657,7 +667,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
               type="button"
               onClick={() => setStudioToolOpen(false)}
               data-testid="notebook-studio-rail-back"
-              className="flex items-center justify-center gap-1 rounded-lg border border-border-subtle bg-surface-card py-2 type-caption text-text-secondary"
+              className="flex items-center justify-center gap-1 rounded-lg border-0 bg-surface-secondary/70 py-2 type-caption text-text-secondary"
             >
               <LayoutGrid className="h-4 w-4" />
               {tx('Πίσω στο Studio', 'Back to Studio')}
@@ -681,10 +691,18 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
       id="workspace-main"
       role="main"
       tabIndex={-1}
-        data-testid="notebook-workspace-layout"
-        data-layout={nbViewport}
+      /* OPT-K126 — Workspace Agent clarity: CTA-only border diet */
+      data-testid="notebook-workspace-layout"
+      data-layout={nbViewport}
+      data-border-diet="cta-only"
+      data-type-rhythm="dashboard"
+    >
+      {/* OPT-K133/K134 — thin 1px panel rules (no wide gutters); panels stay flexible */}
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-2">
+      <Group
+        orientation="horizontal"
+        className="h-full min-h-0 w-full flex-1 gap-0 overflow-hidden rounded-2xl bg-surface-card p-0"
       >
-      <Group orientation="horizontal" className="flex-1 min-h-0 w-full h-full p-2 gap-0">
         <Panel
           id="nb-sources"
           defaultSize={nbViewport === 'tablet' ? 26 : 22}
@@ -692,15 +710,15 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
           className="flex h-full min-h-0 flex-col overflow-hidden"
         >
           <section
-            className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border border-border-subtle bg-surface-card"
+            className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-none border-0 bg-surface-card shadow-none"
             aria-label={notebookCalm ? tx('Τα αρχεία σου', 'Your files') : tx('Πηγές', 'Sources')}
             data-testid="notebook-sources-panel"
           >
-            <header className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0">
-              <h2 className="font-sans type-caption font-semibold normal-case tracking-normal text-text-primary">
+            <header className="flex items-center justify-between gap-2 border-b border-transparent px-4 py-3 shrink-0">
+              <h2 className="font-sans type-meta font-semibold normal-case tracking-normal text-text-primary">
                 {notebookCalm ? tx('Τα αρχεία σου', 'Your files') : tx('Πηγές', 'Sources')}
               </h2>
-              <button type="button" onClick={addSource} data-testid="notebook-add-source" className="flex items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors">
+              <button type="button" onClick={addSource} data-testid="notebook-add-source" className="flex items-center gap-1 rounded-lg border-0 bg-surface-secondary/70 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors">
                 <Plus className="h-3.5 w-3.5" />
                 {tx('Προσθήκη', 'Add')}
               </button>
@@ -710,19 +728,23 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
           </section>
         </Panel>
 
-        <Separator className="w-2 bg-transparent hover:bg-brand-500/20 active:bg-brand-500/30 transition-colors cursor-col-resize" />
+        <Separator
+          className="notebook-panel-resizer w-px shrink-0 cursor-col-resize"
+          data-testid="notebook-resizer-sources-chat"
+          aria-orientation="vertical"
+        />
 
         <Panel id="nb-chat" defaultSize={46} minSize={28} className="flex h-full min-h-0 flex-col overflow-hidden">
           <section
-            className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border border-border-subtle bg-surface-card"
+            className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-none border-0 bg-surface-card shadow-none"
             aria-label={notebookCalm ? tx('Βοηθός', 'Tutor') : tx('Συνομιλία', 'Chat')}
             data-testid="notebook-chat-panel"
           >
             <header
-              className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0"
+              className="flex items-center justify-between gap-2 border-b border-transparent px-4 py-3 shrink-0"
               title={chatGrounding}
             >
-              <h2 className="font-sans type-caption font-semibold normal-case tracking-normal text-text-primary">
+              <h2 className="font-sans type-meta font-semibold normal-case tracking-normal text-text-primary">
                 {notebookCalm ? tx('Βοηθός', 'Tutor') : tx('Συνομιλία', 'Chat')}
               </h2>
               <span className="type-caption truncate text-text-muted">{chatGrounding}</span>
@@ -731,22 +753,26 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
           </section>
         </Panel>
 
-        <Separator className="w-2 bg-transparent hover:bg-brand-500/20 active:bg-brand-500/30 transition-colors cursor-col-resize" />
+        <Separator
+          className="notebook-panel-resizer w-px shrink-0 cursor-col-resize"
+          data-testid="notebook-resizer-chat-studio"
+          aria-orientation="vertical"
+        />
 
         {studioToolOpen ? (
           <StudyWorkspaceToolSurface model={model} />
         ) : (
           <Panel id="nb-studio" defaultSize={32} minSize={20} className="flex h-full min-h-0 flex-col overflow-hidden">
             <section
-              className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-2xl border border-border-subtle bg-surface-card"
+              className="flex h-full min-h-0 flex-col overflow-hidden workspace-glass-panel rounded-none border-0 bg-surface-card shadow-none"
               aria-label={notebookCalm ? tx('Εργαλεία μελέτης', 'Study tools') : 'Studio'}
               data-testid="notebook-studio-panel"
             >
               <header
-                className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3 shrink-0"
+                className="flex items-center justify-between gap-2 border-b border-transparent px-4 py-3 shrink-0"
                 title={tx('Εργαλεία που σε βοηθούν να μελετήσεις', 'Tools that help you study')}
               >
-                <h2 className="font-sans type-caption font-semibold normal-case tracking-normal text-text-primary">
+                <h2 className="font-sans type-meta font-semibold normal-case tracking-normal text-text-primary">
                   {notebookCalm ? tx('Εργαλεία μελέτης', 'Study tools') : 'Studio'}
                 </h2>
                 <span className="type-caption text-text-muted">{tx('Με βοήθεια AI', 'With AI help')}</span>
@@ -756,9 +782,10 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
           </Panel>
         )}
       </Group>
+      </div>
 
       {studioToolOpen && (
-        <div className="flex w-10 shrink-0 flex-col items-center gap-2 border-l border-border-subtle bg-surface-card py-3">
+        <div className="my-2 mr-2 flex w-10 shrink-0 flex-col items-center gap-2 rounded-2xl border-0 border-l-0 bg-surface-card py-3">
           {studioAskAiRail}
           <button
             type="button"

@@ -4,7 +4,7 @@ import {
   Send, Sparkles, BookOpen, Brain, GraduationCap, MessageSquare,
   Code, Lightbulb, AlertTriangle, Mic, ChevronDown,
   RotateCcw, Target, PenTool, Smile, Search, FileText,
-  HelpCircle, Zap, Settings2, Layers, Check, X, Volume2, VolumeX
+  HelpCircle, Zap, Settings2, Check, X, Volume2, VolumeX
 } from '@/lib/lucide-shim';
 import type { AgentMessage, AgentMode, Course, UserSettings, UploadedFile, MessageCitation, SkillNode, Task, LearnerModel } from '../types';
 import type { DashboardNextAction } from '../lib/dashboardNextAction';
@@ -32,7 +32,6 @@ import { getAgentContent, type AgentUiCopy, AGENT_MODE_VISUALS } from '../featur
 import { AgentModeCatalogGrid, AgentModeSidebar } from './agent/AgentModeSidebar';
 import { useI18n } from '../lib/i18n';
 import { PlatformSection, PrimaryCTA } from './ui/primitives';
-import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { TrustBadgeRow } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
@@ -1068,6 +1067,9 @@ export function Agent({
       )}
       data-testid={embedded ? 'agent-embedded' : 'agent-page'}
       data-bleed="full"
+      data-type-rhythm="dashboard"
+      /* OPT-K124 — Agent clarity: CTA-only border diet (wash bubbles / rail, no outline cages) */
+      data-border-diet="cta-only"
       data-quiet-modes={quietModes ? 'true' : undefined}
     >
       {!embedded && (
@@ -1087,15 +1089,15 @@ export function Agent({
       <div className="flex flex-col flex-1 min-w-0 min-h-0">
       {/* Agent Header */}
       {!embedded && (
-      <div className={cn(pagePadX, 'py-3 border-b border-border-subtle bg-surface-secondary/30')}>
-        <BlueprintSurface hint className="flex items-center justify-between max-w-none w-full min-w-0 px-4 py-3">
+      <div className={cn(pagePadX, 'py-2.5 border-b border-transparent bg-surface-secondary/25')}>
+        <BlueprintSurface hint className="flex items-center justify-between max-w-none w-full min-w-0 border-0 bg-transparent px-3 py-2.5 shadow-none">
           <div className="flex items-center gap-3">
             <div
               className={cn(
-                'agent-header-mode-icon w-9 h-9 rounded-xl flex items-center justify-center',
-                quietModes && 'border border-border-subtle bg-transparent text-text-secondary',
+                'agent-header-mode-icon w-9 h-9 rounded-xl flex items-center justify-center border-0',
+                quietModes && 'bg-surface-secondary text-text-secondary',
               )}
-              style={quietModes ? undefined : { backgroundColor: `${currentVisual.color}25` }}
+              style={quietModes ? undefined : { backgroundColor: `${currentVisual.color}18` }}
             >
               <currentMode.icon
                 className={cn('w-5 h-5', quietModes && 'text-text-secondary')}
@@ -1104,19 +1106,16 @@ export function Agent({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="ws-serif text-sm font-medium text-text-primary">{ui.title}</span>
+                <span className="ws-serif type-meta font-semibold text-text-primary">{ui.title}</span>
                 <button
                   onClick={() => setShowModes(!showModes)}
-                  className={cn(
-                    'lg:hidden flex items-center gap-1 px-2 py-0.5 rounded-md type-caption font-medium bg-surface-hover border border-border-subtle transition-all',
-                    quietModes ? 'hover:border-border-default' : 'hover:border-brand-500/30',
-                  )}
+                  className="lg:hidden flex items-center gap-1 px-2 py-0.5 rounded-md type-caption font-medium bg-surface-secondary border-0 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
                 >
                   <currentMode.icon className={cn('w-3 h-3', quietModes ? 'text-text-secondary' : currentMode.color)} />
                   {currentMode.label}
                   <ChevronDown className={cn('w-3 h-3 transition-transform', showModes && 'rotate-180')} />
                 </button>
-                <span className="hidden lg:inline-flex items-center gap-1 px-2 py-0.5 rounded-md type-caption font-medium bg-surface-hover border border-border-subtle text-text-secondary">
+                <span className="hidden lg:inline-flex items-center gap-1 px-2 py-0.5 rounded-md type-caption font-medium bg-surface-secondary border-0 text-text-secondary">
                   <currentMode.icon className={cn('w-3 h-3', quietModes ? 'text-text-secondary' : currentMode.color)} />
                   {currentMode.label}
                 </span>
@@ -1125,7 +1124,7 @@ export function Agent({
                 {llmReady ? ui.llmConnected : ui.offlineMode}
                 {sourceExcerpt ? ui.sourceAttached : ''}
               </p>
-              <TrustBadgeRow sourceMode={activeSourceMode} lang={lang} className="mt-2" />
+              <TrustBadgeRow sourceMode={activeSourceMode} lang={lang} className="mt-1.5" />
             </div>
           </div>
 
@@ -1137,10 +1136,7 @@ export function Agent({
                 setSelectedSource(e.target.value);
                 setPinnedFileId(null);
               }}
-              className={cn(
-                'type-caption bg-surface-input border border-border-subtle rounded-lg px-2 py-1.5 text-text-secondary focus:outline-none',
-                quietModes ? 'focus:border-border-default' : 'focus:border-brand-500/50',
-              )}
+              className="type-caption bg-surface-secondary/80 border-0 rounded-lg px-2 py-1.5 text-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-500/35"
             >
               <option value="all">{ui.allSources}</option>
               {courses.map(c => (
@@ -1228,18 +1224,14 @@ export function Agent({
 
       {embedded && (
         <div
-          className="flex items-center justify-between gap-2 border-b border-border-subtle px-2.5 py-1.5 shrink-0 bg-surface-secondary/20"
+          className="flex items-center justify-between gap-2 border-b border-transparent px-2.5 py-1.5 shrink-0 bg-surface-secondary/20"
           data-testid="agent-embedded-chrome"
         >
           <button
             type="button"
             onClick={() => setShowModes(!showModes)}
-            className={cn(
-              'flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 type-caption font-medium text-text-primary transition-colors',
-              quietModes ? 'hover:border-border-default' : 'hover:border-brand-200',
-            )}
+            className="flex items-center gap-1 rounded-md border-0 bg-surface-secondary px-1.5 py-0.5 type-caption font-medium text-text-primary transition-colors hover:bg-surface-hover"
           >
-            <currentMode.icon className={cn('h-3 w-3', quietModes ? 'text-text-secondary' : currentMode.color)} />
             {currentMode.label}
             <ChevronDown className={cn('h-3 w-3 transition-transform', showModes && 'rotate-180')} />
           </button>
@@ -1252,14 +1244,11 @@ export function Agent({
               aria-haspopup="listbox"
               data-testid="agent-embedded-source-picker"
               className={cn(
-                'flex items-center gap-1 rounded-md border border-border-subtle bg-surface-card px-1.5 py-0.5 type-caption font-medium text-text-primary transition-colors max-w-[140px]',
-                quietModes ? 'hover:border-border-default' : 'hover:border-brand-200',
-                showEmbeddedSource &&
-                  (quietModes ? 'border-border-default text-text-primary' : 'border-border-default text-text-primary'),
+                'flex items-center gap-1 rounded-md border-0 bg-surface-secondary px-1.5 py-0.5 type-caption font-medium text-text-primary transition-colors max-w-[140px] hover:bg-surface-hover',
+                showEmbeddedSource && 'bg-surface-hover',
               )}
               title={ui.allSources}
             >
-              <Layers className="h-3 w-3 shrink-0" aria-hidden />
               <span className="truncate">
                 {selectedSource === 'all'
                   ? ui.allSources
@@ -1370,11 +1359,11 @@ export function Agent({
       {activeTaskTitle && !embedded && (
         <div
           className={cn(
-            'agent-task-banner py-2 border-b',
+            'agent-task-banner py-2 border-b border-transparent',
             pagePadX,
             quietModes
-              ? 'border-border-subtle bg-surface-secondary/40'
-              : 'border-brand-500/20 bg-brand-500/5',
+              ? 'bg-surface-secondary/40'
+              : 'bg-surface-secondary/55',
           )}
         >
           <div className="max-w-none w-full min-w-0 flex items-center justify-between gap-3 flex-wrap">
@@ -1406,9 +1395,9 @@ export function Agent({
                 <button
                   onClick={onCompleteTask}
                   className={cn(
-                    'px-3 py-1.5 rounded-lg type-caption font-medium transition-all',
+                    'px-3 py-1.5 rounded-lg border-0 type-caption font-medium transition-all',
                     quietModes
-                      ? 'bg-surface-secondary border border-border-default text-text-primary hover:bg-surface-hover'
+                      ? 'bg-surface-secondary text-text-primary hover:bg-surface-hover'
                       : 'bg-brand-600 hover:bg-brand-500 text-white',
                   )}
                 >
@@ -1429,7 +1418,7 @@ export function Agent({
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.36, ease: [0.2, 0, 0, 1] }}
             className={cn(
-              'border-b border-border-subtle bg-surface-secondary/50 overflow-hidden',
+              'border-b border-transparent bg-surface-secondary/40 overflow-hidden',
               !embedded && 'lg:hidden',
             )}
           >
@@ -1445,7 +1434,7 @@ export function Agent({
                 </div>
               </PlatformSection>
               {onChangeSourceMode && (
-                <div className={cn('border-t border-border-subtle', embedded ? 'mt-2.5 pt-2.5' : 'mt-4 pt-4')}>
+                <div className={cn('border-t border-transparent', embedded ? 'mt-2.5 pt-2.5' : 'mt-4 pt-4')}>
                   <p className="type-micro font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">
                     <AllCapsLabel>{ui.sourceModeHeading}</AllCapsLabel>
                   </p>
@@ -1456,12 +1445,10 @@ export function Agent({
                         type="button"
                         onClick={() => onChangeSourceMode(opt.id)}
                         className={cn(
-                          'w-full text-left px-3 py-2 rounded-xl type-caption transition-all',
+                          'w-full text-left px-3 py-2 rounded-xl type-caption transition-all border-0',
                           activeSourceMode === opt.id
-                            ? quietModes
-                              ? 'bg-surface-secondary text-text-primary border border-border-default'
-                              : 'bg-surface-secondary text-text-primary border border-border-subtle'
-                            : 'text-text-secondary hover:bg-surface-hover',
+                            ? 'bg-surface-secondary text-text-primary'
+                            : 'bg-transparent text-text-secondary hover:bg-surface-hover',
                         )}
                       >
                         {opt.label}
@@ -1486,90 +1473,41 @@ export function Agent({
           'agent-chat-column w-full max-w-none min-w-0 space-y-4 py-4',
           embedded ? 'px-3 pb-6' : cn(pagePadX, 'sm:px-4'),
         )}>
+          {/* OPT-K136 — text-led empty invite (no decorative Sparkles) */}
           {messages.length === 0 && !isThinking && (
-            embedded ? (
-              <div className="py-8 text-center space-y-2" data-testid="agent-empty-invite">
-                <Sparkles
-                  className={cn('w-6 h-6 mx-auto', quietModes ? 'text-text-secondary' : 'text-text-secondary')}
-                  aria-hidden
-                />
-                <p className="type-meta font-medium text-text-primary">{ui.title}</p>
-                <p className="type-caption text-text-secondary px-4">
-                  {llmReady ? ui.inputPlaceholder : ui.offlineMode}
-                </p>
-                <div className="flex flex-wrap justify-center gap-2 pt-2" data-testid="agent-try-chips">
-                  {pathTryChips.length > 0
-                    ? pathTryChips.slice(0, 3).map((chip) => (
-                      <button
-                        key={chip.id}
-                        type="button"
-                        data-testid={`agent-path-try-${chip.id}`}
-                        onClick={() => handlePathTryChip(chip)}
-                        className="ux-agent-chip"
-                      >
-                        {chip.label}
-                      </button>
-                    ))
-                    : contextualSuggestions.slice(0, 2).map((action) => (
-                      <button
-                        key={action}
-                        type="button"
-                        onClick={() => handleQuickAction(action)}
-                        className="ux-agent-chip"
-                      >
-                        {action}
-                      </button>
-                    ))}
-                </div>
+            <div className={cn('py-8 space-y-2', embedded ? 'text-center' : '')} data-testid="agent-empty-invite">
+              <p className="type-meta font-medium text-text-primary">{ui.title}</p>
+              <p className={cn('type-caption text-text-secondary', embedded ? 'px-4' : '')}>
+                {llmReady ? ui.inputPlaceholder : ui.offlineMode}
+              </p>
+              <div
+                className={cn('flex flex-wrap gap-2 pt-2', embedded ? 'justify-center' : '')}
+                data-testid="agent-try-chips"
+              >
+                {pathTryChips.length > 0
+                  ? (embedded ? pathTryChips.slice(0, 3) : pathTryChips).map((chip) => (
+                    <button
+                      key={chip.id}
+                      type="button"
+                      data-testid={`agent-path-try-${chip.id}`}
+                      onClick={() => handlePathTryChip(chip)}
+                      className={cn('ux-agent-chip', !embedded && 'text-left')}
+                    >
+                      {chip.label}
+                    </button>
+                  ))
+                  : (embedded ? contextualSuggestions.slice(0, 2) : contextualSuggestions).map((action) => (
+                    <button
+                      key={action}
+                      type="button"
+                      onClick={() => handleQuickAction(action)}
+                      className={cn('ux-agent-chip', !embedded && 'text-left')}
+                    >
+                      {action}
+                    </button>
+                  ))}
               </div>
-            ) : (
-            <div className="py-8 space-y-4" data-testid="agent-empty-invite">
-              <PlatformEmptyState
-                title={ui.title}
-                description={llmReady ? ui.inputPlaceholder : ui.offlineMode}
-                icon={Sparkles}
-                actionLabel={pathTryChips[0]?.label ?? contextualSuggestions[0]}
-                onAction={() => {
-                  if (pathTryChips[0]) handlePathTryChip(pathTryChips[0]);
-                  else if (contextualSuggestions[0]) handleQuickAction(contextualSuggestions[0]);
-                }}
-                secondaryActionLabel={pathTryChips[1]?.label ?? contextualSuggestions[1]}
-                onSecondaryAction={() => {
-                  if (pathTryChips[1]) handlePathTryChip(pathTryChips[1]);
-                  else if (contextualSuggestions[1]) handleQuickAction(contextualSuggestions[1]);
-                }}
-              />
-              {(pathTryChips.length > 0 || contextualSuggestions.length > 0) && (
-                <div className="w-full max-w-none" data-testid="agent-try-chips">
-                  <p className="type-caption text-text-tertiary mb-3">{contextualPrompts.emptySuggestionsHeading}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {pathTryChips.length > 0
-                      ? pathTryChips.map((chip) => (
-                        <button
-                          key={chip.id}
-                          type="button"
-                          data-testid={`agent-path-try-${chip.id}`}
-                          onClick={() => handlePathTryChip(chip)}
-                          className="ux-agent-chip text-left"
-                        >
-                          {chip.label}
-                        </button>
-                      ))
-                      : contextualSuggestions.map((action) => (
-                        <button
-                          key={action}
-                          type="button"
-                          onClick={() => handleQuickAction(action)}
-                          className="ux-agent-chip text-left"
-                        >
-                          {action}
-                        </button>
-                      ))}
-                  </div>
-                </div>
-              )}
             </div>
-            )
           )}
           {messages.map(msg => (
             <MessageBubble
@@ -1595,13 +1533,7 @@ export function Agent({
             />
           ))}
           {isThinking && (
-            <div className="agent-thinking flex gap-3 px-1 py-2 type-body text-text-muted">
-              <Sparkles
-                className={cn(
-                  'w-4 h-4 animate-pulse shrink-0 mt-0.5',
-                  quietModes ? 'text-text-tertiary' : 'text-text-secondary',
-                )}
-              />
+            <div className="agent-thinking px-1 py-2 type-body text-text-muted animate-pulse" data-testid="agent-thinking">
               <span>{ui.thinking}</span>
             </div>
           )}
@@ -1639,14 +1571,15 @@ export function Agent({
       {/* Input — OPT-C1 sticky soft composer (still holds source/attach/send) */}
       <div
         className={cn(
-          'agent-composer border-t border-border-subtle bg-surface-secondary/30 shrink-0',
+          'agent-composer border-t border-transparent bg-surface-secondary/25 shrink-0',
           embedded ? 'pb-1.5' : 'pb-20 lg:pb-0',
         )}
         data-testid="agent-composer"
       >
         <div className={cn('agent-chat-column w-full min-w-0', embedded ? 'px-2.5 py-2' : cn(pagePadX, 'py-3'))}>
-          <div className="agent-composer-shell">
-            <div className="flex-1 relative min-w-0">
+          {/* OPT-K125 — textarea above; tools left + send right on one toolbar row */}
+          <div className="agent-composer-shell flex flex-col gap-1.5">
+            <div className="relative min-w-0 w-full">
               <textarea
                 ref={inputRef}
                 value={input}
@@ -1662,112 +1595,112 @@ export function Agent({
                 rows={1}
                 disabled={isThinking}
                 className={cn(
-                  'w-full rounded-xl bg-surface-input border border-border-subtle type-body text-text-primary placeholder:text-text-tertiary focus:outline-none resize-none',
+                  'w-full rounded-xl bg-surface-secondary/80 border-0 type-meta text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-brand-500/35 resize-none',
                   embedded ? 'px-3 py-2' : 'px-4 py-3',
-                  quietModes ? 'focus:border-border-default' : 'focus:border-brand-500/50',
                 )}
                 style={{ minHeight: embedded ? '38px' : '46px', maxHeight: '120px' }}
               />
             </div>
-            {/* OPT-K75 — tools beside field (never absolute-over placeholder on phone) */}
-            <div className="agent-composer-tools flex items-end gap-0.5 shrink-0 self-end pb-0.5" data-testid="agent-composer-tools">
-              <button
-                type="button"
-                aria-label={voiceListening ? t('agentVoiceListening') : t('agentVoiceInput')}
-                data-testid="agent-voice-input"
-                aria-pressed={voiceListening}
-                onClick={handleToggleVoice}
-                disabled={isThinking}
-                title={voiceListening ? t('agentVoiceListening') : t('agentVoiceInput')}
-                className={cn(
-                  'inline-flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-lg px-1.5 py-1 hover:bg-surface-hover text-text-secondary',
-                  voiceListening && 'text-accent-rose bg-accent-rose/10',
-                )}
-              >
-                <Mic className={cn('w-4 h-4', voiceListening && 'animate-pulse')} aria-hidden="true" />
-                {/* Wave E13 — always show captions: notebook AI column is often <sm */}
-                <span className="type-caption leading-none text-text-muted">
-                  {t('agentComposerVoice')}
-                </span>
-              </button>
-              <button
-                type="button"
-                aria-label={t('agentSearchSources')}
-                onClick={handleSearchSources}
-                title={t('agentSearchSources')}
-                className={cn(
-                  'inline-flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-lg px-1.5 py-1 hover:bg-surface-hover text-text-secondary',
-                  attachSource && 'text-text-primary',
-                )}
-              >
-                <Search className="w-4 h-4" aria-hidden="true" />
-                <span className="type-caption leading-none text-text-muted">
-                  {t('agentComposerSources')}
-                </span>
-              </button>
-              <div className="relative">
+            <div
+              className="agent-composer-toolbar flex w-full items-center gap-1"
+              data-testid="agent-composer-toolbar"
+            >
+              <div className="agent-composer-tools flex items-center gap-0.5 min-w-0" data-testid="agent-composer-tools">
                 <button
                   type="button"
-                  aria-label={t('agentAttachFile')}
-                  aria-expanded={showAttachPicker}
-                  title={t('agentAttachFile')}
-                  onClick={() => {
-                    setShowAttachPicker((v) => !v);
-                    setShowSourceSettings(false);
-                  }}
+                  aria-label={voiceListening ? t('agentVoiceListening') : t('agentVoiceInput')}
+                  data-testid="agent-voice-input"
+                  aria-pressed={voiceListening}
+                  onClick={handleToggleVoice}
+                  disabled={isThinking}
+                  title={voiceListening ? t('agentVoiceListening') : t('agentVoiceInput')}
                   className={cn(
                     'inline-flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-lg px-1.5 py-1 hover:bg-surface-hover text-text-secondary',
-                    pinnedFileId && 'text-text-primary',
+                    voiceListening && 'text-accent-rose bg-accent-rose/10',
                   )}
                 >
-                  <FileText className="w-4 h-4" aria-hidden="true" />
+                  <Mic className={cn('w-4 h-4', voiceListening && 'animate-pulse')} aria-hidden="true" />
                   <span className="type-caption leading-none text-text-muted">
-                    {t('agentComposerFile')}
+                    {t('agentComposerVoice')}
                   </span>
                 </button>
-                {showAttachPicker && (
-                  <div className="absolute right-0 bottom-full mb-1 z-20 w-64 max-h-48 overflow-y-auto rounded-xl border border-border-subtle bg-surface-card shadow-lg p-2 type-caption">
-                    <p className="px-2 py-1 font-medium text-text-secondary">{ui.attachFileTitle}</p>
-                    {analyzedFiles.length === 0 ? (
-                      <p className="px-2 py-2 text-text-muted">{ui.noAnalyzedFiles}</p>
-                    ) : (
-                      analyzedFiles.map((file) => (
-                        <button
-                          key={file.id}
-                          type="button"
-                          onClick={() => handlePinFile(file.id)}
-                          className={cn(
-                            'w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover truncate',
-                            pinnedFileId === file.id
-                              ? quietModes
-                                ? 'text-text-primary bg-surface-secondary'
-                                : 'text-text-primary bg-surface-secondary'
-                              : 'text-text-secondary',
-                          )}
-                        >
-                          {file.name}
-                        </button>
-                      ))
+                <button
+                  type="button"
+                  aria-label={t('agentSearchSources')}
+                  onClick={handleSearchSources}
+                  title={t('agentSearchSources')}
+                  className={cn(
+                    'inline-flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-lg px-1.5 py-1 hover:bg-surface-hover text-text-secondary',
+                    attachSource && 'text-text-primary',
+                  )}
+                >
+                  <Search className="w-4 h-4" aria-hidden="true" />
+                  <span className="type-caption leading-none text-text-muted">
+                    {t('agentComposerSources')}
+                  </span>
+                </button>
+                <div className="relative">
+                  <button
+                    type="button"
+                    aria-label={t('agentAttachFile')}
+                    aria-expanded={showAttachPicker}
+                    title={t('agentAttachFile')}
+                    onClick={() => {
+                      setShowAttachPicker((v) => !v);
+                      setShowSourceSettings(false);
+                    }}
+                    className={cn(
+                      'inline-flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-lg px-1.5 py-1 hover:bg-surface-hover text-text-secondary',
+                      pinnedFileId && 'text-text-primary',
                     )}
-                  </div>
-                )}
+                  >
+                    <FileText className="w-4 h-4" aria-hidden="true" />
+                    <span className="type-caption leading-none text-text-muted">
+                      {t('agentComposerFile')}
+                    </span>
+                  </button>
+                  {showAttachPicker && (
+                    <div className="absolute left-0 bottom-full mb-1 z-20 w-64 max-h-48 overflow-y-auto rounded-xl border border-border-subtle bg-surface-card shadow-lg p-2 type-caption">
+                      <p className="px-2 py-1 font-medium text-text-secondary">{ui.attachFileTitle}</p>
+                      {analyzedFiles.length === 0 ? (
+                        <p className="px-2 py-2 text-text-muted">{ui.noAnalyzedFiles}</p>
+                      ) : (
+                        analyzedFiles.map((file) => (
+                          <button
+                            key={file.id}
+                            type="button"
+                            onClick={() => handlePinFile(file.id)}
+                            className={cn(
+                              'w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-hover truncate',
+                              pinnedFileId === file.id
+                                ? 'text-text-primary bg-surface-secondary'
+                                : 'text-text-secondary',
+                            )}
+                          >
+                            {file.name}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
+              <PrimaryCTA
+                type="button"
+                size="sm"
+                onClick={() => void handleSend()}
+                disabled={!input.trim() || isThinking}
+                aria-label={t('agentSendMessage')}
+                data-testid="agent-send"
+                className={cn(
+                  'agent-composer-send ws-touch-floor ml-auto shrink-0 rounded-xl !px-0',
+                  embedded ? 'min-h-9 min-w-9' : 'min-h-11 min-w-11',
+                  (!input.trim() || isThinking) && 'opacity-50',
+                )}
+              >
+                <Send className={cn(embedded ? 'h-4 w-4' : 'h-5 w-5')} aria-hidden="true" />
+              </PrimaryCTA>
             </div>
-            <PrimaryCTA
-              type="button"
-              size="sm"
-              onClick={() => void handleSend()}
-              disabled={!input.trim() || isThinking}
-              aria-label={t('agentSendMessage')}
-              data-testid="agent-send"
-              className={cn(
-                'agent-composer-send ws-touch-floor shrink-0 self-end rounded-xl !px-0',
-                embedded ? 'min-h-9 min-w-9' : 'min-h-11 min-w-11',
-                (!input.trim() || isThinking) && 'opacity-50',
-              )}
-            >
-              <Send className={cn(embedded ? 'h-4 w-4' : 'h-5 w-5')} aria-hidden="true" />
-            </PrimaryCTA>
           </div>
 
           {!embedded && (
@@ -1832,7 +1765,6 @@ function CitationList({
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-1.5 type-caption text-text-tertiary hover:text-text-primary transition-colors"
       >
-        <FileText className="w-3 h-3" />
         {citations.length} {citations.length === 1 ? ui.citationSingular : ui.citationPlural} · {ui.citationToggle}
         <ChevronDown className={cn('w-3 h-3 transition-transform', open && 'rotate-180')} />
       </button>
@@ -1842,7 +1774,6 @@ function CitationList({
             <div key={c.chunkId} className="rounded-lg border border-border-subtle bg-surface-primary/40 px-2.5 py-1.5">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5 type-micro text-text-secondary font-medium min-w-0">
-                  <FileText className="w-3 h-3 shrink-0" />
                   <span className="truncate">{c.fileName}</span>
                   <span className="text-text-muted">· {c.locator}</span>
                   {c.heading && <span className="text-text-muted truncate">· {c.heading}</span>}
@@ -1907,7 +1838,7 @@ function MessageBubble({
     return (
       <div className="text-center">
         <span
-          className="agent-system-status type-caption px-3 py-1.5 rounded-full inline-block max-w-full border border-border-default bg-surface-tertiary text-text-secondary font-medium"
+          className="agent-system-status type-caption px-3 py-1.5 rounded-md inline-block max-w-full border-0 bg-surface-secondary text-text-secondary font-medium"
           data-testid="agent-system-status"
         >
           {message.content}
@@ -1922,18 +1853,12 @@ function MessageBubble({
       className={cn('agent-message-row flex gap-3', isUser && 'flex-row-reverse')}
       data-testid={isUser ? 'agent-message-user' : 'agent-message-assistant'}
     >
-      {!isUser && (
-        <div className="agent-message-avatar w-8 h-8 rounded-lg bg-surface-tertiary border border-border-subtle flex items-center justify-center shrink-0 mt-1" aria-hidden>
-          <Sparkles className="w-4 h-4 text-white" />
-        </div>
-      )}
-
       <div className={cn(
-        /* Wave AG — messages use the full chat column (no 75% gutters) */
-        'agent-message-bubble rounded-xl px-4 py-3 type-body leading-relaxed',
+        /* OPT-K124 — wash bubbles (full chat column, no outline cage) */
+        'agent-message-bubble rounded-xl px-3.5 py-2.5 type-meta leading-relaxed',
         isUser
           ? 'agent-message-bubble-user agent-user-bubble ml-auto max-w-[min(100%,42rem)] rounded-tr-md text-white'
-          : 'agent-message-bubble-assistant mr-auto w-full max-w-none bg-surface-card border border-border-subtle text-text-primary rounded-tl-md',
+          : 'agent-message-bubble-assistant mr-auto w-full max-w-none border-0 bg-surface-secondary/55 text-text-primary rounded-tl-md',
       )}>
         <div>
           {isUser ? (
@@ -1949,12 +1874,12 @@ function MessageBubble({
         {/* Wave E13 — one meta strip: offline (unless session strip) + faithfulness + verified */}
         {showStatusStrip && (
           <div
-            className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-border-subtle bg-surface-secondary/50 px-2.5 py-1.5"
+            className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border-0 bg-surface-primary/50 px-2.5 py-1.5"
             data-testid="agent-message-status-strip"
           >
             {showOfflineMeta && (
               <span
-                className="inline-flex items-center gap-1 type-caption text-accent-amber"
+                className="inline-flex items-center gap-1 type-caption text-text-secondary"
                 data-testid="agent-offline-fallback-badge"
                 title={ui.offlineMode}
               >
@@ -1964,10 +1889,7 @@ function MessageBubble({
             )}
             {message.metadata?.groundingFaithfulness !== undefined && (
               <span
-                className={cn(
-                  'type-caption font-medium',
-                  message.metadata.groundingVerified ? 'text-accent-emerald' : 'text-text-secondary',
-                )}
+                className="type-caption font-medium text-text-secondary"
                 data-testid="agent-faithfulness-score"
               >
                 {t('agentGroundingMetaCollapsed').replace(
@@ -1977,10 +1899,10 @@ function MessageBubble({
               </span>
             )}
             {message.metadata?.groundingVerified === true && (
-              <span className="type-caption text-accent-emerald">{t('agentGroundingMetaVerified')}</span>
+              <span className="type-caption text-text-secondary">{t('agentGroundingMetaVerified')}</span>
             )}
             {message.metadata?.groundingVerified === false && (
-              <span className="inline-flex items-center gap-1 type-caption text-accent-amber">
+              <span className="inline-flex items-center gap-1 type-caption text-text-secondary">
                 <AlertTriangle className="w-3 h-3" aria-hidden />
                 {ui.groundingWarning}
               </span>
@@ -1992,17 +1914,16 @@ function MessageBubble({
           <CitationList citations={message.citations} onGoToSource={onGoToSource} lang={lang} ui={ui} />
         ) : message.sourceReference ? (
           <div className={cn(
-            'agent-message-meta mt-2 pt-2 border-t flex items-center gap-1.5 type-caption',
-            isUser ? 'border-white/20 text-white/70' : 'border-border-subtle text-text-tertiary',
+            'agent-message-meta mt-2 pt-1.5 border-t border-transparent flex items-center gap-1.5 type-caption',
+            isUser ? 'text-white/70' : 'text-text-tertiary',
           )}>
-            <FileText className="w-3 h-3" />
             {message.sourceReference}
           </div>
         ) : null}
 
         {(message.metadata?.groundingClaims?.length ?? 0) > 0 && (
           <details
-            className="mt-2 rounded-lg border border-border-subtle bg-surface-primary/40 px-2.5 py-2"
+            className="mt-2 rounded-lg border-0 bg-surface-primary/50 px-2.5 py-2"
             data-testid="agent-grounding-claims"
           >
             <summary className="cursor-pointer type-caption font-medium text-text-secondary hover:text-text-primary">
@@ -2120,29 +2041,14 @@ function MessageBubble({
           </button>
         )}
 
-        {/* Source attribution labels — OPT-K16 quiet under Minimal; OPT-K74 phone wrap clear of composer */}
-        {!isUser && message.metadata && (
-          <div className="agent-meta-badge-row mt-2 pt-2 border-t border-border-subtle flex items-center gap-1.5 flex-wrap pb-0.5">
+        {/* OPT-K136/K137 — only trust-critical badges (cut RAG/enrichment chrome noise) */}
+        {!isUser && message.metadata && (message.metadata.sourceGrounded || message.metadata.lowRetrieval) && (
+          <div className="agent-meta-badge-row mt-2 pt-2 border-t border-transparent flex items-center gap-1.5 flex-wrap pb-0.5">
             {message.metadata.sourceGrounded && (
-              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded border border-accent-emerald/45 bg-surface-secondary text-text-secondary font-medium">{ui.badgeSourceGrounded}</span>
-            )}
-            {message.metadata.inferenceUsed && (
-              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded bg-surface-secondary text-text-secondary border border-border-subtle font-medium">{ui.badgeAiInference}</span>
-            )}
-            {message.metadata.enrichmentUsed && (
-              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded border border-accent-amber/45 bg-surface-secondary text-text-secondary font-medium">{ui.badgeEnrichment}</span>
-            )}
-            {message.metadata.globalRag && (
-              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded border border-accent-cyan/45 bg-surface-secondary text-text-secondary font-medium">{ui.badgeGlobalRag}</span>
-            )}
-            {message.metadata.graphRag && (
-              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded bg-surface-secondary text-text-secondary border border-border-subtle font-medium">{ui.badgeGraphRag}</span>
-            )}
-            {message.metadata.globalRag === false && message.metadata.sourceGrounded && (
-              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded bg-surface-secondary text-text-secondary border border-border-subtle font-medium">{ui.badgeLocalRag}</span>
+              <span className="agent-meta-badge type-caption px-1.5 py-0.5 rounded border-0 bg-surface-secondary text-text-secondary font-medium">{ui.badgeSourceGrounded}</span>
             )}
             {message.metadata.lowRetrieval && (
-              <span className="agent-meta-badge agent-meta-badge--warn type-caption px-1.5 py-0.5 rounded border border-accent-rose/45 bg-surface-secondary text-text-secondary font-medium">{ui.badgeLowRetrieval}</span>
+              <span className="agent-meta-badge agent-meta-badge--warn type-caption px-1.5 py-0.5 rounded border-0 bg-surface-secondary text-text-secondary font-medium">{ui.badgeLowRetrieval}</span>
             )}
           </div>
         )}

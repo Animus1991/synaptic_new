@@ -352,12 +352,13 @@ export function Shell({
         data-quiet-nav={quietNav ? 'true' : undefined}
         data-rail-collapsed={iconRail ? 'true' : undefined}
         className={cn(
-          'hidden lg:flex flex-col border-r border-border-subtle bg-surface-secondary/50 fixed inset-y-0 left-0 z-30 min-h-0',
+          /* OPT-K116 — rail uses wash; no hard vertical outline cage */
+          'hidden lg:flex flex-col border-r border-transparent bg-surface-secondary/50 fixed inset-y-0 left-0 z-30 min-h-0',
           /* Expanded rail width matches Minimal (w-56) on every theme */
           iconRail ? 'w-14 shell-rail-collapsed' : 'w-56',
         )}
       >
-        <div className={cn('shrink-0 border-b border-border-subtle', iconRail ? 'p-2 space-y-1.5' : 'p-3 space-y-2')}>
+        <div className={cn('shrink-0 border-b border-transparent', iconRail ? 'p-2 space-y-1.5' : 'p-3 space-y-2')}>
           <div className={cn('flex items-center', iconRail ? 'justify-center' : 'gap-2')}>
             <div className="w-8 h-8 rounded-lg platform-brand-icon flex items-center justify-center shrink-0" title="Synapse">
               <SynapseBrandGlyph />
@@ -602,7 +603,7 @@ export function Shell({
           </button>
         </div>
 
-        <div className={cn('shrink-0 border-t border-border-subtle', iconRail ? 'p-1.5' : 'p-3')}>
+        <div className={cn('shrink-0 border-t border-transparent', iconRail ? 'p-1.5' : 'p-3')}>
           <button
             type="button"
             onClick={() => onNavigate('settings')}
@@ -636,10 +637,10 @@ export function Shell({
             role="dialog"
             aria-modal="true"
             aria-label={t('navMobileMenuAria')}
-            className="absolute inset-y-0 left-0 w-72 bg-surface-secondary border-r border-border-subtle flex flex-col"
+            className="absolute inset-y-0 left-0 w-72 bg-surface-secondary border-r border-transparent flex flex-col"
             data-testid="nav-mobile-drawer"
           >
-            <div className="p-4 border-b border-border-subtle flex items-center justify-between">
+            <div className="p-4 border-b border-transparent flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg platform-brand-icon flex items-center justify-center">
                   <SynapseBrandGlyph />
@@ -701,7 +702,7 @@ export function Shell({
               );})}
             </nav>
 
-            <div className="p-3 border-t border-border-subtle">
+            <div className="p-3 border-t border-transparent">
               <button
                 onClick={() => { onUpload(); onToggleSidebar(false); }}
                 className="w-full flex items-center gap-2 px-4 py-3 rounded-xl ws-fab font-medium type-meta"
@@ -727,7 +728,8 @@ export function Shell({
         {/* Top bar — Wave J-D05 dense utility chrome; OPT-K102 flat on Minimal */}
         <header
           className={cn(
-            'sticky top-0 z-20 border-b border-border-subtle',
+            /* OPT-K117 — topbar wash only (no structural hairline) */
+            'sticky top-0 z-20 border-b border-transparent',
             /* Non-Minimal keeps glass; Minimal/flat via .shell-topbar-calm CSS */
             !quietNav && 'glass-strong',
             /* OPT-K94 — calm topbar on every theme (Minimal clarity → non-Minimal) */
@@ -855,14 +857,14 @@ export function Shell({
                 type="button"
                 onClick={onOpenSearch}
                 data-testid="shell-search-button"
-                className="hidden sm:inline-flex h-8 min-h-8 max-h-8 items-center gap-1.5 px-2.5 rounded-lg bg-surface-input border border-border-subtle type-caption text-text-tertiary hover:border-border-default transition-colors"
+                className="hidden sm:inline-flex h-8 min-h-8 max-h-8 items-center gap-1.5 px-2.5 rounded-lg bg-surface-secondary/80 border-0 type-caption text-text-tertiary hover:bg-surface-hover transition-colors"
                 title={t('shellSearchTitle').replace('{shortcut}', commandPaletteBadge())}
                 aria-label={`${t('search')} ${commandPaletteBadge()}`}
               >
                 <Search className="w-3.5 h-3.5" aria-hidden />
                 <span className="hidden xl:inline">{t('search')}</span>
                 <kbd
-                  className="type-caption bg-surface-secondary px-1 py-0.5 rounded border border-border-subtle font-mono text-text-primary"
+                  className="type-caption bg-surface-primary/70 px-1 py-0.5 rounded border-0 font-mono text-text-primary"
                   data-testid="shell-search-shortcut"
                   aria-hidden
                 >
@@ -940,7 +942,7 @@ export function Shell({
                     /* OPT-K78 — match topbar control height (h-8), not full --btn-height */
                     'hidden sm:inline-flex h-8 min-h-8 max-h-8 items-center gap-1.5 px-2.5 rounded-lg type-caption font-semibold leading-none transition-colors whitespace-nowrap',
                     currentView === 'tasks'
-                      ? 'shell-start-session shell-start-session-on-tasks border border-border-subtle bg-transparent text-text-secondary hover:bg-surface-hover hover:text-text-primary'
+                      ? 'shell-start-session shell-start-session-on-tasks border-0 bg-surface-secondary/70 text-text-secondary hover:bg-surface-hover hover:text-text-primary'
                       : quietNav
                         ? 'shell-start-session ux-primary-cta'
                         : 'bg-brand-700 text-white hover:bg-brand-800',
@@ -1088,7 +1090,7 @@ export function Shell({
           data-testid="platform-mobile-nav"
           data-quiet-nav={quietNav ? 'true' : undefined}
           tabIndex={-1}
-          className="lg:hidden fixed bottom-0 left-0 right-0 z-30 glass-strong border-t border-border-subtle outline-none pb-[env(safe-area-inset-bottom,0px)]"
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-30 glass-strong border-t border-transparent outline-none pb-[env(safe-area-inset-bottom,0px)]"
         >
           <div className="flex items-center justify-around min-h-16 px-1 py-1">
             {mobileNavItems.map((item) => {

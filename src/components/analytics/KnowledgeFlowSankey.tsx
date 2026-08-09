@@ -37,7 +37,7 @@ export function KnowledgeFlowSankeyChart({ links, title, hint, emptyLabel, hasDa
         {title}
       </h3>
       <p className="type-caption text-text-tertiary mb-4">{hint}</p>
-      <div className="overflow-x-auto rounded-xl border border-border-subtle bg-surface-primary/40 p-3">
+      <div className="overflow-x-auto rounded-xl border-0 bg-surface-primary/40 p-3">
         <svg viewBox="0 0 1000 240" className="h-[280px] w-full min-w-[640px]" role="img" aria-label={title}>
           {links.map((link) => {
             const from = layout[link.from as keyof typeof layout];
@@ -124,7 +124,7 @@ export function MasteryWaterfallChart({
     <div className="ux-card blueprint-surface" data-testid="mastery-waterfall">
       <h3 className="type-meta font-semibold text-text-primary mb-1">{title}</h3>
       <p className="type-caption text-text-tertiary mb-4">{hint}</p>
-      <div className="overflow-x-auto rounded-xl border border-border-subtle bg-surface-primary/40 p-3">
+      <div className="overflow-x-auto rounded-xl border-0 bg-surface-primary/40 p-3">
         <svg viewBox="0 0 780 280" className="h-[280px] w-full min-w-[520px]" role="img" aria-label={title}>
           {cumulative.map((step, i) => {
             const x = i * (780 / cumulative.length) + 12;
@@ -195,8 +195,8 @@ export function MasteryWaterfallChart({
           <div
             key={s.label}
             className={cn(
-              'rounded-xl border p-3 type-body',
-              s.delta >= 0 ? 'border-accent-emerald/25 bg-accent-emerald/5' : 'border-accent-rose/25 bg-accent-rose/5',
+              'rounded-xl border-0 p-3 type-body',
+              s.delta >= 0 ? 'bg-accent-emerald/5' : 'bg-accent-rose/5',
             )}
           >
             <div className="font-semibold text-text-primary">

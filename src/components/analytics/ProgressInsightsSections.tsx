@@ -44,12 +44,12 @@ export function ProgressKpiRow({ kpis }: { kpis: ProgressKpi[] }) {
       {kpis.map((kpi, i) => {
         const Icon = KPI_ICONS[i] ?? Brain;
         return (
-          <div key={kpi.label} className="ux-card p-2.5">
+          <div key={kpi.label} className="ux-card border-0 bg-surface-secondary/50 p-2.5 min-h-[4.5rem]">
             <div className="flex items-center gap-1.5 mb-0.5">
               <Icon className="w-3.5 h-3.5 text-text-tertiary" />
-              <span className="type-micro uppercase tracking-wide text-text-tertiary truncate"><AllCapsLabel>{kpi.label}</AllCapsLabel></span>
+              <span className="type-micro font-medium text-text-muted truncate"><AllCapsLabel>{kpi.label}</AllCapsLabel></span>
             </div>
-            <p className="text-sm font-bold tabular-nums text-text-primary sm:text-base">{kpi.value}</p>
+            <p className="ux-kpi-value-sm">{kpi.value}</p>
             <p className={cn(
               'type-micro mt-0.5',
               kpi.tone === 'good' || kpi.tone === 'warn' ? 'ink-allow-accent' : null,
@@ -73,7 +73,7 @@ export function ConfidenceBucketChart({ buckets, title }: { buckets: ConfidenceB
         {buckets.map((bucket) => (
           <div
             key={bucket.rangeLabel}
-            className="min-w-0 rounded-lg border border-border-subtle/80 bg-surface-card/50 px-1 py-2 text-center"
+            className="min-w-0 rounded-lg border-0 bg-surface-secondary/50 px-1 py-2 text-center"
           >
             <p className="text-sm font-bold tabular-nums text-text-primary sm:text-base">
               {bucket.sampleCount === 0 ? '—' : `${bucket.correctPct}%`}
@@ -157,10 +157,10 @@ export function LearnerInsightCards({ insights, title }: { insights: ProgressIns
           <div
             key={i}
             className={cn(
-              'p-3 rounded-xl border',
-              ins.tone === 'good' ? 'border-accent-emerald/20 bg-accent-emerald/5' :
-              ins.tone === 'warn' ? 'border-accent-amber/20 bg-accent-amber/5' :
-              'border-border-subtle bg-surface-hover/40',
+              'p-3 rounded-xl border-0',
+              ins.tone === 'good' ? 'bg-accent-emerald/5' :
+              ins.tone === 'warn' ? 'bg-accent-amber/5' :
+              'bg-surface-secondary/50',
             )}
           >
             <p className="type-body font-medium text-text-primary">{ins.insight}</p>

@@ -66,7 +66,7 @@ export function ConceptMasteryHeatmapChart({
       <p className="type-caption text-text-tertiary mb-4">{hint}</p>
 
       {hover && (
-        <div className="mb-3 inline-flex items-center gap-3 rounded-2xl border border-border-subtle bg-surface-card/60 px-4 py-2 type-body">
+        <div className="mb-3 inline-flex items-center gap-3 rounded-2xl border-0 bg-surface-card/60 px-4 py-2 type-body">
           <span
             className="h-3 w-3 rounded shrink-0"
             style={{ backgroundColor: masteryColorForValue(hover.mastery) }}
@@ -77,7 +77,7 @@ export function ConceptMasteryHeatmapChart({
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-xl border border-border-subtle bg-surface-primary/40 p-4">
+      <div className="overflow-x-auto rounded-xl border-0 bg-surface-primary/40 p-4">
         <div className="min-w-[640px]">
           <div className="mb-2 flex">
             <div className="w-28 shrink-0" />

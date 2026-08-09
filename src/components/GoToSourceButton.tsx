@@ -1,4 +1,3 @@
-import { MapPin } from '@/lib/lucide-shim';
 import { cn } from '../utils/cn';
 import { useI18n } from '../lib/i18n';
 
@@ -9,7 +8,7 @@ interface Props {
   lang?: 'en' | 'el';
 }
 
-/* OPT-K101 — residual markup debt: decorative brand type -> ink */
+/* OPT-K101 / OPT-K136 — text-led control (no decorative pin icon) */
 export function GoToSourceButton({ onClick, label, className }: Props) {
   const { t } = useI18n();
   const text = label ?? t('goToSource');
@@ -23,7 +22,6 @@ export function GoToSourceButton({ onClick, label, className }: Props) {
         className,
       )}
     >
-      <MapPin className="w-3 h-3 shrink-0" />
       {text}
     </button>
   );

@@ -217,6 +217,9 @@ export function Analytics({
         {...warmSandScopeProps(warmSandPage)}
         className={cn(isMinimal && 'enterprise-calm analytics-quiet')}
         data-testid="analytics-page"
+        data-type-rhythm="dashboard"
+        /* OPT-K128 / OPT-K130 — Analytics clarity: CTA-only border diet (wash panels) */
+        data-border-diet="cta-only"
       >
       <Page gap="sm">
         <PageHeader
@@ -344,7 +347,7 @@ function OverviewTab({
           <button
             type="button"
             data-testid="analytics-flow-banner"
-            className="w-full flex items-center gap-3 rounded-xl border border-border-subtle bg-surface-card/70 px-3.5 py-2.5 text-left transition-colors hover:bg-surface-hover hover:border-brand-500/30"
+            className="w-full flex items-center gap-3 rounded-xl border-0 bg-surface-secondary/55 px-3.5 py-2.5 text-left transition-colors hover:bg-surface-hover"
             onClick={() => {
               const el = document.querySelector('[data-testid="analytics-flow-disclosure"]') as HTMLDetailsElement | null;
               if (el) {
@@ -396,28 +399,26 @@ function OverviewTab({
         >
           <SectionLabel icon={Brain}>{t('analyticsFsrsForecastTitle')}</SectionLabel>
           <p className="type-micro text-text-muted mb-2.5">{t('analyticsFsrsForecastHint')}</p>
-          <div className="grid grid-cols-3 gap-2.5 mb-2.5">
-            <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
+          {/* OPT-K128 — denser wash FSRS tiles (width parity with KPI rhythm) */}
+          <div className="grid grid-cols-3 gap-2.5 mb-2.5" data-testid="analytics-fsrs-kpi-row">
+            <div className="rounded-xl border-0 bg-surface-secondary/50 px-3 py-2 min-h-[3.75rem]">
               <p className="type-micro text-text-muted">{t('analyticsFsrsRetrievability')}</p>
               <p className="ux-kpi-value-sm">
                 {Math.round(fsrsSummary.avgRetrievabilityToday * 100)}%
               </p>
             </div>
-            <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
+            <div className="rounded-xl border-0 bg-surface-secondary/50 px-3 py-2 min-h-[3.75rem]">
               <p className="type-micro text-text-muted">{t('analyticsFsrsDueWeek')}</p>
               <p className="ux-kpi-value-sm">{fsrsSummary.dueNext7Days}</p>
             </div>
-            <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
+            <div className="rounded-xl border-0 bg-surface-secondary/50 px-3 py-2 min-h-[3.75rem]">
               <p className="type-micro text-text-muted">{t('analyticsFsrsTracked')}</p>
               <p className="ux-kpi-value-sm">{fsrsSummary.trackedConcepts}</p>
             </div>
           </div>
-          {/* Wave P-C02 — forecast bars wrapped in soft track so the row reads as
-              a chart even when data is sparse; bars use --viz-bar-fill (theme-aware
-              WCAG ≥3:1 vs surface-card in all 5 themes). */}
+          {/* OPT-K130 — quiet FSRS spark columns (no solid purple cage track) */}
           <div
-            className="flex items-end gap-1 h-20 rounded-lg p-1"
-            style={{ backgroundColor: 'var(--viz-bar-track)' }}
+            className="flex items-end gap-1.5 h-16 rounded-lg px-0.5"
             data-testid="analytics-fsrs-day-bars"
           >
             {fsrsForecast.map((point) => {
@@ -429,15 +430,17 @@ function OverviewTab({
                     : point.dayOffset === 3 || point.dayOffset === 7 || point.dayOffset === 14
                       ? t('analyticsRetentionDayPlus').replace('{n}', String(point.dayOffset))
                       : '';
+              const pct = Math.max(0, Math.min(1, point.avgRetrievability));
               return (
-              <div key={point.dayOffset} className="flex-1 flex flex-col items-center gap-0.5 min-w-0 h-full justify-end">
+              <div key={point.dayOffset} className="flex-1 flex flex-col items-center gap-1 min-w-0 h-full justify-end">
                 <div
-                  className="w-full rounded-t min-h-[6px]"
+                  className="w-[55%] max-w-[10px] rounded-full min-h-[4px] mx-auto"
                   style={{
-                    height: `${Math.max(10, point.avgRetrievability * 100)}%`,
+                    height: `${Math.max(8, pct * 100)}%`,
                     backgroundColor: 'var(--viz-bar-fill)',
+                    opacity: 0.35 + pct * 0.55,
                   }}
-                  title={`${label || `D+${point.dayOffset}`}: ${Math.round(point.avgRetrievability * 100)}%`}
+                  title={`${label || `D+${point.dayOffset}`}: ${Math.round(pct * 100)}%`}
                 />
                 <span className="h-3 type-micro text-text-muted tabular-nums leading-none truncate w-full text-center">
                   {label}
@@ -449,167 +452,161 @@ function OverviewTab({
         </motion.div>
       )}
 
-      {/* Unified masonry — Weekly / Heatmap / Courses / Concepts / Calibration.
-          Two separate column blocks left a full-width void under the short Weekly
-          card (row height = Heatmap). One Settings-style pack fills that hole. */}
+      {/* OPT-K130 — equal-width 3-col pack (no CSS-columns stagger) */}
       <div
-        className="lg:columns-3 lg:gap-3 [&>*]:mb-3 [&>*]:break-inside-avoid space-y-3 lg:space-y-0"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-3 items-start"
         data-testid="analytics-overview-mastery-row"
       >
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
-          <h3 className="type-meta font-semibold flex items-center gap-2 mb-2.5"><TrendingUp className="w-4 h-4 text-accent-emerald" />{t('analyticsWeeklyTrend')}</h3>
-          <div className="flex items-end gap-1.5 h-28" data-testid="analytics-weekly-trend">
-            {weekly.map((val, i) => (
-              <div key={i} className="analytics-weekly-col flex h-full flex-1 flex-col items-center justify-end gap-1 min-h-0">
-                {/* Wave P-C01 + OPT-K15 — % sits with day label (proximity); fills use viz tokens. */}
-                <div
-                  className="analytics-weekly-bar w-full rounded-t transition-all duration-500"
-                  style={{
-                    height: `${Math.max(6, val * 1.2)}%`,
-                    backgroundColor: i === weekly.length - 1
-                      ? 'var(--viz-bar-fill)'
-                      : 'var(--viz-bar-fill-muted)',
-                  }}
-                  title={`${val}%`}
-                />
-                <span className="analytics-weekly-meta flex items-baseline gap-0.5 type-micro text-text-muted leading-none">
-                  <span>{t(WEEKDAY_KEYS[i]!)}</span>
-                  <span className="tabular-nums font-medium text-text-secondary">{val}%</span>
-                </span>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="platform-panel-md">
-          <h3 className="type-meta font-semibold flex items-center gap-2 mb-2.5"><Calendar className="w-4 h-4 text-accent-teal" />{t('analyticsStudyHeatmap')}</h3>
-          {/* Wave P-C03 — heatmap driven by --color-heatmap-scale-{0..4} tokens.
-              Retires ad-hoc bg-surface-hover / bg-brand-* classes that collapsed
-              to invisible ~1.1:1 contrast on spectrum + warm-light cards. Sepia
-              branch kept for backward compatibility with earlier K-T02 identity,
-              but tokens now override in the sepia themes too. */}
-          <div className="grid grid-cols-[repeat(13,1fr)] gap-[3px]" data-testid="analytics-heatmap-grid">
-            {learnerModel.heatmapData.slice(-91).map((day, i) => {
-              const intensity = day.minutes === 0 ? 0 : day.minutes < 15 ? 1 : day.minutes < 30 ? 2 : day.minutes < 60 ? 3 : 4;
-              const heatmapVar = `var(--color-heatmap-scale-${intensity})`;
-              return (
-                <div
-                  key={i}
-                  className="heatmap-cell w-full aspect-square rounded-[2px]"
-                  style={{ backgroundColor: heatmapVar }}
-                  title={formatHeatmapDayTooltip(day.date, day.minutes, lang)}
-                />
-              );
-            })}
-          </div>
-          <div className="flex items-center justify-end gap-1 mt-2 type-micro text-text-muted">
-            <span>{t('analyticsHeatmapLess')}</span>
-            {[0, 1, 2, 3, 4].map((step) => (
-              <div
-                key={step}
-                className="w-2.5 h-2.5 rounded-[2px]"
-                style={{ backgroundColor: `var(--color-heatmap-scale-${step})` }}
-              />
-            ))}
-            <span>{t('analyticsHeatmapMore')}</span>
-          </div>
-        </motion.div>
-
-        <div className="platform-panel-md">
-          <h3 className="type-meta font-semibold mb-2.5 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-text-secondary" />
-            {t('analyticsCoursesColumn')}
-          </h3>
-          <div className="space-y-2">
-            {courses.filter(c => c.status !== 'generating').slice(0, 6).map(course => (
-              <div key={course.id} className="flex items-center gap-2">
-                <CourseIcon icon={course.icon} size="sm" colorClassName="text-text-secondary shrink-0" />
-                <span className="type-caption text-text-secondary flex-1 truncate">{course.title}</span>
-                {/* Wave P-2 C08 — Courses column progress track uses --viz-bar-track
-                    (theme-tuned ≥3:1 vs card) instead of bg-surface-hover which
-                    collapsed to ~1.1:1 on spectrum + warm-light. */}
-                <div className="w-16 rounded-full h-1.5 shrink-0" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
+        <div className="space-y-3 min-w-0">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
+            <h3 className="type-meta font-semibold flex items-center gap-2 mb-2.5"><TrendingUp className="w-4 h-4 text-text-secondary" />{t('analyticsWeeklyTrend')}</h3>
+            <div className="flex items-end gap-1.5 h-28" data-testid="analytics-weekly-trend">
+              {weekly.map((val, i) => (
+                <div key={i} className="analytics-weekly-col flex h-full flex-1 flex-col items-center justify-end gap-1 min-h-0">
                   <div
-                    className="analytics-course-bar-fill h-1.5 rounded-full"
-                    style={{ width: `${course.mastery}%`, backgroundColor: resolveCourseColor(course.color) }}
+                    className="analytics-weekly-bar w-[70%] max-w-[14px] rounded-full transition-all duration-500"
+                    style={{
+                      height: `${Math.max(6, val * 1.2)}%`,
+                      backgroundColor: i === weekly.length - 1
+                        ? 'var(--viz-bar-fill)'
+                        : 'var(--viz-bar-fill-muted)',
+                      opacity: i === weekly.length - 1 ? 0.95 : 0.55,
+                    }}
+                    title={`${val}%`}
                   />
-                </div>
-                <span className="type-micro font-semibold tabular-nums w-8 text-right shrink-0">{course.mastery}%</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="platform-panel-md">
-          <h3 className="type-meta font-semibold mb-2.5 flex items-center gap-2">
-            <Brain className="w-4 h-4 text-accent-cyan" />
-            {t('analyticsConceptsColumn')}
-          </h3>
-          <div className="space-y-2">
-            {[...learnerModel.weakAreas, ...learnerModel.almostKnown, ...learnerModel.strongAreas]
-              .slice(0, 6)
-              .map((skill) => (
-                <div key={skill.concept} className="flex items-center gap-2">
-                  <span className="type-caption text-text-secondary flex-1 truncate">{skill.concept}</span>
-                  {/* Wave P-2 C08 — Concepts column progress track uses --viz-bar-track. */}
-                  <div className="w-16 rounded-full h-1.5 shrink-0" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
-                    <div
-                      className={cn(
-                        'h-1.5 rounded-full',
-                        skill.mastery >= 75 ? 'bg-accent-emerald' : skill.mastery >= 50 ? 'bg-accent-amber' : 'bg-accent-rose',
-                      )}
-                      style={{ width: `${Math.max(3, skill.mastery)}%` }}
-                    />
-                  </div>
-                  <span className="type-micro font-semibold tabular-nums w-8 text-right">{Math.round(skill.mastery)}%</span>
+                  <span className="analytics-weekly-meta flex items-baseline gap-0.5 type-micro text-text-muted leading-none">
+                    <span>{t(WEEKDAY_KEYS[i]!)}</span>
+                    <span className="tabular-nums font-medium text-text-secondary">{val}%</span>
+                  </span>
                 </div>
               ))}
+            </div>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="platform-panel-md">
+            <h3 className="type-meta font-semibold flex items-center gap-2 mb-2.5"><Calendar className="w-4 h-4 text-text-secondary" />{t('analyticsStudyHeatmap')}</h3>
+            <div className="grid grid-cols-[repeat(13,1fr)] gap-[3px]" data-testid="analytics-heatmap-grid">
+              {learnerModel.heatmapData.slice(-91).map((day, i) => {
+                const intensity = day.minutes === 0 ? 0 : day.minutes < 15 ? 1 : day.minutes < 30 ? 2 : day.minutes < 60 ? 3 : 4;
+                const heatmapVar = `var(--color-heatmap-scale-${intensity})`;
+                return (
+                  <div
+                    key={i}
+                    className="heatmap-cell w-full aspect-square rounded-[2px]"
+                    style={{ backgroundColor: heatmapVar }}
+                    title={formatHeatmapDayTooltip(day.date, day.minutes, lang)}
+                  />
+                );
+              })}
+            </div>
+            <div className="flex items-center justify-end gap-1 mt-2 type-micro text-text-muted">
+              <span>{t('analyticsHeatmapLess')}</span>
+              {[0, 1, 2, 3, 4].map((step) => (
+                <div
+                  key={step}
+                  className="w-2.5 h-2.5 rounded-[2px]"
+                  style={{ backgroundColor: `var(--color-heatmap-scale-${step})` }}
+                />
+              ))}
+              <span>{t('analyticsHeatmapMore')}</span>
+            </div>
+          </motion.div>
+        </div>
+
+        <div className="space-y-3 min-w-0">
+          <div className="platform-panel-md">
+            <h3 className="type-meta font-semibold mb-2.5 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-text-secondary" />
+              {t('analyticsCoursesColumn')}
+            </h3>
+            <div className="space-y-2">
+              {courses.filter(c => c.status !== 'generating').slice(0, 6).map(course => (
+                <div key={course.id} className="flex items-center gap-2">
+                  <CourseIcon icon={course.icon} size="sm" colorClassName="text-text-secondary shrink-0" />
+                  <span className="type-caption text-text-secondary flex-1 truncate">{course.title}</span>
+                  <div className="w-16 rounded-full h-1 shrink-0" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
+                    <div
+                      className="analytics-course-bar-fill h-1 rounded-full"
+                      style={{ width: `${course.mastery}%`, backgroundColor: resolveCourseColor(course.color) }}
+                    />
+                  </div>
+                  <span className="type-micro font-semibold tabular-nums w-8 text-right shrink-0">{course.mastery}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="platform-panel-md">
+            <h3 className="type-meta font-semibold mb-2.5 flex items-center gap-2">
+              <Brain className="w-4 h-4 text-text-secondary" />
+              {t('analyticsConceptsColumn')}
+            </h3>
+            <div className="space-y-2">
+              {[...learnerModel.weakAreas, ...learnerModel.almostKnown, ...learnerModel.strongAreas]
+                .slice(0, 6)
+                .map((skill) => (
+                  <div key={skill.concept} className="flex items-center gap-2">
+                    <span className="type-caption text-text-secondary flex-1 truncate">{skill.concept}</span>
+                    <div className="w-16 rounded-full h-1 shrink-0" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
+                      <div
+                        className={cn(
+                          'h-1 rounded-full',
+                          skill.mastery >= 75 ? 'bg-accent-emerald' : skill.mastery >= 50 ? 'bg-accent-amber' : 'bg-accent-rose',
+                        )}
+                        style={{ width: `${Math.max(3, skill.mastery)}%` }}
+                      />
+                    </div>
+                    <span className="type-micro font-semibold tabular-nums w-8 text-right">{Math.round(skill.mastery)}%</span>
+                  </div>
+                ))}
+            </div>
           </div>
         </div>
-        <div className="platform-panel-md">
-          <h3 className="type-meta font-semibold mb-2.5 flex items-center gap-2">
-            <Eye className="w-4 h-4 text-accent-amber" />
-            {t('analyticsCalibrationColumn')}
-          </h3>
-          <div className="space-y-2">
-            {learnerModel.confidenceCalibration.slice(0, 5).map((point, i) => {
-              const gap = Math.abs(point.predicted - point.actual);
-              const overconfident = point.predicted > point.actual;
-              return (
-                <div key={i} className="space-y-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="type-caption text-text-secondary truncate">{point.concept}</span>
-                    {/* Wave P-3 C15 — over/under labels use --color-calibration-*
-                        tokens (theme-tuned ≥4.5:1 on white cards). */}
-                    <span
-                      className={cn(
-                        'type-micro font-medium inline-flex items-center gap-0.5 shrink-0',
-                        gap <= 0.2 && 'text-accent-emerald',
-                      )}
-                      style={gap > 0.2 ? {
-                        color: overconfident
-                          ? 'var(--color-calibration-over)'
-                          : 'var(--color-calibration-under)',
-                      } : undefined}
-                    >
-                      {gap > 0.2
-                        ? (overconfident
-                          ? <><ArrowUpRight className="w-3 h-3" aria-hidden />{t('analyticsOverconfident')}</>
-                          : <><ArrowDownRight className="w-3 h-3" aria-hidden />{t('analyticsUnderconfident')}</>)
-                        : <><Minus className="w-3 h-3" aria-hidden />{t('analyticsCalibrated')}</>}
-                    </span>
+
+        <div className="min-w-0">
+          <div className="platform-panel-md h-full">
+            <h3 className="type-meta font-semibold mb-2.5 flex items-center gap-2">
+              <Eye className="w-4 h-4 text-text-secondary" />
+              {t('analyticsCalibrationColumn')}
+            </h3>
+            <div className="space-y-2">
+              {learnerModel.confidenceCalibration.slice(0, 5).map((point, i) => {
+                const gap = Math.abs(point.predicted - point.actual);
+                const overconfident = point.predicted > point.actual;
+                return (
+                  <div key={i} className="space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="type-caption text-text-secondary truncate">{point.concept}</span>
+                      <span
+                        className={cn(
+                          'type-micro font-medium inline-flex items-center gap-0.5 shrink-0',
+                          gap <= 0.2 && 'text-accent-emerald',
+                        )}
+                        style={gap > 0.2 ? {
+                          color: overconfident
+                            ? 'var(--color-calibration-over)'
+                            : 'var(--color-calibration-under)',
+                        } : undefined}
+                      >
+                        {gap > 0.2
+                          ? (overconfident
+                            ? <><ArrowUpRight className="w-3 h-3" aria-hidden />{t('analyticsOverconfident')}</>
+                            : <><ArrowDownRight className="w-3 h-3" aria-hidden />{t('analyticsUnderconfident')}</>)
+                          : <><Minus className="w-3 h-3" aria-hidden />{t('analyticsCalibrated')}</>}
+                      </span>
+                    </div>
+                    <CalibrationCompareBar
+                      predictedPct={point.predicted * 100}
+                      actualPct={point.actual * 100}
+                      youLabel={`${t('analyticsCalibrationYou')}: ${Math.round(point.predicted * 100)}%`}
+                      actualLabel={`${t('analyticsCalibrationActual')}: ${Math.round(point.actual * 100)}%`}
+                    />
                   </div>
-                  <CalibrationCompareBar
-                    predictedPct={point.predicted * 100}
-                    actualPct={point.actual * 100}
-                    youLabel={`${t('analyticsCalibrationYou')}: ${Math.round(point.predicted * 100)}%`}
-                    actualLabel={`${t('analyticsCalibrationActual')}: ${Math.round(point.actual * 100)}%`}
-                  />
-                </div>
-              );
-            })}
-            {learnerModel.confidenceCalibration.length === 0 && (
-              <p className="type-caption text-text-muted py-4 text-center">{t('analyticsResearchEmpty')}</p>
-            )}
+                );
+              })}
+              {learnerModel.confidenceCalibration.length === 0 && (
+                <p className="type-caption text-text-muted py-4 text-center">{t('analyticsResearchEmpty')}</p>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -739,7 +736,7 @@ function OverviewTab({
 
       {/* L-A04: sticky Visual Lab footer (canvas) — keeps disclosure body intact */}
       <div
-        className="analytics-visual-lab-footer sticky bottom-2 z-20 mt-3 rounded-xl border border-border-subtle bg-surface-card/95 shadow-sm backdrop-blur-sm"
+        className="analytics-visual-lab-footer sticky bottom-2 z-20 mt-3 rounded-xl border-0 bg-surface-card/95 shadow-none backdrop-blur-sm"
         data-testid="analytics-visual-lab-footer"
       >
         <button
@@ -874,7 +871,7 @@ function MasteryTab({
           ))}
         </div>
       </motion.div>
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="ux-banner-warn rounded-panel border border-accent-amber/20 bg-accent-amber/5 p-5">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="ux-banner-warn rounded-panel border-0 bg-accent-amber/5 p-5">
         <h3 className="ux-banner-warn-accent type-meta font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-4 h-4" aria-hidden />{t('analyticsAlmostKnown')}</h3>
         <div className="space-y-3">
           {learnerModel.almostKnown.map(a => (
@@ -886,7 +883,7 @@ function MasteryTab({
         <h3 className="type-meta font-semibold flex items-center gap-2 mb-4"><Brain className="w-4 h-4 text-accent-rose" />{t('analyticsActiveMisconceptions')}</h3>
         <div className="space-y-3">
           {learnerModel.misconceptions.map(m => (
-            <div key={m.id} className="p-3 rounded-xl bg-accent-rose/5 border border-accent-rose/20">
+            <div key={m.id} className="p-3 rounded-xl border-0 bg-accent-rose/5">
               <div className="flex items-center justify-between mb-1">
                 <span className="type-meta font-medium text-accent-rose">{m.concept}</span>
                 <span className={cn('type-micro px-2 py-0.5 rounded-full font-medium', m.corrected ? 'bg-accent-emerald/10 text-accent-emerald' : 'bg-accent-rose/10 text-accent-rose')}>
@@ -963,7 +960,7 @@ function BehaviorTab({
         <h3 className="type-meta font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-4 h-4 text-accent-orange" />{t('analyticsErrorPatterns')}</h3>
         <div className="space-y-3">
           {learnerModel.errorPatterns.map((p, i) => (
-            <div key={i} className="p-4 rounded-xl bg-surface-primary/50 border border-border-subtle">
+            <div key={i} className="p-4 rounded-xl border-0 bg-surface-secondary/50">
               <div className="flex items-center justify-between mb-2">
                 <span className="type-meta font-medium">{p.type}</span>
                 <span className={cn('type-micro px-2 py-0.5 rounded-full font-medium capitalize',
@@ -996,7 +993,7 @@ function BehaviorTab({
           <h3 className="type-meta font-semibold mb-4">{t('analyticsAdaptiveModelVars')}</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {modelVars.map((item) => (
-              <div key={item.labelKey} className="p-3 rounded-xl bg-surface-primary/50 border border-border-subtle text-center">
+              <div key={item.labelKey} className="p-3 rounded-xl border-0 bg-surface-secondary/50 text-center">
                 <p className="type-micro text-text-muted mb-1">{t(item.labelKey)}</p>
                 <p className="type-meta font-semibold capitalize">{item.value}</p>
               </div>
@@ -1042,13 +1039,13 @@ function InsightsTab({
         </motion.div>
       )}
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-panel border border-brand-500/20 bg-brand-500/5 p-5">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-panel border-0 bg-brand-500/5 p-5">
         <h3 className="type-meta font-semibold flex items-center gap-2 mb-4"><Lightbulb className="w-4 h-4 text-text-secondary" />{t('analyticsInsightsLearnedTitle')}</h3>
         <p className="type-caption text-text-tertiary mb-4">{t('analyticsInsightsLearnedHint')}</p>
         <div className="space-y-3">
           {(learnerModel.interactionInsights.length > 0 ? learnerModel.interactionInsights : tips.slice(0, 2)).map((insight, i) => (
             <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
-              className="flex items-start gap-3 p-3 rounded-xl bg-surface-card border border-border-subtle">
+              className="flex items-start gap-3 p-3 rounded-xl border-0 bg-surface-secondary/45">
               <div className="w-6 h-6 rounded-full bg-brand-500/10 flex items-center justify-center shrink-0 mt-0.5">
                 <Lightbulb className="w-3 h-3 text-text-secondary" />
               </div>
@@ -1149,15 +1146,15 @@ function ResearchTab({
           <div className="overflow-x-auto">
             <table className="w-full type-caption">
               <thead>
-                <tr className="text-text-muted border-b border-border-subtle">
-                  <th className="text-left py-2 pr-3">{t('analyticsResearchConcept')}</th>
-                  <th className="text-right py-2 px-3">{t('analyticsResearchAttempts')}</th>
-                  <th className="text-right py-2 pl-3">{t('analyticsResearchPLearned')}</th>
+                <tr className="text-text-muted border-b border-transparent">
+                  <th className="text-left py-2 pr-3 type-caption font-medium">{t('analyticsResearchConcept')}</th>
+                  <th className="text-right py-2 px-3 type-caption font-medium">{t('analyticsResearchAttempts')}</th>
+                  <th className="text-right py-2 pl-3 type-caption font-medium">{t('analyticsResearchPLearned')}</th>
                 </tr>
               </thead>
               <tbody>
                 {metrics.bktConcepts.map((row) => (
-                  <tr key={row.concept} className="border-b border-border-subtle/50">
+                  <tr key={row.concept} className="border-b border-transparent">
                     <td className="py-2 pr-3 text-text-secondary truncate max-w-[200px]">{row.concept}</td>
                     <td className="py-2 px-3 text-right tabular-nums">{row.attempts}</td>
                     <td className="py-2 pl-3 text-right tabular-nums">{Math.round(row.pLearned * 100)}%</td>
@@ -1213,10 +1210,10 @@ function MetricCard({ icon, label, value, sub }: { icon: React.ReactNode; label:
     );
   }
   return (
-    <div className="p-3 rounded-xl border border-border-subtle bg-surface-card">
-      <div className="flex items-center gap-2 mb-1.5">{icon}<span className="type-micro uppercase tracking-wide text-text-tertiary font-medium"><AllCapsLabel>{label}</AllCapsLabel></span></div>
+    <div className="p-3 rounded-xl border-0 bg-surface-secondary/50">
+      <div className="flex items-center gap-2 mb-1.5">{icon}<span className="type-micro font-medium text-text-muted"><AllCapsLabel>{label}</AllCapsLabel></span></div>
       <p className="ux-kpi-value-sm">{value}</p>
-      <p className="type-micro text-text-muted mt-0.5">{sub}</p>
+      <p className="type-caption text-text-muted mt-0.5">{sub}</p>
     </div>
   );
 }

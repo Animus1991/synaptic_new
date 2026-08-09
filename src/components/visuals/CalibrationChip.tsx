@@ -30,7 +30,7 @@ export function CalibrationChip({ score, direction }: Props) {
   const { t } = useI18n();
   const meta = META[direction];
   return (
-    <div className="w-full max-w-none border-b border-border-subtle px-1 py-3" data-testid="calibration-chip" data-bleed="full">
+    <div className="w-full max-w-none border-0 px-1 py-2.5" data-testid="calibration-chip" data-bleed="full">
       <div className="proximity-row flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <span className={cn('proximity-row-label type-caption px-2.5 py-1 rounded-full', meta.chip)}>
           {t(meta.textKey)}

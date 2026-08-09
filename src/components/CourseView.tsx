@@ -214,12 +214,19 @@ export function CourseView({
   }, [course.id]);
 
   return (
-    <Page>
+    <Page
+      className="course-page shell-edge-balance"
+      gap="sm"
+      data-testid="course-page"
+      data-border-diet="cta-only"
+      data-bleed="full"
+    >
+      {/* OPT-K118 — course clarity: wash surfaces, width/type parity with dashboard */}
       <button
         type="button"
         onClick={onBack}
         data-testid="course-back"
-        className="flex items-center gap-1.5 type-meta text-text-secondary hover:text-text-primary mb-2 transition-colors -mt-1"
+        className="flex items-center gap-1.5 type-meta text-text-secondary hover:text-text-primary mb-1 transition-colors -mt-1"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to library
@@ -260,7 +267,7 @@ export function CourseView({
                 type="button"
                 onClick={() => setRemoveCourseOpen(true)}
                 data-testid="course-delete"
-                className="flex items-center gap-2 px-3 py-2.5 border border-accent-rose/30 hover:bg-accent-rose/10 rounded-xl type-meta font-medium text-accent-rose transition-all"
+                className="flex items-center gap-2 px-3 py-2 border-0 bg-accent-rose/10 hover:bg-accent-rose/15 rounded-xl type-meta font-medium text-accent-rose transition-all"
                 aria-label={t('deleteCourseAria')}
               >
                 <Trash2 className="w-4 h-4" />
@@ -272,7 +279,7 @@ export function CourseView({
                 type="button"
                 onClick={onUploadMore}
                 data-testid="course-upload-more"
-                className="flex items-center gap-2 px-4 py-2.5 border border-accent-amber/30 bg-accent-amber/10 hover:bg-accent-amber/15 rounded-xl type-meta font-medium text-accent-amber transition-all"
+                className="flex items-center gap-2 px-3 py-2 border-0 bg-accent-amber/10 hover:bg-accent-amber/15 rounded-xl type-meta font-medium text-accent-amber transition-all"
               >
                 <Upload className="w-4 h-4" />
                 Add material
@@ -374,6 +381,7 @@ export function CourseView({
         />
       )}
 
+      {/* OPT-K119 — Source quality: full-bleed wash panel (organized hierarchy + wash CTAs) */}
       {showQualityBar && (
         <WorkspaceSourceStatusBar
           lang={lang}
@@ -390,7 +398,7 @@ export function CourseView({
           onReprocess={onReprocessMaterial ? openReprocessWizard : undefined}
           onReupload={onUploadMore}
           onContinue={qualityBanner.show && !showReuploadHint ? dismissQualityBar : undefined}
-          className="max-w-[1600px] mx-auto"
+          className="w-full max-w-none mt-1"
         />
       )}
 
@@ -401,12 +409,13 @@ export function CourseView({
           transition={{ delay: 0.05 }}
           data-testid="course-generation-diagnostics"
           className={cn(
-            'rounded-2xl border p-5',
+            /* OPT-K118 — diagnostics wash (no outline cage) */
+            'rounded-xl border-0 p-3 sm:p-4',
             quality.band === 'strong'
-              ? 'border-accent-emerald/20 bg-accent-emerald/5'
+              ? 'bg-accent-emerald/5'
               : quality.band === 'moderate'
-                ? 'border-accent-cyan/20 bg-accent-cyan/5'
-                : 'border-accent-amber/20 bg-accent-amber/5',
+                ? 'bg-accent-cyan/5'
+                : 'bg-accent-amber/5',
           )}
         >
           <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -433,21 +442,21 @@ export function CourseView({
               </p>
             </div>
             <div className="grid grid-cols-2 gap-2 type-caption">
-              <div className="rounded-xl border border-white/10 bg-surface-primary/40 px-3 py-2">
+              <div className="rounded-lg border-0 bg-surface-secondary/50 px-3 py-2">
                 <p className="text-text-muted">Detected topics</p>
-                <p className="mt-1 font-semibold">{quality.detectedTopicCount}</p>
+                <p className="mt-1 font-semibold tabular-nums">{quality.detectedTopicCount}</p>
               </div>
-              <div className="rounded-xl border border-white/10 bg-surface-primary/40 px-3 py-2">
+              <div className="rounded-lg border-0 bg-surface-secondary/50 px-3 py-2">
                 <p className="text-text-muted">Final topics</p>
-                <p className="mt-1 font-semibold">{quality.finalTopicCount}</p>
+                <p className="mt-1 font-semibold tabular-nums">{quality.finalTopicCount}</p>
               </div>
-              <div className="rounded-xl border border-white/10 bg-surface-primary/40 px-3 py-2">
+              <div className="rounded-lg border-0 bg-surface-secondary/50 px-3 py-2">
                 <p className="text-text-muted">Sections</p>
-                <p className="mt-1 font-semibold">{quality.metrics.sectionCount}</p>
+                <p className="mt-1 font-semibold tabular-nums">{quality.metrics.sectionCount}</p>
               </div>
-              <div className="rounded-xl border border-white/10 bg-surface-primary/40 px-3 py-2">
+              <div className="rounded-lg border-0 bg-surface-secondary/50 px-3 py-2">
                 <p className="text-text-muted">Worked signals</p>
-                <p className="mt-1 font-semibold">{quality.metrics.workedExampleCount + quality.metrics.formulaCount}</p>
+                <p className="mt-1 font-semibold tabular-nums">{quality.metrics.workedExampleCount + quality.metrics.formulaCount}</p>
               </div>
             </div>
           </div>
@@ -467,7 +476,7 @@ export function CourseView({
                 type="button"
                 onClick={onUploadMore}
                 data-testid="course-quality-upload-more"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-accent-amber/30 bg-accent-amber/10 type-caption font-medium text-accent-amber hover:bg-accent-amber/15"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-0 bg-accent-amber/10 type-caption font-medium text-accent-amber hover:bg-accent-amber/15"
               >
                 <Upload className="w-3.5 h-3.5" />
                 {t('courseQualityActionUpload')}
@@ -479,7 +488,7 @@ export function CourseView({
                 onClick={openReprocessWizard}
                 disabled={reprocessingMaterial}
                 data-testid="course-quality-reprocess"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 type-caption font-medium text-text-secondary hover:bg-brand-500/10 disabled:opacity-60"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-0 bg-surface-secondary type-caption font-medium text-text-secondary hover:bg-surface-hover disabled:opacity-60"
               >
                 <RefreshCw className={cn('w-3.5 h-3.5', reprocessingMaterial && 'animate-spin')} />
                 {t('courseQualityActionReprocess')}
@@ -489,7 +498,7 @@ export function CourseView({
               type="button"
               onClick={() => onStartLesson()}
               data-testid="course-quality-open-workspace"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-600/15 type-caption font-medium text-text-secondary hover:bg-brand-600/25"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-0 bg-surface-secondary type-caption font-medium text-text-secondary hover:bg-surface-hover"
             >
               <Play className="w-3.5 h-3.5" />
               {t('courseQualityActionWorkspace')}
@@ -499,27 +508,27 @@ export function CourseView({
       )}
 
       {course.qualityReport && (
-        <QualityReportPanel report={course.qualityReport} lang={lang} className="max-w-[1600px] mx-auto" />
+        <QualityReportPanel report={course.qualityReport} lang={lang} className="w-full max-w-none" />
       )}
 
-      {/* Progress bar */}
-      <AnimatedCard delay={0.1}>
-        <div className="flex items-center justify-between mb-3">
-          <span className="type-meta font-medium">Course Progress</span>
-          <span className="type-body text-text-secondary">{course.completedLessons}/{course.totalLessons} lessons</span>
+      {/* Progress bar — OPT-K118 denser, borderless */}
+      <AnimatedCard delay={0.1} className="border-0 shadow-none bg-transparent" padding="sm">
+        <div className="flex items-center justify-between mb-2">
+          <span className="type-meta font-semibold text-text-primary">Course Progress</span>
+          <span className="type-caption text-text-secondary tabular-nums">{course.completedLessons}/{course.totalLessons} lessons</span>
         </div>
         {/* Wave P-2 C08 — Course Progress top-of-page track uses --viz-bar-track. */}
-        <div className="w-full rounded-full h-3" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
+        <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
           <div
-            className="h-3 rounded-full transition-all duration-700"
+            className="h-1.5 rounded-full transition-all duration-700"
             style={{ width: `${progress}%`, backgroundColor: resolveCourseColor(course.color) }}
           />
         </div>
-        <div className="flex justify-between mt-2 type-caption text-text-tertiary">
+        <div className="flex justify-between mt-1.5 type-caption text-text-tertiary">
           <span>{Math.round(progress)}% complete</span>
           <span>~{Math.round(course.estimatedHours * (1 - progress / 100))}h remaining</span>
         </div>
-        <div className="grid grid-cols-4 gap-3 mt-4 pt-4 border-t border-border-subtle">
+        <div className="grid grid-cols-4 gap-2 mt-3 pt-2">
           <div className="text-center"><p className="ux-kpi-value">{course.conceptCount}</p><p className="type-micro text-text-muted">Concepts</p></div>
           <div className="text-center"><p className="ux-kpi-value">{course.glossaryCount}</p><p className="type-micro text-text-muted">Glossary</p></div>
           <div className="text-center"><p className="ux-kpi-value">{course.exerciseCount}</p><p className="type-micro text-text-muted">Exercises</p></div>
@@ -527,6 +536,7 @@ export function CourseView({
         </div>
       </AnimatedCard>
 
+      {/* OPT-K120 / OPT-K121 — outline type rhythm (Dashboard scale on all pages) */}
       <SectionHeader
         eyebrow={t('courseSectionEyebrow')}
         title={t('courseSectionTitle')}
@@ -550,7 +560,7 @@ export function CourseView({
           id="course-panel-path"
           data-testid="course-panel-path"
           aria-labelledby="course-tab-path"
-          className="space-y-4"
+          className="space-y-2"
         >
           <SectionHeader
             eyebrow={t('coursePathSectionEyebrow')}
@@ -653,30 +663,32 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       className={cn(
-        'rounded-2xl border bg-surface-card overflow-hidden transition-all',
-        topic.isLocked ? 'border-border-subtle opacity-60' : 'border-border-subtle hover:border-brand-500/20'
+        /* OPT-K118 — topic row: wash/hover only (no outline cage) */
+        'course-topic-card rounded-xl border-0 bg-transparent overflow-hidden transition-colors',
+        topic.isLocked ? 'opacity-60' : 'hover:bg-surface-secondary/55',
       )}
+      data-testid={`course-topic-card-${topic.id}`}
     >
-      <div className="flex items-center gap-3 p-3.5">
+      <div className="flex items-center gap-3 px-1 py-2.5 sm:px-2">
         <div className="relative">
           {topic.isLocked ? (
-            <div className="w-10 h-10 rounded-xl bg-surface-hover flex items-center justify-center">
-              <Lock className="w-5 h-5 text-text-muted" />
+            <div className="w-9 h-9 rounded-lg bg-surface-secondary flex items-center justify-center">
+              <Lock className="w-4 h-4 text-text-muted" />
             </div>
           ) : topic.mastery >= 90 ? (
-            <div className="w-10 h-10 rounded-xl bg-accent-emerald/15 flex items-center justify-center">
-              <CheckCircle2 className="w-5 h-5 text-accent-emerald" />
+            <div className="w-9 h-9 rounded-lg bg-accent-emerald/12 flex items-center justify-center">
+              <CheckCircle2 className="w-4 h-4 text-accent-emerald" />
             </div>
           ) : topic.mastery > 0 ? (
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `color-mix(in srgb, ${accent} 14%, transparent)` }}>
-              <Circle className="w-5 h-5" style={{ color: accent }} />
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: `color-mix(in srgb, ${accent} 12%, transparent)` }}>
+              <Circle className="w-4 h-4" style={{ color: accent }} />
             </div>
           ) : (
-            <div className="w-10 h-10 rounded-xl bg-surface-hover flex items-center justify-center">
-              <Circle className="w-5 h-5 text-text-muted" />
+            <div className="w-9 h-9 rounded-lg bg-surface-secondary flex items-center justify-center">
+              <Circle className="w-4 h-4 text-text-muted" />
             </div>
           )}
-          <span className="absolute -top-1 -left-1 type-micro font-bold text-text-muted">{index + 1}</span>
+          <span className="absolute -top-1 -left-1 type-micro font-bold text-text-muted tabular-nums">{index + 1}</span>
         </div>
 
         <div className="flex-1 min-w-0">
@@ -739,7 +751,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
-          className="px-5 pb-5 pt-0 border-t border-border-subtle/60 space-y-4"
+          className="px-2 sm:px-3 pb-3 pt-1 border-0 space-y-3"
         >
           {(topic.objectives?.length ?? 0) > 0 && (
             <div className="pt-4">
@@ -769,13 +781,13 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
                       key={i}
                       onClick={() => onGoToSource!({ fileId: span.fileId, charStart: span.charStart, charEnd: span.charEnd })}
                       title="Go to source"
-                      className="group flex items-center gap-1 type-caption px-2 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-text-secondary hover:bg-brand-500/20 transition-colors"
+                      className="group flex items-center gap-1 type-caption px-2 py-0.5 rounded-md bg-surface-secondary border-0 text-text-secondary hover:bg-surface-hover transition-colors"
                     >
                       {c}
                       <MapPin className="w-2.5 h-2.5 opacity-60 group-hover:opacity-100" />
                     </button>
                   ) : (
-                    <span key={i} className="type-caption px-2 py-0.5 rounded-full bg-surface-hover border border-border-subtle text-text-secondary">
+                    <span key={i} className="type-caption px-2 py-0.5 rounded-md bg-surface-secondary border-0 text-text-secondary">
                       {c}
                     </span>
                   );
@@ -949,7 +961,7 @@ function SourceFiles({
               onClick={onReprocessMaterial}
               disabled={reprocessingMaterial}
               data-testid="course-reprocess-sources"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/30 type-caption font-medium text-text-secondary hover:bg-brand-500/10 disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-0 bg-surface-secondary type-caption font-medium text-text-secondary hover:bg-surface-hover disabled:opacity-60"
             >
               <RefreshCw className={cn('w-3.5 h-3.5', reprocessingMaterial && 'animate-spin')} />
               {t('courseReprocessStoredText')}
@@ -971,7 +983,7 @@ function SourceFiles({
           (uploadedFiles.length > 0 ? uploadedFiles : course.sourceFiles.map((name) => ({ name } as UploadedFile))).map((file, i) => {
             const preview = file.id ? buildSourcePreviewText(file, course) : null;
             return (
-            <div key={file.id ?? i} className="flex items-start gap-3 p-3 rounded-xl bg-surface-primary/50 border border-border-subtle flex-wrap" data-testid={file.id ? `source-file-${file.id}` : undefined}>
+            <div key={file.id ?? i} className="flex items-start gap-3 p-2.5 rounded-lg bg-surface-secondary/40 border-0 flex-wrap" data-testid={file.id ? `source-file-${file.id}` : undefined}>
               <FileText className="w-5 h-5 text-text-tertiary shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <span className="type-meta font-medium block truncate">{file.name}</span>
@@ -1000,7 +1012,7 @@ function SourceFiles({
                   type="button"
                   onClick={() => confirmRemove(file)}
                   data-testid={`remove-source-${file.id}`}
-                  className="p-1.5 rounded-lg border border-accent-rose/30 text-accent-rose hover:bg-accent-rose/10 transition-colors"
+                  className="p-1.5 rounded-lg border-0 text-accent-rose hover:bg-accent-rose/10 transition-colors"
                   title={t('removeFileTitle')}
                 >
                   <Trash2 className="w-4 h-4" />
@@ -1028,14 +1040,14 @@ function SourceFiles({
             {glossaryEntries.slice(0, 24).map((g) => {
               const span = findConceptSpan(course, g.term);
               return (
-                <li key={g.term} className="flex items-start justify-between gap-2 type-body border-b border-border-subtle/50 pb-2">
+                <li key={g.term} className="flex items-start justify-between gap-2 type-body pb-2">
                   <div className="min-w-0">
                     <span className="font-medium text-text-secondary">{g.term}</span>
                     <p className="type-caption text-text-tertiary mt-0.5 line-clamp-2">{g.definition}</p>
                     {(g.relatedConcepts?.length ?? 0) > 0 && (
                       <div className="flex flex-wrap gap-1 mt-1.5">
                         {g.relatedConcepts!.slice(0, 4).map((rc) => (
-                          <span key={rc} className="type-micro px-1.5 py-0.5 rounded-full bg-surface-hover border border-border-subtle/60 text-text-muted">
+                          <span key={rc} className="type-micro px-1.5 py-0.5 rounded-md bg-surface-secondary border-0 text-text-muted">
                             {rc}
                           </span>
                         ))}
@@ -1057,9 +1069,9 @@ function SourceFiles({
       )}
 
       <div className="platform-panel-lg">
-        <div className="mt-0 p-4 rounded-xl bg-surface-hover/50 border border-border-subtle">
+        <div className="mt-0 p-3 rounded-lg bg-surface-secondary/45 border-0">
           <p className="type-caption text-text-tertiary mb-2 flex items-center gap-1.5">
-            <AlertTriangle className="w-3.5 h-3.5 text-accent-amber" />
+            <AlertTriangle className="w-3.5 h-3.5 text-text-secondary" />
             Source Analysis Report
           </p>
           <ul className="type-caption text-text-secondary space-y-1">

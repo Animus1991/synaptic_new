@@ -37,7 +37,7 @@ export function StudyBehaviorCharts({ activities, className }: Props) {
       <SectionLabel>{lang === 'el' ? 'Συμπεριφορά μελέτης' : 'Study behavior'}</SectionLabel>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-        <div className="rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="study-behavior-bars">
+        <div className="rounded-xl border-0 bg-surface-card p-3" data-testid="study-behavior-bars">
           <p className="type-micro font-semibold uppercase tracking-wide text-text-tertiary mb-2">
             <AllCapsLabel>{lang === 'el' ? 'Δραστηριότητα' : 'Activity'}</AllCapsLabel>
           </p>
@@ -55,7 +55,7 @@ export function StudyBehaviorCharts({ activities, className }: Props) {
           </div>
         </div>
 
-        <div className="rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="study-behavior-effectiveness">
+        <div className="rounded-xl border-0 bg-surface-card p-3" data-testid="study-behavior-effectiveness">
           <p className="type-micro font-semibold uppercase tracking-wide text-text-tertiary mb-2">
             <AllCapsLabel>{lang === 'el' ? 'Αποτελεσματικότητα' : 'Effectiveness'}</AllCapsLabel>
           </p>
@@ -80,7 +80,7 @@ export function StudyBehaviorCharts({ activities, className }: Props) {
           </svg>
         </div>
 
-        <div className="rounded-xl border border-border-subtle bg-surface-card p-3 flex items-center gap-3" data-testid="study-behavior-donut">
+        <div className="rounded-xl border-0 bg-surface-card p-3 flex items-center gap-3" data-testid="study-behavior-donut">
           <svg viewBox="0 0 42 42" className="h-20 w-20 shrink-0" role="img">
             {donutSegments.length === 0 ? (
               <circle cx="21" cy="21" r="15.5" fill="none" stroke="var(--color-border-subtle)" strokeWidth="6" />

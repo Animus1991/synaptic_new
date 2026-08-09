@@ -522,6 +522,7 @@ export default function App() {
         onLogStudyMinutes={store.logStudyMinutes}
         userSettings={store.user.settings}
         onToggleTheme={store.toggleTheme}
+        onLanguageChange={(lang) => store.updateSettings({ language: lang })}
         onUpload={() => openUploadModal()}
         onReuploadMaterial={() => {
           const id = store.activeTask?.courseId ?? store.selectedCourse?.id;

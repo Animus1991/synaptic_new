@@ -135,8 +135,9 @@
   border-color: color-mix(in srgb, var(--color-border-subtle, #d0d7de) 55%, transparent);
 }
 
-:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas[data-layout="desktop"] > [data-panel-group] {
-  padding: 0.35rem !important;
+/* OPT-K133 — no inter-panel gutter; outer padding lives on the layout wrapper */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas[data-layout="desktop"] [data-panel-group] {
+  padding: 0 !important;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-source-list"] {
@@ -208,9 +209,12 @@
   margin-bottom: 0.35rem;
 }
 
+/* OPT-K119 — minimal theme: source quality stays wash/frameless */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="workspace-source-status-bar"] {
+  border: none;
   border-radius: var(--radius-md);
   box-shadow: none;
+  background: color-mix(in srgb, var(--color-surface-secondary) 55%, transparent);
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="notification-toast-stack"] .notification-toast {

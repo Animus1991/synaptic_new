@@ -215,8 +215,8 @@ export function ExamPrepView({
               <GraduationCap className="w-8 h-8 text-accent-rose" />
             </div>
             <div className="text-center">
-              <h2 className="text-xl font-semibold">{examTopic}</h2>
-              <p className="type-body text-text-secondary mt-2">
+              <h2 className="dashboard-panel-title font-semibold text-text-primary">{examTopic}</h2>
+              <p className="type-meta text-text-secondary mt-2">
                 {examCourse} · {t('examPrepSubtitleFlow')}
               </p>
             </div>
@@ -603,11 +603,11 @@ export function ExamPrepView({
           <div className="max-w-none w-full space-y-6">
             <div className="text-center ux-card">
               <CheckCircle2 className="w-12 h-12 text-accent-emerald mx-auto mb-3" />
-              <h2 className="text-xl font-bold">{t('examPrepSubmitted')}</h2>
-              <p className="text-2xl font-bold text-text-primary mt-2 tabular-nums">
+              <h2 className="dashboard-panel-title font-semibold text-text-primary">{t('examPrepSubmitted')}</h2>
+              <p className="ux-kpi-value-lg text-text-primary mt-2">
                 {t('examPrepCorrectCount').replace('{score}', String(score)).replace('{total}', String(examQuestions.length))}
               </p>
-              <p className="type-body text-text-secondary mt-1">
+              <p className="type-meta text-text-secondary mt-1">
                 {score === examQuestions.length
                   ? t('examPrepPerfect')
                   : score >= Math.ceil(examQuestions.length / 2)

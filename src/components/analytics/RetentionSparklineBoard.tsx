@@ -41,7 +41,7 @@ export function RetentionSparklineBoard({ forecast, skills, ariaLabel, emptyHint
         <div
           key={item.id}
           className={cn(
-            'retention-sparkline-cell rounded-xl border border-border-subtle/60',
+            'retention-sparkline-cell rounded-xl border-0',
             'bg-surface-primary/30 px-3 py-2.5 transition-colors',
           )}
         >
@@ -50,10 +50,10 @@ export function RetentionSparklineBoard({ forecast, skills, ariaLabel, emptyHint
           </p>
           <svg viewBox="0 0 80 28" className="w-full h-7" aria-hidden>
             <path
-              className="retention-sparkline-stroke blueprint-stroke-gradient"
+              className="retention-sparkline-stroke"
               d={sparklinePath(item.values, 80, 28)}
               fill="none"
-              strokeWidth="2"
+              strokeWidth="1.75"
               strokeLinecap="round"
               strokeLinejoin="round"
               opacity={hasLiveData ? 0.9 : 0.5}
@@ -61,8 +61,8 @@ export function RetentionSparklineBoard({ forecast, skills, ariaLabel, emptyHint
             <circle
               cx={80}
               cy={28 - Math.max(0, Math.min(1, item.values[item.values.length - 1] ?? 0)) * 24 - 2}
-              r="2.5"
-              className="blueprint-diagram-dot"
+              r="2"
+              className="retention-sparkline-end"
             />
           </svg>
         </div>

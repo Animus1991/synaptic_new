@@ -6,11 +6,11 @@ import { treemapAdvice } from '../../features/analytics/knowledgeFlowAnalytics';
 import { cn } from '../../utils/cn';
 
 const TONE_CLASS: Record<TreemapBlock['tone'], string> = {
-  cyan: 'border-accent-cyan/25 bg-accent-cyan/8',
-  violet: 'border-accent-violet/25 bg-accent-violet/8',
-  amber: 'border-accent-amber/25 bg-accent-amber/8',
-  emerald: 'border-accent-emerald/25 bg-accent-emerald/8',
-  rose: 'border-accent-rose/25 bg-accent-rose/8',
+  cyan: 'border-0 bg-accent-cyan/8',
+  violet: 'border-0 bg-accent-violet/8',
+  amber: 'border-0 bg-accent-amber/8',
+  emerald: 'border-0 bg-accent-emerald/8',
+  rose: 'border-0 bg-accent-rose/8',
 };
 
 type Props = {
@@ -59,7 +59,7 @@ export function ConceptTreemapChart({
       </h3>
       <p className="type-caption text-text-tertiary mb-4">{hint}</p>
 
-      <div className="flex flex-wrap gap-2 rounded-xl border border-border-subtle bg-surface-primary/40 p-3">
+      <div className="flex flex-wrap gap-2 rounded-xl border-0 bg-surface-primary/40 p-3">
         {blocks.map((block) => {
           const pct = totalWeight > 0 ? (block.value / totalWeight) * 100 : 0;
           const isActive = activeId === block.id;
@@ -69,9 +69,9 @@ export function ConceptTreemapChart({
               type="button"
               onClick={() => setActiveId(isActive ? null : block.id)}
               className={cn(
-                'rounded-xl border p-3 text-left transition-all duration-200 min-w-[8rem] treemap-block',
+                'rounded-xl border-0 p-3 text-left transition-all duration-200 min-w-[8rem] treemap-block',
                 TONE_CLASS[block.tone],
-                isActive && 'ring-2 ring-brand-500/35 scale-[1.01]',
+                isActive && 'ring-1 ring-inset ring-text-primary/25 scale-[1.01]',
               )}
               style={{ flexBasis: `${Math.max(28, pct * 1.4)}%`, flexGrow: 1 }}
             >
@@ -100,7 +100,7 @@ export function ConceptTreemapChart({
       </div>
 
       {active && (
-        <div className="mt-3 rounded-xl border border-border-subtle bg-surface-secondary/50 p-3 type-body text-text-secondary">
+        <div className="mt-3 rounded-xl border-0 bg-surface-secondary/50 p-3 type-body text-text-secondary">
           <span className="font-semibold text-text-primary">{active.label}</span>
           {' — '}
           {weightLabel} {Math.round((active.value / totalWeight) * 100)}%, {masteryLabel.toLowerCase()} {active.mastery}%.

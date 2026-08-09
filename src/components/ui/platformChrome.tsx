@@ -34,8 +34,9 @@ export function SectionHeader({
           <AllCapsLabel>{eyebrow}</AllCapsLabel>
         </p>
       ) : null}
+      {/* OPT-K120 — title stays dominant; subtitle one step below (meta, not body) */}
       <h2 className="font-semibold tracking-tight text-text-primary">{title}</h2>
-      {subtitle ? <p className="max-w-2xl type-body leading-5 text-text-secondary">{subtitle}</p> : null}
+      {subtitle ? <p className="ux-section-subtitle max-w-2xl type-meta leading-snug text-text-secondary">{subtitle}</p> : null}
     </div>
   );
   if (!animate) return body;

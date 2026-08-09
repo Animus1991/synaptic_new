@@ -269,6 +269,7 @@ export function Tasks({
       {...warmSandScopeProps(warmSandPage)}
       data-testid="tasks-page"
       data-tasks-layout={layoutMode}
+      data-type-rhythm="dashboard"
       className={cn('min-w-0 w-full', isMinimal && 'tasks-quiet')}
     >
     <Page className="max-w-none ux-fade-up !pt-0" gap="sm">
@@ -364,7 +365,7 @@ export function Tasks({
             <p className="type-caption text-text-tertiary">{c.totalMinutes(totalMin)} · {c.minRemaining(remainingMin)}</p>
           </div>
           <div className="text-right">
-            <p className="text-lg font-bold tabular-nums text-text-primary">{progressPct}%</p>
+            <p className="ux-kpi-value">{progressPct}%</p>
             <p className="type-caption font-medium tracking-wide text-text-tertiary">{c.dailyGoal}</p>
           </div>
         </div>
@@ -748,7 +749,7 @@ export function Tasks({
                     <div className="text-right flex items-center gap-2">
                       <TrendIcon className={cn('w-4 h-4', trendColor)} aria-hidden />
                       <div>
-                        <p className={cn('text-lg font-bold tabular-nums', masteryColor)}>{Math.round(area.mastery)}%</p>
+                        <p className={cn('ux-kpi-value', masteryColor)}>{Math.round(area.mastery)}%</p>
                         <p className="type-caption text-text-tertiary">{c.masteryLabel}</p>
                       </div>
                     </div>

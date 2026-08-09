@@ -60,7 +60,7 @@ export function SubjectDrillDown({ tile, onClose, onStudyConcept }: Props) {
             topics.map((topic) => (
               <li
                 key={topic.id}
-                className="rounded-xl border border-border-subtle bg-surface-secondary/40 p-2.5"
+                className="rounded-xl border-0 bg-surface-secondary/40 p-2.5"
                 data-testid={`subject-drill-topic-${topic.id}`}
               >
                 <div className="flex items-center justify-between gap-2 mb-1.5">
@@ -71,7 +71,7 @@ export function SubjectDrillDown({ tile, onClose, onStudyConcept }: Props) {
                 <button
                   type="button"
                   className={cn(
-                    'mt-2 w-full rounded-lg border border-border-subtle bg-surface-secondary text-text-primary hover:bg-brand-600/20',
+                    'mt-2 w-full rounded-lg border-0 bg-surface-secondary text-text-primary hover:bg-brand-600/20',
                   )}
                   onClick={() => onStudyConcept(topic.title)}
                   data-testid={`subject-drill-study-${topic.id}`}

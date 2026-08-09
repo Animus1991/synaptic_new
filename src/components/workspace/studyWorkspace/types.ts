@@ -41,6 +41,8 @@ export interface StudyWorkspaceProps {
   tasks?: Task[];
   userSettings?: UserSettings;
   onToggleTheme?: () => void;
+  /** System UI language (EN/ΕΛ) — same setting as Shell / Settings. */
+  onLanguageChange?: (lang: 'en' | 'el') => void;
   openSourceAt?: (highlight: SourceHighlight) => void;
   clearSourceHighlight?: () => void;
   sourceHighlight?: SourceHighlight | null;

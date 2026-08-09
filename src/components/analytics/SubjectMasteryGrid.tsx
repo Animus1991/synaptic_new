@@ -41,7 +41,8 @@ export function SubjectMasteryGrid({ tiles, onSelect, className }: Props) {
                 type="button"
                 data-testid={`subject-mastery-tile-${tile.courseId}`}
                 onClick={() => onSelect(tile)}
-                className="rounded-xl border border-border-subtle bg-surface-card p-3 text-left hover:border-brand-400/40 hover:bg-surface-hover transition-colors"
+                /* OPT-K128 — wash subject tiles (no outline / hover border) */
+                className="rounded-xl border-0 bg-surface-secondary/50 p-3 text-left hover:bg-surface-hover transition-colors min-h-[4.75rem]"
               >
                 <div className="flex items-start gap-2">
                   <CourseIcon icon={tile.icon} size="sm" colorClassName="text-text-secondary shrink-0" />

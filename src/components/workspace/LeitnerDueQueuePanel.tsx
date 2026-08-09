@@ -31,7 +31,8 @@ export function LeitnerDueQueuePanel({
   return (
     <details
       className={cn(
-        isCard ? 'ux-card group' : 'mb-3 group',
+        /* OPT-K119 — frameless due queue (spacing + wash, no hairlines) */
+        isCard ? 'group border-0 bg-transparent shadow-none' : 'mb-3 group',
         className,
       )}
       data-testid="leitner-due-queue-panel"
@@ -40,17 +41,17 @@ export function LeitnerDueQueuePanel({
       <summary
         className={cn(
           'cursor-pointer list-none [&::-webkit-details-marker]:hidden',
-          isCard && 'px-4 py-3 border-b border-border-subtle/60',
+          isCard && 'px-1 py-2',
         )}
       >
         <p
           className={cn(
-            'font-semibold text-text-muted flex items-center gap-1.5',
-            isCard ? 'type-caption text-text-secondary' : 'type-caption mb-1',
+            'font-semibold flex items-center gap-1.5',
+            isCard ? 'type-meta text-text-primary' : 'type-caption mb-1 text-text-muted',
           )}
         >
           {t('leitnerDueQueuePanel')}
-          <span className="text-accent-amber font-bold">{items.length}</span>
+          <span className="tabular-nums font-bold text-text-secondary">{items.length}</span>
           {isCard && (
             <span className="ml-auto type-caption font-normal text-text-tertiary">
               {t('leitnerDueQueueHint')}
@@ -60,10 +61,10 @@ export function LeitnerDueQueuePanel({
       </summary>
       <ul
         className={cn(
-          'space-y-0.5 overflow-y-auto',
+          'space-y-0.5 overflow-y-auto border-0',
           isCard
-            ? 'max-h-52 p-2'
-            : 'mt-1 max-h-36 rounded-lg border border-border-subtle/60 bg-surface-primary/40 p-1',
+            ? 'max-h-52 p-0.5'
+            : 'mt-1 max-h-36 rounded-lg bg-surface-secondary/40 p-1',
         )}
       >
         {items.map((item) => {
@@ -80,19 +81,19 @@ export function LeitnerDueQueuePanel({
                 data-testid="leitner-due-queue-item"
                 onClick={() => onSelect?.(item.concept)}
                 className={cn(
-                  'w-full text-left rounded transition-colors hover:bg-surface-muted/80',
-                  isCard ? 'px-2.5 py-2' : 'px-1.5 py-1',
-                  item.overdue && 'border-l-2 border-accent-amber pl-1',
+                  'w-full text-left rounded-lg border-0 transition-colors hover:bg-surface-secondary/70',
+                  isCard ? 'px-2 py-1.5' : 'px-1.5 py-1',
+                  item.overdue && 'bg-surface-secondary/40',
                 )}
                 title={`${item.label} · R=${retPct}% · ${item.intervalDays}d`}
               >
-                <p className={cn('font-medium text-text-primary truncate', isCard ? 'type-caption' : 'type-caption')}>
+                <p className="type-caption font-medium text-text-primary truncate">
                   {item.label}
                 </p>
-                <p className={cn('text-text-muted flex gap-2', isCard ? 'type-caption mt-0.5' : 'type-caption')}>
-                  <span className={cn(item.overdue && 'text-accent-amber font-semibold')}>{dueLabel}</span>
-                  <span>R {retPct}%</span>
-                  <span>{item.intervalDays}d</span>
+                <p className="type-micro text-text-muted flex gap-2 mt-0.5">
+                  <span className={cn(item.overdue && 'text-text-secondary font-semibold')}>{dueLabel}</span>
+                  <span className="tabular-nums">R {retPct}%</span>
+                  <span className="tabular-nums">{item.intervalDays}d</span>
                 </p>
               </button>
             </li>

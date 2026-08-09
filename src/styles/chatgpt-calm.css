@@ -47,14 +47,23 @@
   padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
 }
 
+/* OPT-K125 — column shell: field on top; tools left + send right on one row */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-shell {
   display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
   border: 1px solid var(--color-border-subtle, #d0d7de);
   border-radius: var(--composer-radius);
   background: var(--color-surface-input, #fff);
-  padding: 0.35rem 0.35rem 0.35rem 0.75rem;
+  padding: 0.5rem 0.65rem 0.4rem;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-toolbar {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-shell:focus-within {
@@ -77,6 +86,7 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .agent-calm .agent-composer-shell .agent-composer-send {
+  margin-left: auto;
   border-radius: calc(var(--composer-radius) - 0.35rem);
 }
 

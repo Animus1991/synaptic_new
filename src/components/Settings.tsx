@@ -223,16 +223,38 @@ export function Settings({
     return () => observer.disconnect();
   }, [settingsSections]);
 
+  // OPT-K131 — keep the active nav chip visible inside the nav scroller only.
+  // Never call Element.scrollIntoView here: it scrolls ancestors/document and
+  // fights wheel scroll (page stuck at top; only hash jumps worked).
   useEffect(() => {
-    const active = document.querySelector(
-      `[data-testid="settings-section-nav"] a[href="#${activeSection}"]`,
-    );
-    active?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+    const nav = document.querySelector<HTMLElement>('[data-testid="settings-section-nav"]');
+    const active = nav?.querySelector<HTMLElement>(`a[href="#${activeSection}"]`);
+    if (!nav || !active) return;
+    const navRect = nav.getBoundingClientRect();
+    const activeRect = active.getBoundingClientRect();
+    const pad = 8;
+    if (activeRect.top < navRect.top + pad) {
+      nav.scrollTop -= navRect.top + pad - activeRect.top;
+    } else if (activeRect.bottom > navRect.bottom - pad) {
+      nav.scrollTop += activeRect.bottom - (navRect.bottom - pad);
+    }
+    if (activeRect.left < navRect.left + pad) {
+      nav.scrollLeft -= navRect.left + pad - activeRect.left;
+    } else if (activeRect.right > navRect.right - pad) {
+      nav.scrollLeft += activeRect.right - (navRect.right - pad);
+    }
   }, [activeSection]);
 
   return (
     <Page className={cn('ux-flow-shell settings-ide', isMinimal && 'enterprise-calm')}>
-      <div data-testid="settings-page" data-bleed="full" className="w-full max-w-none space-y-3">
+      <div
+        data-testid="settings-page"
+        data-bleed="full"
+        data-type-rhythm="dashboard"
+        /* OPT-K131 — Learning Preferences / Settings clarity: CTA-only border diet */
+        data-border-diet="cta-only"
+        className="w-full max-w-none space-y-3"
+      >
       <PageHeader
         title={c.pageTitle}
         subtitle={c.pageSubtitle}
@@ -333,11 +355,21 @@ export function Settings({
           <div>
             <label className="type-meta text-text-secondary block mb-1">{c.labelDailyStudyGoal}</label>
             <div className="flex items-center gap-3">
-              {[15, 30, 45, 60, 90].map(m => (
-                <button key={m} onClick={() => onUpdate({ dailyGoalMinutes: m })}
-                  className={cn('px-3 py-1.5 rounded-lg type-caption font-medium transition-all',
-                    settings.dailyGoalMinutes === m ? 'bg-surface-secondary text-text-primary border border-border-default' : 'border border-border-subtle text-text-tertiary'
-                  )}>{m}m</button>
+              {[15, 30, 45, 60, 90].map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => onUpdate({ dailyGoalMinutes: m })}
+                  className={cn(
+                    'settings-pref-chip rounded-md border-0 px-3 py-1.5 type-caption font-medium transition-colors',
+                    settings.dailyGoalMinutes === m
+                      ? 'is-active bg-surface-secondary text-text-primary'
+                      : 'bg-surface-secondary/45 text-text-muted hover:bg-surface-hover',
+                  )}
+                  aria-pressed={settings.dailyGoalMinutes === m}
+                >
+                  {m}m
+                </button>
               ))}
             </div>
           </div>
@@ -1090,14 +1122,24 @@ function ToggleRow({ label, options, value, onChange }: { label: string; options
     );
   }
   return (
-    <div>
-      <label className="type-caption text-text-secondary block mb-2">{label}</label>
-      <div className="flex flex-wrap gap-2">
-        {options.map(opt => (
-          <button key={opt.value} onClick={() => onChange(opt.value)}
-            className={cn('px-3 py-1.5 rounded-lg type-caption font-medium transition-all',
-              value === opt.value ? 'bg-surface-secondary text-text-primary border border-border-default' : 'border border-border-subtle text-text-tertiary hover:text-text-secondary'
-            )}>{opt.label}</button>
+    <div className="settings-pref-row">
+      <span className="settings-pref-label type-caption font-medium text-text-secondary">{label}</span>
+      <div className="settings-pref-control flex flex-wrap gap-1.5" role="group" aria-label={label}>
+        {options.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => onChange(opt.value)}
+            className={cn(
+              'settings-pref-chip rounded-md border-0 px-2.5 py-1.5 type-caption font-medium transition-colors',
+              value === opt.value
+                ? 'is-active bg-surface-secondary text-text-primary'
+                : 'bg-surface-secondary/45 text-text-muted hover:bg-surface-hover hover:text-text-secondary',
+            )}
+            aria-pressed={value === opt.value}
+          >
+            {opt.label}
+          </button>
         ))}
       </div>
     </div>
@@ -1141,12 +1183,10 @@ function ThemePickerRow({
           isMinimal
             ? cn('settings-pref-chip inline-flex items-center gap-1.5', active && 'is-active')
             : cn(
-                'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 type-caption font-medium transition-all',
-                /* Wave P-3 C12 — .ux-theme-chip-active uses brand-700 ink on light
-                   themes (brand-300 collapsed to ~2:1 on warm-light white cards). */
+                'inline-flex items-center gap-1.5 rounded-lg border-0 px-2.5 py-1.5 type-caption font-medium transition-colors',
                 active
-                  ? 'ux-theme-chip-active'
-                  : 'border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-brand-500/25',
+                  ? 'ux-theme-chip-active bg-surface-secondary text-text-primary'
+                  : 'bg-surface-secondary/45 text-text-muted hover:bg-surface-hover hover:text-text-secondary',
               ),
         )}
         aria-pressed={active}
@@ -1235,12 +1275,20 @@ function SliderRow({ label, leftLabel, rightLabel, value, onChange, min = 0, max
     );
   }
   return (
-    <div>
-      <label className="type-caption text-text-secondary block mb-2">{label}</label>
-      <div className="flex items-center gap-3">
-        <span className="type-micro text-text-muted w-20 text-right">{leftLabel}</span>
-        <input type="range" min={min} max={max} value={value} onChange={e => onChange(Number(e.target.value))} className="flex-1" />
-        <span className="type-micro text-text-muted w-20">{rightLabel}</span>
+    <div className="settings-pref-row">
+      <span className="settings-pref-label type-caption font-medium text-text-secondary">{label}</span>
+      <div className="settings-pref-control items-center !flex-nowrap gap-2">
+        <span className="type-micro text-text-muted shrink-0">{leftLabel}</span>
+        <input
+          type="range"
+          min={min}
+          max={max}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          className="min-w-[7rem] flex-1"
+          aria-label={label}
+        />
+        <span className="type-micro text-text-muted shrink-0">{rightLabel}</span>
       </div>
     </div>
   );

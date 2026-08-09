@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { Square, Volume2 } from '@/lib/lucide-shim';
+import { Square } from '@/lib/lucide-shim';
 import type { Course, UserSettings } from '../../../types';
 import { playAudioStudyGuide } from '../../../lib/audioStudyGuide';
 import { playNeuralStudyGuide } from '../../../lib/audioPodcastClient';
@@ -102,18 +102,16 @@ export function NotebookStudioAudioOverview({
       disabled={genState === 'running'}
       onClick={() => void startPlayback()}
       className={cn(
-        'flex items-center gap-1 rounded-full border border-border-subtle bg-surface-secondary/60 px-2.5 py-1 type-micro font-medium transition-colors disabled:opacity-60',
+        /* OPT-K126 — wash chip (no outline) */
+        'flex items-center gap-1 rounded-full border-0 bg-surface-secondary/70 px-2.5 py-1 type-micro font-medium transition-colors disabled:opacity-60',
         genState === 'playing'
-          ? 'border-brand-500/50 text-text-secondary'
-          : 'text-text-secondary hover:border-brand-200 hover:text-text-primary',
+          ? 'bg-surface-secondary text-text-primary'
+          : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
         className,
       )}
     >
-      {genState === 'playing' ? (
-        <Square className="h-3 w-3" />
-      ) : (
-        <Volume2 className="h-3 w-3" />
-      )}
+      {/* OPT-K137 — play/stop state only (no decorative speaker) */}
+      {genState === 'playing' ? <Square className="h-3 w-3" aria-hidden /> : null}
       {label}
     </button>
   );

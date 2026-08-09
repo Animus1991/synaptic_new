@@ -163,7 +163,7 @@ export function AIInsightsPanel({
         {lang === 'el' ? 'AI Insights' : 'AI Insights'}
       </SectionLabel>
 
-      <div className="rounded-xl border border-border-subtle bg-surface-card p-3 space-y-2">
+      <div className="rounded-xl border-0 bg-surface-secondary/50 p-3 space-y-2">
         {payload.observations.length === 0 ? (
           <p className="type-caption text-text-tertiary">
             {lang === 'el'
@@ -187,7 +187,7 @@ export function AIInsightsPanel({
           {payload.actions.map((action) => (
             <div
               key={action.id}
-              className="rounded-xl border border-border-subtle bg-surface-secondary/60 p-3 text-left"
+              className="rounded-xl border-0 bg-surface-secondary/60 p-3 text-left"
               data-testid={`ai-insight-action-${action.id}`}
             >
               <button

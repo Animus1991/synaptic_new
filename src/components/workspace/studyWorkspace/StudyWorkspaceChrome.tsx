@@ -1,6 +1,7 @@
 import { cn } from '../../../utils/cn';
 import { BlueprintSurface } from '../../ui/BlueprintSurface';
 import { ThemeToggle } from '../../ThemeToggle';
+import { HeaderLangPill } from '../../ui/platformChrome';
 import {
   X, Maximize2, Minimize2, Sparkles, StickyNote, LayoutGrid, SlidersHorizontal, PanelLeftOpen,
 } from '@/lib/lucide-shim';
@@ -80,7 +81,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
     enterSplitLesson,
   } = model;
 
-  const { userSettings, onToggleTheme } = model;
+  const { userSettings, onToggleTheme, onLanguageChange } = model;
 
   const [notebookMenuOpen, setNotebookMenuOpen] = useState(false);
   const [classicMenuOpen, setClassicMenuOpen] = useState(false);
@@ -96,6 +97,14 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
       onToggle={onToggleTheme}
       t={t}
       data-testid="workspace-theme-toggle"
+    />
+  ) : null;
+
+  const langPill = onLanguageChange ? (
+    <HeaderLangPill
+      lang={lang === 'el' ? 'el' : 'en'}
+      onChange={onLanguageChange}
+      className="inline-flex h-8 shrink-0"
     />
   ) : null;
 
@@ -220,6 +229,11 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                             >
                               {t('theme')}
                             </button>
+                          )}
+                          {langPill && (
+                            <div className="px-3 py-2" data-testid="workspace-mobile-lang">
+                              {langPill}
+                            </div>
                           )}
                         </div>
                       )}
@@ -351,6 +365,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     onClick={() => setStudyRoomOpen((v) => !v)}
                     variant="chrome"
                   />
+                  {langPill}
                   {themeToggle && (
                     <div className="[&>button]:p-1.5 [&>button]:rounded-lg [&>button]:hover:bg-surface-hover">
                       {themeToggle}
@@ -492,6 +507,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       {layout === 'zen' ? t('wsFocusStudyOn') : t('wsFocusStudy')}
                     </span>
                   </button>
+                  {!useClassicOverflow && langPill}
                   {!useClassicOverflow && themeToggle && (
                     <div className="[&>button]:ws-chrome-btn [&>button]:p-1.5 [&>button]:shrink-0">
                       {themeToggle}
@@ -503,7 +519,8 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     </button>
                   )}
                   {useClassicOverflow && (
-                    <div className="relative shrink-0">
+                    <div className="relative shrink-0 flex items-center gap-1">
+                      {langPill}
                       <button
                         type="button"
                         onClick={() => setClassicMenuOpen((v) => !v)}

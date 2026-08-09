@@ -519,11 +519,11 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(chrome).toMatch(/border-0|border-border-subtle/);
 
     const prim = read('src/components/ui/primitives.tsx');
-    expect(prim).toMatch(/OPT-K109|OPT-K111/);
-    expect(prim).toMatch(/border-border-subtle|border-transparent/);
+    expect(prim).toMatch(/OPT-K109|OPT-K111|OPT-K116/);
+    expect(prim).toMatch(/border-border-subtle|border-transparent|border-0/);
 
     const dash = read('src/components/Dashboard.tsx');
-    expect(dash).toMatch(/OPT-K109|wash strip|OPT-K111/);
+    expect(dash).toMatch(/OPT-K109|wash strip|OPT-K111|OPT-K116/);
     expect(dash).not.toMatch(/dashboard-course-grid[\s\S]{0,400}border border-border-subtle(?!\/)/);
   });
 
@@ -575,8 +575,8 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(shell).toMatch(/border border-transparent/);
 
     const prim = read('src/components/ui/primitives.tsx');
-    expect(prim).toMatch(/OPT-K111/);
-    expect(prim).toMatch(/hairline outline only/);
+    expect(prim).toMatch(/OPT-K111|OPT-K116/);
+    expect(prim).toMatch(/wash CTA|hairline outline only/);
   });
 
   it('K112 — Study prompts in hub bar + Today glance tiles + readiness ring center', () => {
@@ -623,13 +623,13 @@ describe('OPT-K69 engineering clarity contracts', () => {
 
   it('K115 — readiness −0.5% + SVG center + aggressive divider diet', () => {
     const ring = read('src/components/visuals/ReadinessRing.tsx');
-    expect(ring).toMatch(/OPT-K115/);
+    expect(ring).toMatch(/OPT-K115|OPT-K116/);
     expect(ring).toMatch(/size = 173/);
     expect(ring).toMatch(/dominantBaseline="central"/);
 
     const dash = read('src/components/Dashboard.tsx');
     expect(dash).toMatch(/size=\{127\}/);
-    expect(dash).toMatch(/OPT-K115/);
+    expect(dash).toMatch(/OPT-K115|OPT-K116/);
 
     const hub = read('src/components/DashboardActionHub.tsx');
     expect(hub).toMatch(/OPT-K115/);
@@ -642,6 +642,383 @@ describe('OPT-K69 engineering clarity contracts', () => {
     const clarity = read('src/styles/cursor-clarity.css');
     expect(clarity).toMatch(/OPT-K115/);
     expect(clarity).toMatch(/Aggressive divider diet/);
+  });
+
+  it('K116 — quiet secondary accents + denser boxes + wash SecondaryCTA', () => {
+    const prim = read('src/components/ui/primitives.tsx');
+    expect(prim).toMatch(/OPT-K116/);
+    expect(prim).toMatch(/wash CTA/);
+    expect(prim).toMatch(/border-0 bg-surface-secondary/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/OPT-K116|OPT-K117/);
+    expect(dash).toMatch(/ux-chip-soft-danger|ux-chip-soft-warn/);
+    expect(dash).toMatch(/dashboard-horizon-cell/);
+    expect(dash).toMatch(/size=\{34\}/);
+
+    const ring = read('src/components/visuals/ReadinessRing.tsx');
+    expect(ring).toMatch(/OPT-K116/);
+    expect(ring).toMatch(/strokeWidth = 9\.2/);
+
+    const shell = read('src/components/Shell.tsx');
+    expect(shell).toMatch(/OPT-K116|OPT-K117/);
+    expect(shell).toMatch(/border-r border-transparent/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K116/);
+    expect(clarity).toMatch(/Quiet secondary accents/);
+    expect(clarity).toMatch(/ux-chip-soft-danger/);
+  });
+
+  it('K117 — final divider purge: hub stack, utility rows, shell/demo hairlines', () => {
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K117/);
+    expect(clarity).toMatch(/Final divider purge|frameless hub stack/);
+    expect(clarity).toMatch(/UtilityRow: spacing only/);
+    expect(clarity).toMatch(/multi-column masonry stays borderless/);
+
+    const shell = read('src/components/Shell.tsx');
+    expect(shell).toMatch(/OPT-K117/);
+    expect(shell).toMatch(/border-b border-transparent/);
+    expect(shell).toMatch(/shell-search-button[\s\S]{0,200}border-0/);
+
+    const demo = read('src/components/DemoSandboxBanner.tsx');
+    expect(demo).toMatch(/OPT-K117/);
+    expect(demo).toMatch(/border-b border-transparent/);
+
+    const cal = read('src/components/visuals/CalibrationChip.tsx');
+    expect(cal).toMatch(/border-0/);
+    expect(cal).not.toMatch(/border-b border-border-subtle/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/OPT-K117/);
+  });
+
+  it('K118 — course page unbox + shared width/type parity with dashboard', () => {
+    const course = read('src/components/CourseView.tsx');
+    expect(course).toMatch(/OPT-K118/);
+    expect(course).toContain('data-testid="course-page"');
+    expect(course).toContain('data-border-diet="cta-only"');
+    expect(course).toMatch(/course-topic-card/);
+    expect(course).not.toMatch(/rounded-2xl border bg-surface-card/);
+
+    const prim = read('src/components/ui/primitives.tsx');
+    expect(prim).toMatch(/OPT-K118/);
+    expect(prim).toMatch(/shell-edge-balance/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K118/);
+    expect(indexCss).toMatch(/frameless equal-width tabs|KPI tiles: wash only/);
+    expect(indexCss).toMatch(/\.ux-stat-card \{[\s\S]{0,160}border:\s*none/);
+    expect(indexCss).toMatch(/frameless equal-width tabs/);
+    expect(indexCss).toMatch(/descriptive-sticky-tab[\s\S]{0,400}border:\s*none/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K118/);
+    expect(clarity).toMatch(/Course page \+ shared chrome/);
+    expect(clarity).toMatch(/course-page/);
+  });
+
+  it('K132 — Note Analysis unbox + equal summary columns', () => {
+    const page = read('src/components/NoteAnalysisView.tsx');
+    expect(page).toMatch(/OPT-K132/);
+    expect(page).toContain('data-testid="note-analysis-page"');
+    expect(page).toContain('data-border-diet="cta-only"');
+    expect(page).toMatch(/equal-height summary trio/);
+    expect(page).not.toMatch(/note-analysis-summary[\s\S]{0,80}border border-border-subtle/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K132/);
+    expect(clarity).toMatch(/Note Analysis clarity/);
+  });
+
+  it('K131 — Settings / Learning Preferences unbox + scroll sync without scrollIntoView', () => {
+    const page = read('src/components/Settings.tsx');
+    expect(page).toMatch(/OPT-K131/);
+    expect(page).toContain('data-testid="settings-page"');
+    expect(page).toContain('data-border-diet="cta-only"');
+    expect(page).toMatch(/Never call Element\.scrollIntoView|nav scroller only/);
+    expect(page).not.toMatch(/active\?\.scrollIntoView/);
+    expect(page).toMatch(/nav\.scrollTop/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K131/);
+    expect(clarity).toMatch(/Learning Preferences \/ Settings clarity/);
+  });
+
+  it('K130 — Analytics depth: equal columns + quiet FSRS + beat K3 hairlines', () => {
+    const page = read('src/components/Analytics.tsx');
+    expect(page).toMatch(/OPT-K130/);
+    expect(page).toContain('data-border-diet="cta-only"');
+    expect(page).toMatch(/equal-width 3-col pack|quiet FSRS spark columns/);
+    expect(page).toContain('lg:grid-cols-3');
+    expect(page).not.toMatch(/lg:columns-3/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K130/);
+    expect(clarity).toMatch(/beat OPT-K3 hairlines/);
+
+    const flow = read('src/components/analytics/SourceFlowDiagram.tsx');
+    expect(flow).toMatch(/source-flow-node-dot/);
+    expect(flow).not.toMatch(/blueprint-diagram-dot/);
+  });
+
+  it('K128 — Learning Analytics unbox + wash panels / Visual Lab', () => {
+    const page = read('src/components/Analytics.tsx');
+    expect(page).toMatch(/OPT-K128/);
+    expect(page).toContain('data-testid="analytics-page"');
+    expect(page).toContain('data-border-diet="cta-only"');
+    expect(page).toMatch(/denser wash FSRS tiles|CTA-only border diet/);
+    expect(page).not.toMatch(/analytics-flow-banner[\s\S]{0,220}border border-border-subtle/);
+
+    const range = read('src/components/analytics/AnalyticsDateRangeContext.tsx');
+    expect(range).toMatch(/OPT-K128/);
+    expect(range).toMatch(/wash segmented control/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K128/);
+    expect(clarity).toMatch(/Learning Analytics clarity/);
+  });
+
+  it('K127 — Study Room lobby unbox + wash cards / fields', () => {
+    const page = read('src/components/StudyRoom.tsx');
+    expect(page).toMatch(/OPT-K127/);
+    expect(page).toContain('data-testid="study-room-page"');
+    expect(page).toContain('data-border-diet="cta-only"');
+    expect(page).toMatch(/wash fields|balanced 3\/2 columns|spacing divider/);
+    expect(page).not.toMatch(/border border-border-subtle/);
+    expect(page).toContain('data-testid="study-room-or-divider"');
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K127/);
+    expect(clarity).toMatch(/Study Room lobby clarity/);
+  });
+
+  it('K133 — Agent notebook whisper panel rules keep resize', () => {
+    const nb = read('src/components/workspace/studyWorkspace/NotebookWorkspaceLayout.tsx');
+    expect(nb).toMatch(/OPT-K133/);
+    expect(nb).toContain('notebook-panel-resizer');
+    expect(nb).toContain('data-testid="notebook-resizer-sources-chat"');
+    expect(nb).toContain('data-testid="notebook-resizer-chat-studio"');
+    expect(nb).toMatch(/import \{ Group, Panel, Separator \}/);
+    expect(nb).toMatch(/notebook-panel-resizer w-px/);
+    expect(nb).not.toMatch(/notebook-panel-resizer w-2/);
+
+    const drawer = read('src/components/workspace/studyWorkspace/ClassicChatDrawer.tsx');
+    expect(drawer).toMatch(/OPT-K133/);
+    expect(drawer).toContain('data-testid="classic-chat-drawer-resizer"');
+    expect(drawer).toContain('<Separator');
+    expect(drawer).toMatch(/notebook-panel-resizer w-px/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K133/);
+    expect(clarity).toMatch(/OPT-K134/);
+    expect(clarity).toMatch(/whisper 1px panel rules/);
+    expect(clarity).toMatch(/14%, transparent/);
+  });
+
+  it('K135 — App-wide hidden scrollbars keep scroll', () => {
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K135/);
+    expect(clarity).toMatch(/App-wide HIDDEN scrollbars/);
+    expect(clarity).toMatch(/scrollbar-width:\s*none/);
+    expect(clarity).toMatch(/display:\s*none\s*!important/);
+    expect(clarity).not.toMatch(/overflow:\s*hidden;\s*\/\*\s*OPT-K135/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K135/);
+    expect(indexCss).toMatch(/FINAL kill-switch/);
+    expect(indexCss).toMatch(/scrollbar-width:\s*none\s*!important/);
+    expect(indexCss).toMatch(/display:\s*none\s*!important/);
+  });
+
+  it('K126 — Workspace Agent notebook unbox + wash studio/sources', () => {
+    const nb = read('src/components/workspace/studyWorkspace/NotebookWorkspaceLayout.tsx');
+    expect(nb).toMatch(/OPT-K126/);
+    expect(nb).toContain('data-testid="notebook-workspace-layout"');
+    expect(nb).toContain('data-border-diet="cta-only"');
+    expect(nb).toMatch(/denser wash studio cards|wash source rows/);
+    expect(nb).not.toMatch(/ring-1 ring-border-default/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K126/);
+    expect(clarity).toMatch(/Workspace Agent \(notebook 3-col\)/);
+
+    const pdf = read('src/components/workspace/PdfPageThumbnailStrip.tsx');
+    expect(pdf).toMatch(/OPT-K126/);
+    expect(pdf).not.toMatch(/ring-2 ring-brand-500/);
+  });
+
+  it('K137 — Sources/Studio clarity + icon diet; pages self-explanatory', () => {
+    const nb = read('src/components/workspace/studyWorkspace/NotebookWorkspaceLayout.tsx');
+    expect(nb).toMatch(/OPT-K137/);
+    expect(nb).toContain('data-testid="notebook-sources-purpose"');
+    expect(nb).toContain('data-testid="notebook-studio-purpose"');
+    expect(nb).not.toMatch(/Sparkles/);
+    expect(nb).not.toMatch(/\bPin\b/);
+    expect(nb).toMatch(/data-testid=\{`studio-card-ai-\$\{id\}`\}/);
+    expect(nb).toMatch(/>\s*AI\s*</);
+    expect(nb).toMatch(/agentPdfPagesHint/);
+
+    const pdf = read('src/components/workspace/PdfPageThumbnailStrip.tsx');
+    expect(pdf).toMatch(/OPT-K137/);
+    expect(pdf).toMatch(/Page \$\{n\}|pageChip/);
+
+    const i18n = read('src/lib/i18n.ts');
+    expect(i18n).toMatch(/Jump to a PDF page/);
+    expect(i18n).toMatch(/Μετάβαση σε σελίδα PDF/);
+  });
+
+  it('K136 — Agent chat icon diet keeps functional chrome', () => {
+    const agent = read('src/components/Agent.tsx');
+    expect(agent).toMatch(/OPT-K136/);
+    expect(agent).not.toMatch(/agent-message-avatar/);
+    expect(agent).not.toMatch(/Layers className="h-3 w-3/);
+    expect(agent).toContain('data-testid="agent-tts-toggle"');
+    expect(agent).toContain('data-testid="agent-session-offline-strip"');
+    expect(agent).toMatch(/AlertTriangle/);
+    expect(agent).toMatch(/Volume2|VolumeX/);
+
+    const banner = read('src/components/AgentContextBanner.tsx');
+    expect(banner).toMatch(/OPT-K136/);
+    expect(banner).not.toMatch(/MapPin[, ]/);
+    expect(banner).toMatch(/AlertTriangle/);
+    expect(banner).toMatch(/InfoHint/);
+
+    const go = read('src/components/GoToSourceButton.tsx');
+    expect(go).toMatch(/OPT-K136/);
+    expect(go).not.toMatch(/MapPin[, ]/);
+  });
+
+  it('K124 — Agent page unbox + wash bubbles / mode rail', () => {
+    const agent = read('src/components/Agent.tsx');
+    expect(agent).toMatch(/OPT-K124/);
+    expect(agent).toMatch(/'agent-page'/);
+    expect(agent).toContain('data-border-diet="cta-only"');
+    expect(agent).toMatch(/agent-message-bubble-assistant[\s\S]{0,200}border-0/);
+    expect(agent).toMatch(/border-t border-transparent/);
+
+    const sidebar = read('src/components/agent/AgentModeSidebar.tsx');
+    expect(sidebar).toMatch(/OPT-K124/);
+    expect(sidebar).toMatch(/border-r border-transparent/);
+    expect(sidebar).toMatch(/agent-mode-row[\s\S]{0,240}border-0/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K124/);
+    expect(clarity).toMatch(/Agent page clarity/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K124/);
+    expect(indexCss).toMatch(/agent chips: wash first|wash assistant bubble/);
+  });
+
+  it('K123 — discreet selected-tab hairlines platform-wide', () => {
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K123/);
+    expect(indexCss).toMatch(/descriptive-sticky-tab-active \{[\s\S]{0,160}inset 0 -1px/);
+    expect(indexCss).toMatch(/border-bottom:\s*1px solid transparent/);
+    expect(indexCss).toMatch(/\.ux-tab-active \{[\s\S]{0,120}42%/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K123/);
+    expect(clarity).toMatch(/discreet selected-tab hairline|discreet 1px/);
+  });
+
+  it('K122 — Library page unbox + wash CTAs + quiet accents', () => {
+    const lib = read('src/components/Library.tsx');
+    expect(lib).toMatch(/OPT-K122/);
+    expect(lib).toContain('data-testid="library-page"');
+    expect(lib).toContain('data-border-diet="cta-only"');
+    expect(lib).toMatch(/border-0 bg-surface-secondary/);
+    expect(lib).not.toMatch(/hover:border-brand-500\/35/);
+    expect(lib).not.toMatch(/border border-dashed border-brand-500\/40/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K122/);
+    expect(clarity).toMatch(/Library page clarity/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K122/);
+    expect(indexCss).toMatch(/Library drop zones/);
+  });
+
+  it('K121 — Dashboard type rhythm applied platform-wide', () => {
+    const prim = read('src/components/ui/primitives.tsx');
+    expect(prim).toMatch(/OPT-K121/);
+    expect(prim).toMatch(/data-type-rhythm="dashboard"/);
+    expect(prim).toMatch(/dashboard-panel-title/);
+    expect(prim).toMatch(/ux-kpi-value-sm/);
+
+    const label = read('src/components/ui/SectionLabel.tsx');
+    expect(label).toMatch(/OPT-K121/);
+    expect(label).toMatch(/type-micro/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K121/);
+    expect(clarity).toMatch(/Platform-wide type rhythm/);
+    expect(clarity).toMatch(/data-type-rhythm="dashboard"/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K121/);
+    expect(indexCss).toMatch(/page subtitle matches Dashboard/);
+    expect(indexCss).toMatch(/tab labels match Dashboard/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/data-type-rhythm="dashboard"/);
+    const library = read('src/components/Library.tsx');
+    expect(library).toMatch(/data-type-rhythm="dashboard"/);
+    const tasks = read('src/components/Tasks.tsx');
+    expect(tasks).toMatch(/data-type-rhythm="dashboard"/);
+    const analytics = read('src/components/Analytics.tsx');
+    expect(analytics).toMatch(/data-type-rhythm="dashboard"/);
+  });
+
+  it('K120 — course outline / descriptive tab type proportions', () => {
+    const chrome = read('src/components/ui/platformChrome.tsx');
+    expect(chrome).toMatch(/OPT-K120/);
+    expect(chrome).toMatch(/ux-section-subtitle/);
+    expect(chrome).toMatch(/type-meta/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K120/);
+    expect(indexCss).toMatch(/Descriptive tab type rhythm/);
+    expect(indexCss).toMatch(/\.descriptive-sticky-tab-label \{[\s\S]{0,120}--type-meta/);
+    expect(indexCss).toMatch(/\.descriptive-sticky-tab-summary \{[\s\S]{0,120}--type-caption/);
+    expect(indexCss).toMatch(/\.ux-section-eyebrow \{[\s\S]{0,120}--type-micro/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K120/);
+    expect(clarity).toMatch(/Course outline type proportions/);
+
+    const course = read('src/components/CourseView.tsx');
+    expect(course).toMatch(/OPT-K120/);
+  });
+
+  it('K119 — source quality panel + due queue hairline purge', () => {
+    const status = read('src/components/workspace/WorkspaceSourceStatusBar.tsx');
+    expect(status).toMatch(/OPT-K119/);
+    expect(status).toMatch(/data-layout="k119"/);
+    expect(status).toMatch(/w-full max-w-none/);
+    expect(status).toMatch(/border-0/);
+    expect(status).toMatch(/source-status-actions/);
+    expect(status).toMatch(/min-h-9/);
+
+    const due = read('src/components/workspace/LeitnerDueQueuePanel.tsx');
+    expect(due).toMatch(/OPT-K119/);
+    expect(due).toMatch(/frameless due queue/);
+    expect(due).not.toMatch(/border-l-2/);
+    expect(due).not.toMatch(/border-b border-border-subtle/);
+
+    const course = read('src/components/CourseView.tsx');
+    expect(course).toMatch(/OPT-K119/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K119/);
+    expect(clarity).toMatch(/Source quality \+ Due today/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K119/);
+    expect(indexCss).toMatch(/wash action chips|no left rail/);
   });
 
   it('K103 — soft badges/alerts + visible progressive disclosure (no radius square-off)', () => {
@@ -718,9 +1095,10 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(quiz).not.toMatch(/border-accent-cyan\/30 bg-accent-cyan\/10/);
 
     const notebook = read('src/components/workspace/studyWorkspace/NotebookWorkspaceLayout.tsx');
-    expect(notebook).toMatch(/OPT-K96/);
-    expect(notebook).toMatch(/bg-surface-secondary text-text-primary ring-1 ring-border-default/);
-    expect(notebook).toMatch(/studio-tool-icon.*border-border-subtle bg-surface-card text-text-secondary|bg-surface-card text-text-secondary/);
+    /* OPT-K137 supersedes glyph studio cards — text-led tools, no brand wash cages */
+    expect(notebook).toMatch(/OPT-K137/);
+    expect(notebook).toMatch(/denser wash studio cards/);
+    expect(notebook).not.toMatch(/studio-tool-icon/);
     expect(notebook).not.toMatch(/bg-brand-100\/80 text-brand-800/);
     expect(notebook).not.toMatch(/border-brand-400\/50 bg-brand-100\/70/);
 

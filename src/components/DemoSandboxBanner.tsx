@@ -47,10 +47,11 @@ export function DemoSandboxBanner() {
       aria-live="polite"
       title={t('demoSandboxBannerHint')}
       className={cn(
-        'sticky top-14 z-[19] border-b border-border-subtle/80',
+        /* OPT-K117 — status wash only; no stacked hairline under topbar */
+        'sticky top-14 z-[19] border-b border-transparent',
         quiet
           ? 'bg-surface-primary px-3 py-0.5 sm:px-5'
-          : 'bg-surface-secondary/70 backdrop-blur-sm px-3 py-1 sm:px-5',
+          : 'bg-surface-secondary/55 px-3 py-1 sm:px-5',
       )}
     >
       <div className="flex items-center justify-between gap-3 w-full min-h-7">

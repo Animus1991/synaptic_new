@@ -270,9 +270,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       data-testid="dashboard-page"
       data-bleed="full"
       data-border-diet="cta-only"
+      data-type-rhythm="dashboard"
       data-dashboard-layout={layoutMode}
     >
-      {/* OPT-K115 / OPT-K111 — divider diet + CTA-only borders; readiness −0.5% / SVG-centered percent */}
+      {/* OPT-K117 / OPT-K116 — final divider purge + quiet accents + denser boxes */}
       <MotionSection
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -786,7 +787,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   )}
                 >
                   {conceptMastery.length > 0 && (
-                    <BlueprintSurface className="p-3.5">
+                    <BlueprintSurface className="p-2 sm:p-2.5">
                       <SectionLabel icon={Brain}>{t('dashConceptMastery')}</SectionLabel>
                       <ConceptMasteryBars concepts={conceptMastery} className="concept-mastery-bars" />
                     </BlueprintSurface>
@@ -807,8 +808,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           )}
 
           {/* Priority tasks */}
-          <BlueprintSurface className="p-3.5" data-dashboard-col="b">
-            <div className="flex items-center justify-between mb-2.5">
+          <BlueprintSurface className="p-2 sm:p-2.5" data-dashboard-col="b">
+            <div className="flex items-center justify-between mb-1.5">
               <h2 className="dashboard-panel-title text-lg ws-serif font-medium flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-text-secondary" /> {t('dashPriorityTasks')}
               </h2>
@@ -828,20 +829,19 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   }}
                   /* Wave P-3 D02 — soft elev-popover on hover for Priority Task rows
                       (dark theme especially); no spring — CSS class only. */
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-colors cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60">
+                  className="flex items-center gap-3 px-1 py-2 rounded-lg hover:bg-surface-hover/70 transition-colors cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60">
                   <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-text-secondary shrink-0" />
                   <TaskActionIcon task={task} size="xs" />
-                  <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: resolveCourseColor(task.courseColor) }} />
+                  <div className="w-1 h-1 rounded-full shrink-0" style={{ backgroundColor: resolveCourseColor(task.courseColor) }} />
                   <div className="flex-1 min-w-0">
                     <p className="type-meta font-medium truncate group-hover:text-text-primary transition-colors">{task.title}</p>
                     <p className="type-caption text-text-tertiary mt-0.5">{task.courseName} · {taskDurationLabel(task.estimatedMinutes, t)}</p>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    {/* Wave P-3 C14 — solid on-accent chips so HIGH/CRITICAL pills
-                        clear WCAG AA on white spectrum + warm-light cards. */}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {/* OPT-K116 — soft priority ink chips (semantic color, no solid cage) */}
                     <span className={cn(
-                      'type-micro font-semibold px-2 py-0.5 rounded-md',
-                      task.priority === 'critical' ? 'ux-chip-solid-danger' : 'ux-chip-solid-warn',
+                      'type-micro font-semibold px-1.5 py-0.5 rounded-md',
+                      task.priority === 'critical' ? 'ux-chip-soft-danger' : 'ux-chip-soft-warn',
                     )}>{taskPriorityLabel(task.priority, t)}</span>
                     <span className="type-caption text-text-tertiary">{taskXpLabel(task.xpReward, t)}</span>
                   </div>
@@ -874,15 +874,15 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           )}
 
           {/* Active Courses */}
-          <BlueprintSurface className="p-3.5">
-            <div className="flex items-center justify-between mb-2.5">
+          <BlueprintSurface className="p-2 sm:p-2.5">
+            <div className="flex items-center justify-between mb-1.5">
               <h2 className="dashboard-panel-title text-lg ws-serif font-medium flex items-center gap-2"><BookOpen className="w-5 h-5 text-text-secondary" />{t('dashActiveCourses')}</h2>
               <button onClick={() => onNavigate('library')} className="dashboard-panel-action type-meta text-text-secondary hover:text-text-primary flex items-center gap-1">{t('dashLibrary')} <ChevronRight className="w-4 h-4" /></button>
             </div>
             {activeCourses.length > 0 ? (
               <div
                 className={cn(
-                  'dashboard-course-grid grid gap-3',
+                  'dashboard-course-grid grid gap-2',
                   isMultiCol ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1',
                 )}
               >
@@ -903,29 +903,29 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                         onSelectCourse(course);
                       }
                     }}
-                    className="p-3 sm:p-3.5 rounded-lg border-0 bg-transparent hover:bg-surface-secondary/55 cursor-pointer transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
+                    className="p-2 sm:p-2.5 rounded-lg border-0 bg-transparent hover:bg-surface-secondary/55 cursor-pointer transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
                   >
-                    <div className="proximity-row mb-3">
+                    <div className="proximity-row mb-2">
                       <CourseIcon icon={course.icon} size="lg" colorClassName="text-text-secondary" />
-                      <MasteryRing mastery={courseMastery} size={38} />
+                      <MasteryRing mastery={courseMastery} size={34} />
                     </div>
                     <h3 className="font-semibold type-meta mb-1 group-hover:text-text-primary transition-colors">{course.title}</h3>
-                    <div className="flex items-center gap-2 type-caption text-text-tertiary mb-3">
+                    <div className="flex items-center gap-2 type-caption text-text-tertiary mb-2">
                       <span>{t('dashLessonsCount').replace('{done}', String(course.completedLessons)).replace('{total}', String(course.totalLessons))}</span>
                       <span>·</span>
                       <span>{t('dashConceptsCount').replace('{count}', String(course.conceptCount))}</span>
                     </div>
                     {/* Wave P-2 C08 — Active Courses lesson-progress track uses
                         --viz-bar-track for ≥3:1 contrast vs card surface. */}
-                    <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
-                      <div className="h-1.5 rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (course.completedLessons / Math.max(course.totalLessons, 1)) * 100)}%`, backgroundColor: resolveCourseColor(course.color) }} />
+                    <div className="w-full rounded-full h-1" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
+                      <div className="h-1 rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (course.completedLessons / Math.max(course.totalLessons, 1)) * 100)}%`, backgroundColor: resolveCourseColor(course.color) }} />
                     </div>
                   </MotionSection>
                   );
                 })}
               </div>
             ) : (
-              <div className="rounded-xl bg-surface-secondary/45 p-5 text-center">
+              <div className="rounded-lg bg-surface-secondary/35 p-4 text-center">
                 <p className="type-body text-text-secondary">{t('dashCoursesProcessing')}</p>
                 <button
                   type="button"
@@ -1347,21 +1347,21 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <div className="min-w-0">
                 <SectionLabel icon={RotateCcw}>{t('dashSpacedRepetition')}</SectionLabel>
                 <p className="type-caption text-text-tertiary">{t('dashSpacedRepetitionHint')}</p>
-                <div className="mt-2 grid grid-cols-3 gap-1.5 text-center">
+                <div className="mt-1.5 grid grid-cols-3 gap-1 text-center">
                   <button
                     type="button"
                     onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
-                    className="p-2 rounded-lg bg-surface-secondary hover:bg-surface-hover transition-all"
+                    className="dashboard-horizon-cell dashboard-horizon-cell--active p-1.5 rounded-md hover:bg-surface-hover transition-all"
                     data-testid="dash-horizon-today"
                   >
                     <p className="ux-kpi-value text-text-primary">{fsrsHorizon.today}</p>
                     <p className="type-micro text-text-muted uppercase tracking-[0.04em] leading-tight"><AllCapsLabel>{t('dashHorizonToday')}</AllCapsLabel></p>
                   </button>
-                  <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-tomorrow">
+                  <div className="dashboard-horizon-cell p-1.5" data-testid="dash-horizon-tomorrow">
                     <p className="ux-kpi-value">{fsrsHorizon.tomorrow}</p>
                     <p className="type-micro text-text-muted uppercase tracking-[0.04em] leading-tight"><AllCapsLabel>{t('dashHorizonTomorrow')}</AllCapsLabel></p>
                   </div>
-                  <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-3d">
+                  <div className="dashboard-horizon-cell p-1.5" data-testid="dash-horizon-3d">
                     <p className="ux-kpi-value">{fsrsHorizon.within3d}</p>
                     <p className="type-micro text-text-muted uppercase tracking-[0.04em] leading-tight"><AllCapsLabel>{t('dashHorizon3d')}</AllCapsLabel></p>
                   </div>
@@ -1381,7 +1381,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           ) : (
             <>
               {unresolvedMisconceptions.length > 0 && (
-                <BlueprintSurface className="p-3">
+                <BlueprintSurface className="p-2 sm:p-2.5">
                   <SectionLabel icon={AlertTriangle}>{t('dashActiveMisconceptions')}</SectionLabel>
                   <div className="proximity-track-wide flex flex-col gap-2">
                     {unresolvedMisconceptions.slice(0, 2).map(m => (
@@ -1402,24 +1402,24 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 </BlueprintSurface>
               )}
 
-              <BlueprintSurface className="p-3">
+              <BlueprintSurface className="p-2 sm:p-2.5">
                 <SectionLabel icon={RotateCcw}>{t('dashSpacedRepetition')}</SectionLabel>
                 <p className="type-caption text-text-tertiary">{t('dashSpacedRepetitionHint')}</p>
-                <div className="mt-2 grid grid-cols-3 gap-1.5 text-center">
+                <div className="mt-1.5 grid grid-cols-3 gap-1 text-center">
                   <button
                     type="button"
                     onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
-                    className="p-2 rounded-lg bg-surface-secondary hover:bg-surface-hover transition-all"
+                    className="dashboard-horizon-cell dashboard-horizon-cell--active p-1.5 rounded-md hover:bg-surface-hover transition-all"
                     data-testid="dash-horizon-today"
                   >
                     <p className="ux-kpi-value text-text-primary">{fsrsHorizon.today}</p>
                     <p className="type-micro text-text-muted uppercase tracking-[0.04em] leading-tight"><AllCapsLabel>{t('dashHorizonToday')}</AllCapsLabel></p>
                   </button>
-                  <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-tomorrow">
+                  <div className="dashboard-horizon-cell p-1.5" data-testid="dash-horizon-tomorrow">
                     <p className="ux-kpi-value">{fsrsHorizon.tomorrow}</p>
                     <p className="type-micro text-text-muted uppercase tracking-[0.04em] leading-tight"><AllCapsLabel>{t('dashHorizonTomorrow')}</AllCapsLabel></p>
                   </div>
-                  <div className="p-2 rounded-lg bg-surface-primary/50" data-testid="dash-horizon-3d">
+                  <div className="dashboard-horizon-cell p-1.5" data-testid="dash-horizon-3d">
                     <p className="ux-kpi-value">{fsrsHorizon.within3d}</p>
                     <p className="type-micro text-text-muted uppercase tracking-[0.04em] leading-tight"><AllCapsLabel>{t('dashHorizon3d')}</AllCapsLabel></p>
                   </div>

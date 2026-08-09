@@ -1331,7 +1331,9 @@ const EN = {
   agentContextDetailHint: 'Context details',
   agentSourceQualityHint:
     'Source quality estimates how cleanly text was extracted from your file (OCR, layout, language). Reprocess if previews or answers look wrong.',
-  agentPdfPagesLabel: 'Pages',
+  agentPdfPagesLabel: 'Jump to a PDF page',
+  agentPdfPagesHint: 'Opens that page in the reader so you can study or cite it.',
+  agentPdfPageChip: 'Page {n}',
   agentGroundingMetaCollapsed: 'Source check · {pct}% match',
   agentGroundingMetaVerified: 'Grounded in your notes',
   agentSessionOfflineStrip: 'Offline — add an API key in Settings to use live AI.',
@@ -3704,7 +3706,9 @@ const EL: Record<I18nKey, string> = {
   agentContextDetailHint: 'Λεπτομέρειες πλαισίου',
   agentSourceQualityHint:
     'Η ποιότητα πηγής εκτιμά πόσο καθαρά εξήχθη το κείμενο (OCR, διάταξη, γλώσσα). Κάνε επανεπεξεργασία αν η προεπισκόπηση ή οι απαντήσεις φαίνονται λάθος.',
-  agentPdfPagesLabel: 'Σελίδες',
+  agentPdfPagesLabel: 'Μετάβαση σε σελίδα PDF',
+  agentPdfPagesHint: 'Ανοίγει τη σελίδα στον αναγνώστη για μελέτη ή παραπομπή.',
+  agentPdfPageChip: 'Σελ. {n}',
   agentGroundingMetaCollapsed: 'Έλεγχος πηγής · {pct}% ταύτιση',
   agentGroundingMetaVerified: 'Τεκμηριωμένο στις σημειώσεις σου',
   agentSessionOfflineStrip: 'Offline — πρόσθεσε API key στις Ρυθμίσεις για live AI.',

@@ -1,4 +1,4 @@
-import { ReactNode, forwardRef, type ButtonHTMLAttributes } from 'react';
+import { ReactNode, forwardRef, type ButtonHTMLAttributes, type HTMLAttributes } from 'react';
 import { motion, type HTMLMotionProps } from 'framer-motion';
 import type { LucideIcon } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
@@ -21,11 +21,12 @@ export function Page({
   children,
   className,
   gap = 'md',
+  ...rest
 }: {
   children: ReactNode;
   className?: string;
   gap?: 'sm' | 'md' | 'lg';
-}) {
+} & HTMLAttributes<HTMLDivElement>) {
   const quiet = useMinimalTheme();
   const gapClass = gap === 'sm' ? 'space-y-3' : gap === 'lg' ? 'space-y-6' : 'space-y-4';
   return (
@@ -33,10 +34,14 @@ export function Page({
       className={cn(
         'platform-page w-full min-w-0 max-w-none pb-24 lg:pb-6',
         /* OPT-K85 — non-Minimal: scrollbar-sized L/R pad; Minimal keeps calm gutters */
-        quiet ? 'p-3 sm:p-5 lg:px-6' : 'py-3 sm:py-5 shell-edge-balance',
+        /* OPT-K118 — shell-edge-balance on every theme for width parity across pages */
+        quiet ? 'p-3 sm:p-5 lg:px-6 shell-edge-balance' : 'py-3 sm:py-5 shell-edge-balance',
         gapClass,
         className,
       )}
+      {...rest}
+      /* OPT-K121 — Dashboard type rhythm on every Page surface */
+      data-type-rhythm="dashboard"
     >
       {children}
     </div>
@@ -65,7 +70,8 @@ export function PageHeader({
   const isMinimal = useMinimalTheme();
   const content = (
     <div className={cn(
-      'ux-page-header sticky top-0 z-20 -mx-3 mb-1 border-b border-border-subtle/50 bg-surface-primary/90 px-3 py-2 backdrop-blur-md sm:-mx-5 sm:px-5 lg:-mx-6 lg:px-6',
+      /* OPT-K118 — sticky header wash; no hairline under title cluster */
+      'ux-page-header sticky top-0 z-20 -mx-3 mb-1 border-b border-transparent bg-surface-primary/90 px-3 py-2 backdrop-blur-md sm:-mx-5 sm:px-5 lg:-mx-6 lg:px-6',
       'flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between',
       isMinimal && 'ux-page-header--text-first',
       className,
@@ -79,7 +85,7 @@ export function PageHeader({
         <div className="flex items-center gap-2">
           {/* OPT-K7 + OPT-K100 — Minimal text-first; non-Minimal icon tile uses ink chrome */}
           {Icon && !isMinimal && (
-            <span className="ux-page-header-icon grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-border-subtle bg-surface-secondary text-text-secondary">
+            <span className="ux-page-header-icon grid h-7 w-7 shrink-0 place-items-center rounded-lg border-0 bg-surface-secondary text-text-secondary">
               <Icon className="h-3.5 w-3.5" />
             </span>
           )}
@@ -241,8 +247,9 @@ export function SectionHeading({
     <div className={cn('flex items-center justify-between gap-3', className)}>
       <h2
         className={cn(
+          /* OPT-K121 — panel titles match Dashboard (meta / panel-title), not ad-hoc text-lg */
           'flex items-center gap-2 font-semibold text-text-primary',
-          size === 'lg' ? 'ws-serif text-lg font-medium' : 'type-meta',
+          size === 'lg' ? 'dashboard-panel-title ws-serif font-medium' : 'type-meta',
         )}
       >
         {Icon && (
@@ -306,8 +313,8 @@ export function StatTile({
         {icon}
         <span className="ws-eyebrow text-text-secondary truncate"><AllCapsLabel>{label}</AllCapsLabel></span>
       </div>
-      <p className="mt-1 text-sm font-bold tracking-tight tabular-nums text-text-primary sm:text-base">{value}</p>
-      {hint && <p className="ws-caption mt-0.5 text-text-muted">{hint}</p>}
+      <p className="ux-kpi-value-sm mt-1">{value}</p>
+      {hint && <p className="type-caption mt-0.5 text-text-muted">{hint}</p>}
     </BlueprintSurface>
   );
 }
@@ -448,9 +455,10 @@ export const SecondaryCTA = forwardRef<
       type="button"
       className={cn(
         'ux-secondary-cta inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-300 platform-pill',
-        /* OPT-K111 — interactive CTA: hairline outline only (surfaces stay borderless) */
-        'border border-border-subtle/70 bg-transparent text-text-secondary hover:border-border-default hover:bg-surface-secondary hover:text-text-primary',
+        /* OPT-K116 — wash CTA (no outline cage); focus ring remains for a11y */
+        'border-0 bg-surface-secondary/70 text-text-secondary hover:bg-surface-hover hover:text-text-primary',
         'disabled:opacity-60 disabled:pointer-events-none',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
         size === 'sm' ? 'px-3 py-2 type-caption min-h-[var(--btn-height-sm,2rem)]' : 'px-4 type-meta min-h-[var(--btn-height)]',
         className,
       )}

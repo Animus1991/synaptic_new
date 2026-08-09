@@ -58,22 +58,21 @@ function ModeRow({
       onClick={() => onSelectMode(m.mode)}
       title={m.desc}
       className={cn(
-        'agent-mode-row w-full flex items-start gap-3 p-2.5 rounded-xl text-left transition-all',
+        /* OPT-K124 — wash active mode (no outline cage) */
+        'agent-mode-row w-full flex items-start gap-3 p-2.5 rounded-xl text-left transition-colors border-0',
         active
-          ? quietModes
-            ? 'bg-surface-secondary border border-border-default'
-            : 'bg-brand-500/15 border border-brand-500/30'
-          : 'hover:bg-surface-hover/60 border border-transparent',
+          ? 'bg-surface-secondary'
+          : 'hover:bg-surface-hover/60 bg-transparent',
       )}
       data-testid={`agent-mode-${m.mode}`}
       data-active={active ? 'true' : 'false'}
     >
       <div
         className={cn(
-          'agent-mode-icon w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5',
-          quietModes && 'bg-transparent border border-border-subtle text-text-secondary',
+          'agent-mode-icon w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 border-0',
+          quietModes && 'bg-surface-secondary/70 text-text-secondary',
         )}
-        style={quietModes ? undefined : { backgroundColor: `${visual.color}20` }}
+        style={quietModes ? undefined : { backgroundColor: `${visual.color}18` }}
       >
         <Icon
           className={cn('w-3.5 h-3.5', quietModes && 'text-text-secondary')}
@@ -86,14 +85,7 @@ function ModeRow({
             {m.label}
           </span>
           {visual.badge && (
-            <span
-              className={cn(
-                'type-micro px-1.5 py-0 rounded-full',
-                quietModes
-                  ? 'border border-border-subtle text-text-tertiary bg-transparent'
-                  : 'bg-surface-secondary text-text-primary border border-border-subtle',
-              )}
-            >
+            <span className="type-micro px-1.5 py-0 rounded-md border-0 bg-surface-secondary/80 text-text-tertiary">
               {visual.badge}
             </span>
           )}
@@ -158,8 +150,9 @@ export function AgentModeSidebar({
   return (
     <aside
       className={cn(
-        'flex-shrink-0 flex-col border-r border-border-subtle bg-surface-card/50 overflow-hidden',
-        quietModes ? 'w-56 agent-modes-grouped' : 'w-72',
+        /* OPT-K124 — frameless mode rail (spacing + wash only) */
+        'flex-shrink-0 flex-col border-r border-transparent bg-surface-secondary/30 overflow-hidden',
+        quietModes ? 'w-56 agent-modes-grouped' : 'w-64',
         className,
       )}
       data-testid="agent-mode-sidebar"
@@ -167,8 +160,8 @@ export function AgentModeSidebar({
       data-mode-groups={quietModes ? 'true' : undefined}
     >
       <div className="flex-1 overflow-y-auto">
-        <div className="p-4 border-b border-border-subtle">
-          <p className="type-caption font-semibold text-text-tertiary uppercase tracking-wider mb-3">
+        <div className="p-3 border-b border-transparent">
+          <p className="type-micro font-semibold text-text-tertiary uppercase tracking-[0.12em] mb-2.5">
             <AllCapsLabel>{tutorModeHeading}</AllCapsLabel>
           </p>
 
@@ -180,7 +173,7 @@ export function AgentModeSidebar({
                 return (
                   <div
                     key={group.id}
-                    className="agent-mode-group rounded-lg border border-border-subtle/70 overflow-hidden"
+                    className="agent-mode-group rounded-lg border-0 bg-surface-secondary/40 overflow-hidden"
                     data-testid={`agent-mode-group-${group.id}`}
                     data-open={open ? 'true' : 'false'}
                   >
@@ -235,8 +228,8 @@ export function AgentModeSidebar({
         </div>
 
         {onChangeSourceMode && (
-          <div className="p-4 border-b border-border-subtle">
-            <p className="type-caption font-semibold text-text-tertiary uppercase tracking-wider mb-3">
+          <div className="p-3 border-b border-transparent">
+            <p className="type-micro font-semibold text-text-tertiary uppercase tracking-[0.12em] mb-2.5">
               <AllCapsLabel>{sourceModeHeading}</AllCapsLabel>
             </p>
             {sourceModeOptions.map((opt) => {
@@ -248,10 +241,10 @@ export function AgentModeSidebar({
                   type="button"
                   onClick={() => onChangeSourceMode(opt.id)}
                   className={cn(
-                    'w-full flex items-start gap-3 p-2.5 rounded-xl text-left mb-1.5 transition-all',
+                    'w-full flex items-start gap-3 p-2.5 rounded-xl text-left mb-1 transition-colors border-0',
                     active
-                      ? 'bg-surface-hover border border-border-subtle'
-                      : 'hover:bg-surface-hover/40 border border-transparent',
+                      ? 'bg-surface-secondary'
+                      : 'hover:bg-surface-hover/50 bg-transparent',
                   )}
                   data-testid={`agent-source-mode-${opt.id}`}
                 >
@@ -312,13 +305,13 @@ export function AgentModeCatalogGrid({
               title={m.desc}
               data-testid={`agent-mode-${m.mode}`}
               className={cn(
-                'ux-card p-2.5 text-left transition-all',
-                active ? 'border-brand-500/35 ring-1 ring-brand-500/20' : 'hover:border-brand-500/20',
+                'ux-card border-0 p-2.5 text-left transition-colors bg-surface-secondary/50',
+                active ? 'bg-surface-secondary ring-0' : 'hover:bg-surface-hover',
               )}
             >
               <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center mb-1.5"
-                style={{ backgroundColor: `${visual.color}20` }}
+                className="w-7 h-7 rounded-lg flex items-center justify-center mb-1.5 border-0"
+                style={{ backgroundColor: `${visual.color}18` }}
               >
                 <Icon className="w-3.5 h-3.5" style={{ color: visual.color }} />
               </div>
@@ -358,14 +351,14 @@ export function AgentModeCatalogGrid({
                   title={m.desc}
                   data-testid={`agent-mode-${m.mode}`}
                   className={cn(
-                    'ux-card agent-mode-catalog-tile p-2.5 text-left transition-all',
+                    'ux-card agent-mode-catalog-tile border-0 p-2.5 text-left transition-colors',
                     active
-                      ? 'border-border-default bg-surface-secondary ring-0'
-                      : 'hover:border-border-subtle',
+                      ? 'bg-surface-secondary ring-0'
+                      : 'bg-surface-secondary/40 hover:bg-surface-hover',
                   )}
                   data-active={active ? 'true' : 'false'}
                 >
-                  <div className="agent-mode-icon w-7 h-7 rounded-lg flex items-center justify-center mb-1.5 border border-border-subtle bg-transparent text-text-secondary">
+                  <div className="agent-mode-icon w-7 h-7 rounded-lg flex items-center justify-center mb-1.5 border-0 bg-surface-secondary/70 text-text-secondary">
                     <Icon className="w-3.5 h-3.5" />
                   </div>
                   <p className="type-caption font-medium text-text-primary">{m.label}</p>

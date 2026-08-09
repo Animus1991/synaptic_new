@@ -303,6 +303,9 @@ export function Library({
       className={cn('w-full max-w-none', isMinimal && 'library-calm library-files-density')}
       data-testid="library-page"
       data-bleed="full"
+      data-type-rhythm="dashboard"
+      /* OPT-K122 — Library clarity: CTA-only border diet (wash cards, no outline cages) */
+      data-border-diet="cta-only"
     >
     <Page gap="sm">
       <PageHeader
@@ -399,7 +402,7 @@ export function Library({
               {!entryHintDismissed && (
                 <div
                   data-testid="library-tip-banner"
-                  className="flex items-start justify-between gap-3 rounded-xl border border-dashed border-brand-500/35 bg-surface-card/40 px-3 py-2"
+                  className="flex items-start justify-between gap-3 rounded-xl border-0 bg-surface-secondary/55 px-3 py-2"
                 >
                   <p className="type-caption text-text-secondary">
                     <span className="font-semibold text-text-secondary">{t('libraryTipLabel', userLanguage)}</span>{' '}
@@ -451,7 +454,7 @@ export function Library({
           aria-label={t('libSearchAria', userLanguage)}
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full pl-10 pr-10 py-2.5 rounded-md bg-surface-input border border-border-subtle type-body text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/40 transition-colors"
+          className="w-full pl-10 pr-10 py-2.5 rounded-lg border-0 bg-surface-secondary/70 type-meta text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-500/40 transition-colors"
         />
         {search && (
           <button
@@ -481,9 +484,9 @@ export function Library({
                   aria-pressed={active}
                   data-testid={`library-filter-${f}`}
                   className={cn(
-                    'platform-pill px-3 py-1.5 rounded-md type-caption transition-colors border text-text-primary',
-                    active ? 'platform-pill-active' : '',
-                    f === 'attention' && active ? 'border-accent-amber/50 bg-accent-amber/10 text-accent-amber' : '',
+                    'platform-pill px-3 py-1.5 rounded-md type-caption transition-colors border-0 text-text-primary',
+                    active ? 'platform-pill-active bg-surface-secondary' : 'bg-surface-secondary/40',
+                    f === 'attention' && active ? 'bg-surface-secondary text-text-secondary' : '',
                   )}
                   style={{ fontFamily: 'var(--font-mono)' }}
                 >
@@ -496,20 +499,20 @@ export function Library({
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
               aria-label={t('libSortLabel', userLanguage)}
               data-testid="library-sort"
-              className="h-8 rounded-md border border-border-subtle bg-surface-input px-2 type-caption text-text-primary focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/40"
+              className="h-8 rounded-md border-0 bg-surface-secondary/70 px-2 type-caption text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500/40"
             >
               <option value="recent">{t('libSortRecent', userLanguage)}</option>
               <option value="progress">{t('libSortProgress', userLanguage)}</option>
               <option value="quality">{t('libSortQuality', userLanguage)}</option>
               <option value="title">{t('libSortTitle', userLanguage)}</option>
             </select>
-            <div className="hidden sm:flex items-center border border-border-subtle rounded-md overflow-hidden">
+            <div className="hidden sm:flex items-center rounded-md overflow-hidden border-0 bg-surface-secondary/55 p-0.5 gap-0.5">
               <button
                 type="button"
                 onClick={() => setViewMode('grid')}
                 aria-label={t('libGridView', userLanguage)}
                 aria-pressed={viewMode === 'grid'}
-                className={cn('p-2', viewMode === 'grid' ? 'bg-surface-hover text-text-primary' : 'text-text-tertiary hover:text-text-secondary')}
+                className={cn('p-2 rounded-md border-0', viewMode === 'grid' ? 'bg-surface-primary text-text-primary' : 'text-text-tertiary hover:text-text-secondary')}
               >
                 <Grid3X3 className="w-4 h-4" />
               </button>
@@ -518,7 +521,7 @@ export function Library({
                 onClick={() => setViewMode('list')}
                 aria-label={t('libListView', userLanguage)}
                 aria-pressed={viewMode === 'list'}
-                className={cn('p-2 border-l border-border-subtle', viewMode === 'list' ? 'bg-surface-hover text-text-primary' : 'text-text-tertiary hover:text-text-secondary')}
+                className={cn('p-2 rounded-md border-0', viewMode === 'list' ? 'bg-surface-primary text-text-primary' : 'text-text-tertiary hover:text-text-secondary')}
               >
                 <List className="w-4 h-4" />
               </button>
@@ -810,7 +813,8 @@ function CourseCard({
       data-testid="library-course-card"
       {...(isGenerating ? {} : workspaceEntryPrefetchHandlers())}
       className={cn(
-        'relative p-3.5 hover:border-brand-500/35 transition-all group',
+        /* OPT-K122 — denser wash card (no outline cage / hover border) */
+        'relative p-3 border-0 transition-colors group hover:bg-surface-secondary/40',
         isGenerating
           ? 'cursor-default pointer-events-none opacity-90'
           : 'cursor-pointer',
@@ -821,7 +825,7 @@ function CourseCard({
           {showMaterialGap && (
             <span
               data-testid={`library-corner-gap-${course.id}`}
-              className="rounded-md border border-accent-amber/40 bg-accent-amber/15 px-1.5 py-0.5 type-micro font-bold uppercase tracking-wide text-accent-amber"
+              className="rounded-md border-0 bg-surface-secondary px-1.5 py-0.5 type-micro font-bold uppercase tracking-wide text-text-secondary"
             >
               <AllCapsLabel>{t('libCornerMaterialGap', userLanguage)}</AllCapsLabel>
             </span>
@@ -829,7 +833,7 @@ function CourseCard({
           {showMisconception && (
             <span
               data-testid={`library-corner-misconception-${course.id}`}
-              className="rounded-md border border-brand-500/35 bg-brand-500/10 px-1.5 py-0.5 type-micro font-bold uppercase tracking-wide text-text-secondary"
+              className="rounded-md border-0 bg-surface-secondary/80 px-1.5 py-0.5 type-micro font-bold uppercase tracking-wide text-text-secondary"
             >
               <AllCapsLabel>{t('libCornerMisconception', userLanguage)}</AllCapsLabel>
             </span>
@@ -837,7 +841,7 @@ function CourseCard({
         </div>
       )}
 
-      <div className="flex items-start justify-between mb-3">
+      <div className="flex items-start justify-between mb-2.5">
         <CourseIcon icon={course.icon} size="lg" colorClassName="text-text-secondary" />
         <div className="flex items-center gap-1">
           {canDelete && !isGenerating && (
@@ -845,7 +849,7 @@ function CourseCard({
               type="button"
               onClick={(e) => { e.stopPropagation(); setRemoveDialogOpen(true); }}
               data-testid="library-course-delete"
-              className="pointer-events-auto rounded-lg p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-accent-rose/10 hover:text-accent-rose hover:opacity-100"
+              className="pointer-events-auto rounded-lg border-0 p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-surface-secondary hover:text-text-secondary hover:opacity-100"
               aria-label={t('libDeleteCourseAria', userLanguage)}
             >
               <X className="w-4 h-4" />
@@ -853,7 +857,7 @@ function CourseCard({
           )}
           {isOldPipeline && !isGenerating && (
             <div
-              className="flex items-center gap-1 px-2 py-1 rounded-full type-micro font-semibold border border-accent-amber/30 bg-accent-amber/10 text-accent-amber"
+              className="flex items-center gap-1 px-2 py-1 rounded-md type-micro font-semibold border-0 bg-surface-secondary text-text-secondary"
               title={t('libOldPipelineHint', userLanguage)}
             >
               <RefreshCw className="w-3 h-3" />
@@ -865,15 +869,15 @@ function CourseCard({
         ) : needsReview ? (
           <CourseStatusBadge kind="needs_review" />
         ) : (
-          <span className="type-micro text-text-tertiary font-medium capitalize px-2 py-1 rounded-full border border-border-subtle">
+          <span className="type-micro text-text-tertiary font-medium capitalize px-2 py-1 rounded-md border-0 bg-surface-secondary/70">
             {courseDifficultyLabel(course.difficulty, userLanguage)}
           </span>
         )}
         </div>
       </div>
 
-      <h3 className="type-meta font-semibold mb-1 text-text-primary group-hover:text-text-primary transition-colors" data-testid="library-course-title">{course.title}</h3>
-      <p className="type-caption text-text-tertiary mb-3 line-clamp-2">{course.description}</p>
+      <h3 className="type-meta font-semibold mb-0.5 text-text-primary group-hover:text-text-primary transition-colors" data-testid="library-course-title">{course.title}</h3>
+      <p className="type-caption text-text-tertiary mb-2.5 line-clamp-2 leading-snug">{course.description}</p>
       {course.recognitionSummary && !isGenerating && (
         <p className="type-micro text-text-muted mb-2">
           {t('recognitionReportTitle', userLanguage)}:{' '}
@@ -889,12 +893,12 @@ function CourseCard({
         </div>
       )}
       {quality?.needsMoreMaterial && !isGenerating && (
-        <p className="mb-2.5 type-caption text-accent-amber line-clamp-2">
+        <p className="mb-2 type-caption text-text-secondary line-clamp-2">
           {quality.warnings[0] ?? t('libNeedsMoreHint', userLanguage)}
         </p>
       )}
 
-      <div className="flex flex-wrap items-center gap-3 type-caption text-text-tertiary mb-2.5">
+      <div className="flex flex-wrap items-center gap-2.5 type-caption text-text-tertiary mb-2">
         <span className="flex items-center gap-1">
           <BookOpen className="w-3.5 h-3.5" />
           {course.totalLessons} {t('libLessons', userLanguage)}
@@ -903,18 +907,18 @@ function CourseCard({
           <Clock className="w-3.5 h-3.5" />
           {course.estimatedHours}h
         </span>
-        <span className="flex items-center gap-1">
+        <span className="flex items-center gap-1 tabular-nums">
           <BarChart3 className="w-3.5 h-3.5" />
           {course.mastery}%
         </span>
         {!isGenerating && pendingTasks > 0 && (
-          <span className="flex items-center gap-1 text-accent-cyan" title={t('libCardTasks', userLanguage)}>
+          <span className="flex items-center gap-1 text-text-secondary" title={t('libCardTasks', userLanguage)}>
             <List className="w-3.5 h-3.5" />
             {pendingTasks}
           </span>
         )}
         {!isGenerating && dueReviews > 0 && (
-          <span className="flex items-center gap-1 text-accent-amber" title={t('libCardReviews', userLanguage)}>
+          <span className="flex items-center gap-1 text-text-secondary" title={t('libCardReviews', userLanguage)}>
             <Clock className="w-3.5 h-3.5" />
             {dueReviews}
           </span>
@@ -937,7 +941,7 @@ function CourseCard({
       )}
 
       {!isGenerating && (
-        <div className="mt-3 flex items-center gap-2">
+        <div className="mt-2.5 flex items-center gap-2">
           <button
             type="button"
             onClick={(e) => {
@@ -945,7 +949,7 @@ function CourseCard({
               onClick();
             }}
             data-testid={`library-open-course-${course.id}`}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-700 text-white px-2 py-1.5 type-caption font-semibold hover:bg-brand-600 transition-colors ux-solid-brand-cta"
+            className="flex-1 inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border-0 bg-brand-700 text-white px-2 py-1.5 type-caption font-semibold hover:bg-brand-600 transition-colors ux-solid-brand-cta"
           >
             {t('libOpenCourse', userLanguage)}
           </button>
@@ -957,7 +961,7 @@ function CourseCard({
                 onOpenNotebookShell(course.id);
               }}
               data-testid={`library-notebook-shell-${course.id}`}
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1.5 type-caption font-medium text-text-secondary hover:bg-brand-500/10 transition-colors"
+              className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border-0 bg-surface-secondary px-2.5 py-1.5 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
             >
               <BookOpen className="w-3.5 h-3.5" />
               {t('libNotebookShellShort', userLanguage)}
@@ -969,11 +973,11 @@ function CourseCard({
       {!isGenerating && (
         <OverflowChipRow
           testId={`library-topic-chips-${course.id}`}
-          className="mt-3"
+          className="mt-2.5"
           maxVisible={3}
           moreAriaLabel={(n) => t('libChipOverflowMoreAria', userLanguage).replace('{n}', String(n))}
           lessAriaLabel={t('libChipOverflowLessAria', userLanguage)}
-          chipClassName="!max-w-[10rem] type-micro sm:text-xs"
+          chipClassName="!max-w-[10rem] type-micro border-0 bg-surface-secondary/70"
           items={topicChips.map((topic) => ({
             key: topic.id,
             label: topic.title,
@@ -989,7 +993,7 @@ function CourseCard({
                   onUpload();
                 }}
                 data-testid={`library-add-file-${course.id}`}
-                className="rounded-md border border-dashed border-brand-500/40 px-1.5 py-0.5 type-micro sm:text-xs font-medium text-text-secondary hover:bg-brand-500/10"
+                className="rounded-md border-0 bg-surface-secondary/70 px-1.5 py-0.5 type-micro font-medium text-text-secondary hover:bg-surface-hover"
               >
                 {t('libAddFileChip', userLanguage)}
               </button>
@@ -998,21 +1002,21 @@ function CourseCard({
         />
       )}
 
-      <div className="mt-3 flex items-center justify-between">
-        <div className="flex flex-wrap gap-1">
+      <div className="mt-2.5 flex items-center justify-between gap-2">
+        <div className="flex min-w-0 flex-wrap gap-1">
           {course.sourceFiles.slice(0, 2).map(f => (
-            <span key={f} className="platform-meta-chip px-1.5 py-0.5 rounded truncate max-w-[100px]">
+            <span key={f} className="platform-meta-chip border-0 bg-surface-secondary/60 px-1.5 py-0.5 rounded truncate max-w-[100px]">
               {f}
             </span>
           ))}
           {course.sourceFiles.length > 2 && (
-            <span className="platform-meta-chip px-1.5 py-0.5 rounded">
+            <span className="platform-meta-chip border-0 bg-surface-secondary/60 px-1.5 py-0.5 rounded">
               +{course.sourceFiles.length - 2}
             </span>
           )}
         </div>
         <span className={cn(
-          'platform-source-badge inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full font-medium',
+          'platform-source-badge inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md border-0 font-medium type-micro',
           course.sourceMode === 'strict' ? 'platform-source-badge--strict' : course.sourceMode === 'enriched' ? 'platform-source-badge--enriched' : 'platform-source-badge--notes',
         )}>
           <UiIcon id={course.sourceMode === 'strict' ? 'lock' : course.sourceMode === 'enriched' ? 'sparkle' : 'notes'} size="xs" />
@@ -1020,7 +1024,7 @@ function CourseCard({
         </span>
       </div>
       {course.conceptCount > 0 && (
-        <div className="mt-2 flex items-center gap-3 type-caption text-text-muted">
+        <div className="mt-1.5 flex items-center gap-2.5 type-caption text-text-muted tabular-nums">
           <span>{course.conceptCount} {t('libConcepts', userLanguage)}</span>
           <span>{course.glossaryCount} {t('libTerms', userLanguage)}</span>
           <span>{course.exerciseCount} {t('libExercises', userLanguage)}</span>
@@ -1097,7 +1101,8 @@ function CourseListItem({
       // Wave E14 — primary open control; actions stay siblings (no nested-interactive).
       data-testid="library-course-card"
       className={cn(
-        'flex items-center gap-2 p-4 hover:border-brand-500/35 transition-all group',
+        /* OPT-K122 — list row wash (no outline / hover border) */
+        'flex items-center gap-2 p-3 border-0 transition-colors group hover:bg-surface-secondary/40',
         isGenerating ? 'opacity-90' : '',
       )}
     >
@@ -1121,7 +1126,7 @@ function CourseListItem({
             <h3 className="font-semibold type-meta text-text-primary transition-colors truncate" data-testid="library-course-title">{course.title}</h3>
             {isOldPipeline && !isGenerating && (
               <span
-                className="inline-flex items-center gap-1 rounded-full border border-accent-amber/30 bg-accent-amber/10 px-1.5 py-0.5 type-caption font-medium text-accent-amber"
+                className="inline-flex items-center gap-1 rounded-md border-0 bg-surface-secondary px-1.5 py-0.5 type-caption font-medium text-text-secondary"
                 title={t('libOldPipelineHint', userLanguage)}
               >
                 <RefreshCw className="w-3 h-3" />
@@ -1132,8 +1137,7 @@ function CourseListItem({
           <p className="mt-0.5 type-caption font-medium text-text-secondary">{course.subject} · {course.totalLessons} {t('libLessons', userLanguage)} · {course.estimatedHours}h{pendingTasks > 0 ? ` · ${pendingTasks} ${t('libCardTasks', userLanguage)}` : ''}{dueReviews > 0 ? ` · ${dueReviews} ${t('libCardReviews', userLanguage)}` : ''}</p>
           {quality && (
             <p className={cn(
-              'type-caption mt-1 truncate',
-              quality.needsMoreMaterial ? 'text-accent-amber' : 'text-text-secondary',
+              'type-caption mt-1 truncate text-text-secondary',
             )}>
               {quality.needsMoreMaterial
                 ? (quality.warnings[0] ?? t('libNeedsMoreHint', userLanguage))
@@ -1162,7 +1166,7 @@ function CourseListItem({
           type="button"
           onClick={() => onOpenNotebookShell(course.id)}
           data-testid={`library-notebook-shell-list-${course.id}`}
-          className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-brand-500/30 px-2 py-1 type-caption font-medium text-text-secondary hover:bg-brand-500/10"
+          className="hidden sm:inline-flex items-center gap-1 rounded-lg border-0 bg-surface-secondary px-2 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
         >
           <BookOpen className="w-3 h-3" />
           {t('libNotebookShellShort', userLanguage)}
@@ -1173,7 +1177,7 @@ function CourseListItem({
           type="button"
           onClick={() => setRemoveDialogOpen(true)}
           data-testid="library-course-delete"
-          className="rounded-lg p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-accent-rose/10 hover:text-accent-rose hover:opacity-100"
+          className="rounded-lg border-0 p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-surface-secondary hover:text-text-secondary hover:opacity-100"
           aria-label={t('libDeleteCourseAria', userLanguage)}
         >
           <Trash2 className="w-4 h-4" />
@@ -1294,7 +1298,7 @@ function FileItem({
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03 }}
       data-testid="library-file-row"
-      className="library-file-row rounded-xl border border-border-subtle bg-surface-card overflow-hidden"
+      className="library-file-row rounded-xl border-0 bg-surface-secondary/50 overflow-hidden"
     >
       <div className="flex items-center gap-3 p-3">
         <div className="library-file-icon w-10 h-10 rounded-lg bg-surface-hover flex items-center justify-center shrink-0">
@@ -1335,13 +1339,13 @@ function FileItem({
             </div>
           )}
           {file.status === 'processing' && (
-            <span className="flex items-center gap-1 type-caption text-accent-amber">
+            <span className="flex items-center gap-1 type-caption text-text-secondary">
               <Loader2 className="w-3 h-3 animate-spin" />
               {t('libAnalyzing', userLanguage)}
             </span>
           )}
           {file.status === 'analyzed' && (
-            <span className="flex items-center gap-1 type-caption text-accent-emerald">
+            <span className="flex items-center gap-1 type-caption text-text-secondary">
               <Sparkles className="w-3 h-3" />
               {t('libReady', userLanguage)}
             </span>
@@ -1349,7 +1353,7 @@ function FileItem({
           {isError && (
             <span
               data-testid={`library-file-error-${file.id}`}
-              className="flex items-center gap-1 type-caption text-accent-rose"
+              className="flex items-center gap-1 type-caption text-text-secondary"
             >
               <AlertCircle className="w-3 h-3" />
               {t('libError', userLanguage)}
@@ -1363,7 +1367,7 @@ function FileItem({
                 lang: userLanguage,
               })}
               data-testid={`library-open-nlm-${file.id}`}
-              className="p-1.5 rounded-lg border border-brand-500/30 text-text-secondary hover:bg-brand-500/10 transition-colors"
+              className="p-1.5 rounded-lg border-0 bg-surface-secondary text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
               title={t('libOpenNotebookLmTitle', userLanguage)}
             >
               <ExternalLink className="w-4 h-4" />
@@ -1374,7 +1378,7 @@ function FileItem({
               type="button"
               onClick={() => onAskSource(file, course)}
               data-testid={`library-ask-source-${file.id}`}
-              className="p-1.5 rounded-lg border border-brand-500/30 text-text-secondary hover:bg-brand-500/10 transition-colors"
+              className="p-1.5 rounded-lg border-0 bg-surface-secondary text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
               title={t('libAskSourceTitle', userLanguage)}
               aria-label={t('libAskSourceTitle', userLanguage)}
             >
@@ -1387,7 +1391,7 @@ function FileItem({
               onClick={() => file.courseId && onReprocessCourse?.(file.courseId)}
               disabled={reprocessingMaterial}
               data-testid={`library-reprocess-${file.id}`}
-              className="p-1.5 rounded-lg border border-brand-500/30 text-text-secondary hover:bg-brand-500/10 disabled:opacity-60 transition-colors"
+              className="p-1.5 rounded-lg border-0 bg-surface-secondary text-text-secondary hover:bg-surface-hover hover:text-text-primary disabled:opacity-60 transition-colors"
               title={t(isError ? 'libRetryTooltip' : 'libReprocessTooltip', userLanguage)}
               aria-label={t(isError ? 'libRetryTooltip' : 'libReprocessTooltip', userLanguage)}
             >
@@ -1399,7 +1403,7 @@ function FileItem({
               type="button"
               onClick={confirmRemove}
               data-testid={`library-remove-${file.id}`}
-              className="p-1.5 rounded-lg border border-accent-rose/30 text-accent-rose hover:bg-accent-rose/10 transition-colors"
+              className="p-1.5 rounded-lg border-0 bg-surface-secondary text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
               title={t('libRemoveFileTooltip', userLanguage)}
             >
               <Trash2 className="w-4 h-4" />
@@ -1409,7 +1413,7 @@ function FileItem({
             <button
               type="button"
               onClick={() => setExpanded((v) => !v)}
-              className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary"
+              className="p-1.5 rounded-lg border-0 hover:bg-surface-hover text-text-secondary"
               aria-expanded={expanded}
               aria-label={expanded ? t('libHideOutline', userLanguage) : t('libShowOutline', userLanguage)}
             >

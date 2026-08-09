@@ -6,13 +6,14 @@ import { BlueprintSurface } from '../ui/BlueprintSurface';
 import { AllCapsLabel } from '../ui/AllCapsLabel';
 
 /* OPT-K97 — event cards share calm wells; delta/dot carry semantic chroma */
+/* OPT-K128 — wash event chips (no outline cages) */
 const TYPE_STYLE: Record<TimelineEventType, { border: string; bg: string; text: string }> = {
-  lesson: { border: 'border-border-subtle', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
-  quiz: { border: 'border-border-subtle', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
-  review: { border: 'border-border-subtle', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
-  error: { border: 'border-border-subtle', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
-  mastery: { border: 'border-border-subtle', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
-  task: { border: 'border-border-subtle', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
+  lesson: { border: 'border-0', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
+  quiz: { border: 'border-0', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
+  review: { border: 'border-0', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
+  error: { border: 'border-0', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
+  mastery: { border: 'border-0', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
+  task: { border: 'border-0', bg: 'bg-surface-secondary/70', text: 'text-text-primary' },
 };
 
 type Props = {
@@ -56,7 +57,7 @@ export function LearningTimelineChart({
       </h3>
       <p className="type-caption text-text-tertiary mb-4">{hint}</p>
 
-      <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-4">
+      <div className="rounded-xl border-0 bg-surface-primary/40 p-4">
         <div className="relative ml-6 border-l-2 border-border-subtle pl-5">
           {events.map((event) => {
             const style = TYPE_STYLE[event.type];
@@ -74,7 +75,7 @@ export function LearningTimelineChart({
                   type="button"
                   onClick={() => setExpandedId(isExpanded ? null : event.id)}
                   className={cn(
-                    'w-full rounded-xl border p-3 text-left transition-all duration-200 hover:brightness-105',
+                    'w-full rounded-xl border-0 p-3 text-left transition-all duration-200 hover:bg-surface-hover',
                     style.border,
                     style.bg,
                     style.text,
@@ -100,7 +101,7 @@ export function LearningTimelineChart({
                     </div>
                   </div>
                   {isExpanded && (
-                    <div className="mt-3 space-y-2 border-t border-border-subtle/60 pt-3">
+                    <div className="mt-3 space-y-2 border-t border-transparent pt-3">
                       <p className="type-caption text-text-secondary leading-relaxed">{event.detail}</p>
                       {event.delta !== 0 && (
                         <div className="flex items-center gap-2">

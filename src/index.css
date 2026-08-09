@@ -1137,18 +1137,19 @@
 
 /* Option-B Wave E4 — agent bubbles, follow-up chips, toast polish */
 /* Wave D1 — radius from scale (pill only under Minimal / Blueprint); type ≥ caption on small screens */
+/* OPT-K124 — agent chips: wash first (outline optional via theme overrides) */
 .ux-agent-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-subtle);
+  border: none;
+  background: color-mix(in srgb, var(--color-surface-secondary) 70%, transparent);
   padding: 0.375rem 0.75rem;
   font-size: max(var(--type-caption), 0.6875rem);
   line-height: var(--leading-caption);
   color: var(--color-text-secondary);
   transition:
-    border-color var(--motion-duration-ui) var(--motion-ease),
     background-color var(--motion-duration-ui) var(--motion-ease),
     color var(--motion-duration-ui) var(--motion-ease);
 }
@@ -1172,8 +1173,11 @@
 .agent-message-bubble {
   border-radius: var(--radius-bubble);
 }
-/* Wave E14 — assistant ink always theme primary (prevents dark-theme #eee leak on light cards). */
+/* Wave E14 / OPT-K124 — wash assistant bubble; theme primary ink */
 .agent-message-bubble-assistant {
+  border: none;
+  box-shadow: none;
+  background: color-mix(in srgb, var(--color-surface-secondary) 55%, transparent);
   color: var(--color-text-primary);
 }
 .agent-message-bubble-assistant .rich-text,
@@ -1185,8 +1189,8 @@
   overflow: auto;
 }
 .ux-agent-chip:hover {
-  border-color: color-mix(in srgb, var(--color-brand-500) 30%, transparent);
   background: var(--color-surface-hover);
+  color: var(--color-text-primary);
 }
 [data-theme="blueprint"] .agent-message-bubble-assistant {
   border: 1px solid color-mix(in srgb, var(--color-accent-cyan) 20%, transparent);
@@ -1200,11 +1204,26 @@
   color: var(--color-text-primary);
   border-radius: var(--radius-bubble);
 }
-/* Wave D2 — Agent composer control hit targets ≥44px on touch */
+/* Wave D2 / OPT-K125 — composer toolbar: tools left, send right, ≥44px hits */
+.agent-composer-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  width: 100%;
+}
+.agent-composer-toolbar {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.25rem;
+}
 .agent-composer-tools button,
 .agent-composer-send {
   min-width: 2.75rem;
   min-height: 2.75rem;
+}
+.agent-composer-send {
+  margin-left: auto;
 }
 [data-theme="blueprint"] .agent-message-bubble-user .agent-message-meta {
   border-color: color-mix(in srgb, #ffffff 15%, transparent);
@@ -1304,23 +1323,39 @@
   border-radius: var(--radius-lg);
   border-width: 1px;
 }
+/* OPT-K122 — Library drop zones: wash first; dashed only on hover (upload affordance) */
+[data-testid="library-page"] .ux-library-drop-zone {
+  width: 100%;
+  max-width: none;
+  border: none;
+  background: color-mix(in srgb, var(--color-surface-secondary) 55%, transparent);
+  box-shadow: none;
+}
+[data-testid="library-page"] .ux-library-drop-zone:hover,
+[data-testid="library-page"] .ux-library-drop-zone:focus-visible {
+  border: 1px dashed color-mix(in srgb, var(--color-text-muted) 45%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary) 75%, transparent);
+}
+/* OPT-K118 — KPI tiles: wash only (parity with dashboard-today-stat) */
 .ux-stat-card {
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-subtle);
-  background: color-mix(in srgb, var(--color-surface-primary) 40%, transparent);
-  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: none;
+  background: color-mix(in srgb, var(--color-surface-secondary) 55%, transparent);
+  padding: 0.45rem 0.65rem;
+  box-shadow: none;
 }
 .ux-stat-card-label {
   font-size: var(--type-micro);
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
 }
 .ux-stat-card-value {
-  margin-top: var(--space-1);
-  font-size: var(--type-body);
-  font-weight: 600;
+  margin-top: 0.15rem;
+  font-size: var(--type-meta);
+  font-weight: 700;
+  line-height: 1.15;
   color: var(--color-text-primary);
   font-variant-numeric: tabular-nums;
 }
@@ -1383,7 +1418,6 @@
 }
 [data-theme="light"] .descriptive-sticky-tab-summary {
   color: var(--color-text-secondary);
-  font-size: var(--type-caption);
 }
 [data-theme="blueprint"] .ux-upload-drop-zone,
 [data-theme="blueprint"] .ux-library-drop-zone {
@@ -1545,35 +1579,73 @@
   box-shadow: 0 16px 48px color-mix(in srgb, #000000 28%, transparent);
 }
 
-/* Option-B Wave E10 — decorative SourceFlow + RetentionSparkline boards */
-.source-flow-node-bg {
-  fill: color-mix(in srgb, var(--color-surface-card) 88%, transparent);
-  stroke: var(--color-border-subtle);
+/* OPT-K129 — SourceFlow + Visual Lab boards: Synapse wash/ink (no Apple ribbon) */
+.source-flow-rail {
+  stroke: color-mix(in srgb, var(--color-text-primary) 10%, transparent);
   stroke-width: 1;
 }
+.source-flow-pipe {
+  stroke: color-mix(in srgb, var(--color-text-primary) 28%, transparent);
+  fill: none;
+}
+.source-flow-node-dot {
+  fill: var(--color-surface-secondary);
+  stroke: color-mix(in srgb, var(--color-text-primary) 35%, transparent);
+  stroke-width: 1.25;
+}
+.source-flow-node-bg {
+  fill: color-mix(in srgb, var(--color-surface-secondary) 88%, transparent);
+  stroke: none;
+}
 [data-theme="blueprint"] .source-flow-node-bg {
-  fill: color-mix(in srgb, #020617 82%, transparent);
-  stroke: color-mix(in srgb, #ffffff 12%, transparent);
+  fill: color-mix(in srgb, #ffffff 8%, transparent);
+  stroke: none;
+}
+[data-theme="blueprint"] .source-flow-node-dot {
+  fill: color-mix(in srgb, #ffffff 10%, transparent);
+  stroke: color-mix(in srgb, #ffffff 35%, transparent);
+}
+.source-flow-step-index {
+  fill: var(--color-text-muted);
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--font-sans);
 }
 .source-flow-node-label {
-  fill: var(--color-text-secondary);
-  font-size: var(--type-micro); /* UIUX-AUDIT-2026-08: 9px → 11px (--type-micro floor) */
+  fill: var(--color-text-primary);
+  font-size: var(--type-caption, 12px);
   font-weight: 600;
   font-family: var(--font-sans);
 }
 [data-theme="blueprint"] .source-flow-node-label {
-  fill: color-mix(in srgb, var(--color-accent-cyan) 75%, var(--color-text-primary));
+  fill: var(--color-text-primary);
+}
+.retention-sparkline-stroke {
+  stroke: var(--viz-bar-fill, var(--color-brand-600));
+}
+.retention-sparkline-end {
+  fill: var(--color-text-secondary);
+}
+.visual-lab-concept-node {
+  fill: color-mix(in srgb, var(--color-surface-secondary) 95%, var(--color-text-primary));
+  stroke: none;
+}
+.visual-lab-ring-track {
+  stroke: color-mix(in srgb, var(--color-text-primary) 14%, transparent);
+}
+.visual-lab-ring-fill {
+  stroke: var(--viz-bar-fill, var(--color-brand-600));
 }
 @media (prefers-reduced-motion: no-preference) {
   [data-theme="blueprint"] .source-flow-pipe {
-    animation: blueprint-flow-pulse 4s ease-in-out infinite;
+    animation: none;
   }
   [data-theme="blueprint"] .retention-sparkline-cell:hover {
-    border-color: color-mix(in srgb, var(--color-accent-cyan) 35%, transparent);
-    background: color-mix(in srgb, var(--color-accent-cyan) 6%, var(--color-surface-primary));
+    border-color: transparent;
+    background: color-mix(in srgb, var(--color-surface-secondary) 55%, transparent);
   }
   [data-theme="blueprint"] .retention-sparkline-cell:hover .retention-sparkline-stroke {
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--color-accent-cyan) 45%, transparent));
+    filter: none;
   }
 }
 @keyframes blueprint-flow-pulse {
@@ -1833,45 +1905,62 @@
   color: var(--color-brand-700);
 }
 .visual-lab-board-bg {
-  fill: color-mix(in srgb, var(--color-surface-primary) 25%, transparent);
+  fill: color-mix(in srgb, var(--color-surface-secondary) 35%, transparent);
 }
 .visual-lab-edge {
-  stroke: color-mix(in srgb, var(--color-text-primary) 15%, transparent);
+  stroke: color-mix(in srgb, var(--color-text-primary) 18%, transparent);
 }
 .visual-lab-node-label {
   fill: var(--color-text-secondary);
-  font-size: var(--type-micro); /* UIUX-AUDIT-2026-08: 9px → 11px (--type-micro floor) */
+  font-size: var(--type-micro);
+  font-family: var(--font-sans);
 }
 .visual-lab-mastery-value {
   fill: var(--color-text-primary);
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 600;
+  font-family: var(--font-sans);
 }
 .visual-lab-mastery-label {
   fill: var(--color-text-muted);
-  font-size: var(--type-micro); /* UIUX-AUDIT-2026-08: 9px → 11px (--type-micro floor) */
-  letter-spacing: 0.22em;
+  font-size: var(--type-micro);
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  font-family: var(--font-sans);
+}
+.visual-lab-exam-path {
+  stroke: color-mix(in srgb, var(--color-text-primary) 22%, transparent);
+  fill: none;
 }
 .visual-lab-exam-node {
-  fill: color-mix(in srgb, var(--color-text-primary) 18%, transparent);
+  fill: color-mix(in srgb, var(--color-surface-secondary) 90%, var(--color-text-primary));
+  stroke: none;
+  filter: none;
 }
 .visual-lab-exam-node-active {
-  fill: var(--color-accent-cyan);
-  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--color-accent-cyan) 45%, transparent));
+  fill: var(--viz-bar-fill, var(--color-brand-600));
+  filter: none;
 }
 .visual-lab-formula-main {
   fill: var(--color-text-primary);
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
+  font-family: var(--font-sans);
 }
 .visual-lab-formula-chip {
-  fill: color-mix(in srgb, var(--color-surface-card) 70%, transparent);
-  stroke: color-mix(in srgb, var(--color-border-subtle) 100%, transparent);
+  fill: color-mix(in srgb, var(--color-surface-secondary) 80%, transparent);
+  stroke: none;
 }
 .visual-lab-formula-chip-label {
   fill: var(--color-text-secondary);
-  font-size: var(--type-micro); /* UIUX-AUDIT-2026-08: 10px → 11px (--type-micro floor) */
+  font-size: var(--type-micro);
+  font-family: var(--font-sans);
+}
+.visual-lab-board-frame {
+  border: none;
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--color-surface-secondary) 40%, transparent);
+  padding: 0.75rem 0.5rem;
 }
 
 /* Option-B Wave E16 — Leitner FSRS box rail + flip card chrome */
@@ -2483,15 +2572,16 @@
   width: calc(1rem * 0.9220);
   height: calc(1rem * 0.9220);
 }
+/* OPT-K121 — page subtitle matches Dashboard (meta, not body) */
 .ux-page-subtitle {
-  font-size: 0.875rem;
-  line-height: 1.5;
+  font-size: var(--type-meta);
+  line-height: 1.45;
 }
 [data-theme="blueprint"] .ux-page-subtitle .gradient-text {
   font-size: inherit;
 }
 .ux-section-header h2 {
-  /* OPT-K51 — stay under page hero (1.25 / 1.375); avoid matching h1 */
+  /* OPT-K51 / OPT-K120 — under page hero; clear step above tab labels (meta) */
   font-size: 1.0625rem;
   line-height: 1.3;
   letter-spacing: var(--ux-tracking-section, var(--tracking-section));
@@ -2500,6 +2590,11 @@
   .ux-section-header h2 {
     font-size: 1.125rem;
   }
+}
+.ux-section-subtitle {
+  font-size: var(--type-meta);
+  line-height: 1.45;
+  max-width: 40rem;
 }
 .dashboard-preview-title {
   font-size: 1.0625rem;
@@ -2877,23 +2972,26 @@
 [data-theme="light"] .app-shell .platform-nav-mobile-item.platform-nav-mobile-active::after {
   background: var(--color-brand-700);
 }
+/* OPT-K130 — Visual Lab mode rail: wash lanes, no outline cage / hairline splits */
 .visual-lab-mode-rail-lanes {
-  gap: 0;
+  gap: 0.35rem;
   padding: 0.2rem;
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-xl); /* UIUX-AUDIT-2026-08: was hardcoded 1rem → --radius-xl */
-  background: color-mix(in srgb, var(--color-surface-card) 48%, transparent);
+  border: none;
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--color-surface-secondary) 55%, transparent);
 }
 .visual-lab-mode-rail-lanes .visual-lab-mode-tab {
-  border: none;
-  border-radius: var(--radius-lg); /* UIUX-AUDIT-2026-08: was hardcoded 0.75rem → --radius-lg */
+  border: none !important;
+  border-radius: var(--radius-lg);
   box-shadow: none;
+  background: transparent;
 }
 .visual-lab-mode-rail-lanes .visual-lab-mode-tab + .visual-lab-mode-tab {
-  border-left: 1px solid var(--color-border-subtle);
+  border-left: none;
 }
 .visual-lab-mode-rail-lanes .visual-lab-mode-tab-active {
   box-shadow: none;
+  background: color-mix(in srgb, var(--color-surface-card) 88%, transparent);
 }
 [data-theme="blueprint"] .visual-lab-mode-rail-lanes .visual-lab-mode-tab-active {
   box-shadow: none;
@@ -3181,20 +3279,15 @@
   color: color-mix(in srgb, var(--color-accent-violet) 85%, var(--color-text-primary));
 }
 
-/* Blueprint scrollbar (Option-B) */
+/* Blueprint scrollbar — OPT-K135 hidden (scroll preserved) */
 [data-theme="blueprint"] {
-  scrollbar-color: color-mix(in srgb, var(--color-text-muted) 35%, transparent) color-mix(in srgb, var(--color-surface-secondary) 90%, transparent);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 [data-theme="blueprint"] ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-[data-theme="blueprint"] ::-webkit-scrollbar-track {
-  background: color-mix(in srgb, var(--color-surface-secondary) 90%, transparent);
-}
-[data-theme="blueprint"] ::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--color-text-muted) 35%, transparent);
-  border-radius: 9999px;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 /* Blueprint toast skin (Option-B cyan glass) */
@@ -3294,78 +3387,93 @@
 .descriptive-sticky-tabs::-webkit-scrollbar {
   display: none;
 }
+/* OPT-K118 — frameless equal-width tabs (hub underline pattern; full bleed width) */
 .descriptive-sticky-tab {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 0.15rem;
-  min-width: 9.5rem;
-  max-width: 13rem;
-  flex: 1 0 auto;
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--radius-lg); /* UIUX-AUDIT-2026-08: was 0.85rem (non-scale value) → --radius-lg (0.75rem) */
-  border: 1px solid var(--color-border-subtle);
-  background: color-mix(in srgb, var(--color-surface-card) 88%, transparent);
+  min-width: 0;
+  max-width: none;
+  flex: 1 1 0;
+  padding: 0.45rem 0.65rem 0.55rem;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid transparent;
+  background: transparent;
   text-align: left;
   transition:
-    border-color var(--motion-duration-ui) var(--motion-ease),
     background-color var(--motion-duration-ui) var(--motion-ease),
+    color var(--motion-duration-ui) var(--motion-ease),
     box-shadow var(--motion-duration-ui) var(--motion-ease);
 }
 .descriptive-sticky-tab:hover {
-  border-color: color-mix(in srgb, var(--color-brand-500) 25%, var(--color-border-subtle));
-  background: var(--color-surface-hover);
+  border-color: transparent;
+  background: color-mix(in srgb, var(--color-surface-secondary) 55%, transparent);
 }
+/*
+ * OPT-K120 — Descriptive tab type rhythm (industry):
+ * label = meta (actionable), summary = caption (readable), count = micro.
+ * Avoids micro-copy that competes with section eyebrows.
+ */
 .descriptive-sticky-tab-label {
-  font-size: 0.8125rem;
+  font-size: var(--type-meta);
   font-weight: 600;
-  color: var(--color-text-primary);
-  line-height: 1.2;
+  color: var(--color-text-secondary);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
 }
 .descriptive-sticky-tab-summary {
-  font-size: 0.6875rem;
-  line-height: 1.35;
-  color: var(--color-text-secondary);
+  font-size: var(--type-caption);
+  line-height: 1.4;
+  color: var(--color-text-tertiary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .descriptive-sticky-tab-count {
   position: absolute;
-  top: 0.45rem;
-  right: 0.5rem;
-  min-width: 1.35rem;
-  padding: 0.12rem 0.4rem;
-  border-radius: 9999px;
-  font-size: var(--type-micro); /* UIUX-AUDIT-2026-08: 0.625rem → 11px (--type-micro floor) */
+  top: 0.4rem;
+  right: 0.4rem;
+  min-width: 1.15rem;
+  padding: 0.05rem 0.3rem;
+  border-radius: var(--radius-md);
+  font-size: var(--type-micro);
   font-weight: 700;
+  line-height: 1.2;
   text-align: center;
-  background: var(--color-surface-hover);
+  background: color-mix(in srgb, var(--color-surface-secondary) 80%, transparent);
   color: var(--color-text-secondary);
+  border: none;
 }
+/* OPT-K123 — discreet active-tab ink (1px hairline, soft contrast) */
 .descriptive-sticky-tab-active {
-  border-color: color-mix(in srgb, var(--color-brand-500) 35%, var(--color-border-subtle));
-  background: color-mix(in srgb, var(--color-brand-500) 8%, var(--color-surface-card));
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-brand-500) 12%, transparent);
+  border-color: transparent;
+  background: transparent;
+  box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--color-text-primary) 38%, transparent);
 }
 .descriptive-sticky-tab-active .descriptive-sticky-tab-label {
-  /* Wave E14 — AA ink on all themes; active state stays via brand border/background */
   color: var(--color-text-primary);
 }
 .descriptive-sticky-tab-active .descriptive-sticky-tab-count {
-  background: color-mix(in srgb, var(--color-brand-500) 15%, transparent);
+  background: color-mix(in srgb, var(--color-surface-secondary) 90%, transparent);
   color: var(--color-text-primary);
 }
 [data-theme="blueprint"] .descriptive-sticky-tab {
-  border-color: color-mix(in srgb, #ffffff 10%, transparent);
-  background: color-mix(in srgb, #ffffff 4%, var(--color-surface-primary));
-  backdrop-filter: blur(12px);
+  border-color: transparent;
+  background: transparent;
+  backdrop-filter: none;
 }
 [data-theme="blueprint"] .descriptive-sticky-tab:hover {
-  border-color: color-mix(in srgb, var(--color-accent-cyan) 28%, transparent);
+  border-color: transparent;
+  background: color-mix(in srgb, #ffffff 6%, transparent);
 }
 [data-theme="blueprint"] .descriptive-sticky-tab-active {
-  border-color: color-mix(in srgb, var(--color-accent-cyan) 40%, transparent);
-  background: color-mix(in srgb, var(--color-accent-cyan) 10%, var(--color-surface-primary));
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent-cyan) 18%, transparent);
+  border-color: transparent;
+  background: transparent;
+  box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--color-text-primary) 42%, transparent);
 }
 [data-theme="blueprint"] .descriptive-sticky-tab-active .descriptive-sticky-tab-label {
   color: var(--color-brand-300);
@@ -3388,12 +3496,13 @@
   color: var(--color-text-secondary);
 }
 [data-theme="minimal-dark"] .descriptive-sticky-tab:hover {
-  border-color: color-mix(in srgb, var(--color-chrome-active) 40%, var(--color-border-subtle));
+  border-color: transparent;
+  background: color-mix(in srgb, var(--color-surface-secondary) 55%, transparent);
 }
 [data-theme="minimal-dark"] .descriptive-sticky-tab-active {
-  border-color: var(--color-chrome-active);
-  background: color-mix(in srgb, var(--color-brand-cta) 10%, var(--color-surface-card));
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-chrome-active) 18%, transparent);
+  border-color: transparent;
+  background: transparent;
+  box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--color-text-primary) 45%, transparent);
 }
 [data-theme="minimal-dark"] .descriptive-sticky-tab-active .descriptive-sticky-tab-label {
   color: var(--color-text-primary);
@@ -3660,9 +3769,10 @@
   z-index: 2;
 }
 
+/* OPT-K135 — was thin (native Windows chrome); hide completely, scroll kept */
 * {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-border-subtle) transparent;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 body {
@@ -3859,38 +3969,35 @@ html[data-density="compact"] .app-shell {
   color: var(--color-brand-900);
 }
 
-/* Wave N-T06 — thin themed scrollbars for light / warm-sand / spectrum.
-   Blueprint keeps its bespoke scrollbar. Dark keeps the browser default. */
+/* Wave N-T06 / OPT-K135 — hide scrollbars (all themes). Scroll preserved. */
 [data-theme="light"],
 [data-theme="warm-sand"],
-[data-theme="spectrum"] {
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--color-text-muted) 40%, transparent) transparent;
+[data-theme="spectrum"],
+[data-theme="dark"],
+[data-theme="minimal"],
+[data-theme="minimal-dark"],
+[data-theme="blueprint"] {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 [data-theme="light"] ::-webkit-scrollbar,
 [data-theme="warm-sand"] ::-webkit-scrollbar,
-[data-theme="spectrum"] ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-[data-theme="light"] ::-webkit-scrollbar-track,
-[data-theme="warm-sand"] ::-webkit-scrollbar-track,
-[data-theme="spectrum"] ::-webkit-scrollbar-track {
-  background: transparent;
-}
-[data-theme="light"] ::-webkit-scrollbar-thumb,
-[data-theme="warm-sand"] ::-webkit-scrollbar-thumb,
-[data-theme="spectrum"] ::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--color-text-muted) 40%, transparent);
-  border-radius: 9999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-[data-theme="light"] ::-webkit-scrollbar-thumb:hover,
-[data-theme="warm-sand"] ::-webkit-scrollbar-thumb:hover,
-[data-theme="spectrum"] ::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--color-text-muted) 60%, transparent);
-  background-clip: padding-box;
+[data-theme="spectrum"] ::-webkit-scrollbar,
+[data-theme="dark"] ::-webkit-scrollbar,
+[data-theme="minimal"] ::-webkit-scrollbar,
+[data-theme="minimal-dark"] ::-webkit-scrollbar,
+[data-theme="blueprint"] ::-webkit-scrollbar,
+[data-theme="light"] *::-webkit-scrollbar,
+[data-theme="warm-sand"] *::-webkit-scrollbar,
+[data-theme="spectrum"] *::-webkit-scrollbar,
+[data-theme="dark"] *::-webkit-scrollbar,
+[data-theme="minimal"] *::-webkit-scrollbar,
+[data-theme="minimal-dark"] *::-webkit-scrollbar,
+[data-theme="blueprint"] *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
 }
 
 .glass {
@@ -4606,10 +4713,12 @@ input[type="range"]::-webkit-slider-thumb {
   align-items: center;
   gap: 0.5rem;
   padding-bottom: 0.75rem;
-  font-size: var(--type-body-sm);
-  font-weight: 500;
+  /* OPT-K121 — tab labels match Dashboard / descriptive-tab (meta) */
+  font-size: var(--type-meta);
+  font-weight: 600;
   color: var(--color-text-tertiary);
-  border-bottom: 2px solid transparent;
+  /* OPT-K123 — 1px hairline track (active ink stays soft) */
+  border-bottom: 1px solid transparent;
   transition: color var(--motion-duration-fast) var(--motion-ease),
     border-color var(--motion-duration-fast) var(--motion-ease);
 }
@@ -4618,7 +4727,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .ux-tab-active {
   color: var(--color-text-primary);
-  border-bottom-color: var(--color-brand-500);
+  border-bottom-color: color-mix(in srgb, var(--color-text-primary) 42%, transparent);
 }
 .ux-quick-icon {
   width: 1.25rem;
@@ -4733,21 +4842,24 @@ input[type="range"]::-webkit-slider-thumb {
   scroll-margin-top: 7.5rem;
 }
 
+/* OPT-K120 — eyebrow quieter than tab labels; tracking tightened for readability */
 .ux-section-eyebrow {
-  font-size: var(--type-caption);
+  font-size: var(--type-micro);
   font-weight: 600;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--color-accent-teal) 72%, var(--color-text-secondary));
+  color: var(--color-text-tertiary);
 }
 
+/* OPT-K118 — callouts: wash signal, no outline cage */
 .ux-callout {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  border-radius: var(--radius-panel);
-  padding: var(--space-4);
-  border: 1px solid transparent;
+  gap: 0.55rem;
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  border: none;
+  box-shadow: none;
 }
 @media (min-width: 640px) {
   .ux-callout {
@@ -4762,15 +4874,15 @@ input[type="range"]::-webkit-slider-thumb {
   margin-bottom: 0.25rem;
 }
 .ux-callout-trust {
-  border-color: color-mix(in srgb, var(--color-accent-emerald) 22%, transparent);
-  background: color-mix(in srgb, var(--color-accent-emerald) 8%, var(--color-surface-card));
+  border-color: transparent;
+  background: color-mix(in srgb, var(--color-surface-secondary) 70%, transparent);
   color: var(--color-text-secondary);
 }
-.ux-callout-trust .ux-callout-title { color: var(--color-accent-emerald); }
-.ux-callout-trust svg { color: var(--color-accent-emerald); }
+.ux-callout-trust .ux-callout-title { color: var(--color-text-primary); }
+.ux-callout-trust svg { color: var(--color-text-secondary); }
 .ux-callout-danger {
-  border-color: var(--color-banner-warn-border);
-  background: color-mix(in srgb, var(--color-accent-amber) 8%, var(--color-surface-card));
+  border-color: transparent;
+  background: color-mix(in srgb, var(--color-accent-amber) 8%, var(--color-surface-secondary));
   /* Body ink = secondary (readable on cream wash). Title/icon use warn-ink
      so spectrum/warm light yellow accents never paint the whole callout. */
   color: var(--color-text-secondary);
@@ -4778,21 +4890,21 @@ input[type="range"]::-webkit-slider-thumb {
 .ux-callout-danger .ux-callout-title { color: var(--color-banner-warn-ink); }
 .ux-callout-danger svg { color: var(--color-banner-warn-ink); }
 .ux-callout-next {
-  border-color: color-mix(in srgb, var(--color-accent-emerald) 22%, transparent);
-  background: color-mix(in srgb, var(--color-accent-emerald) 7%, var(--color-surface-card));
+  border-color: transparent;
+  background: color-mix(in srgb, var(--color-surface-secondary) 72%, transparent);
   color: var(--color-text-secondary);
 }
-.ux-callout-next .ux-callout-title { color: var(--color-accent-emerald); }
-.ux-callout-next svg { color: var(--color-brand-600); }
+.ux-callout-next .ux-callout-title { color: var(--color-text-primary); }
+.ux-callout-next svg { color: var(--color-text-secondary); }
 .ux-callout-info {
-  border-color: color-mix(in srgb, var(--color-brand-500) 25%, transparent);
-  background: color-mix(in srgb, var(--color-brand-500) 6%, var(--color-surface-card));
+  border-color: transparent;
+  background: color-mix(in srgb, var(--color-surface-secondary) 68%, transparent);
   color: var(--color-text-secondary);
 }
-.ux-callout-info .ux-callout-title { color: var(--color-brand-600); }
+.ux-callout-info .ux-callout-title { color: var(--color-text-primary); }
 .ux-callout-warn {
-  border-color: var(--color-banner-warn-border);
-  background: color-mix(in srgb, var(--color-accent-amber) 6%, var(--color-surface-card));
+  border-color: transparent;
+  background: color-mix(in srgb, var(--color-accent-amber) 6%, var(--color-surface-secondary));
   color: var(--color-text-secondary);
 }
 .ux-callout-warn .ux-callout-title { color: var(--color-banner-warn-ink); }
@@ -5033,15 +5145,17 @@ input[type="range"]::-webkit-slider-thumb {
   color: var(--color-accent-amber);
   font-weight: 600;
 }
+/* OPT-K119 — warm workspace source alert: wash only (no left rail / hairline cage) */
 [data-theme="light"] [data-ws-theme="warm"] .ws-source-alert {
-  border-left-width: 3px;
-  border-color: color-mix(in srgb, var(--color-accent-amber) 70%, var(--color-border-subtle));
-  background: color-mix(in srgb, var(--color-accent-amber) 6%, #faf8f5);
+  border: none;
+  border-left-width: 0;
+  background: color-mix(in srgb, var(--color-surface-secondary) 70%, #faf8f5);
   overflow: hidden;
-  transition: box-shadow 0.2s ease;
+  transition: background 0.2s ease;
 }
 [data-theme="light"] [data-ws-theme="warm"] .ws-source-alert--collapsed:hover {
-  box-shadow: 0 1px 0 color-mix(in srgb, var(--color-accent-amber) 25%, transparent);
+  box-shadow: none;
+  background: color-mix(in srgb, var(--color-surface-secondary) 85%, #faf8f5);
 }
 [data-theme="light"] [data-ws-theme="warm"] .ws-source-alert-header {
   display: flex;
@@ -5149,26 +5263,28 @@ input[type="range"]::-webkit-slider-thumb {
   color: var(--color-text-secondary);
 }
 
+/* OPT-K119 — wash action chips (no outline buttons) */
 [data-theme="light"] [data-ws-theme="warm"] .ws-source-action-btn {
   display: inline-flex;
+  flex-direction: row;
   align-items: center;
   gap: 0.375rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.375rem;
-  border: 1px solid var(--color-border-subtle);
-  background: var(--color-surface-card);
+  min-height: 2.25rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: color-mix(in srgb, var(--color-surface-primary) 88%, #faf8f5);
   font-family: var(--font-sans);
-  font-size: var(--type-micro); /* UIUX-AUDIT-2026-08: 0.625rem → 11px (--type-micro floor) */
+  font-size: var(--type-caption);
   font-weight: 600;
   letter-spacing: 0.01em;
   color: var(--color-text-secondary);
   cursor: pointer;
   pointer-events: auto;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 [data-theme="light"] [data-ws-theme="warm"] .ws-source-action-btn:hover:not(:disabled) {
   color: var(--color-text-primary);
-  border-color: color-mix(in srgb, var(--color-brand-600) 35%, var(--color-border-subtle));
   background: var(--color-surface-hover);
 }
 [data-theme="light"] [data-ws-theme="warm"] .ws-source-action-btn:disabled {
@@ -5176,17 +5292,17 @@ input[type="range"]::-webkit-slider-thumb {
   cursor: not-allowed;
 }
 [data-theme="light"] [data-ws-theme="warm"] .ws-source-action-btn-primary {
-  border-color: color-mix(in srgb, var(--color-brand-600) 40%, var(--color-border-subtle));
-  background: color-mix(in srgb, var(--color-brand-600) 12%, #faf8f5);
-  color: var(--color-brand-800);
+  border: none;
+  background: var(--color-surface-primary);
+  color: var(--color-text-primary);
 }
 [data-theme="light"] [data-ws-theme="warm"] .ws-source-action-btn-warn {
-  border-color: color-mix(in srgb, var(--color-accent-amber) 45%, var(--color-border-subtle));
+  border: none;
   background: color-mix(in srgb, var(--color-accent-amber) 10%, #faf8f5);
-  color: var(--color-accent-amber);
+  color: var(--color-text-secondary);
 }
 [data-theme="light"] [data-ws-theme="warm"] .ws-source-action-btn-ghost {
-  border-color: transparent;
+  border: none;
   background: transparent;
   color: var(--color-text-muted);
 }
@@ -5197,17 +5313,15 @@ input[type="range"]::-webkit-slider-thumb {
 [data-theme="light"] [data-ws-theme="warm"] .text-accent-rose { color: var(--color-accent-rose); }
 [data-theme="light"] [data-ws-theme="warm"] .text-accent-cyan { color: var(--color-brand-800); }
 
+/* OPT-K135 — hidden editor scrollbar; scroll preserved */
 .reprocess-editor-pane {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(139, 115, 85, 0.45) transparent;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 .reprocess-editor-pane::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-.reprocess-editor-pane::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: rgba(139, 115, 85, 0.45);
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 /* Workspace empty states — minimal brown CTAs */
@@ -5815,20 +5929,24 @@ body { letter-spacing: -0.005em; }
   font-weight: 600;
 }
 
+/* OPT-K119 — dark warm: wash CTAs (no outline) */
 [data-theme="dark"] [data-ws-theme="warm"] .ws-source-action-btn {
+  border: none;
   color: var(--color-text-secondary);
+  background: color-mix(in srgb, var(--color-surface-primary) 70%, transparent);
 }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-source-action-btn-primary {
-  border-color: color-mix(in srgb, var(--color-brand-500) 40%, var(--color-border-subtle));
+  border: none;
   background: color-mix(in srgb, var(--color-brand-600) 16%, var(--color-surface-card));
   color: var(--color-brand-200);
 }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-source-action-btn-warn {
-  border-color: color-mix(in srgb, var(--color-accent-amber) 45%, var(--color-border-subtle));
+  border: none;
   background: color-mix(in srgb, var(--color-accent-amber) 12%, var(--color-surface-card));
-  color: var(--color-accent-amber);
+  color: var(--color-text-secondary);
 }
 [data-theme="dark"] [data-ws-theme="warm"] .ws-source-action-btn-ghost {
+  border: none;
   color: var(--color-text-tertiary);
 }
 
@@ -5895,9 +6013,9 @@ body { letter-spacing: -0.005em; }
   border-radius: inherit;
 }
 
-/* ─── Scrollbar hover (cross-pollinated from ai_tutor_studio) ─── */
+/* ─── Scrollbar hover — OPT-K135: keep chrome hidden ─── */
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
+  background: transparent !important;
 }
 
 /* ─── Stat Tile hover micro-interaction ──────────────────────── */
@@ -6047,7 +6165,8 @@ body { letter-spacing: -0.005em; }
   width: 100%;
   min-width: 0;
   max-width: none;
-  scrollbar-gutter: stable;
+  /* OPT-K135 — no reserved classic track gutter once bars are hidden */
+  scrollbar-gutter: auto;
 }
 
 :is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
@@ -7139,4 +7258,44 @@ body { letter-spacing: -0.005em; }
   background-color: var(--color-brand-cta-hover, #155e75) !important;
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
+}
+
+/*
+ * OPT-K135 — FINAL kill-switch (must stay last in this file).
+ * Fully hide scrollbar chrome app-wide. Overflow/scroll behavior unchanged.
+ */
+html,
+body,
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
+  background: transparent !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-button,
+::-webkit-scrollbar-corner,
+*::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-button,
+*::-webkit-scrollbar-corner {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }

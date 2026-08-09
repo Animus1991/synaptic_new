@@ -380,11 +380,12 @@
   border: 1px solid color-mix(in srgb, var(--color-accent-emerald) 38%, transparent);
 }
 
+/* OPT-K116 — wash SecondaryCTA (shared across pages) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-secondary-cta {
   border-radius: var(--radius-md);
   box-shadow: none;
-  border: 1px solid var(--color-border-default);
-  background: var(--color-surface-card);
+  border: none;
+  background: color-mix(in srgb, var(--color-surface-secondary) 78%, transparent);
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-calm-panel {

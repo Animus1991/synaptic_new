@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AlertTriangle, ChevronDown, ChevronUp, MapPin } from '@/lib/lucide-shim';
+import { AlertTriangle, ChevronDown, ChevronUp } from '@/lib/lucide-shim';
 import { cn } from '../utils/cn';
 import {
   buildAgentContextBanner,
@@ -32,13 +32,13 @@ export function AgentContextBanner({ context, lang, className, compact = false }
     return (
       <div
         className={cn(
-          'relative flex items-center gap-2 border-b border-border-subtle px-3 py-1.5 shrink-0 bg-surface-secondary/25',
+          /* OPT-K124 / OPT-K136 — wash strip; text-led (no decorative pin icon) */
+          'relative flex items-center gap-2 border-b border-transparent px-3 py-1.5 shrink-0 bg-surface-secondary/25',
           className,
         )}
         data-testid="agent-context-banner"
         role="status"
       >
-        <MapPin className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
         <div className="min-w-0 flex-1">
           <p className="type-caption text-text-muted leading-none mb-0.5">{banner.heading}</p>
           <p
@@ -85,7 +85,7 @@ export function AgentContextBanner({ context, lang, className, compact = false }
   return (
     <div
       className={cn(
-        'border-b border-border-subtle bg-surface-secondary/40',
+        'border-b border-transparent bg-surface-secondary/40',
         className,
       )}
       data-testid="agent-context-banner"
@@ -93,7 +93,6 @@ export function AgentContextBanner({ context, lang, className, compact = false }
       role="status"
     >
       <div className="flex w-full min-w-0 max-w-none items-start gap-2 px-3 py-2 sm:px-4">
-        <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
         <div className="min-w-0 flex-1 space-y-1">
           <p className="type-caption font-medium text-text-primary">
             <span className="text-text-muted">{banner.heading}</span>

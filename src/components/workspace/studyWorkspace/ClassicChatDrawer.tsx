@@ -64,13 +64,18 @@ export function ClassicChatDrawer({ model }: ClassicChatDrawerProps) {
 
   return (
     <>
-      <Separator className="w-1 bg-border-subtle hover:bg-brand-500/50 active:bg-brand-500 transition-colors cursor-col-resize z-20" />
+      {/* OPT-K133/K134 — thin 1px rule; keep resize hit target via CSS */}
+      <Separator
+        className="notebook-panel-resizer w-px shrink-0 cursor-col-resize z-20"
+        data-testid="classic-chat-drawer-resizer"
+        aria-orientation="vertical"
+      />
       <Panel
         id="classic-chat-drawer"
         defaultSize={28}
         minSize={20}
         maxSize={45}
-        className="flex flex-col min-h-0 overflow-hidden bg-surface-primary border-l border-border-subtle"
+        className="flex flex-col min-h-0 overflow-hidden bg-surface-primary border-l border-transparent"
         data-testid="classic-chat-drawer"
       >
         {body}
