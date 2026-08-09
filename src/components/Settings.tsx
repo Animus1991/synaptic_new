@@ -2,7 +2,7 @@ import { useState, useRef, useMemo, useEffect } from 'react';
 import {
   Brain, BookOpen, Target, Zap,
   Gauge, Shield, Calendar, Palette, Database, KeyRound,
-  Moon, Sun, Sparkles, Layers, Monitor,
+  Moon, Sun, Sparkles, Layers, Monitor, Eye,
 } from '@/lib/lucide-shim';
 import type { LucideIcon } from '@/lib/lucide-shim';
 import type { UserSettings, Task } from '../types';
@@ -12,7 +12,7 @@ import { authLogin, authRegister, pushRemoteLibrary, createCheckoutSession, auth
 import { GoogleIntegrationsPanel } from './GoogleIntegrationsPanel';
 import { googleAuthStartUrl } from '../lib/googleClient';
 import { loadLibrarySync } from '../features/library';
-import { Page, PageHeader, AnimatedCard, PrimaryCTA } from './ui/primitives';
+import { Page, PageHeader, AnimatedCard, PrimaryCTA, SecondaryCTA } from './ui/primitives';
 import { WorkspaceTTIPanel } from './WorkspaceTTIPanel';
 import { useI18n } from '../lib/i18n';
 import { getSettingsContent } from '../lib/settingsContent';
@@ -35,6 +35,7 @@ import {
 } from '../lib/aiEconomicsPresets';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { type TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
+import { ThemeSelectorModal } from './ThemeSelectorModal';
 
 interface SettingsProps {
   settings: UserSettings;
@@ -1125,7 +1126,9 @@ function ThemePickerRow({
   value: string;
   onChange: (v: string) => void;
 }) {
+  const { t } = useI18n();
   const isMinimal = useMinimalTheme();
+  const [selectorOpen, setSelectorOpen] = useState(false);
   const chips = options.map((opt) => {
     const Icon = THEME_ICONS[opt.value] ?? Palette;
     const active = value === opt.value;
@@ -1154,6 +1157,28 @@ function ThemePickerRow({
     );
   });
 
+  const previewButton = (
+    <SecondaryCTA
+      type="button"
+      size="sm"
+      onClick={() => setSelectorOpen(true)}
+      data-testid="settings-theme-preview-open"
+      className="mt-1.5"
+    >
+      <Eye className="w-3.5 h-3.5" aria-hidden />
+      {t('themeOpenSelector')}
+    </SecondaryCTA>
+  );
+
+  const modal = (
+    <ThemeSelectorModal
+      open={selectorOpen}
+      onClose={() => setSelectorOpen(false)}
+      preference={value as UserSettings['theme']}
+      onCommit={(theme) => onChange(theme)}
+    />
+  );
+
   if (isMinimal) {
     return (
       <div data-testid="settings-theme-picker" className="settings-pref-row">
@@ -1164,8 +1189,10 @@ function ThemePickerRow({
               {hint}
             </p>
           )}
+          {previewButton}
         </div>
         <div className="settings-pref-control">{chips}</div>
+        {modal}
       </div>
     );
   }
@@ -1179,6 +1206,8 @@ function ThemePickerRow({
         </p>
       )}
       <div className="flex flex-wrap gap-1.5">{chips}</div>
+      {previewButton}
+      {modal}
     </div>
   );
 }

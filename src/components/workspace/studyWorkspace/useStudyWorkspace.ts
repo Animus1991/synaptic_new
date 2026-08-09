@@ -17,7 +17,7 @@ import {
   type WorkspacePedagogyLens,
 } from '../../../lib/workspacePedagogyLens';
 import { isWorkspaceTourComplete } from '../../../lib/workspaceTour';
-import { isShellMobileNavWidth, isWorkspacePhoneWidth } from '../../../lib/workspaceViewport';
+import { useResponsiveLayout, isWorkspacePhoneWidth } from '../../../lib/useResponsiveLayout';
 import { mergeConceptMapGraph } from '../../../lib/conceptMapGraph';
 import { buildMiniDashboardProps } from '../../../lib/workspaceData';
 import { collectConceptBusInsights, countSpacedStepReviewsDue, type ConceptBusMap } from '../../../lib/conceptBusSync';
@@ -401,15 +401,13 @@ export function useStudyWorkspace({
     toolTimeRef.current = switchToolTime(toolTimeRef.current, activeTool);
     setToolTimeEpoch((n) => n + 1);
   }, [activeTool]);
+  // Viewport tiers via shared hook so split ↔ stack stays consistent app-wide.
+  const {
+    isPhone: isMobile,
+    isShellMobileNav: shellNavClearance,
+  } = useResponsiveLayout();
   // Initialize from current viewport so mobile users land directly on the lesson
   // panel instead of a crowded split layout where neither pane is usable.
-  const [isMobile, setIsMobile] = useState(() =>
-    typeof window !== 'undefined' ? isWorkspacePhoneWidth(window.innerWidth) : false,
-  );
-  /** OPT-K67b — bottom padding while shell mobile nav is visible (< lg / 1024). */
-  const [shellNavClearance, setShellNavClearance] = useState(() =>
-    typeof window !== 'undefined' ? isShellMobileNavWidth(window.innerWidth) : false,
-  );
   const [layout, setLayout] = useState<LayoutMode>(() =>
     typeof window !== 'undefined' && isWorkspacePhoneWidth(window.innerWidth) ? 'focus-lesson' : 'split',
   );
@@ -1012,28 +1010,20 @@ export function useStudyWorkspace({
     if (layout === 'focus-lesson') setLayout(isMobile ? 'focus-tool' : 'split');
   }, [sourceHighlight, layout, isMobile]);
 
+  // Entering phone: prefer focus-lesson over cramped split.
+  // Leaving phone (tablet+): restore split so desktop/tablet chrome matches.
+  const prevMobileRef = useRef(isMobile);
   useEffect(() => {
-    const checkMobile = () => {
-      const width = window.innerWidth;
-      const mobile = isWorkspacePhoneWidth(width);
-      setShellNavClearance(isShellMobileNavWidth(width));
-      setIsMobile((prev) => {
-        // Entering phone: prefer focus-lesson over cramped split.
-        // Leaving phone (tablet+): restore split so desktop/tablet chrome matches.
-        if (mobile && !prev) {
-          setLayout((current) => (current === 'split' ? 'focus-lesson' : current));
-        } else if (!mobile && prev) {
-          setLayout((current) =>
-            current === 'focus-lesson' || current === 'focus-tool' ? 'split' : current,
-          );
-        }
-        return mobile;
-      });
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+    const prev = prevMobileRef.current;
+    if (isMobile && !prev) {
+      setLayout((current) => (current === 'split' ? 'focus-lesson' : current));
+    } else if (!isMobile && prev) {
+      setLayout((current) =>
+        current === 'focus-lesson' || current === 'focus-tool' ? 'split' : current,
+      );
+    }
+    prevMobileRef.current = isMobile;
+  }, [isMobile]);
 
   const rawSteps = useMemo(() => {
     if (!noteBundle.hasSource) {

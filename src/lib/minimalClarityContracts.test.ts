@@ -349,6 +349,306 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(shell).not.toMatch(/bg-brand-500\/15 text-brand-700/);
   });
 
+  it('K102 — Canon clarity: ink active pill + flat Minimal topbar (no type-size churn)', () => {
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K102/);
+    expect(clarity).toMatch(/high-contrast/);
+    expect(clarity).toMatch(
+      /#platform-sidebar-nav \.platform-nav-active[\s\S]*?background:\s*var\(--color-text-primary\)/,
+    );
+    expect(clarity).toMatch(
+      /\.shell-topbar-calm[\s\S]*?backdrop-filter:\s*none\s*!important/,
+    );
+    expect(clarity).toMatch(
+      /\.shell-topbar-calm[\s\S]*?box-shadow:\s*none\s*!important/,
+    );
+    /* Must not enlarge type tokens in this pass */
+    expect(clarity).not.toMatch(/OPT-K102[\s\S]{0,800}--type-(micro|caption|meta):\s*[1-9]/);
+
+    const shell = read('src/components/Shell.tsx');
+    expect(shell).toMatch(/OPT-K102/);
+    expect(shell).toMatch(/!quietNav && 'glass-strong'/);
+    /* All nav entries + overflow paths still present */
+    expect(shell).toMatch(/shell-chrome-more/);
+    expect(shell).toMatch(/platform-mobile-nav/);
+  });
+
+  it('K104 — header −3% · hub chrome tabs · Focus study · quiet step timeline', () => {
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K104|OPT-K108/);
+    expect(clarity).toMatch(/dashboard-hub-chrome-tablist/);
+    expect(clarity).toMatch(/border-radius:\s*var\(--radius-md\)/);
+    expect(clarity).toMatch(/padding-top:\s*calc\(0\.5rem \* 0\.9215\)/);
+    expect(clarity).not.toMatch(/OPT-K104[\s\S]{0,900}border-radius:\s*0[;\s]/);
+
+    const hub = read('src/components/DashboardActionHub.tsx');
+    expect(hub).toContain('dashboard-hub-chrome-tabs');
+    expect(hub).toContain('dashboard-today-chrome');
+    expect(hub).toContain('dashboard-quick-tools-chrome');
+    expect(hub).toContain('dashboard-alerts-chrome');
+    expect(hub).toMatch(/role="tablist"/);
+
+    const shell = read('src/components/Shell.tsx');
+    expect(shell).toContain('shell-focus-study');
+    expect(shell).toContain('data-focus-study');
+    expect(shell).toContain('shell-chrome-more');
+
+    const steps = read('src/components/workspace/WorkspaceStepRail.tsx');
+    expect(steps).toContain('ws-step-timeline-item');
+    expect(steps).toContain('rounded-full');
+
+    const primer = read('src/styles/primer-minimal.css');
+    expect(primer).toMatch(/0\.8409/);
+  });
+
+  it('K105 — Canon shell port: Focus hotkeys, trap dialogs, zen chip, sticky exam CTA', () => {
+    const shell = read('src/components/Shell.tsx');
+    expect(shell).toContain('shell-focus-study-chip');
+    expect(shell).toContain('resolveShellFocusStudyShortcut');
+    expect(shell).toContain('useFocusStudy');
+    expect(shell).toContain('OPT-K105');
+
+    const shortcuts = read('src/lib/workspaceKeyboardShortcuts.ts');
+    expect(shortcuts).toContain('toggle-focus-study');
+    expect(shortcuts).toContain('Alt+F');
+    expect(shortcuts).toContain('resolveShellFocusStudyShortcut');
+
+    const motion = read('src/lib/motionPrefs.ts');
+    expect(motion).toContain('useMotionInitial');
+    expect(motion).toContain('useMotionTransition');
+
+    const dialog = read('src/components/ui/FocusTrapDialog.tsx');
+    expect(dialog).toContain('FOCUS_TRAP_FOCUSABLE');
+    expect(dialog).toContain('aria-modal');
+    expect(dialog).toContain('OPT-K105');
+
+    const drawer = read('src/components/ui/SheetDrawer.tsx');
+    expect(drawer).toContain('SheetDrawer');
+    expect(drawer).toContain('FOCUS_TRAP_FOCUSABLE');
+
+    const help = read('src/components/workspace/WorkspaceKeyboardHelp.tsx');
+    expect(help).toContain('FocusTrapDialog');
+    expect(help).toContain('shell-keyboard-help-focus-toggle');
+
+    const zen = read('src/components/workspace/studyWorkspace/StudyWorkspaceChrome.tsx');
+    expect(zen).toContain('workspace-zen-exit-chip');
+    expect(zen).toContain('workspace-zen-toggle');
+
+    const exam = read('src/components/ExamPrepView.tsx');
+    expect(exam).toContain('StickyMobileCtaBar');
+    expect(exam).toContain('exam-prep-setup-mobile-cta');
+    expect(exam).toContain('exam-prep-active-mobile-cta');
+  });
+
+  it('K106 — typography floor: no sub-12px chrome in Canon-port surfaces', () => {
+    const files = [
+      'src/components/Shell.tsx',
+      'src/components/workspace/WorkspaceKeyboardHelp.tsx',
+      'src/components/ui/FocusTrapDialog.tsx',
+      'src/components/ui/SheetDrawer.tsx',
+      'src/components/ui/StickyMobileCtaBar.tsx',
+      'src/components/ui/ConfirmDialog.tsx',
+      'src/components/ThemeSelectorModal.tsx',
+      'src/components/workspace/studyWorkspace/StudyWorkspaceChrome.tsx',
+    ];
+    for (const file of files) {
+      const src = read(file);
+      expect(src).not.toMatch(/text-\[1[01]px\]/);
+      expect(src).not.toMatch(/text-\[(?:8|9)px\]/);
+    }
+  });
+
+  it('K107 — Dashboard page: visible rail collapse bar + nested secondary chrome', () => {
+    const shell = read('src/components/Shell.tsx');
+    expect(shell).toContain('shell-rail-collapse-top');
+    expect(shell).toContain('shell-rail-collapse-bar');
+    expect(shell).toContain('OPT-K107');
+    expect(shell).toMatch(/shellRailCollapse/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K107/);
+    expect(clarity).toMatch(/shell-rail-collapse-bar/);
+    expect(clarity).toMatch(/never hide rail collapse/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toContain('dashboard-weekly-mastery-chrome');
+    expect(dash).toContain('dashboard-recent-activity-chrome');
+    expect(dash).toContain('SecondaryCTA');
+    expect(dash).toContain('dashboard-practice-weak-cta');
+    /* Alerts + Study prompts live in hub tablist (OPT-K108/K112) */
+    expect(dash).toContain('alertsSlot');
+    expect(dash).toContain('promptsSlot');
+    expect(dash).toContain('dashboard-study-prompts-chrome');
+  });
+
+  it('K108 — Dashboard hub Alerts tab + selective border diet', () => {
+    const hub = read('src/components/DashboardActionHub.tsx');
+    expect(hub).toContain("HubChromeTab = 'today' | 'tools' | 'prompts' | 'alerts' | null");
+    expect(hub).toContain('alertsSlot');
+    expect(hub).toContain('dashboard-alerts-chrome');
+    expect(hub).toContain('--hub-chrome-cols');
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K108/);
+    expect(clarity).toMatch(/--hub-chrome-cols/);
+    expect(clarity).toMatch(/Dashboard border diet/);
+    expect(clarity).toMatch(/segmented control/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toContain('DashboardAlertGrid');
+    expect(dash).toContain('alertsMeta');
+    expect(dash).not.toMatch(/alwaysCollapse[\s\S]{0,80}dashboard-alerts-chrome|dashboard-alerts-chrome[\s\S]{0,80}alwaysCollapse/);
+  });
+
+  it('K109 — Strict border diet: nest rule + single rail toggle + dashboard unbox', () => {
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K109/);
+    expect(clarity).toMatch(/Strict border diet/);
+    expect(clarity).toMatch(/never box-in-box|blueprint-surface-nest/);
+    expect(clarity).toMatch(/dashboard-masonry[\s\S]{0,200}border:\s*none/);
+
+    const shell = read('src/components/Shell.tsx');
+    expect(shell).toContain('shell-rail-collapse-top');
+    expect(shell).toContain('OPT-K109');
+    expect(shell).not.toContain('shell-rail-collapse-toggle');
+
+    const chrome = read('src/components/workspace/CollapsibleChromeSection.tsx');
+    expect(chrome).toMatch(/OPT-K109|hairline divider/);
+    expect(chrome).toMatch(/border-border-subtle/);
+
+    const prim = read('src/components/ui/primitives.tsx');
+    expect(prim).toMatch(/OPT-K109|OPT-K111/);
+    expect(prim).toMatch(/border-border-subtle|border-transparent/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/OPT-K109|wash strip|OPT-K111/);
+    expect(dash).not.toMatch(/dashboard-course-grid[\s\S]{0,400}border border-border-subtle(?!\/)/);
+  });
+
+  it('K110 — Ultra-strict border diet: frameless hub + nuclear dashboard unbox', () => {
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K110/);
+    expect(clarity).toMatch(/Ultra-strict border diet|frameless hub tabs/);
+    expect(clarity).toMatch(/Nuclear unbox|dashboard-page[\s\S]{0,400}\.ux-card/);
+    expect(clarity).toMatch(/ux-trust-badge[\s\S]{0,120}border-color:\s*transparent/);
+
+    const hub = read('src/components/DashboardActionHub.tsx');
+    expect(hub).toMatch(/OPT-K110/);
+    expect(hub).not.toMatch(/!flushTop && 'rounded-2xl border/);
+
+    const cal = read('src/components/examPrep/ExamCalendarPanel.tsx');
+    expect(cal).toMatch(/OPT-K110|frameless filter/);
+    expect(cal).toMatch(/divide-y/);
+    expect(cal).not.toMatch(/exam-calendar-entry[\s\S]{0,80}border border-border-subtle/);
+
+    const syllabus = read('src/components/examPrep/SyllabusCoverageWidget.tsx');
+    expect(syllabus).not.toMatch(/syllabus-coverage-widget-compact[\s\S]{0,120}border border-border-subtle/);
+
+    const preview = read('src/components/DashboardLivePreview.tsx');
+    expect(preview).toMatch(/OPT-K110/);
+    expect(preview).not.toMatch(/border-y border-border-subtle/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/dashboard-needs-fixing/);
+    expect(dash).not.toMatch(/rounded-panel bg-surface-secondary\/70 p-5/);
+  });
+
+  it('K111 — CTA-only outline rule + alert list + nav without cages', () => {
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K111/);
+    expect(clarity).toMatch(/CTA-only outline rule|cta-only/);
+    expect(clarity).toMatch(/text \+ underline only|never a pill/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toContain('data-border-diet="cta-only"');
+
+    const alerts = read('src/components/DashboardAlertGrid.tsx');
+    expect(alerts).toMatch(/OPT-K111|data-layout="list"/);
+    expect(alerts).toContain('dashboard-alert-list');
+    expect(alerts).not.toMatch(/rounded-xl border p-3/);
+
+    const shell = read('src/components/Shell.tsx');
+    expect(shell).toMatch(/OPT-K111/);
+    expect(shell).toMatch(/border border-transparent/);
+
+    const prim = read('src/components/ui/primitives.tsx');
+    expect(prim).toMatch(/OPT-K111/);
+    expect(prim).toMatch(/hairline outline only/);
+  });
+
+  it('K112 — Study prompts in hub bar + Today glance tiles + readiness ring center', () => {
+    const hub = read('src/components/DashboardActionHub.tsx');
+    expect(hub).toContain('promptsSlot');
+    expect(hub).toContain("hubChromeTab === 'prompts'");
+    expect(hub).toContain('dashboard-study-prompts-chrome');
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toContain('promptsSlot=');
+    expect(dash).toContain('dashboard-today-glance');
+    expect(dash).not.toMatch(/CollapsibleChromeSection[\s\S]{0,120}dashboard-study-prompts-chrome/);
+    expect(dash).toMatch(/size=\{128\}/);
+
+    const ring = read('src/components/visuals/ReadinessRing.tsx');
+    expect(ring).toMatch(/OPT-K114|OPT-K113|OPT-K112/);
+    expect(ring).toMatch(/size = 174/);
+    expect(ring).toMatch(/-translate-x-1\/2 -translate-y-1\/2/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K112/);
+    expect(clarity).toMatch(/dashboard-today-glance-grid/);
+  });
+
+  it('K113 — Exam Readiness ring sizing lineage (superseded by K114)', () => {
+    const ring = read('src/components/visuals/ReadinessRing.tsx');
+    expect(ring).toMatch(/OPT-K114|OPT-K113/);
+    expect(ring).not.toMatch(/text-4xl/);
+  });
+
+  it('K114 — Exam Readiness ring −1% + geometric percent center', () => {
+    const ring = read('src/components/visuals/ReadinessRing.tsx');
+    expect(ring).toMatch(/OPT-K114/);
+    expect(ring).toMatch(/size = 174/);
+    expect(ring).toMatch(/-translate-x-1\/2 -translate-y-1\/2/);
+    expect(ring).not.toMatch(/scale: 0\./);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/size=\{128\}/);
+    expect(dash).toMatch(/OPT-K114/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K114/);
+  });
+
+  it('K103 — soft badges/alerts + visible progressive disclosure (no radius square-off)', () => {
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K103/);
+    expect(clarity).toMatch(/ux-chrome-meta-badge/);
+    expect(clarity).toMatch(/ux-soft-alert/);
+    expect(clarity).toMatch(/border-radius:\s*var\(--radius-pill\)/);
+    expect(clarity).toMatch(/border-radius:\s*var\(--radius-panel\)/);
+    expect(clarity).not.toMatch(/OPT-K103[\s\S]{0,1200}border-radius:\s*0/);
+
+    const chrome = read('src/components/workspace/CollapsibleChromeSection.tsx');
+    expect(chrome).toMatch(/meta\?:/);
+    expect(chrome).toMatch(/ux-chrome-meta-badge/);
+    expect(chrome).toMatch(/OPT-K103/);
+
+    const proactive = read('src/components/agent/ProactiveAgentAlertStrip.tsx');
+    expect(proactive).toMatch(/alwaysCollapse/);
+    expect(proactive).toMatch(/meta=\{alerts\.length\}/);
+    expect(proactive).toMatch(/ux-soft-alert-stack/);
+    expect(proactive).not.toMatch(/BlueprintSurface/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/dashboard-alerts-chrome/);
+    expect(dash).toMatch(/meta=\{/);
+
+    const courseBadge = read('src/components/ui/CourseStatusBadge.tsx');
+    expect(courseBadge).toMatch(/KIND_CLASS_SOFT/);
+    expect(courseBadge).toMatch(/rounded-md/);
+    expect(courseBadge).not.toMatch(/rounded-none/);
+  });
+
   it('K95 — platform audit bridge (Library/Tasks/modals + Minimal warmth)', () => {
     const indexCss = read('src/index.css');
     expect(indexCss).toMatch(/OPT-K95/);

@@ -29,7 +29,7 @@ import { TaskActionIcon } from './ui/TaskActionIcon';
 import { courseRingColor, resolveCourseColor, accentHighlightVar } from '../lib/masteryPalette';
 import { greetingForTime, greetingIconKind, dashboardSubtitle } from '../lib/greeting';
 import { useI18n } from '../lib/i18n';
-import { PrimaryCTA } from './ui/primitives';
+import { PrimaryCTA, SecondaryCTA } from './ui/primitives';
 import { UxCallout } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { PostUploadBanner } from './ui/PostUploadBanner';
@@ -172,6 +172,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   );
   const weekdayLabels = DASHBOARD_WEEKDAY_KEYS.map((key) => t(key));
   const showAlertGrid = !isEmpty && (smartCTAs.length > 0 || proactiveAgentAlerts.length > 0 || daysToExam !== null);
+  const alertsMetaCount =
+    (daysToExam !== null ? 1 : 0) + proactiveAgentAlerts.length + smartCTAs.length;
 
   const nextActionHandlers = {
     onStartTask,
@@ -267,6 +269,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
       )}
       data-testid="dashboard-page"
       data-bleed="full"
+      data-border-diet="cta-only"
       data-dashboard-layout={layoutMode}
     >
       <MotionSection
@@ -319,7 +322,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               {showWorkspaceResume && workspaceLive?.snapshot.activeConcept && !workspaceLive.snapshot.genericConcept && (
                 <span
                   data-testid="dashboard-active-topic-pill"
-                  className="inline-flex max-w-[14rem] items-center truncate rounded-md border border-border-subtle bg-surface-secondary px-2.5 py-1 type-micro font-semibold text-text-secondary"
+                  className="inline-flex max-w-[14rem] items-center truncate rounded-md bg-surface-secondary px-2.5 py-1 type-micro font-semibold text-text-secondary"
                   title={workspaceLive.snapshot.activeConcept}
                 >
                   {t('dashboardActiveTopic').replace('{topic}', workspaceLive.snapshot.activeConcept)}
@@ -364,46 +367,174 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </>
           }
           statsSlot={
-            /* Wave H2 — dense UtilityRows (no 5-card KPI grid dominating the hero) */
-            <HubSection data-testid="dashboard-page-stats">
-              <UtilityRow
-                icon={<Flame className="w-3.5 h-3.5" />}
-                label={t('dashboardStatStreak')}
-                value={t('dashboardStatDaysSuffix').replace('{count}', String(pageStats.streak))}
-                data-testid="dashboard-stat-streak"
-              />
-              <UtilityRow
-                icon={<Zap className="w-3.5 h-3.5" />}
-                label={t('dashboardStatTodayXp')}
-                value={`${pageStats.todayXp}`}
-                data-testid="dashboard-stat-today-xp"
-              />
-              <UtilityRow
-                icon={<Target className="w-3.5 h-3.5" />}
-                label={t('dashboardStatReviewsDue')}
-                value={`${pageStats.reviewsDue}`}
-                onClick={pageStats.reviewsDue > 0 ? () => (onOpenTasksReview ? onOpenTasksReview() : onNavigate('tasks')) : undefined}
-                data-testid="dashboard-stat-reviews-due"
-              />
-              <UtilityRow
-                icon={<Brain className="w-3.5 h-3.5" />}
-                label={t('dashboardStatConceptsMastered')}
-                value={`${pageStats.conceptsMastered}/${pageStats.totalConcepts}`}
-                barPct={
-                  pageStats.totalConcepts > 0
-                    ? Math.round((pageStats.conceptsMastered / pageStats.totalConcepts) * 100)
-                    : undefined
-                }
-                data-testid="dashboard-stat-concepts-mastered"
-              />
-              <UtilityRow
-                icon={<Clock className="w-3.5 h-3.5" />}
-                label={t('dashboardStatStudyToday')}
-                value={t('dashboardStatStudyMinutes').replace('{count}', String(pageStats.studyMinutesToday))}
-                data-testid="dashboard-stat-study-today"
-              />
-            </HubSection>
+            /* OPT-K112 — compact KPI tiles (not a sparse left-stacked list) */
+            <div className="dashboard-today-glance" data-testid="dashboard-page-stats">
+              <div className="dashboard-today-glance-grid" role="list">
+                {(
+                  [
+                    {
+                      id: 'streak',
+                      icon: <Flame className="h-3.5 w-3.5" aria-hidden />,
+                      label: t('dashboardStatStreak'),
+                      value: t('dashboardStatDaysSuffix').replace('{count}', String(pageStats.streak)),
+                      onClick: undefined as (() => void) | undefined,
+                    },
+                    {
+                      id: 'today-xp',
+                      icon: <Zap className="h-3.5 w-3.5" aria-hidden />,
+                      label: t('dashboardStatTodayXp'),
+                      value: `${pageStats.todayXp}`,
+                      onClick: undefined,
+                    },
+                    {
+                      id: 'reviews-due',
+                      icon: <Target className="h-3.5 w-3.5" aria-hidden />,
+                      label: t('dashboardStatReviewsDue'),
+                      value: `${pageStats.reviewsDue}`,
+                      onClick: pageStats.reviewsDue > 0
+                        ? () => (onOpenTasksReview ? onOpenTasksReview() : onNavigate('tasks'))
+                        : undefined,
+                    },
+                    {
+                      id: 'concepts-mastered',
+                      icon: <Brain className="h-3.5 w-3.5" aria-hidden />,
+                      label: t('dashboardStatConceptsMastered'),
+                      value: `${pageStats.conceptsMastered}/${pageStats.totalConcepts}`,
+                      onClick: undefined,
+                      barPct: pageStats.totalConcepts > 0
+                        ? Math.round((pageStats.conceptsMastered / pageStats.totalConcepts) * 100)
+                        : undefined,
+                    },
+                    {
+                      id: 'study-today',
+                      icon: <Clock className="h-3.5 w-3.5" aria-hidden />,
+                      label: t('dashboardStatStudyToday'),
+                      value: t('dashboardStatStudyMinutes').replace('{count}', String(pageStats.studyMinutesToday)),
+                      onClick: undefined,
+                    },
+                  ] as const
+                ).map((stat) => (
+                  <div
+                    key={stat.id}
+                    role={stat.onClick ? 'button' : 'listitem'}
+                    className={cn(
+                      'dashboard-today-stat',
+                      stat.onClick && 'dashboard-today-stat--interactive',
+                    )}
+                    data-testid={`dashboard-stat-${stat.id}`}
+                    onClick={stat.onClick}
+                    onKeyDown={stat.onClick ? (e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        stat.onClick?.();
+                      }
+                    } : undefined}
+                    tabIndex={stat.onClick ? 0 : undefined}
+                  >
+                    <div className="dashboard-today-stat-top">
+                      <span className="dashboard-today-stat-icon text-text-secondary">{stat.icon}</span>
+                      <span className="dashboard-today-stat-value">{stat.value}</span>
+                    </div>
+                    <p className="dashboard-today-stat-label">{stat.label}</p>
+                    {'barPct' in stat && typeof stat.barPct === 'number' && (
+                      <div
+                        className="usage-bar mt-1.5"
+                        role="progressbar"
+                        aria-valuenow={stat.barPct}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label={stat.label}
+                      >
+                        <div className="usage-bar-fill" style={{ width: `${stat.barPct}%` }} />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           }
+          promptsSlot={
+            (daysToExam !== null || antiPassiveAlert || stats.antiPassiveAlert) ? (
+              <div
+                className={cn(
+                  'dashboard-multi-col grid gap-3',
+                  daysToExam !== null && (antiPassiveAlert || stats.antiPassiveAlert) && isMultiCol
+                    ? 'grid-cols-1 sm:grid-cols-2'
+                    : 'grid-cols-1',
+                )}
+              >
+                {daysToExam !== null && (
+                  <UxCallout
+                    variant={isMinimal ? 'warn' : 'danger'}
+                    title={t('dashExamCountdown')}
+                    icon={<Calendar className="text-text-secondary" />}
+                    testId="dashboard-exam-countdown"
+                    dataTone="exam"
+                    className={cn(
+                      'border-0 shadow-none py-2.5',
+                      isMinimal ? 'dashboard-urgency-signal bg-surface-secondary/50' : 'bg-surface-secondary/40',
+                    )}
+                    action={
+                      <button
+                        type="button"
+                        onClick={() => (examTask ? onStartTask?.(examTask.id) : onOpenExamTimer?.() ?? onOpenWorkspace?.())}
+                        className="platform-link type-caption flex items-center gap-1 shrink-0"
+                      >
+                        {examTask ? t('dashStartExamPrep') : t('dashExamPrep')} <ArrowRight className="w-3 h-3" />
+                      </button>
+                    }
+                  >
+                    {daysToExam === 0 ? t('dashExamToday') : (daysToExam === 1 ? t('dashDayUntilExam') : t('dashDaysUntilExam').replace('{count}', String(daysToExam)))}
+                  </UxCallout>
+                )}
+                {(antiPassiveAlert || stats.antiPassiveAlert) && (
+                  <div
+                    className={cn(
+                      'p-3 rounded-xl flex items-start gap-2.5',
+                      isMinimal
+                        ? 'dashboard-urgency-signal bg-surface-secondary/60'
+                        : 'platform-banner-warn border-0',
+                    )}
+                    data-tone="recall"
+                    data-testid="dashboard-anti-passive"
+                  >
+                    <Eye className="w-4 h-4 shrink-0 mt-0.5 text-text-secondary" />
+                    <div className="min-w-0">
+                      <p className={cn('type-caption font-semibold', isMinimal ? 'text-text-primary' : 'platform-banner-title')}>
+                        {t('dashActiveRecallTitle')}
+                      </p>
+                      <p className="type-caption text-text-secondary mt-0.5 line-clamp-2">{t('dashActiveRecallBody')}</p>
+                      <button
+                        type="button"
+                        onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
+                        className="mt-1.5 platform-link type-caption flex items-center gap-1"
+                      >
+                        {t('dashTakeQuiz')} <ArrowRight className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : undefined
+          }
+          promptsMeta={
+            (daysToExam !== null ? 1 : 0)
+            + ((antiPassiveAlert || stats.antiPassiveAlert) ? 1 : 0)
+            || undefined
+          }
+          alertsSlot={
+            showAlertGrid ? (
+              <DashboardAlertGrid
+                daysToExam={daysToExam}
+                smartCTAs={smartCTAs}
+                proactiveAlerts={proactiveAgentAlerts}
+                onRunSmartCTA={onRunSmartCTA}
+                onRunProactiveAlert={onRunProactiveAgentAlert}
+                onExamPrep={() => (examTask ? onStartTask?.(examTask.id) : onOpenExamTimer?.() ?? onOpenWorkspace?.())}
+              />
+            ) : undefined
+          }
+          alertsMeta={showAlertGrid ? alertsMetaCount : undefined}
         />
       </MotionSection>
 
@@ -432,94 +563,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         </MotionSection>
       )}
 
-      {!isEmpty && showAlertGrid && (
-        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }}>
-          <CollapsibleChromeSection
-            title={t('chromeAlerts')}
-            alwaysCollapse
-            data-testid="dashboard-alerts-chrome"
-          >
-            <DashboardAlertGrid
-              daysToExam={daysToExam}
-              smartCTAs={smartCTAs}
-              proactiveAlerts={proactiveAgentAlerts}
-              onRunSmartCTA={onRunSmartCTA}
-              onRunProactiveAlert={onRunProactiveAgentAlert}
-              onExamPrep={() => (examTask ? onStartTask?.(examTask.id) : onOpenExamTimer?.() ?? onOpenWorkspace?.())}
-            />
-          </CollapsibleChromeSection>
-        </MotionSection>
-      )}
-
-      {/* Dual secondary prompts — quieter under Minimal (OPT-R15); side-by-side when both present */}
-      {(daysToExam !== null || antiPassiveAlert || stats.antiPassiveAlert) && (
-        <MotionSection initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <CollapsibleChromeSection
-            title={t('chromeStudyPrompts')}
-            alwaysCollapse
-            data-testid="dashboard-study-prompts-chrome"
-            defaultOpen={daysToExam !== null && daysToExam <= 1}
-          >
-            <div
-              className={cn(
-                'dashboard-multi-col grid gap-3',
-                daysToExam !== null && (antiPassiveAlert || stats.antiPassiveAlert) && isMultiCol
-                  ? 'grid-cols-1 sm:grid-cols-2'
-                  : 'grid-cols-1',
-              )}
-            >
-              {daysToExam !== null && (
-                <UxCallout
-                  variant={isMinimal ? 'warn' : 'danger'}
-                  title={t('dashExamCountdown')}
-                  icon={<Calendar className="text-text-secondary" />}
-                  testId="dashboard-exam-countdown"
-                  dataTone="exam"
-                  className={cn('py-2.5', isMinimal && 'dashboard-urgency-signal')}
-                  action={
-                    <button
-                      type="button"
-                      onClick={() => (examTask ? onStartTask?.(examTask.id) : onOpenExamTimer?.() ?? onOpenWorkspace?.())}
-                      className="platform-link type-caption flex items-center gap-1 shrink-0"
-                    >
-                      {examTask ? t('dashStartExamPrep') : t('dashExamPrep')} <ArrowRight className="w-3 h-3" />
-                    </button>
-                  }
-                >
-                  {daysToExam === 0 ? t('dashExamToday') : (daysToExam === 1 ? t('dashDayUntilExam') : t('dashDaysUntilExam').replace('{count}', String(daysToExam)))}
-                </UxCallout>
-              )}
-              {(antiPassiveAlert || stats.antiPassiveAlert) && (
-                <div
-                  className={cn(
-                    'p-3 rounded-xl border flex items-start gap-2.5',
-                    isMinimal
-                      ? 'dashboard-urgency-signal border-border-subtle bg-transparent'
-                      : 'platform-banner-warn',
-                  )}
-                  data-tone="recall"
-                  data-testid="dashboard-anti-passive"
-                >
-                  <Eye className="w-4 h-4 shrink-0 mt-0.5 text-text-secondary" />
-                  <div className="min-w-0">
-                    <p className={cn('type-caption font-semibold', isMinimal ? 'text-text-primary' : 'platform-banner-title')}>
-                      {t('dashActiveRecallTitle')}
-                    </p>
-                    <p className="type-caption text-text-secondary mt-0.5 line-clamp-2">{t('dashActiveRecallBody')}</p>
-                    <button
-                      type="button"
-                      onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
-                      className="mt-1.5 platform-link type-caption flex items-center gap-1"
-                    >
-                      {t('dashTakeQuiz')} <ArrowRight className="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </CollapsibleChromeSection>
-        </MotionSection>
-      )}
+      {/* OPT-K112 — Study prompts live in hub tablist (promptsSlot); no orphan chrome row */}
 
       {/* I-D10: workspace resume lives in hub only — no duplicate below stats */}
 
@@ -528,8 +572,9 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           <UxCallout
             variant="next-action"
             className={cn(
-              /* OPT-K93 — next-action stays calm on all themes (no spark wash) */
-              isMinimal && 'dashboard-one-step-strip',
+              /* OPT-K93 / K110 — next-action calm, borderless wash */
+              'border-0 shadow-none',
+              isMinimal ? 'dashboard-one-step-strip' : 'bg-surface-secondary/35',
             )}
             title={dashboardNextAction.reason || t('dashboardSuggestedNext')}
             icon={<Lightbulb className={isMinimal ? 'text-text-secondary' : undefined} />}
@@ -599,7 +644,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           ) : (
           /* Wave H2 — full-bleed readiness; signal detail nested closed */
           <div
-            className="w-full max-w-none border-b border-border-subtle px-1 py-3"
+            className="w-full max-w-none px-1 py-3"
             data-dashboard-col="a"
             data-testid="dashboard-readiness-section"
             data-bleed="full"
@@ -609,10 +654,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 value={learnerModel.overallMastery}
                 label={t('examReadiness')}
                 sublabel={t('dashReadinessSublabel')}
-                size={120}
+                size={128}
               />
               <div className="min-w-0 flex-1">
-                <PrimaryCTA
+                {/* OPT-K107 — secondary vs hub Continue (one PrimaryCTA in first study band). */}
+                <SecondaryCTA
                   type="button"
                   size="sm"
                   className="ws-touch-floor min-h-9"
@@ -625,7 +671,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 >
                   {t('dashPracticeWeak')}
                   <ArrowRight className="h-3.5 w-3.5" aria-hidden />
-                </PrimaryCTA>
+                </SecondaryCTA>
               </div>
             </div>
             <CollapsibleChromeSection
@@ -706,7 +752,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               {/* L-D02: retrieval strength bar — Blueprint only (Minimal: in readiness HubSection). */}
               {!isMinimal && (
               <div
-                className="rounded-xl border border-border-subtle bg-surface-card/50 px-3 py-2"
+                className="rounded-xl bg-surface-secondary/55 px-3 py-2"
                 data-testid="dashboard-retrieval-strength-bar"
               >
                 <div className="mb-1.5 flex items-center justify-between gap-2">
@@ -803,17 +849,17 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </div>
           </BlueprintSurface>
 
-          {/* OPT-K91 — neutral panel; urgency via content/bars, not orange wash */}
+          {/* OPT-K91/K110 — section label + rows; no enclosing panel outline/wash cage */}
           {fixTasks.length > 0 && (
-            <div className="rounded-panel border border-border-subtle bg-surface-secondary p-5">
+            <div className="py-1" data-testid="dashboard-needs-fixing">
               <SectionLabel icon={Shield}>{t('dashNeedsFixing')}</SectionLabel>
-              <div className="space-y-2">
+              <div className="divide-y divide-border-subtle/70">
                 {fixTasks.slice(0, 3).map(task => (
                   <button
                     type="button"
                     key={task.id}
                     onClick={() => onStartTask?.(task.id)}
-                    className="w-full flex items-center gap-3 p-2.5 rounded-lg bg-surface-card/50 hover:bg-surface-hover cursor-pointer transition-all group text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
+                    className="w-full flex items-center gap-3 py-2.5 first:pt-1 hover:bg-surface-secondary/50 cursor-pointer transition-all group text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
                   >
                     <CourseIcon icon={task.courseIcon} size="sm" colorClassName="text-text-secondary shrink-0" />
                     <span className="type-meta flex-1 truncate group-hover:text-text-primary transition-colors">{task.title}</span>
@@ -855,7 +901,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                         onSelectCourse(course);
                       }
                     }}
-                    className="p-3 sm:p-3.5 rounded-xl border border-border-subtle hover:border-border-default bg-surface-primary/50 cursor-pointer transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
+                    className="p-3 sm:p-3.5 rounded-lg border border-border-subtle/45 bg-transparent hover:bg-surface-secondary/55 cursor-pointer transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
                   >
                     <div className="proximity-row mb-3">
                       <CourseIcon icon={course.icon} size="lg" colorClassName="text-text-secondary" />
@@ -877,7 +923,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 })}
               </div>
             ) : (
-              <div className="rounded-xl border border-border-subtle bg-surface-primary/40 p-5 text-center">
+              <div className="rounded-xl bg-surface-secondary/45 p-5 text-center">
                 <p className="type-body text-text-secondary">{t('dashCoursesProcessing')}</p>
                 <button
                   type="button"
@@ -895,40 +941,47 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           )}
           <PostExamNextStepsPanel examDate={settingsExamDate ?? courses.find((c) => c.examDate)?.examDate} />
 
-          {/* Mastery Trend */}
-          <BlueprintSurface className="p-3">
-            <SectionLabel icon={TrendingUp}>{t('dashWeeklyMastery')}</SectionLabel>
-            {masteryTrend.length > 0 ? (
-              <div className="flex items-end gap-1.5 h-20">
-                {masteryTrend.map((val, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                    {/* Wave P-C01 — historical bars use --viz-bar-fill-muted (theme-tuned
-                        55% brand mix on card; guarantees ≥3:1 contrast). Current day keeps
-                        its theme-aware accent highlight for emphasis. */}
-                    <div
-                      className="w-full rounded-t-sm transition-all duration-500"
-                      style={{
-                        height: `${Math.min(100, Math.max(6, val * 1.2))}%`,
-                        backgroundColor: i === masteryTrend.length - 1
-                          ? accentHighlightVar()
-                          : 'var(--viz-bar-fill-muted)',
-                      }}
-                    />
-                    <span className="type-micro text-text-muted">{weekdayLabels[i] ?? ''}</span>
-                  </div>
-                ))}
+          {/* Mastery Trend — OPT-K107 nested (Canon progressive disclosure; content preserved). */}
+          <CollapsibleChromeSection
+            title={t('dashWeeklyMastery')}
+            alwaysCollapse
+            meta={learnerModel.overallMastery ? `${learnerModel.overallMastery}%` : undefined}
+            data-testid="dashboard-weekly-mastery-chrome"
+          >
+            <BlueprintSurface className="p-3 border-0 shadow-none">
+              <SectionLabel icon={TrendingUp}>{t('dashWeeklyMastery')}</SectionLabel>
+              {masteryTrend.length > 0 ? (
+                <div className="flex items-end gap-1.5 h-20">
+                  {masteryTrend.map((val, i) => (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                      {/* Wave P-C01 — historical bars use --viz-bar-fill-muted (theme-tuned
+                          55% brand mix on card; guarantees ≥3:1 contrast). Current day keeps
+                          its theme-aware accent highlight for emphasis. */}
+                      <div
+                        className="w-full rounded-t-sm transition-all duration-500"
+                        style={{
+                          height: `${Math.min(100, Math.max(6, val * 1.2))}%`,
+                          backgroundColor: i === masteryTrend.length - 1
+                            ? accentHighlightVar()
+                            : 'var(--viz-bar-fill-muted)',
+                        }}
+                      />
+                      <span className="type-micro text-text-muted">{weekdayLabels[i] ?? ''}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="py-4 text-center type-caption text-text-tertiary">{t('dashNoMasteryTrend')}</p>
+              )}
+              <div className="mt-2 text-center">
+                <span className="ux-stat-value">{learnerModel.overallMastery}%</span>
+                {/* OPT-K90 — delta copy is ink; mastery bars carry semantic hue */}
+                <span className="type-caption ml-2 text-text-secondary">
+                  {masteryDelta >= 0 ? '+' : ''}{masteryDelta}% {t('dashThisWeek')}
+                </span>
               </div>
-            ) : (
-              <p className="py-4 text-center type-caption text-text-tertiary">{t('dashNoMasteryTrend')}</p>
-            )}
-            <div className="mt-2 text-center">
-              <span className="ux-stat-value">{learnerModel.overallMastery}%</span>
-              {/* OPT-K90 — delta copy is ink; mastery bars carry semantic hue */}
-              <span className="type-caption ml-2 text-text-secondary">
-                {masteryDelta >= 0 ? '+' : ''}{masteryDelta}% {t('dashThisWeek')}
-              </span>
-            </div>
-          </BlueprintSurface>
+            </BlueprintSurface>
+          </CollapsibleChromeSection>
 
           {/* Weak Areas — OPT-K18: pair with Almost-there under Minimal when both exist */}
           {isMinimal && learnerModel.almostKnown.length > 0 ? (
@@ -1072,7 +1125,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                 ))}
               </div>
             ) : (
-              <div className="ux-banner-warn rounded-panel border border-border-subtle bg-surface-secondary p-3">
+              <div className="ux-banner-warn py-1" data-testid="dashboard-almost-there">
                 <SectionLabel icon={Lightbulb}>{t('dashAlmostThere')}</SectionLabel>
                 <p className="type-caption text-text-tertiary mb-2">{t('dashAlmostThereHint')}</p>
                 <div className="proximity-track space-y-1.5">
@@ -1120,13 +1173,14 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                       </p>
                     )}
                     {examTask && (
-                      <button
+                      <SecondaryCTA
+                        type="button"
                         onClick={() => onStartTask?.(examTask.id)}
-                        className="ux-focus-ring dashboard-exam-cta mt-3 w-full py-2 rounded-lg type-caption font-semibold ux-chip-solid-brand text-white transition-all hover:brightness-95"
-                        style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
+                        className="ux-focus-ring dashboard-exam-cta mt-3 w-full"
+                        data-testid="dashboard-start-exam-sim"
                       >
                         {t('dashStartExamSim')}
-                      </button>
+                      </SecondaryCTA>
                     )}
                   </div>
                 );
@@ -1134,7 +1188,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </div>
           ) : (
             courses.some(c => c.examDate) && (
-              <div className="rounded-panel border border-border-subtle bg-surface-secondary p-3">
+              <div className="py-1" data-testid="dashboard-upcoming-exam-panel">
                 <SectionLabel icon={Calendar}>{t('dashUpcomingExam')}</SectionLabel>
                 {courses.filter(c => c.examDate).map(course => {
                   const daysLeft = Math.max(0, Math.ceil((new Date(course.examDate!).getTime() - Date.now()) / 86400000));
@@ -1150,13 +1204,14 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                         <p className="type-micro text-text-secondary mt-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3" />{t('dashBelowMastery')}</p>
                       )}
                       {examTask && (
-                        <button
+                        <SecondaryCTA
+                          type="button"
                           onClick={() => onStartTask?.(examTask.id)}
-                          className="ux-focus-ring dashboard-exam-cta mt-3 w-full py-2 rounded-lg type-caption font-semibold ux-chip-solid-brand text-white transition-all hover:brightness-95"
-                          style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
+                          className="ux-focus-ring dashboard-exam-cta mt-3 w-full"
+                          data-testid="dashboard-start-exam-sim"
                         >
                           {t('dashStartExamSim')}
-                        </button>
+                        </SecondaryCTA>
                       )}
                     </div>
                   );
@@ -1257,7 +1312,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               </BlueprintSurface>
               )}
               {learnerModel.interactionInsights.length > 0 && (
-                <div className="rounded-panel border border-border-subtle bg-surface-secondary p-3">
+                <div className="py-1" data-testid="dashboard-learning-insight">
                   <SectionLabel icon={Lightbulb}>{t('dashLearningInsight')}</SectionLabel>
                   <p className="type-body text-text-secondary leading-relaxed">{learnerModel.interactionInsights[0]}</p>
                 </div>
@@ -1294,7 +1349,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   <button
                     type="button"
                     onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
-                    className="p-2 rounded-lg bg-surface-secondary border border-border-subtle hover:bg-surface-hover transition-all"
+                    className="p-2 rounded-lg bg-surface-secondary hover:bg-surface-hover transition-all"
                     data-testid="dash-horizon-today"
                   >
                     <p className="ux-kpi-value text-text-primary">{fsrsHorizon.today}</p>
@@ -1352,7 +1407,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   <button
                     type="button"
                     onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
-                    className="p-2 rounded-lg bg-surface-secondary border border-border-subtle hover:bg-surface-hover transition-all"
+                    className="p-2 rounded-lg bg-surface-secondary hover:bg-surface-hover transition-all"
                     data-testid="dash-horizon-today"
                   >
                     <p className="ux-kpi-value text-text-primary">{fsrsHorizon.today}</p>
@@ -1381,11 +1436,18 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             </>
           )}
 
-          {/* Activity Feed */}
-          <BlueprintSurface className="p-3">
-            <SectionLabel icon={Zap}>{t('dashRecentActivity')}</SectionLabel>
-            <ActivityFeed activities={activities} maxItems={5} />
-          </BlueprintSurface>
+          {/* Activity Feed — OPT-K107 nested secondary chrome (function preserved). */}
+          <CollapsibleChromeSection
+            title={t('dashRecentActivity')}
+            alwaysCollapse
+            meta={activities.length > 0 ? activities.length : undefined}
+            data-testid="dashboard-recent-activity-chrome"
+          >
+            <BlueprintSurface className="p-3 border-0 shadow-none">
+              <SectionLabel icon={Zap}>{t('dashRecentActivity')}</SectionLabel>
+              <ActivityFeed activities={activities} maxItems={5} />
+            </BlueprintSurface>
+          </CollapsibleChromeSection>
       </div>
     </div>
     <ScrollToTopButton />
@@ -1398,11 +1460,17 @@ function MasteryRing({ mastery, size }: { mastery: number; size: number }) {
   const c = 2 * Math.PI * r;
   const offset = c - (mastery / 100) * c;
   const stroke = courseRingColor(mastery);
+  const mid = size / 2;
   return (
-    <svg width={size} height={size} className="-rotate-90">
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--viz-track)" strokeWidth={3} />
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={stroke} strokeWidth={3} strokeDasharray={c} strokeDashoffset={offset} strokeLinecap="round" className="mastery-ring" />
-      <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="central" className="fill-text-primary type-micro font-bold rotate-90 origin-center">{mastery}%</text>
-    </svg>
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90" aria-hidden>
+        <circle cx={mid} cy={mid} r={r} fill="none" stroke="var(--viz-track)" strokeWidth={3} />
+        <circle cx={mid} cy={mid} r={r} fill="none" stroke={stroke} strokeWidth={3} strokeDasharray={c} strokeDashoffset={offset} strokeLinecap="round" className="mastery-ring" />
+      </svg>
+      {/* OPT-K114 — percent centered outside rotated SVG (avoids rotate-90 text skew) */}
+      <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 type-micro font-bold tabular-nums leading-none text-text-primary">
+        {mastery}%
+      </span>
+    </div>
   );
 }

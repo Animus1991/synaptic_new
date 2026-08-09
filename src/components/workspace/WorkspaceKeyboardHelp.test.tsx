@@ -27,5 +27,7 @@ describe('WorkspaceKeyboardHelp (SW-P3-08)', () => {
     expect(screen.getByText('App')).toBeTruthy();
     expect(screen.getByText('Open command palette')).toBeTruthy();
     expect(screen.queryByText('Switch tool (0 = 10th tool)')).toBeNull();
+    expect(screen.getByTestId('shell-keyboard-help-focus-toggle')).toBeTruthy();
+    expect(screen.getByText(/Toggle Focus study/i)).toBeTruthy();
   });
 });

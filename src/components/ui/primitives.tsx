@@ -448,7 +448,8 @@ export const SecondaryCTA = forwardRef<
       type="button"
       className={cn(
         'ux-secondary-cta inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-300 platform-pill',
-        'border border-border-subtle text-text-secondary hover:border-border-default hover:text-text-primary',
+        /* OPT-K111 — interactive CTA: hairline outline only (surfaces stay borderless) */
+        'border border-border-subtle/70 bg-transparent text-text-secondary hover:border-border-default hover:bg-surface-secondary hover:text-text-primary',
         'disabled:opacity-60 disabled:pointer-events-none',
         size === 'sm' ? 'px-3 py-2 type-caption min-h-[var(--btn-height-sm,2rem)]' : 'px-4 type-meta min-h-[var(--btn-height)]',
         className,

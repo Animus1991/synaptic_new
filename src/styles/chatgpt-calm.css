@@ -242,6 +242,8 @@
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .dashboard-calm [data-testid="dashboard-hero-panel"] .ux-card,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .dashboard-calm [data-testid="dashboard-masonry"] .ux-card {
   box-shadow: none;
+  border: none !important;
+  background: transparent !important;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .library-calm [data-testid="library-course-card"] {

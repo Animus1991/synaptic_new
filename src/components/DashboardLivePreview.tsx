@@ -107,7 +107,8 @@ export function DashboardLivePreview({
     /* Wave H2 — full-bleed resume strip (no nested card gutter) */
     return (
       <div
-        className="dashboard-live-preview w-full max-w-none border-y border-border-subtle border-l-[3px] border-l-accent-emerald bg-accent-emerald/[0.06] py-2.5"
+        /* OPT-K110 — wash + left accent only; no Y-axis outline cage */
+        className="dashboard-live-preview w-full max-w-none border-0 border-l-[3px] border-l-accent-emerald bg-accent-emerald/[0.06] py-2.5 pl-3"
         data-tour="dashboard-resume"
         data-testid="dashboard-live-preview"
         data-bleed="full"

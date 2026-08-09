@@ -1405,8 +1405,9 @@
 [data-theme="blueprint"] .ux-banner-warn {
   border-color: var(--color-banner-warn-border);
 }
+/* Align blueprint cards with shared panel radius (same contract as Minimal/dark). */
 [data-theme="blueprint"] .ux-card {
-  border-radius: var(--ux-radius-hero);
+  border-radius: var(--radius-panel);
   box-shadow: 0 24px 90px color-mix(in srgb, #000000 22%, transparent);
 }
 

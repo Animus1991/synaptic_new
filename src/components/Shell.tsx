@@ -1,11 +1,11 @@
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   BookOpen, CheckSquare, Robot as Bot, SquaresFour as LayoutDashboard, Gear as Settings,
   Sparkle as Sparkles, List as Menu, X, UploadSimple as Upload, Bell, MagnifyingGlass as Search, CaretRight as ChevronRight,
   CaretLeft as ChevronLeft, CaretDoubleRight, ChartBar as BarChart3, Sun, Moon, Users, Fire as Flame, SquaresFour as Layout, Wind, GraduationCap,
   TreeStructure as Network, Lightning as Zap, Clock, Stack as Layers, DotsThreeOutline, Minus, Square,
-  CalendarBlank, Play, UsersThree,
+  CalendarBlank, Play, UsersThree, Crosshair,
 } from '@phosphor-icons/react';
 import type { AppView, User, DashboardStats, UserSettings } from '../types';
 import { cn } from '../utils/cn';
@@ -29,13 +29,20 @@ import { DemoSandboxBanner } from './DemoSandboxBanner';
 import { HeaderAccountAuth } from './HeaderAccountAuth';
 import { HeaderLangPill, HeaderTrustBadgeRow, SynapseBrandGlyph } from './ui/platformChrome';
 import type { Lang } from '../lib/i18n';
-import { commandPaletteBadge } from '../lib/workspaceKeyboardShortcuts';
+import {
+  commandPaletteBadge,
+  isAriaModalOpen,
+  isTypingTarget,
+  resolveShellFocusStudyShortcut,
+} from '../lib/workspaceKeyboardShortcuts';
 import { quickAccessActions, type GlobalQuickActionId } from '../lib/globalActionRegistry';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
 import { loadShellRailCollapsed, persistShellRailCollapsed } from '../lib/shellRailCollapsed';
 import { groupShellNavEntries, type ShellNavGroupId } from '../lib/shellNavGroups';
 import { asAllCapsLabel } from '../lib/greekTypography';
 import { AllCapsLabel } from './ui/AllCapsLabel';
+import { useMotionInitial, useMotionTransition } from '../lib/motionPrefs';
+import { useFocusStudy } from '../lib/focusStudy';
 
 interface ShellProps {
   children: ReactNode;
@@ -105,13 +112,14 @@ function buildMobileBarItems(
 
 const shellNavClass = (active: boolean, quiet = false, iconRail = false) =>
   cn(
-    'platform-nav-item relative w-full flex type-meta font-medium transition-all border',
+    /* OPT-K111 — nav uses wash/ink only; never an outline cage (active or idle) */
+    'platform-nav-item relative w-full flex type-meta font-medium transition-all border border-transparent',
     quiet ? 'rounded-md' : 'rounded-xl',
     iconRail ? 'items-center justify-center gap-0 px-2 py-2.5' : 'gap-3 px-3 py-2.5',
     !iconRail && (quiet ? 'items-center' : 'items-start'),
     active
       ? 'platform-nav-active'
-      : 'border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-hover',
+      : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover',
   );
 
 function NavActiveIndicator({ quiet = false }: { quiet?: boolean }) {
@@ -179,6 +187,29 @@ export function Shell({
   /** OPT-K10 — secondary chrome (trust badges + study space) in overflow under Minimal. */
   const [chromeMoreOpen, setChromeMoreOpen] = useState(false);
   const chromeMoreRef = useRef<HTMLDivElement>(null);
+  /** OPT-K104/K105 — Focus study: hide secondary topbar chrome (still in ⋯). */
+  const { focusStudy, setFocusStudy, toggleFocusStudy } = useFocusStudy();
+  const focusChipInitial = useMotionInitial({ opacity: 0, y: -12 });
+  const focusChipTransition = useMotionTransition({ duration: 0.18 });
+
+  /** OPT-K105 — Alt+F toggles Focus study; Esc exits when no aria-modal is open. */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (isTypingTarget(e.target)) return;
+      if (resolveShellFocusStudyShortcut(e) === 'toggle-focus-study') {
+        e.preventDefault();
+        toggleFocusStudy();
+        return;
+      }
+      if (e.key === 'Escape' && focusStudy && !isAriaModalOpen()) {
+        e.preventDefault();
+        setFocusStudy(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [focusStudy, toggleFocusStudy, setFocusStudy]);
+
   const iconRail = railCollapsed;
   const toggleRailCollapsed = useCallback(() => {
     setRailCollapsed((prev) => {
@@ -273,12 +304,47 @@ export function Shell({
   });
 
   return (
-    <div className="app-shell min-h-screen bg-surface-primary flex relative overflow-x-hidden">
+    <div
+      className="app-shell min-h-screen bg-surface-primary flex relative overflow-x-hidden"
+      data-focus-study={focusStudy ? 'true' : undefined}
+    >
       <div className="platform-blueprint-orbs" aria-hidden="true">
         <div className="platform-blueprint-orb platform-blueprint-orb-cyan" />
         <div className="platform-blueprint-orb platform-blueprint-orb-violet" />
       </div>
       <PlatformSkipLinks />
+      {/* OPT-K105 — Canon-style Focus study floating exit chip */}
+      <AnimatePresence>
+        {focusStudy && (
+          <motion.div
+            initial={focusChipInitial}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={focusChipTransition}
+            data-testid="shell-focus-study-chip"
+            className="fixed top-3 left-1/2 z-[100] flex -translate-x-1/2 items-center gap-2 rounded-full border border-border-subtle bg-surface-card/95 px-3 py-1.5 shadow-lg backdrop-blur-md print:hidden"
+            role="status"
+            aria-live="polite"
+          >
+            <Crosshair className="h-3.5 w-3.5 text-text-primary" weight="bold" aria-hidden />
+            <span className="type-caption font-semibold text-text-primary">
+              {t('wsFocusStudyActiveChip')}
+            </span>
+            <span className="hidden type-caption text-text-muted sm:inline">
+              {t('wsFocusStudyExitHint')}
+            </span>
+            <button
+              type="button"
+              onClick={() => setFocusStudy(false)}
+              data-testid="shell-focus-study-exit"
+              className="ml-0.5 inline-flex items-center gap-1 rounded-full bg-surface-secondary px-2 py-0.5 type-caption font-medium text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+            >
+              <X className="h-3 w-3" aria-hidden />
+              {t('wsFocusStudyExit')}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Desktop Sidebar */}
       <aside
         id="platform-sidebar-nav"
@@ -286,19 +352,37 @@ export function Shell({
         data-quiet-nav={quietNav ? 'true' : undefined}
         data-rail-collapsed={iconRail ? 'true' : undefined}
         className={cn(
-          'hidden lg:flex flex-col border-r border-border-subtle bg-surface-secondary/50 fixed inset-y-0 left-0 z-30',
+          'hidden lg:flex flex-col border-r border-border-subtle bg-surface-secondary/50 fixed inset-y-0 left-0 z-30 min-h-0',
           /* Expanded rail width matches Minimal (w-56) on every theme */
           iconRail ? 'w-14 shell-rail-collapsed' : 'w-56',
         )}
       >
-        <div className={cn('border-b border-border-subtle', iconRail ? 'p-2 space-y-1.5' : 'p-4')}>
+        <div className={cn('shrink-0 border-b border-border-subtle', iconRail ? 'p-2 space-y-1.5' : 'p-3 space-y-2')}>
           <div className={cn('flex items-center', iconRail ? 'justify-center' : 'gap-2')}>
             <div className="w-8 h-8 rounded-lg platform-brand-icon flex items-center justify-center shrink-0" title="Synapse">
               <SynapseBrandGlyph />
             </div>
-            {!iconRail && <span className="text-lg font-bold ws-serif">Synapse</span>}
+            {!iconRail && <span className="min-w-0 flex-1 truncate text-lg font-bold ws-serif">Synapse</span>}
           </div>
-          {/* OPT-K13 — expand control near brand when compact (foot toggle alone was easy to miss). */}
+          {/*
+            OPT-K107 — full-width rail toggle under brand (always in viewport).
+            Icon-only brand-row control was easy to miss / clip beside the title.
+          */}
+          {!iconRail && (
+            <button
+              type="button"
+              onClick={toggleRailCollapsed}
+              data-testid="shell-rail-collapse-top"
+              aria-pressed={false}
+              aria-label={t('shellRailCollapseAria')}
+              title={t('shellRailCollapseHint')}
+              className="shell-rail-expand-affordance shell-rail-collapse-bar w-full inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-transparent bg-surface-secondary/70 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+            >
+              <ChevronLeft className="w-4 h-4 shrink-0" aria-hidden />
+              <span className="type-caption font-semibold">{t('shellRailCollapse')}</span>
+            </button>
+          )}
+          {/* OPT-K13 — expand control near brand when compact. */}
           {iconRail && (
             <button
               type="button"
@@ -306,7 +390,7 @@ export function Shell({
               data-testid="shell-rail-expand-top"
               aria-label={t('shellRailExpandAria')}
               title={t('shellRailExpandHint')}
-              className="shell-rail-expand-affordance w-full flex items-center justify-center rounded-lg border border-border-subtle p-1.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+              className="shell-rail-expand-affordance w-full flex items-center justify-center rounded-lg border border-transparent bg-surface-secondary/70 p-1.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
             >
               <CaretDoubleRight className="w-4 h-4" weight="bold" aria-hidden />
               <span className="sr-only">{t('shellRailExpand')}</span>
@@ -314,7 +398,7 @@ export function Shell({
           )}
         </div>
 
-        <nav className={cn('flex-1 space-y-1', iconRail ? 'p-1.5' : 'p-3')}>
+        <nav className={cn('min-h-0 flex-1 space-y-1 overflow-y-auto', iconRail ? 'p-1.5' : 'p-3')}>
           {onTakeBreath && (
             <button
               type="button"
@@ -461,9 +545,9 @@ export function Shell({
                 <span className="sr-only">{activeCourse.title}</span>
               </button>
             ) : (
-            <div className="mt-4 mx-1 p-3 rounded-xl border border-border-subtle bg-surface-hover/60" data-testid="active-course-card">
+            <div className="mt-4 mx-1 p-3 rounded-xl bg-surface-secondary/55" data-testid="active-course-card">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-5 h-5 rounded-md bg-surface-secondary border border-border-subtle flex items-center justify-center shrink-0">
+                <div className="w-5 h-5 rounded-md bg-surface-secondary flex items-center justify-center shrink-0">
                   <BookOpen className="w-3 h-3 text-text-secondary" />
                 </div>
                 <p className="type-caption font-medium text-text-primary leading-tight truncate">{activeCourse.title}</p>
@@ -497,7 +581,12 @@ export function Shell({
           )}
         </nav>
 
-        <div className={cn(iconRail ? 'p-1.5' : 'p-3')}>
+        {/*
+          OPT-K109 — single rail toggle under brand (collapse-top / expand-top).
+          Footer duplicate Collapse added a second outlined control and visual noise.
+        */}
+
+        <div className={cn('shrink-0', iconRail ? 'p-1.5' : 'p-3')}>
           <button
             type="button"
             onClick={onUpload}
@@ -513,32 +602,7 @@ export function Shell({
           </button>
         </div>
 
-        <div className={cn('border-t border-border-subtle', iconRail ? 'p-1.5' : 'px-3 py-2')}>
-          <button
-            type="button"
-            onClick={toggleRailCollapsed}
-            data-testid="shell-rail-collapse-toggle"
-            aria-pressed={iconRail}
-            aria-label={iconRail ? t('shellRailExpandAria') : t('shellRailCollapseAria')}
-            title={iconRail ? t('shellRailExpandHint') : t('shellRailCollapseHint')}
-            className={cn(
-              'shell-rail-expand-affordance w-full flex items-center rounded-lg border text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary',
-              iconRail
-                ? 'justify-center border-border-default bg-surface-secondary/80 p-2'
-                : 'gap-2 border-border-subtle px-3 py-2 type-caption font-medium',
-            )}
-          >
-            {iconRail ? (
-              <CaretDoubleRight className="w-4 h-4" weight="bold" aria-hidden />
-            ) : (
-              <ChevronLeft className="w-4 h-4" aria-hidden />
-            )}
-            {!iconRail && <span>{t('shellRailCollapse')}</span>}
-            {iconRail && <span className="sr-only">{t('shellRailExpand')}</span>}
-          </button>
-        </div>
-
-        <div className={cn('border-t border-border-subtle', iconRail ? 'p-1.5' : 'p-3')}>
+        <div className={cn('shrink-0 border-t border-border-subtle', iconRail ? 'p-1.5' : 'p-3')}>
           <button
             type="button"
             onClick={() => onNavigate('settings')}
@@ -660,18 +724,23 @@ export function Shell({
         data-testid="shell-main-offset"
         data-rail-state={iconRail ? 'compact' : 'expanded'}
       >
-        {/* Top bar — Wave J-D05 dense utility chrome */}
+        {/* Top bar — Wave J-D05 dense utility chrome; OPT-K102 flat on Minimal */}
         <header
           className={cn(
-            'sticky top-0 z-20 glass-strong border-b border-border-subtle',
+            'sticky top-0 z-20 border-b border-border-subtle',
+            /* Non-Minimal keeps glass; Minimal/flat via .shell-topbar-calm CSS */
+            !quietNav && 'glass-strong',
             /* OPT-K94 — calm topbar on every theme (Minimal clarity → non-Minimal) */
             'shell-topbar-calm',
           )}
           data-testid="shell-topbar"
           data-chrome-calm={quietNav ? 'true' : undefined}
         >
-          <div className="flex items-center justify-between px-3 sm:px-5 h-12 gap-2">
-            <div className="flex items-center gap-2 min-w-0 flex-1">
+          <div
+            className="shell-topbar-row grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1.5 px-3 sm:px-5 min-h-12 py-1.5"
+            data-testid="shell-topbar-row"
+          >
+            <div className="flex items-center gap-2 min-w-0">
               <button
                 onClick={() => onToggleSidebar(true)}
                 ref={mobileMenuRef}
@@ -703,9 +772,15 @@ export function Shell({
               )}
             </div>
 
-            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+            <div className="flex flex-wrap items-center justify-end gap-1 sm:gap-1.5 max-w-full">
               {/* Utility icon cluster — kept under Minimal (quiet icons, not competing CTAs) */}
-              <div className="hidden md:flex items-center gap-0.5" data-testid="shell-utility-icons">
+              <div
+                className={cn(
+                  'items-center gap-0.5',
+                  focusStudy ? 'hidden' : 'hidden md:flex',
+                )}
+                data-testid="shell-utility-icons"
+              >
                 <button
                   type="button"
                   onClick={() => onNavigate('analytics')}
@@ -738,13 +813,32 @@ export function Shell({
                 </button>
               </div>
 
-              {onLanguageChange && (
+              {onLanguageChange && !focusStudy && (
                 <HeaderLangPill
                   lang={activeLang}
                   onChange={onLanguageChange}
                   className="hidden lg:inline-flex h-8 origin-right"
                 />
               )}
+              <button
+                type="button"
+                onClick={toggleFocusStudy}
+                data-testid="shell-focus-study"
+                aria-pressed={focusStudy}
+                title={focusStudy ? t('wsFocusStudyOn') : t('wsFocusStudyHint')}
+                aria-label={focusStudy ? t('wsFocusStudyOn') : t('wsFocusStudy')}
+                className={cn(
+                  'inline-flex h-8 items-center gap-1 px-2 rounded-lg transition-colors',
+                  focusStudy
+                    ? 'bg-text-primary text-surface-primary'
+                    : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
+                )}
+              >
+                <Crosshair className="w-4 h-4" weight={focusStudy ? 'bold' : 'regular'} aria-hidden />
+                <span className="hidden xl:inline type-micro font-medium">
+                  {focusStudy ? t('wsFocusStudyOn') : t('wsFocusStudy')}
+                </span>
+              </button>
               {onTakeBreath && (
                 <button
                   type="button"
@@ -865,8 +959,8 @@ export function Shell({
                 />
               )}
 
-              {/* OPT-K10 — overflow: study space + trust badges (all still reachable) */}
-              {quietNav && (
+              {/* OPT-K10/K104 — overflow: study space + utilities + trust (reachable when Focus study) */}
+              {(quietNav || focusStudy) && (
                 <div className="relative hidden md:block" ref={chromeMoreRef}>
                   <button
                     type="button"
@@ -875,7 +969,7 @@ export function Shell({
                     aria-haspopup="menu"
                     aria-label={t('shellChromeMore')}
                     onClick={() => setChromeMoreOpen((v) => !v)}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border-subtle text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent bg-surface-secondary/70 text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
                   >
                     <DotsThreeOutline className="w-4 h-4" weight="bold" aria-hidden />
                   </button>
@@ -902,6 +996,35 @@ export function Shell({
                           {t('navStudyWorkspace')}
                         </button>
                       )}
+                      {focusStudy && (
+                        <>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            data-testid="shell-focus-overflow-analytics"
+                            onClick={() => { setChromeMoreOpen(false); onNavigate('analytics'); }}
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption text-text-primary hover:bg-surface-hover"
+                          >
+                            <BarChart3 className="w-3.5 h-3.5 text-text-tertiary shrink-0" aria-hidden />
+                            {t('analytics')}
+                          </button>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            data-testid="shell-focus-overflow-tasks"
+                            onClick={() => { setChromeMoreOpen(false); onNavigate('tasks'); }}
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption text-text-primary hover:bg-surface-hover"
+                          >
+                            <CalendarBlank className="w-3.5 h-3.5 text-text-tertiary shrink-0" aria-hidden />
+                            {t('tasks')}
+                          </button>
+                          {onLanguageChange && (
+                            <div className="border-t border-border-subtle px-3 py-2">
+                              <HeaderLangPill lang={activeLang} onChange={onLanguageChange} className="inline-flex h-8" />
+                            </div>
+                          )}
+                        </>
+                      )}
                       <div
                         className="border-t border-border-subtle px-3 py-2"
                         data-testid="shell-chrome-status"
@@ -916,14 +1039,14 @@ export function Shell({
                 </div>
               )}
 
-              {!quietNav && onOpenWorkspace && (
+              {!quietNav && !focusStudy && onOpenWorkspace && (
                 <button
                   type="button"
                   onClick={onOpenWorkspace}
                   data-testid="shell-study-workspace"
                   data-tour="dashboard-workspace-cta"
                   {...workspaceEntryPrefetchHandlers()}
-                  className="hidden md:inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg border border-border-subtle type-caption font-medium leading-none text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors whitespace-nowrap"
+                  className="hidden md:inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg border border-transparent bg-surface-secondary/70 type-caption font-medium leading-none text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors whitespace-nowrap"
                 >
                   <Layout className="w-3.5 h-3.5 shrink-0" />
                   {t('navStudyWorkspace')}

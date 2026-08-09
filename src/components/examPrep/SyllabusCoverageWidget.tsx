@@ -43,7 +43,7 @@ export function SyllabusCoverageWidget({
     const pct = Math.round(snapshot.coveragePct);
     return (
       <div
-        className="rounded-xl border border-border-subtle bg-surface-primary/40 p-3 space-y-2"
+        className="rounded-xl bg-surface-secondary/40 p-3 space-y-2"
         data-testid="syllabus-coverage-widget-compact"
       >
         <div className="flex items-center justify-between gap-2">
@@ -202,7 +202,7 @@ export function SyllabusCoverageWidget({
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-border-subtle bg-surface-card/40 px-3 py-2">
+    <div className="rounded-xl bg-surface-secondary/45 px-3 py-2">
       <p className="type-micro text-text-muted">{label}</p>
       <p className="type-meta font-semibold text-text-primary">{value}</p>
     </div>

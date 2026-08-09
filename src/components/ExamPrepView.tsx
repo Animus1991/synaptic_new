@@ -19,6 +19,7 @@ import { cn } from '../utils/cn';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { useI18n } from '../lib/i18n';
 import { AllCapsLabel } from './ui/AllCapsLabel';
+import { StickyMobileCtaBar } from './ui/StickyMobileCtaBar';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
 
 interface ExamPrepViewProps {
@@ -280,15 +281,25 @@ export function ExamPrepView({
               </div>
             </CollapsibleChromeSection>
 
-            <div className="flex justify-center">
+            <div className="flex justify-center pb-16 sm:pb-0">
               <button
                 onClick={startExam}
-                className="px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-2xl type-meta font-medium transition-all"
+                className="hidden sm:inline-flex px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-2xl type-meta font-medium transition-all"
               >
                 {t('examPrepBegin')}
               </button>
             </div>
           </div>
+          {/* OPT-K105 / Wave 2 — Canon sticky mobile primary CTA */}
+          <StickyMobileCtaBar data-testid="exam-prep-setup-mobile-cta">
+            <button
+              type="button"
+              onClick={startExam}
+              className="flex-1 min-h-11 rounded-xl bg-brand-600 hover:bg-brand-500 text-white type-meta font-semibold"
+            >
+              {t('examPrepBegin')}
+            </button>
+          </StickyMobileCtaBar>
         </div>
       )}
 
@@ -535,8 +546,55 @@ export function ExamPrepView({
                   <AlertTriangle className="w-3.5 h-3.5" /> {t('examPrepTimeWarning')}
                 </p>
               )}
+
+              {/* Spacer so sticky mobile CTA does not cover navigation */}
+              <div className="h-16 sm:hidden" aria-hidden />
             </div>
           </div>
+
+          <StickyMobileCtaBar data-testid="exam-prep-active-mobile-cta">
+            <button
+              type="button"
+              onClick={() => navigateTo(Math.max(0, currentQ - 1))}
+              disabled={currentQ === 0}
+              className="min-h-11 min-w-11 rounded-xl border border-border-subtle px-3 type-meta text-text-secondary disabled:opacity-40"
+              aria-label={t('examPrepPrevious')}
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+            {currentQ < examQuestions.length - 1 ? (
+              <button
+                type="button"
+                onClick={() => navigateTo(currentQ + 1)}
+                className="flex-1 min-h-11 rounded-xl bg-brand-600 hover:bg-brand-500 text-white type-meta font-semibold inline-flex items-center justify-center gap-2"
+              >
+                {t('examPrepNext')}
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            ) : isReview ? (
+              <button
+                type="button"
+                onClick={() => setPhase('results')}
+                className="flex-1 min-h-11 rounded-xl bg-brand-600 hover:bg-brand-500 text-white type-meta font-semibold"
+              >
+                {t('examPrepViewResults')}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={!allAnswered}
+                className={cn(
+                  'flex-1 min-h-11 rounded-xl type-meta font-semibold',
+                  allAnswered
+                    ? 'bg-accent-rose/90 hover:bg-accent-rose text-white'
+                    : 'bg-surface-hover text-text-muted cursor-not-allowed',
+                )}
+              >
+                {t('examPrepSubmit')}
+              </button>
+            )}
+          </StickyMobileCtaBar>
         </div>
       )}
 

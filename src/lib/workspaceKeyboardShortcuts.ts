@@ -51,7 +51,8 @@ export type WorkspaceShortcutAction =
   | 'layout-tool'
   | 'layout-split'
   | 'toggle-notes'
-  | 'toggle-help';
+  | 'toggle-help'
+  | 'toggle-focus-study';
 
 export type WorkspaceShortcutDef = {
   id: WorkspaceShortcutAction;
@@ -175,6 +176,14 @@ export const APP_SHELL_KEYBOARD_SHORTCUTS: WorkspaceShortcutDef[] = [
     allowWhileTyping: true,
   },
   {
+    id: 'toggle-focus-study',
+    keys: 'Alt+F',
+    labelEn: 'Toggle Focus study (hide secondary chrome)',
+    labelEl: 'Εναλλαγή Εστίασης μελέτης (κρύβει δευτερεύον chrome)',
+    groupEn: 'App',
+    groupEl: 'Εφαρμογή',
+  },
+  {
     id: 'toggle-help',
     keys: '?',
     labelEn: 'Show keyboard shortcuts',
@@ -185,12 +194,27 @@ export const APP_SHELL_KEYBOARD_SHORTCUTS: WorkspaceShortcutDef[] = [
   {
     id: 'close-overlay',
     keys: 'Esc',
-    labelEn: 'Close panels / dialogs',
-    labelEl: 'Κλείσιμο πλαισίων / διαλόγων',
+    labelEn: 'Close panels / dialogs · exit Focus study',
+    labelEl: 'Κλείσιμο πλαισίων / διαλόγων · έξοδος Εστίασης',
     groupEn: 'App',
     groupEl: 'Εφαρμογή',
   },
 ];
+
+/** OPT-K105 — shell Focus study hotkey (Alt+F). Separate from workspace resolver (which ignores Alt). */
+export function resolveShellFocusStudyShortcut(
+  e: Pick<KeyboardEvent, 'key' | 'metaKey' | 'ctrlKey' | 'altKey' | 'shiftKey'>,
+): 'toggle-focus-study' | null {
+  if (!e.altKey || e.metaKey || e.ctrlKey || e.shiftKey) return null;
+  if (e.key === 'f' || e.key === 'F') return 'toggle-focus-study';
+  return null;
+}
+
+/** True when an aria-modal dialog is open (Esc should not also exit Focus study). */
+export function isAriaModalOpen(): boolean {
+  if (typeof document === 'undefined') return false;
+  return Boolean(document.querySelector('[aria-modal="true"]'));
+}
 
 export function shellShortcutGroups(lang: 'en' | 'el'): { group: string; items: WorkspaceShortcutDef[] }[] {
   const group = lang === 'el' ? 'Εφαρμογή' : 'App';

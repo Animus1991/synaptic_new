@@ -7,6 +7,10 @@ import {
   resolveTheme,
   DEFAULT_THEME_PREFERENCE,
   hasStoredThemePreference,
+  applyTheme,
+  previewTheme,
+  restoreThemePreference,
+  loadThemePreference,
 } from './theme';
 
 function installLocalStorageMock(): void {
@@ -112,5 +116,27 @@ describe('resolveTheme (OPT-M19)', () => {
   it('passes through explicit preferences', () => {
     expect(resolveTheme('blueprint')).toBe('blueprint');
     expect(resolveTheme('minimal')).toBe('minimal');
+  });
+});
+
+describe('previewTheme (DOM only)', () => {
+  beforeEach(() => {
+    installLocalStorageMock();
+    document.documentElement.removeAttribute('data-theme');
+    applyTheme('minimal');
+  });
+
+  it('applies theme to the document without changing stored preference', () => {
+    expect(loadThemePreference()).toBe('minimal');
+    previewTheme('blueprint');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('blueprint');
+    expect(loadThemePreference()).toBe('minimal');
+  });
+
+  it('restoreThemePreference returns to the saved look without persisting the preview', () => {
+    previewTheme('dark');
+    restoreThemePreference('minimal');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('minimal');
+    expect(loadThemePreference()).toBe('minimal');
   });
 });

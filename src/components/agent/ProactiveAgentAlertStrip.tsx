@@ -2,7 +2,6 @@ import { ArrowRight, Brain, ChatCircle, Warning as AlertTriangle } from '@phosph
 import type { ProactiveAgentAlert } from '../../lib/proactiveAgentAlerts';
 import { useI18n } from '../../lib/i18n';
 import { MotionSection } from '../ui/MotionSection';
-import { BlueprintSurface } from '../ui/BlueprintSurface';
 import { CollapsibleChromeSection } from '../workspace/CollapsibleChromeSection';
 import { cn } from '../../utils/cn';
 
@@ -29,10 +28,16 @@ export function ProactiveAgentAlertStrip({ alerts, onRun }: Props) {
       transition={{ delay: 0.06 }}
       data-testid="proactive-agent-alert-strip"
     >
-      <CollapsibleChromeSection title={t('chromeAlerts')} data-testid="proactive-alerts-chrome">
-        <BlueprintSurface className="p-3 space-y-2.5 border border-accent-amber/20 bg-accent-amber/5">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-accent-amber" weight="fill" />
+      <CollapsibleChromeSection
+        title={t('chromeAlerts')}
+        alwaysCollapse
+        meta={alerts.length}
+        data-testid="proactive-alerts-chrome"
+      >
+        {/* OPT-K103 — soft nested stack (no amber wash card); all alerts still reachable */}
+        <div className="ux-soft-alert-stack space-y-2 px-1 pb-2" data-testid="proactive-alerts-stack">
+          <div className="flex items-center gap-2 px-0.5">
+            <AlertTriangle className="w-4 h-4 text-text-secondary" weight="regular" />
             <p className="type-meta font-semibold text-text-primary">{t('proactiveAlertStripTitle')}</p>
           </div>
           <div className="flex flex-col gap-2">
@@ -45,17 +50,15 @@ export function ProactiveAgentAlertStrip({ alerts, onRun }: Props) {
                   data-testid={`proactive-agent-alert-${alert.id}`}
                   onClick={() => onRun(alert)}
                   className={cn(
-                    'ux-proactive-alert-item group flex items-start gap-3 rounded-xl border px-3 py-2 text-left transition-colors',
-                    alert.severity === 'urgent'
-                      ? 'border-accent-rose/30 bg-accent-rose/5 hover:border-accent-rose/50'
-                      : 'border-border-subtle bg-surface-card/50 hover:border-brand-500/40',
+                    /* OPT-K111 — interactive row: wash + hover, no outline cage */
+                    'ux-proactive-alert-item ux-soft-alert-row group flex items-start gap-3 border-0 px-1 py-2 text-left transition-colors',
+                    'rounded-md bg-transparent hover:bg-surface-secondary/70',
+                    alert.severity === 'urgent' && 'dashboard-urgency-signal',
                   )}
+                  data-tone={alert.severity === 'urgent' ? 'forget' : 'quiz'}
                 >
                   <Icon
-                    className={cn(
-                      'w-4 h-4 mt-0.5 shrink-0',
-                      alert.severity === 'urgent' ? 'text-accent-rose' : 'text-accent-amber',
-                    )}
+                    className="w-4 h-4 mt-0.5 shrink-0 text-text-secondary"
                   />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-1 type-caption font-semibold text-text-primary">
@@ -68,7 +71,7 @@ export function ProactiveAgentAlertStrip({ alerts, onRun }: Props) {
               );
             })}
           </div>
-        </BlueprintSurface>
+        </div>
       </CollapsibleChromeSection>
     </MotionSection>
   );

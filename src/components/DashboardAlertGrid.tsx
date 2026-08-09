@@ -27,8 +27,8 @@ type Slot = {
 };
 
 /**
- * Mockup 2×2 semantic alert grid (exam / quiz / forgetting / misconception).
- * Maps production smart CTAs + proactive alerts without removing handlers.
+ * Semantic alert list (exam / quiz / forgetting / misconception).
+ * OPT-K111 — interactive rows (hover wash + chevron), no 2×2 outline cages.
  */
 export function DashboardAlertGrid({
   daysToExam,
@@ -108,35 +108,7 @@ export function DashboardAlertGrid({
 
   if (slots.length === 0) return null;
 
-  /* OPT-K17 — Minimal: hairline + left urgency line (status tone only). Blueprint keeps washes. */
-  const toneClass: Record<Slot['tone'], string> = quiet
-    ? {
-        exam: 'dashboard-urgency-signal',
-        quiz: 'dashboard-urgency-signal',
-        forget: 'dashboard-urgency-signal',
-        misconception: 'dashboard-urgency-signal',
-      }
-    : {
-        /* OPT-K91 — neutral card fills (no multi-hue wash fragmentation) */
-        exam: 'border-border-subtle bg-surface-secondary',
-        quiz: 'border-border-subtle bg-surface-secondary',
-        forget: 'border-border-subtle bg-surface-secondary',
-        misconception: 'border-border-subtle bg-surface-secondary',
-      };
-  const iconClass: Record<Slot['tone'], string> = quiet
-    ? {
-        exam: 'text-text-secondary',
-        quiz: 'text-text-secondary',
-        forget: 'text-text-secondary',
-        misconception: 'text-text-secondary',
-      }
-    : {
-        /* OPT-K90 — decorative icons use ink; soft wash on card carries tone */
-        exam: 'text-text-secondary',
-        quiz: 'text-text-secondary',
-        forget: 'text-text-secondary',
-        misconception: 'text-text-secondary',
-      };
+  const iconClass = 'text-text-secondary';
   const IconFor: Record<Slot['tone'], typeof Target> = {
     exam: Target,
     quiz: CheckSquare,
@@ -146,8 +118,9 @@ export function DashboardAlertGrid({
 
   return (
     <div
-      className={cn('grid grid-cols-1 sm:grid-cols-2 gap-3', className)}
+      className={cn('dashboard-alert-list divide-y divide-border-subtle/60', className)}
       data-testid="dashboard-alert-grid"
+      data-layout="list"
     >
       {slots.slice(0, 4).map((slot) => {
         const Icon = IconFor[slot.tone];
@@ -158,28 +131,28 @@ export function DashboardAlertGrid({
             onClick={slot.onClick}
             disabled={!slot.onClick}
             className={cn(
-              'rounded-xl border p-3 text-left transition-colors',
-              toneClass[slot.tone],
-              slot.onClick && 'hover:bg-surface-hover/60 cursor-pointer',
+              'dashboard-alert-row flex w-full items-start gap-2.5 border-0 bg-transparent px-0.5 py-2.5 text-left transition-colors',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
+              slot.onClick && 'cursor-pointer hover:bg-surface-secondary/55',
               !slot.onClick && 'cursor-default',
             )}
             data-tone={slot.tone}
             data-testid={`dashboard-alert-${slot.id}`}
           >
-            <div className="flex items-start gap-2">
-              <Icon
-                className={cn('w-4 h-4 shrink-0 mt-0.5', iconClass[slot.tone])}
-                weight={quiet ? 'regular' : 'duotone'}
-                aria-hidden
-              />
-              <div className="min-w-0 flex-1">
-                <p className="type-micro font-semibold uppercase tracking-wide text-text-secondary">
-                  <AllCapsLabel>{slot.title}</AllCapsLabel>
-                </p>
-                <p className="type-caption text-text-primary mt-0.5 line-clamp-2">{slot.body}</p>
-              </div>
-              {slot.onClick && <ArrowRight className="w-3.5 h-3.5 text-text-muted shrink-0 mt-0.5" aria-hidden />}
+            <Icon
+              className={cn('mt-0.5 h-4 w-4 shrink-0', iconClass)}
+              weight={quiet ? 'regular' : 'duotone'}
+              aria-hidden
+            />
+            <div className="min-w-0 flex-1">
+              <p className="type-micro font-semibold uppercase tracking-wide text-text-secondary">
+                <AllCapsLabel>{slot.title}</AllCapsLabel>
+              </p>
+              <p className="type-caption mt-0.5 line-clamp-2 text-text-primary">{slot.body}</p>
             </div>
+            {slot.onClick && (
+              <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden />
+            )}
           </button>
         );
       })}

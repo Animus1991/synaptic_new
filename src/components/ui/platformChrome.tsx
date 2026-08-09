@@ -428,9 +428,17 @@ export function MiniAlert({
   onAction?: () => void;
 }) {
   return (
-    <div className={cn('mini-alert', tone === 'amber' ? 'mini-alert-amber' : 'mini-alert-violet', className)}>
-      <div className="type-meta font-semibold">{title}</div>
-      <div className="mt-2 type-body leading-6">{body}</div>
+    <div
+      className={cn(
+        'mini-alert ux-soft-alert',
+        tone === 'amber' ? 'mini-alert-amber' : 'mini-alert-violet',
+        className,
+      )}
+      data-tone={tone}
+      data-testid="mini-alert"
+    >
+      <div className="type-meta font-semibold text-text-primary">{title}</div>
+      <div className="mt-2 type-body leading-6 text-text-secondary">{body}</div>
       {actionLabel && onAction && (
         <button
           type="button"

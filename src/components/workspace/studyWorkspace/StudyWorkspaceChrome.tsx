@@ -111,6 +111,30 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                 {t('wsSkipToMain')}
               </a>
             </nav>
+
+            {/* OPT-K105 — Canon Zen exit affordance (keeps workspace-zen-toggle). */}
+            {layout === 'zen' && (
+              <div
+                data-testid="workspace-zen-exit-chip"
+                className="pointer-events-none fixed top-3 left-1/2 z-[130] flex -translate-x-1/2 print:hidden"
+              >
+                <div className="pointer-events-auto flex items-center gap-2 rounded-full border border-border-subtle bg-surface-card/95 px-3 py-1.5 shadow-lg backdrop-blur-md">
+                  <Maximize2 className="h-3.5 w-3.5 text-text-primary" aria-hidden />
+                  <span className="type-caption font-semibold text-text-primary">
+                    {t('wsFocusStudyOn')}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setLayout('split')}
+                    data-testid="workspace-zen-exit"
+                    className="inline-flex items-center gap-1 rounded-full bg-surface-secondary px-2 py-0.5 type-caption font-medium text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                  >
+                    <Minimize2 className="h-3 w-3" aria-hidden />
+                    {t('wsExitFocus')}
+                  </button>
+                </div>
+              </div>
+            )}
       
             {/* ============================================================ */}
             {/* MOBILE COMPACT CHROME — Bento integrated flow                */}
@@ -458,12 +482,15 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                   <button
                     onClick={() => setLayout(layout === 'zen' ? 'split' : 'zen')}
                     className="inline-flex items-center gap-1 p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0"
-                    title={layout === 'zen' ? t('wsExitFocus') : t('wsEnterZen')}
+                    title={layout === 'zen' ? t('wsExitFocus') : t('wsFocusStudyHint')}
                     data-testid="workspace-zen-toggle"
                     aria-pressed={layout === 'zen'}
+                    aria-label={layout === 'zen' ? t('wsExitFocus') : t('wsFocusStudy')}
                   >
                     {layout === 'zen' ? <Minimize2 className="w-4 h-4 text-text-secondary" /> : <Maximize2 className="w-4 h-4" />}
-                    <span className="hidden xl:inline type-micro font-medium">{t('wsZenShort')}</span>
+                    <span className="hidden xl:inline type-micro font-medium">
+                      {layout === 'zen' ? t('wsFocusStudyOn') : t('wsFocusStudy')}
+                    </span>
                   </button>
                   {!useClassicOverflow && themeToggle && (
                     <div className="[&>button]:ws-chrome-btn [&>button]:p-1.5 [&>button]:shrink-0">

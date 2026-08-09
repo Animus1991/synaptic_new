@@ -10,27 +10,40 @@ interface ReadinessRingProps {
   showBand?: boolean;
 }
 
-export function ReadinessRing({ value, size = 165, strokeWidth = 10.9, label = 'Exam Readiness', sublabel, showBand = true }: ReadinessRingProps) {
+/**
+ * OPT-K114 — Exam readiness gauge (−1% after OPT-K113).
+ * Size vs original 165 → 174. Percent is sole ink inside the ring, geometrically
+ * centered (static translate wrapper; motion is opacity-only so transforms never fight).
+ */
+export function ReadinessRing({
+  value,
+  size = 174,
+  strokeWidth = 11.5,
+  label = 'Exam Readiness',
+  sublabel,
+  showBand = true,
+}: ReadinessRingProps) {
   const band = readinessBandMeta(value);
   const r = (size - strokeWidth) / 2;
   const c = 2 * Math.PI * r;
   const offset = c - (value / 100) * c;
   const center = size / 2;
+  const pctFontSize = Math.max(22, Math.round(size * 0.27));
 
   return (
-    <div className="dashboard-readiness-ring flex flex-col items-center gap-2.5">
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} className="-rotate-90">
+    <div className="dashboard-readiness-ring flex flex-col items-center gap-2" data-testid="dashboard-readiness-ring">
+      <div className="relative shrink-0" style={{ width: size, height: size }}>
+        <svg width={size} height={size} className="-rotate-90" aria-hidden>
           <circle cx={center} cy={center} r={r} fill="none" stroke="var(--viz-track)" strokeWidth={strokeWidth} />
           <defs>
-            <linearGradient id={`ring-grad-${value}`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id={`ring-grad-${value}-${size}`} x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor={band.color} stopOpacity="0.4" />
               <stop offset="100%" stopColor={band.color} />
             </linearGradient>
           </defs>
           <motion.circle
             cx={center} cy={center} r={r} fill="none"
-            stroke={`url(#ring-grad-${value})`}
+            stroke={`url(#ring-grad-${value}-${size})`}
             strokeWidth={strokeWidth}
             strokeDasharray={c}
             strokeLinecap="round"
@@ -49,26 +62,32 @@ export function ReadinessRing({ value, size = 165, strokeWidth = 10.9, label = '
             transition={{ delay: 1.2 }}
           />
         </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
+        {/* Geometric center: left/top 50% + translate; motion opacity only (no scale). */}
+        <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           <motion.span
-            className="dashboard-readiness-pct text-4xl font-black"
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, type: 'spring' }}
-            style={{ color: band.color }}
+            className="dashboard-readiness-pct block font-black tabular-nums tracking-tight"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.35 }}
+            style={{
+              color: band.color,
+              fontSize: pctFontSize,
+              lineHeight: 1,
+              margin: 0,
+              padding: 0,
+            }}
           >
             {value}%
           </motion.span>
-          <span className="type-caption text-text-tertiary font-medium text-center px-1 leading-snug">{label}</span>
         </div>
       </div>
+      {label ? (
+        <span className="type-caption font-medium text-center text-text-tertiary leading-snug px-1">
+          {label}
+        </span>
+      ) : null}
       {showBand && (
-        <span
-          className="type-caption font-semibold px-3 py-1 rounded-full border text-text-primary bg-surface-secondary"
-          style={{
-            borderColor: `color-mix(in srgb, ${band.color} 45%, var(--color-border-subtle))`,
-          }}
-        >
+        <span className="type-caption font-semibold px-3 py-1 rounded-full border-0 bg-surface-secondary text-text-primary">
           {band.label}
         </span>
       )}

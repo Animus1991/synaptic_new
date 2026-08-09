@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { cn } from '../../utils/cn';
+import { useMinimalTheme } from '../../lib/useMinimalTheme';
 
 export type StatusChipVariant = 'info' | 'warn' | 'error' | 'mastered' | 'weak' | 'due' | 'exam';
 
@@ -21,13 +22,19 @@ type Props = {
 
 /** Semantic status pill — stale, weak, due, exam, etc. */
 export function StatusChip({ children, variant = 'info', className }: Props) {
+  const soft = useMinimalTheme();
   return (
     <span
       className={cn(
         'ux-status-badge inline-flex items-center rounded-md px-2 py-0.5 type-micro font-semibold',
-        VARIANT_CLASS[variant],
+        soft
+          ? /* OPT-K110 — wash chip, no outline */
+            'border border-transparent bg-surface-secondary text-text-primary'
+          : VARIANT_CLASS[variant],
         className,
       )}
+      data-variant={variant}
+      data-soft={soft ? 'true' : undefined}
     >
       {children}
     </span>

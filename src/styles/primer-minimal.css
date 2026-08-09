@@ -235,7 +235,8 @@
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-card,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(.platform-panel-md, .platform-panel-lg, .platform-panel-xl, .platform-panel-soft) {
   box-shadow: none !important;
-  border: 1px solid var(--color-border-default);
+  /* OPT-K109 — quieter default outline; nests drop borders via cursor-clarity */
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 70%, transparent);
   background: var(--color-surface-card);
 }
 
@@ -400,7 +401,8 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .ux-callout {
-  border: 1px solid var(--color-border-default);
+  /* OPT-K109 — wash signal without full outline box */
+  border: none;
   box-shadow: none;
   border-radius: var(--radius-md);
 }
@@ -426,9 +428,8 @@
   letter-spacing: -0.01em;
 }
 
+/* Active pill fill is owned by cursor-clarity OPT-K102 (ink contrast). Keep quiet here. */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .platform-nav-active {
-  background: var(--color-surface-hover);
-  border-left: 2px solid var(--color-brand-600);
   box-shadow: none;
 }
 
@@ -911,31 +912,31 @@
   }
 }
 
-/* Eyebrow category (ΠΙΝΑΚΑΣ ΜΑΘΗΣΗΣ / Dashboard / page eyebrows) −2% */
+/* Eyebrow −2% · K104 −3% · then −5% → ×0.9031 */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
   #dashboard-hero-greeting .ws-eyebrow,
   .ux-page-header .ws-eyebrow,
   .ux-page-header--text-first .ws-eyebrow,
   .hub-quiet-surface .ws-eyebrow
 ) {
-  font-size: calc(var(--type-caption) * 0.98) !important;
+  font-size: calc(var(--type-caption) * 0.9031) !important;
 }
 
-/* Hero greeting title category −3% */
+/* Hero greeting −3% · K104 −3% · then −5% → ×0.8939 */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell #dashboard-hero-greeting h1 {
-  font-size: calc(var(--ux-type-hero) * 0.97) !important;
+  font-size: calc(var(--ux-type-hero) * 0.8939) !important;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header :is(h1, .ux-page-title),
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header--text-first :is(h1, .ux-page-title) {
-  /* was ×0.9312; −2% more → ×0.9126 */
-  font-size: calc(var(--type-hero-app, 1.25rem) * 0.9126);
+  /* was ×0.8852; −5% more → ×0.8409 */
+  font-size: calc(var(--type-hero-app, 1.25rem) * 0.8409);
 }
 
 @media (min-width: 640px) {
   :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header :is(h1, .ux-page-title),
   :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header--text-first :is(h1, .ux-page-title) {
-    font-size: calc(var(--type-hero-app-sm, 1.375rem) * 0.9126);
+    font-size: calc(var(--type-hero-app-sm, 1.375rem) * 0.8409);
   }
 }
 
@@ -1036,11 +1037,11 @@
   }
 }
 
-/* Secondary panels breathe: softer border, no competing fill weight */
+/* Secondary panels breathe: no competing outline weight (OPT-K109) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm [data-dashboard-col="b"],
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .blueprint-surface:not([data-dashboard-col="a"]) {
-  border-color: color-mix(in srgb, var(--color-border-subtle) 82%, transparent);
-  background: color-mix(in srgb, var(--color-surface-primary) 92%, var(--color-surface-secondary));
+  border: none !important;
+  background: transparent;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-panel-empty {

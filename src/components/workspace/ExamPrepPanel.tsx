@@ -5,6 +5,7 @@ import { METHODOLOGY_PATTERNS } from '../../lib/examPrep/methodologyPatterns';
 import { ALGORITHM_SCENARIOS, clampStepIndex } from '../../lib/examPrep/algorithmStepperModel';
 import { GLOSSA_STARTER, runGlossa } from '../../lib/examPrep/glossaInterpreter';
 import { useI18n } from '../../lib/i18n';
+import { useResponsiveLayout } from '../../lib/useResponsiveLayout';
 import { cn } from '../../utils/cn';
 
 type ExamPrepTab = 'patterns' | 'algorithms' | 'glossa' | 'exercises';
@@ -47,12 +48,17 @@ export function ExamPrepPanel() {
 
 function PatternCards() {
   const { t } = useI18n();
+  const { preferSplit, surfaceMode } = useResponsiveLayout();
   const [selected, setSelected] = useState(METHODOLOGY_PATTERNS[0]?.id);
 
   const pattern = METHODOLOGY_PATTERNS.find((p) => p.id === selected);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div
+      className={cn('grid gap-4 grid-cols-1', preferSplit && 'sm:grid-cols-2')}
+      data-surface-mode={surfaceMode}
+      data-testid="exam-prep-patterns-layout"
+    >
       <ul className="space-y-2">
         {METHODOLOGY_PATTERNS.map((p) => (
           <li key={p.id}>

@@ -609,6 +609,11 @@ export function Library({
                       title={t('chromeAlerts', userLanguage)}
                       data-testid="library-quality-alerts-chrome"
                       alwaysCollapse
+                      meta={
+                        (libraryQualityAlerts.needsMaterial ? 1 : 0)
+                        + (libraryQualityAlerts.outlineAdjusted ? 1 : 0)
+                        || undefined
+                      }
                     >
                       <div className="space-y-2 px-1 pb-2">
                         {libraryQualityAlerts.needsMaterial && (

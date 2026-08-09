@@ -7,7 +7,6 @@ import { cn } from '../utils/cn';
 import { useI18n } from '../lib/i18n';
 import { AllCapsLabel } from './ui/AllCapsLabel';
 import { PrimaryCTA } from './ui/primitives';
-import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import {
   buildDashboardHubActions,
   partitionDashboardHubActions,
@@ -22,7 +21,15 @@ import type { Lang } from '../lib/i18n';
 import type { PersonalStudyDate } from '../types';
 import type { SessionType } from '../lib/taskFlows';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
-import { ArrowRight } from '@phosphor-icons/react';
+import { ArrowRight, CaretDown, CaretRight } from '@phosphor-icons/react';
+
+type HubChromeTab = 'today' | 'tools' | 'prompts' | 'alerts' | null;
+
+function ChevronIcon({ open }: { open: boolean }) {
+  return open
+    ? <CaretDown className="h-3.5 w-3.5 shrink-0 opacity-70" weight="bold" aria-hidden />
+    : <CaretRight className="h-3.5 w-3.5 shrink-0 opacity-70" weight="bold" aria-hidden />;
+}
 
 const ACTION_ICONS: Record<DashboardHubActionId, typeof Upload> = {
   calendar: Calendar,
@@ -59,6 +66,20 @@ interface Props {
   headerActions?: ReactNode;
   /** KPI strip between greeting and workspace (Wave J-D02 mockup order). */
   statsSlot?: ReactNode;
+  /**
+   * OPT-K108 — Alerts share the same hub disclosure bar as Today / Quick tools.
+   * When omitted, the Alerts tab is hidden (empty / no alert surface).
+   */
+  alertsSlot?: ReactNode;
+  /** Optional count badge on the Alerts tab (hidden when 0 / undefined). */
+  alertsMeta?: number;
+  /**
+   * OPT-K112 — Study prompts share the same hub disclosure bar.
+   * When omitted, the Study prompts tab is hidden.
+   */
+  promptsSlot?: ReactNode;
+  /** Optional count badge on the Study prompts tab. */
+  promptsMeta?: number;
   /** Flush to shell top — no side/top gap under demo banner. */
   flushTop?: boolean;
 }
@@ -86,6 +107,10 @@ export function DashboardActionHub({
   greetingSubtitle,
   headerActions,
   statsSlot,
+  alertsSlot,
+  alertsMeta,
+  promptsSlot,
+  promptsMeta,
   flushTop = false,
 }: Props) {
   const { t } = useI18n();
@@ -94,6 +119,13 @@ export function DashboardActionHub({
   const overflowRef = useRef<HTMLDivElement>(null);
   const [activePopup, setActivePopup] = useState<DashboardHubActionId | null>(null);
   const [overflowOpen, setOverflowOpen] = useState(false);
+  const [hubChromeTab, setHubChromeTab] = useState<HubChromeTab>(null);
+  const showAlertsTab = Boolean(alertsSlot);
+  const showPromptsTab = Boolean(promptsSlot);
+  const alertsBadge = alertsMeta && alertsMeta > 0 ? String(alertsMeta) : null;
+  const promptsBadge = promptsMeta && promptsMeta > 0 ? String(promptsMeta) : null;
+  /* tools always + optional today / prompts / alerts */
+  const hubTabCount = 1 + (statsSlot ? 1 : 0) + (showPromptsTab ? 1 : 0) + (showAlertsTab ? 1 : 0);
   const actions = buildDashboardHubActions({ reviewsDue, canWorkspace, canUpload });
   const { primary, overflow } = useMemo(() => partitionDashboardHubActions(actions), [actions]);
 
@@ -158,8 +190,9 @@ export function DashboardActionHub({
         onClick={() => handleCardClick(action.id)}
         onDoubleClick={() => handleCardDoubleClick(action.scrollTargetId)}
         className={cn(
-          'dashboard-hub-chip relative flex min-w-0 flex-col items-center gap-1 rounded-xl border border-border-subtle px-2 py-2.5 text-center transition-colors',
-          'hover:bg-surface-hover/40 focus-visible:ring-2 focus-visible:ring-brand-500/50',
+          /* OPT-K109 — wash chips; no per-chip outline */
+          'dashboard-hub-chip relative flex min-w-0 flex-col items-center gap-1 rounded-xl border border-transparent bg-surface-secondary/70 px-2 py-2.5 text-center transition-colors',
+          'hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-500/50',
           action.disabled && 'opacity-50 pointer-events-none',
           glassCard,
         )}
@@ -183,11 +216,11 @@ export function DashboardActionHub({
       <div
         id="dashboard-action-hub"
         className={cn(
-          /* Wave H2 — full-bleed hero (no nested card gutters); overflow-visible for More menu */
-          'relative overflow-visible border-b border-border-subtle bg-surface-secondary/35',
+          /* Wave H2 / OPT-K110 — full-bleed hero; hairline bottom only (no framed card) */
+          'relative overflow-visible border-0 border-b border-border-subtle/60 bg-transparent',
           hubQuiet && 'hub-quiet-surface',
           overflowOpen && 'z-40',
-          !flushTop && 'rounded-2xl border border-border-subtle',
+          !flushTop && 'rounded-none',
         )}
         data-testid="dashboard-action-hub"
         data-bleed="full"
@@ -250,7 +283,8 @@ export function DashboardActionHub({
             ) : (
               <div
                 className={cn(
-                  'flex w-full max-w-none flex-col gap-2 border-y border-border-subtle bg-surface-card/40 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3',
+                  /* OPT-K110 — bare study strip (spacing only; no wash cage) */
+                  'flex w-full max-w-none flex-col gap-2 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3',
                   glassCard,
                 )}
                 data-testid="dashboard-hero-study-center"
@@ -282,84 +316,221 @@ export function DashboardActionHub({
               </div>
             )}
 
-            {statsSlot && (
-              <CollapsibleChromeSection
-                title={t('dashTodayChrome')}
-                alwaysCollapse
-                data-testid="dashboard-today-chrome"
-              >
-                <div className="px-0.5 pb-1">{statsSlot}</div>
-              </CollapsibleChromeSection>
-            )}
-
-            <CollapsibleChromeSection
-              title={t('dashQuickToolsChrome')}
-              alwaysCollapse
-              data-testid="dashboard-quick-tools-chrome"
+            {/* OPT-K112 — Today | Quick tools | Study prompts | Alerts (frameless underline tabs). */}
+            <div
+              className="dashboard-hub-chrome-tabs w-full"
+              data-testid="dashboard-hub-chrome-tabs"
+              data-hub-tab-count={hubTabCount}
+              style={{ ['--hub-chrome-cols' as string]: String(hubTabCount) }}
             >
-              <div className="flex items-stretch gap-2 px-0.5 pb-1 sm:gap-2.5">
-                <div
-                  className="grid min-w-0 flex-1 grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-2.5"
-                  data-testid="dashboard-hero-action-grid"
+              <div
+                className="dashboard-hub-chrome-tablist"
+                role="tablist"
+                aria-label={t('dashHubChromeTabsAria')}
+              >
+                {statsSlot && (
+                  <button
+                    type="button"
+                    role="tab"
+                    id="dashboard-today-tab"
+                    aria-selected={hubChromeTab === 'today'}
+                    aria-controls="dashboard-today-panel"
+                    data-testid="dashboard-today-chrome"
+                    className={cn(
+                      'dashboard-hub-chrome-tab',
+                      hubChromeTab === 'today' && 'is-active',
+                    )}
+                    onClick={() => setHubChromeTab((v) => (v === 'today' ? null : 'today'))}
+                  >
+                    <span className="truncate">{t('dashTodayChrome')}</span>
+                    <ChevronIcon open={hubChromeTab === 'today'} />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  role="tab"
+                  id="dashboard-tools-tab"
+                  aria-selected={hubChromeTab === 'tools'}
+                  aria-controls="dashboard-tools-panel"
+                  data-testid="dashboard-quick-tools-chrome"
+                  className={cn(
+                    'dashboard-hub-chrome-tab',
+                    hubChromeTab === 'tools' && 'is-active',
+                  )}
+                  onClick={() => setHubChromeTab((v) => (v === 'tools' ? null : 'tools'))}
                 >
-                  {primary.map((action) => renderChip(action, 'dashboard-hero-action-grid'))}
-                </div>
-
-                {overflow.length > 0 && (
-                  <div className="relative flex shrink-0 items-stretch" ref={overflowRef}>
-                    <button
-                      type="button"
-                      data-testid="dashboard-hero-hub-more"
-                      aria-expanded={overflowOpen}
-                      aria-haspopup="menu"
-                      aria-label={t('dashboardHeroHubMoreAria')}
-                      onClick={() => setOverflowOpen((v) => !v)}
-                      className={cn(
-                        'inline-flex h-full min-h-[3.25rem] flex-col items-center justify-center gap-1 rounded-xl border border-border-subtle px-2.5 py-2 type-micro font-semibold transition-colors',
-                        'hover:bg-surface-hover/40',
-                        glassCard,
-                        onHero ? 'text-white/90' : 'text-text-secondary',
+                  <span className="truncate">{t('dashQuickToolsChrome')}</span>
+                  <ChevronIcon open={hubChromeTab === 'tools'} />
+                </button>
+                {showPromptsTab && (
+                  <button
+                    type="button"
+                    role="tab"
+                    id="dashboard-prompts-tab"
+                    aria-selected={hubChromeTab === 'prompts'}
+                    aria-controls="dashboard-prompts-panel"
+                    data-testid="dashboard-study-prompts-chrome"
+                    className={cn(
+                      'dashboard-hub-chrome-tab',
+                      hubChromeTab === 'prompts' && 'is-active',
+                    )}
+                    onClick={() => setHubChromeTab((v) => (v === 'prompts' ? null : 'prompts'))}
+                  >
+                    <span className="inline-flex min-w-0 items-center gap-1.5 truncate">
+                      <span className="truncate">{t('chromeStudyPrompts')}</span>
+                      {promptsBadge && (
+                        <span
+                          className="ux-chrome-meta-badge shrink-0"
+                          data-testid="dashboard-study-prompts-chrome-meta"
+                        >
+                          {promptsBadge}
+                        </span>
                       )}
+                    </span>
+                    <ChevronIcon open={hubChromeTab === 'prompts'} />
+                  </button>
+                )}
+                {showAlertsTab && (
+                  <button
+                    type="button"
+                    role="tab"
+                    id="dashboard-alerts-tab"
+                    aria-selected={hubChromeTab === 'alerts'}
+                    aria-controls="dashboard-alerts-panel"
+                    data-testid="dashboard-alerts-chrome"
+                    className={cn(
+                      'dashboard-hub-chrome-tab',
+                      hubChromeTab === 'alerts' && 'is-active',
+                    )}
+                    onClick={() => setHubChromeTab((v) => (v === 'alerts' ? null : 'alerts'))}
+                  >
+                    <span className="inline-flex min-w-0 items-center gap-1.5 truncate">
+                      <span className="truncate">{t('chromeAlerts')}</span>
+                      {alertsBadge && (
+                        <span
+                          className="ux-chrome-meta-badge shrink-0"
+                          data-testid="dashboard-alerts-chrome-meta"
+                        >
+                          {alertsBadge}
+                        </span>
+                      )}
+                    </span>
+                    <ChevronIcon open={hubChromeTab === 'alerts'} />
+                  </button>
+                )}
+              </div>
+
+              {statsSlot && hubChromeTab === 'today' && (
+                <div
+                  role="tabpanel"
+                  id="dashboard-today-panel"
+                  aria-labelledby="dashboard-today-tab"
+                  data-testid="dashboard-today-chrome-body"
+                  className="dashboard-hub-chrome-panel"
+                >
+                  <div className="px-0.5 pb-1">{statsSlot}</div>
+                </div>
+              )}
+
+              {hubChromeTab === 'tools' && (
+                <div
+                  role="tabpanel"
+                  id="dashboard-tools-panel"
+                  aria-labelledby="dashboard-tools-tab"
+                  data-testid="dashboard-quick-tools-chrome-body"
+                  className="dashboard-hub-chrome-panel"
+                >
+                  <div className="flex items-stretch gap-2 px-0.5 pb-1 sm:gap-2.5">
+                    <div
+                      className="grid min-w-0 flex-1 grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-2.5"
+                      data-testid="dashboard-hero-action-grid"
                     >
-                      <DotsThree className="h-4 w-4" weight="bold" aria-hidden />
-                      <span className="leading-tight">{t('dashboardHeroHubMore')}</span>
-                    </button>
-                    {overflowOpen && (
-                      <div
-                        role="menu"
-                        data-testid="dashboard-hero-hub-overflow"
-                        className={cn(
-                          'ux-elev-popover absolute right-0 top-full z-50 mt-1.5 min-w-[12rem] overflow-hidden rounded-xl border border-border-subtle bg-surface-card py-1 shadow-lg',
-                          onHero && 'bg-surface-card/95 backdrop-blur-md',
+                      {primary.map((action) => renderChip(action, 'dashboard-hero-action-grid'))}
+                    </div>
+
+                    {overflow.length > 0 && (
+                      <div className="relative flex shrink-0 items-stretch" ref={overflowRef}>
+                        <button
+                          type="button"
+                          data-testid="dashboard-hero-hub-more"
+                          aria-expanded={overflowOpen}
+                          aria-haspopup="menu"
+                          aria-label={t('dashboardHeroHubMoreAria')}
+                          onClick={() => setOverflowOpen((v) => !v)}
+                          className={cn(
+                            'inline-flex h-full min-h-[3.25rem] flex-col items-center justify-center gap-1 rounded-lg px-2.5 py-2 type-micro font-semibold transition-colors',
+                            'hover:bg-surface-hover/40',
+                            /* OPT-K109 — wash only; popover keeps its own border */
+                            'border border-transparent bg-surface-secondary/60',
+                            glassCard,
+                            onHero ? 'text-white/90' : 'text-text-secondary',
+                          )}
+                        >
+                          <DotsThree className="h-4 w-4" weight="bold" aria-hidden />
+                          <span className="leading-tight">{t('dashboardHeroHubMore')}</span>
+                        </button>
+                        {overflowOpen && (
+                          <div
+                            role="menu"
+                            data-testid="dashboard-hero-hub-overflow"
+                            className={cn(
+                              'ux-elev-popover absolute right-0 top-full z-50 mt-1.5 min-w-[12rem] overflow-hidden rounded-lg border border-border-subtle bg-surface-card py-1 shadow-lg',
+                              onHero && 'bg-surface-card/95 backdrop-blur-md',
+                            )}
+                          >
+                            {overflow.map((action) => {
+                              const Icon = ACTION_ICONS[action.id];
+                              return (
+                                <button
+                                  key={action.id}
+                                  type="button"
+                                  role="menuitem"
+                                  data-testid={`dashboard-hero-overflow-${action.id}`}
+                                  onClick={() => handleCardClick(action.id)}
+                                  className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption text-text-primary hover:bg-surface-hover/50"
+                                >
+                                  <Icon className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
+                                  <span className="min-w-0 flex-1 truncate">{t(action.chipLabelKey)}</span>
+                                  {action.badge && (
+                                    <span className="rounded-md bg-accent-rose/15 px-1.5 py-0.5 type-micro font-bold text-accent-rose">
+                                      {action.badge}
+                                    </span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
                         )}
-                      >
-                        {overflow.map((action) => {
-                          const Icon = ACTION_ICONS[action.id];
-                          return (
-                            <button
-                              key={action.id}
-                              type="button"
-                              role="menuitem"
-                              data-testid={`dashboard-hero-overflow-${action.id}`}
-                              onClick={() => handleCardClick(action.id)}
-                              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption text-text-primary hover:bg-surface-hover/50"
-                            >
-                              <Icon className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
-                              <span className="min-w-0 flex-1 truncate">{t(action.chipLabelKey)}</span>
-                              {action.badge && (
-                                <span className="rounded-md bg-accent-rose/15 px-1.5 py-0.5 type-micro font-bold text-accent-rose">
-                                  {action.badge}
-                                </span>
-                              )}
-                            </button>
-                          );
-                        })}
                       </div>
                     )}
                   </div>
-                )}
-              </div>
-            </CollapsibleChromeSection>
+                </div>
+              )}
+
+              {showPromptsTab && hubChromeTab === 'prompts' && (
+                <div
+                  role="tabpanel"
+                  id="dashboard-prompts-panel"
+                  aria-labelledby="dashboard-prompts-tab"
+                  data-testid="dashboard-study-prompts-chrome-body"
+                  className="dashboard-hub-chrome-panel"
+                >
+                  <div className="px-0.5 pb-1">{promptsSlot}</div>
+                </div>
+              )}
+
+              {showAlertsTab && hubChromeTab === 'alerts' && (
+                <div
+                  role="tabpanel"
+                  id="dashboard-alerts-panel"
+                  aria-labelledby="dashboard-alerts-tab"
+                  data-testid="dashboard-alerts-chrome-body"
+                  className="dashboard-hub-chrome-panel"
+                >
+                  <div className="px-0.5 pb-1">{alertsSlot}</div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

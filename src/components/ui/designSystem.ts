@@ -17,6 +17,9 @@ export {
 export { PlatformEmptyState, PlatformEmptyState as EmptyState } from './PlatformEmptyState';
 export { StatusChip, type StatusChipVariant } from './StatusChip';
 export { ConfirmDialog, type ConfirmDialogProps } from './ConfirmDialog';
+export { FocusTrapDialog, type FocusTrapDialogProps } from './FocusTrapDialog';
+export { SheetDrawer, type SheetDrawerProps } from './SheetDrawer';
+export { StickyMobileCtaBar } from './StickyMobileCtaBar';
 export { PostUploadBanner } from './PostUploadBanner';
 
 /** Re-export workspace empty-state helpers for tool panels (§2.7). */

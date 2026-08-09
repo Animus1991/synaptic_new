@@ -75,7 +75,8 @@ export function themeMetaColor(resolved: ResolvedTheme): string {
   return THEME_META_COLORS[resolved];
 }
 
-export function applyTheme(
+/** Apply theme to the document only — does not persist preference. */
+export function applyThemeDom(
   preference: UserSettings['theme'],
   density?: ChromeDensity,
 ): ResolvedTheme {
@@ -89,7 +90,33 @@ export function applyTheme(
   }
 
   applyChromeDensity(density ?? loadChromeDensity());
+  return resolved;
+}
 
+/**
+ * Temporary theme preview (DOM only). Call {@link applyTheme} to persist,
+ * or {@link restoreThemePreference} to discard.
+ */
+export function previewTheme(
+  preference: UserSettings['theme'],
+  density?: ChromeDensity,
+): ResolvedTheme {
+  return applyThemeDom(preference, density);
+}
+
+/** Re-apply a saved preference without writing storage (cancel preview). */
+export function restoreThemePreference(
+  preference: UserSettings['theme'],
+  density?: ChromeDensity,
+): ResolvedTheme {
+  return applyThemeDom(preference, density);
+}
+
+export function applyTheme(
+  preference: UserSettings['theme'],
+  density?: ChromeDensity,
+): ResolvedTheme {
+  const resolved = applyThemeDom(preference, density);
   saveJson(THEME_KEY, preference);
   return resolved;
 }

@@ -53,22 +53,22 @@ export function WorkspaceStepRail({
         data-testid={`workspace-step-rail-${i}`}
         aria-current={currentStep === i ? 'step' : undefined}
         className={cn(
-          'flex items-center gap-1.5 px-2.5 py-1 rounded-full type-caption font-medium shrink-0 transition-all',
+          'ws-step-timeline-item flex items-center gap-1.5 px-2.5 py-1 rounded-full type-caption font-medium shrink-0 transition-all',
           currentStep === i
-            ? 'bg-accent-cyan/15 text-text-secondary'
+            ? 'ws-step-timeline-item--current bg-surface-secondary text-text-primary'
             : i < currentStep
-              ? 'text-accent-emerald hover:bg-surface-hover'
+              ? 'ws-step-timeline-item--done text-text-secondary hover:bg-surface-hover'
               : 'text-text-muted hover:text-text-secondary hover:bg-surface-hover',
         )}
       >
         <span
           className={cn(
-            'w-4 h-4 rounded-full border type-caption flex items-center justify-center relative',
+            'ws-step-timeline-node w-4 h-4 rounded-full border type-caption flex items-center justify-center relative',
             currentStep === i
-              ? 'border-accent-cyan text-text-secondary bg-accent-cyan/10'
+              ? 'border-transparent bg-text-primary text-surface-primary'
               : i < currentStep
-                ? 'border-accent-emerald text-accent-emerald bg-accent-emerald/10'
-                : 'border-text-muted/30',
+                ? 'border-border-subtle text-text-secondary bg-surface-secondary'
+                : 'border-border-subtle text-text-muted',
           )}
         >
           {i < currentStep ? <Check className="w-2.5 h-2.5" aria-hidden /> : i + 1}

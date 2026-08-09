@@ -1,7 +1,7 @@
-/* OPT-K* — Cursor-like clarity under Minimal (principles only, not brand clone).
+/* OPT-K* ? Cursor-like clarity under Minimal (principles only, not brand clone).
    Zero feature removal. Blueprint / Spectrum / light / dark untouched. */
 
-/* ── OPT-K1 — Neutral shell active pill (no brand accent bar) ───────────── */
+/* ?? OPT-K1 ? Neutral shell active pill (no brand accent bar) ????????????? */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell #platform-sidebar-nav {
   background: var(--color-surface-primary);
@@ -12,13 +12,28 @@
   font-weight: 500;
 }
 
+/*
+ * OPT-K102 / Canon clarity ? high-contrast ?where am I? pill.
+ * Ink fill + inverted label (no font-size change; weight stays 600).
+ */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell #platform-sidebar-nav .platform-nav-active {
-  background: var(--color-surface-secondary);
+  background: var(--color-text-primary);
   border-color: transparent;
   border-left: none;
-  color: var(--color-text-primary);
+  color: var(--color-surface-primary);
   box-shadow: none;
   font-weight: 600;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell #platform-sidebar-nav .platform-nav-item.platform-nav-active :is(svg, .relative) {
+  color: inherit;
+}
+
+/* Keep task-due chip readable on the inverted active pill */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell #platform-sidebar-nav .platform-nav-item.platform-nav-active .ws-chip-danger {
+  background: color-mix(in srgb, var(--color-surface-primary) 18%, transparent);
+  color: var(--color-surface-primary);
+  border-color: color-mix(in srgb, var(--color-surface-primary) 35%, transparent);
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell #platform-sidebar-nav .platform-nav-item.platform-nav-active::before {
@@ -26,7 +41,7 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell #platform-sidebar-nav .shell-nav-group-label {
-  /* OPT-K51 — micro floor; still quieter than nav items */
+  /* OPT-K51 ? micro floor; still quieter than nav items */
   font-size: var(--type-micro);
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -35,7 +50,7 @@
   padding: 0.65rem 0.5rem 0.25rem;
 }
 
-/* OPT-K51 — type roles only (no button height / CTA size changes) */
+/* OPT-K51 ? type roles only (no button height / CTA size changes) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell {
   --type-micro: 0.6875rem;
   --type-caption: 0.75rem;
@@ -75,7 +90,7 @@
   color: var(--color-text-secondary) !important;
 }
 
-/* ── OPT-K2 — Full remaining width; no overlay under sidebar ────────────── */
+/* ?? OPT-K2 ? Full remaining width; no overlay under sidebar ?????????????? */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell #platform-main {
   width: 100%;
@@ -93,7 +108,7 @@
   max-width: none;
 }
 
-/* ── OPT-K3 — Flat hairline panels; kill default tint washes ────────────── */
+/* ?? OPT-K3 ? Flat hairline panels; kill default tint washes ?????????????? */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
   .ux-card,
@@ -124,7 +139,7 @@
   color: var(--color-text-secondary) !important;
 }
 
-/* Soft brand / accent washes on default surfaces → neutral */
+/* Soft brand / accent washes on default surfaces ? neutral */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
   .bg-brand-500\/5,
   .bg-brand-500\/10,
@@ -158,9 +173,9 @@
   border-color: var(--color-border-subtle) !important;
 }
 
-/* ── OPT-K4 — Monochrome icons/CTAs; accent only for state ──────────────── */
+/* ?? OPT-K4 ? Monochrome icons/CTAs; accent only for state ???????????????? */
 
-/* Decorative brand / cool-accent inks → secondary (OPT-K4 + OPT-K73 brand-300). */
+/* Decorative brand / cool-accent inks ? secondary (OPT-K4 + OPT-K73 brand-300). */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
   .text-brand-300,
   .text-brand-400,
@@ -191,7 +206,7 @@
   color: var(--color-text-primary) !important;
 }
 
-/* OPT-K25 light — status text = body secondary (ink hierarchy); dark keeps soft tint */
+/* OPT-K25 light ? status text = body secondary (ink hierarchy); dark keeps soft tint */
 :is([data-theme="minimal"]) .app-shell :is(
   .text-accent-rose,
   .text-accent-amber,
@@ -219,7 +234,7 @@
   color: color-mix(in srgb, var(--color-accent-orange) 42%, var(--color-text-secondary)) !important;
 }
 
-/* Soft status bar fills — light: OPT-K27 slightly stronger pastels; dark: prior mute */
+/* Soft status bar fills ? light: OPT-K27 slightly stronger pastels; dark: prior mute */
 :is([data-theme="minimal"]) .app-shell .bg-accent-rose {
   background-color: color-mix(in srgb, var(--mastery-weak) 82%, var(--color-border-subtle)) !important;
 }
@@ -262,7 +277,7 @@
   background-color: var(--color-surface-secondary) !important;
 }
 
-/* OPT-K21/K23 — Primary CTA + shell start-session: cyan on light */
+/* OPT-K21/K23 ? Primary CTA + shell start-session: cyan on light */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-primary-cta,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="shell-start-session"] {
   background: var(--color-brand-600) !important;
@@ -272,7 +287,7 @@
   box-shadow: none !important;
 }
 
-/* OPT-K22 — dark: white primary buttons (light keeps cyan) */
+/* OPT-K22 ? dark: white primary buttons (light keeps cyan) */
 :is([data-theme="minimal-dark"]) .app-shell .ux-primary-cta,
 :is([data-theme="minimal-dark"]) .app-shell [data-testid="shell-start-session"] {
   background: var(--color-text-primary) !important;
@@ -291,9 +306,9 @@
   filter: none;
 }
 
-/* Secondary CTA — outline, no brand hover tint. */
+/* Secondary CTA — OPT-K111 hairline on interactive CTAs only (no brand tint). */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-secondary-cta {
-  border-color: var(--color-border-subtle) !important;
+  border-color: color-mix(in srgb, var(--color-border-subtle) 75%, transparent) !important;
   color: var(--color-text-secondary) !important;
   border-radius: var(--radius-md) !important;
   box-shadow: none !important;
@@ -301,7 +316,7 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-secondary-cta:hover:not(:disabled) {
-  border-color: var(--color-border-strong, var(--color-border-subtle)) !important;
+  border-color: var(--color-border-default) !important;
   color: var(--color-text-primary) !important;
   background: var(--color-surface-secondary) !important;
 }
@@ -321,7 +336,7 @@
   color: var(--color-text-primary) !important;
 }
 
-/* ── OPT-K5 — UtilityRow / UsageBar ─────────────────────────────────────── */
+/* ?? OPT-K5 ? UtilityRow / UsageBar ??????????????????????????????????????? */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .utility-row {
   padding: 0.55rem 0;
@@ -332,7 +347,7 @@
   border-bottom: none;
 }
 
-/* OPT-K9b — proximity: label and value sit together (not ultrawide space-between) */
+/* OPT-K9b ? proximity: label and value sit together (not ultrawide space-between) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .utility-row-main {
   display: flex;
   flex-wrap: wrap;
@@ -393,19 +408,19 @@
   width: 100%;
   overflow: hidden;
   border-radius: 999px;
-  /* OPT-K33 — slightly darker track so soft fills read on secondary surfaces */
+  /* OPT-K33 ? slightly darker track so soft fills read on secondary surfaces */
   background: color-mix(in srgb, var(--color-border-subtle) 55%, var(--color-surface-tertiary));
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .usage-bar-fill {
   height: 100%;
   border-radius: inherit;
-  /* OPT-K33 — +~5% fill presence vs K28; still soft, not neon */
+  /* OPT-K33 ? +~5% fill presence vs K28; still soft, not neon */
   background: color-mix(in srgb, var(--color-text-secondary) 48%, var(--color-border-subtle));
   transition: width 200ms ease;
 }
 
-/* ── OPT-K6 — Hub section stacks (not masonry card walls) ───────────────── */
+/* ?? OPT-K6 ? Hub section stacks (not masonry card walls) ????????????????? */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-section {
   border: 1px solid var(--color-border-subtle);
@@ -445,10 +460,10 @@
   box-shadow: none !important;
 }
 
-/* ── OPT-K9 / K9b — Anti-stretch + proximity (page stays full-width) ─────── */
+/* ?? OPT-K9 / K9b ? Anti-stretch + proximity (page stays full-width) ??????? */
 /*
  * Main shell remains max-w-none. Rows use a tight measure AND flex-start
- * proximity so label↔value never flee to opposite ultrawide edges.
+ * proximity so label?value never flee to opposite ultrawide edges.
  */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell {
   --content-measure: 28rem;
@@ -560,7 +575,7 @@
   max-width: 100%;
 }
 
-/* ── OPT-K11 — Single well depth inside hub-section-stack ───────────────── */
+/* ?? OPT-K11 ? Single well depth inside hub-section-stack ????????????????? */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-section-stack {
   gap: 0;
@@ -633,7 +648,7 @@
   box-shadow: none !important;
 }
 
-/* OPT-K11b — Study hub chips: quiet hairline tiles, not equal-weight card wall */
+/* OPT-K11b ? Study hub chips: quiet hairline tiles, not equal-weight card wall */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface {
   border-color: var(--color-border-subtle) !important;
   background: var(--color-surface-primary) !important;
@@ -669,8 +684,8 @@
   margin-inline-start: 0;
 }
 
-/* ── OPT-K18 — Dashboard full-span + pair rows (homogenize width) ──────────
-   Keep label↔value proximity (flex-start). Lift section max-width caps so
+/* ?? OPT-K18 ? Dashboard full-span + pair rows (homogenize width) ??????????
+   Keep label?value proximity (flex-start). Lift section max-width caps so
    wells match main remaining width; pair short panels at lg+. Blueprint OK. */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm [data-testid="dashboard-page-stats"] {
@@ -725,11 +740,11 @@
   width: 100%;
 }
 
-/* OPT-K29 / K92 — pair rows stay 1-col; 2/3 density comes from masonry columns */
+/* OPT-K29 / K92 ? pair rows stay 1-col; 2/3 density comes from masonry columns */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack > .dashboard-pair-row {
   display: grid;
   grid-template-columns: 1fr;
-  /* OPT-K44 — stable pair gap */
+  /* OPT-K44 ? stable pair gap */
   gap: 1.15rem;
   align-items: start;
 }
@@ -744,7 +759,7 @@
   min-width: 0;
 }
 
-/* OPT-K29 — stacked: course / next-steps grids + readiness side-by-side → single column */
+/* OPT-K29 ? stacked: course / next-steps grids + readiness side-by-side ? single column */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm[data-dashboard-layout="stacked"] .dashboard-course-grid {
   grid-template-columns: 1fr !important;
 }
@@ -757,7 +772,7 @@
   grid-template-columns: 1fr !important;
 }
 
-/* OPT-K92 — Minimal multi-column masonry: leave single-well stack; quiet per-card surfaces */
+/* OPT-K92 ? Minimal multi-column masonry: leave single-well stack; quiet per-card surfaces */
 @media (min-width: 1280px) {
   :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack.hub-section-stack--columns {
     display: block !important;
@@ -802,9 +817,9 @@
   color: var(--color-accent-amber);
 }
 
-/* ── OPT-K15 — Analytics viz chrome quiet (keep all widgets) ───────────────
+/* ?? OPT-K15 ? Analytics viz chrome quiet (keep all widgets) ???????????????
    One ink chart language; status emerald/amber/rose kept for mastery bands.
-   Zero feature removal — densify / recolor chrome only. */
+   Zero feature removal ? densify / recolor chrome only. */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet {
   --viz-bar-fill: var(--color-text-primary);
@@ -818,7 +833,7 @@
   --color-heatmap-scale-4: var(--color-text-primary);
 }
 
-/* Rainbow course fills → ink (status bars elsewhere untouched). */
+/* Rainbow course fills ? ink (status bars elsewhere untouched). */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .analytics-course-bar-fill {
   background-color: var(--viz-bar-fill) !important;
 }
@@ -861,7 +876,7 @@
   color: var(--color-text-secondary);
 }
 
-/* Empty / sparse chart wells — quieter, not loud card voids */
+/* Empty / sparse chart wells ? quieter, not loud card voids */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .platform-panel-lg.flex.items-center.justify-center {
   border-style: dashed;
   border-color: color-mix(in srgb, var(--color-border-subtle) 80%, transparent);
@@ -875,7 +890,7 @@
   opacity: 0.85;
 }
 
-/* Visual Lab mode rail — monochrome active, keep every mode */
+/* Visual Lab mode rail ? monochrome active, keep every mode */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .visual-lab-mode-tab {
   border: 1px solid transparent;
   border-radius: var(--radius-md);
@@ -897,7 +912,7 @@
   border-color: var(--color-border-subtle);
 }
 
-/* ── OPT-K7 — PageHeader text-first + outline/solid CTA pair ────────────── */
+/* ?? OPT-K7 ? PageHeader text-first + outline/solid CTA pair ?????????????? */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header--text-first {
   padding-top: 0.65rem;
@@ -925,7 +940,7 @@
   order: 1;
 }
 
-/* ── OPT-K8 — Settings / Teacher Spending-like wells ────────────────────── */
+/* ?? OPT-K8 ? Settings / Teacher Spending-like wells ?????????????????????? */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .settings-ide .settings-ide-nav-item.is-active {
   box-shadow: none;
@@ -1021,7 +1036,7 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .teacher-wells :is(button.bg-brand-600, .bg-brand-600) {
-  /* OPT-K55 — align with K20/K22: light cyan / dark white */
+  /* OPT-K55 ? align with K20/K22: light cyan / dark white */
   background: var(--color-brand-600) !important;
   color: #ffffff !important;
   border-radius: var(--radius-md);
@@ -1041,15 +1056,101 @@
   color: var(--color-text-secondary) !important;
 }
 
-/* ── OPT-K10 — Shell chrome calm (one primary; secondary in overflow) ───── */
+/* ?? OPT-K10 ? Shell chrome calm (one primary; secondary in overflow) ????? */
 
+/* OPT-K102 ? flat topbar: solid canvas + hairline (kill glass/blur/elevation) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .shell-topbar-calm {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  background: var(--color-surface-primary);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: var(--color-surface-primary) !important;
+  border-bottom: 1px solid var(--color-border-subtle);
+  box-shadow: none !important;
 }
 
-/* OPT-K94 — Minimal sweetness: soft brand whisper on Synapse glyph + nav hover */
+/* Bottom mobile nav: ink underline ?where am I? (same type sizes) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .platform-nav-mobile-item.platform-nav-mobile-active {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .platform-nav-mobile-item.platform-nav-mobile-active::after {
+  background: var(--color-text-primary);
+  left: 18%;
+  right: 18%;
+}
+
+/*
+ * OPT-K103 / Canon soft badges + progressive alert disclosure
+ * ? soft chips (no neon), thin alert strips, visible count on nested chrome
+ * ? radii stay on existing tokens (pill / panel / md); never square off
+ */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-chrome-meta-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-secondary);
+  color: var(--color-text-secondary);
+  font-size: var(--type-micro);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-status-badge[data-soft="true"] {
+  box-shadow: none;
+  border-radius: var(--radius-pill) !important;
+}
+
+/* Quiet status cue via left hairline (kind preserved; no neon fill) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-status-badge[data-soft="true"][data-kind="needs_review"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-status-badge[data-soft="true"][data-quality="weak"] {
+  box-shadow: inset 2px 0 0 var(--color-accent-amber);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-status-badge[data-soft="true"][data-kind="ready"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-status-badge[data-soft="true"][data-kind="complete"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-status-badge[data-soft="true"][data-quality="strong"] {
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--color-accent-emerald) 55%, var(--color-border-subtle));
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .mini-alert.ux-soft-alert {
+  border-radius: var(--radius-panel);
+  border-color: var(--color-border-subtle);
+  background: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+  padding: 0.65rem 0.85rem;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .mini-alert.ux-soft-alert.mini-alert-amber {
+  box-shadow: inset 3px 0 0 var(--color-accent-amber);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .mini-alert.ux-soft-alert.mini-alert-violet {
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--color-accent-violet) 50%, var(--color-border-subtle));
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-soft-alert-stack {
+  border-radius: var(--radius-panel);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-soft-alert-row {
+  border-radius: var(--radius-panel) !important;
+  box-shadow: none;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .post-upload-create {
+  border-radius: var(--radius-panel);
+  border-color: var(--color-border-subtle) !important;
+  background: var(--color-surface-secondary) !important;
+  box-shadow: none !important;
+  padding: 0.75rem 1rem !important;
+}
+
+/* OPT-K94 ? Minimal sweetness: soft brand whisper on Synapse glyph + nav hover */
 :is([data-theme="minimal"]) .app-shell #platform-sidebar-nav .platform-brand-icon {
   background: color-mix(in srgb, var(--color-brand-600) 9%, var(--color-surface-secondary));
   border-color: color-mix(in srgb, var(--color-brand-600) 14%, var(--color-border-subtle));
@@ -1073,7 +1174,7 @@
   color: var(--color-text-secondary);
 }
 
-/* OPT-K74 CI — trust pills + callout titles must hit WCAG AA on Minimal (no pastel ink). */
+/* OPT-K74 CI ? trust pills + callout titles must hit WCAG AA on Minimal (no pastel ink). */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
   .ux-trust-badge,
   .ux-trust-badge-grounded,
@@ -1095,7 +1196,7 @@
   color: var(--color-text-primary);
   font-weight: 600;
 }
-/* Eyebrows mix teal+secondary below AA — use secondary ink on Minimal. */
+/* Eyebrows mix teal+secondary below AA ? use secondary ink on Minimal. */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-section-eyebrow {
   color: var(--color-text-secondary);
 }
@@ -1109,7 +1210,7 @@
   border-bottom-color: color-mix(in srgb, var(--color-border-subtle) 70%, transparent);
 }
 
-/* ── OPT-K14 — Library chip overflow (+N densify; all tags reachable) ───── */
+/* ?? OPT-K14 ? Library chip overflow (+N densify; all tags reachable) ????? */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .overflow-chip-row .overflow-chip,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .overflow-chip-row .overflow-chip-more {
@@ -1136,7 +1237,7 @@
   gap: 0.35rem;
 }
 
-/* ── OPT-K12 — Studio tool icons: distinct monochrome (no cyan blobs) ───── */
+/* ?? OPT-K12 ? Studio tool icons: distinct monochrome (no cyan blobs) ????? */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .notebook-canvas [data-testid="notebook-studio-grid"] .studio-tool-icon {
   background: transparent !important;
@@ -1164,10 +1265,14 @@
   color: var(--color-text-primary) !important;
 }
 
-/* ── OPT-K13 — Rail expand discoverability (all themes; Minimal compact default) ─ */
+/* ?? OPT-K13 ? Rail expand discoverability (all themes; Minimal compact default) ? */
 
 .app-shell .shell-rail-expand-affordance {
   color: var(--color-text-secondary);
+  /* OPT-K107 — never hide rail collapse/expand affordances */
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .app-shell .shell-rail-expand-affordance:hover,
@@ -1178,12 +1283,17 @@
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-border-default) 55%, transparent);
 }
 
+.app-shell .shell-rail-collapse-bar {
+  display: inline-flex !important;
+  width: 100%;
+}
+
 #platform-sidebar-nav.shell-rail-collapsed [data-testid="shell-rail-collapse-toggle"],
 #platform-sidebar-nav.shell-rail-collapsed [data-testid="shell-rail-expand-top"] {
   background: color-mix(in srgb, var(--color-surface-secondary) 88%, transparent);
 }
 
-/* ── OPT-K16 — Agent mode chrome monochrome (keep every mode) ──────────────
+/* ?? OPT-K16 ? Agent mode chrome monochrome (keep every mode) ??????????????
    Mode rail/catalog/header already ink via quietModes TSX.
    CSS quiets residual rainbow provenance chips + any leftover brand washes. */
 
@@ -1224,8 +1334,8 @@
   letter-spacing: 0.06em;
 }
 
-/* ── OPT-K17 — Dashboard signal pass (urgency lines + one-step + almost-there)
-   Blueprint / Spectrum untouched. Status tone only via left edge — no rainbow washes. */
+/* ?? OPT-K17 ? Dashboard signal pass (urgency lines + one-step + almost-there)
+   Blueprint / Spectrum untouched. Status tone only via left edge ? no rainbow washes. */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .hub-quiet .dashboard-urgency-signal {
   border: 1px solid var(--color-border-subtle) !important;
@@ -1285,16 +1395,16 @@
   color: var(--color-text-primary);
 }
 
-/* ── OPT-K19 — Soft status red + exam primary + page rhythm ────────────────
+/* ?? OPT-K19 ? Soft status red + exam primary + page rhythm ????????????????
    Minimal only. Soften mastery/rose fills; demote exam CTA from danger;
    exam full-width; quieter secondary Continue when one-step is present. */
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm {
-  --dashboard-progress-h: 0.375rem; /* 6px — shared progress language */
-  /* OPT-K28/K33 — readiness signal bars: softer grey + soft cyan, slightly clearer on track */
+  --dashboard-progress-h: 0.375rem; /* 6px ? shared progress language */
+  /* OPT-K28/K33 ? readiness signal bars: softer grey + soft cyan, slightly clearer on track */
   --dashboard-signal-ink: color-mix(in srgb, var(--color-text-secondary) 42%, var(--color-border-subtle));
   --dashboard-signal-cyan: color-mix(in srgb, var(--palette-cyan) 74%, var(--color-border-subtle));
-  /* OPT-K33 — darker progress track */
+  /* OPT-K33 ? darker progress track */
   --viz-bar-track: color-mix(in srgb, var(--color-border-subtle) 78%, var(--color-surface-tertiary));
 }
 
@@ -1308,7 +1418,7 @@
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack > .dashboard-pair-row {
-  /* OPT-K44 — keep pair gap stable (do not collapse below 1.15rem) */
+  /* OPT-K44 ? keep pair gap stable (do not collapse below 1.15rem) */
   gap: 1.15rem;
 }
 
@@ -1331,13 +1441,13 @@
   transition: width 0.35s ease;
 }
 
-/* Soft weak fill — OPT-K28 rose a touch stronger */
+/* Soft weak fill ? OPT-K28 rose a touch stronger */
 :is([data-theme="minimal"]) .app-shell .dashboard-calm .dashboard-progress-fill--weak {
   background: color-mix(in srgb, var(--mastery-weak) 82%, var(--color-border-subtle));
 }
 
 :is([data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-progress-fill--weak {
-  /* OPT-K92 — stronger fill vs track (≥3:1 non-text target) */
+  /* OPT-K92 ? stronger fill vs track (?3:1 non-text target) */
   background: color-mix(in srgb, var(--mastery-weak) 78%, var(--color-surface-card));
   opacity: 1;
 }
@@ -1351,13 +1461,13 @@
 }
 
 :is([data-theme="minimal"]) .app-shell .dashboard-calm .concept-mastery-bars .proximity-track > div:last-child > div {
-  /* OPT-K25 — dusty pastel fills; ink owns labels */
+  /* OPT-K25 ? dusty pastel fills; ink owns labels */
   filter: saturate(0.28) brightness(1.04);
   opacity: 0.85;
 }
 
 :is([data-theme="minimal-dark"]) .app-shell .dashboard-calm .concept-mastery-bars .proximity-track > div:last-child > div {
-  /* OPT-K92 — lift chroma so thin bars stay readable on dark tracks */
+  /* OPT-K92 ? lift chroma so thin bars stay readable on dark tracks */
   filter: saturate(0.88) brightness(1.1);
   opacity: 1;
 }
@@ -1384,7 +1494,7 @@
   max-width: none;
 }
 
-/* OPT-K20 / preview — brand cyan fill + pure white label (compare before rose restore) */
+/* OPT-K20 / preview ? brand cyan fill + pure white label (compare before rose restore) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-exam-cta.ux-chip-solid-brand {
   background: var(--color-brand-cta, var(--color-brand-600));
   color: #ffffff !important;
@@ -1406,7 +1516,7 @@
   font-weight: 600;
 }
 
-/* One primary action: quieter study-center Continue when Execute strip present — OPT-K61 keep readable ink */
+/* One primary action: quieter study-center Continue when Execute strip present ? OPT-K61 keep readable ink */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm:has(.dashboard-one-step-strip) [data-testid="dashboard-resume-workspace"].dashboard-continue-hero,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm:has(.dashboard-one-step-strip) [data-testid="dashboard-hero-study-center"] .dashboard-continue-hero {
   font-weight: 500;
@@ -1419,7 +1529,7 @@
   border-left-color: color-mix(in srgb, var(--color-accent-rose) 70%, var(--color-border-default));
 }
 
-/* OPT-K24 — priority chips + XP never overpower task titles */
+/* OPT-K24 ? priority chips + XP never overpower task titles */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .ux-chip-solid-warn,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .ux-chip-solid-danger {
   font-weight: 600;
@@ -1431,20 +1541,20 @@
   color: var(--color-text-secondary);
 }
 
-/* ── OPT-K52+ clarity residuals (Minimal only) ──────────────────────────── */
+/* ?? OPT-K52+ clarity residuals (Minimal only) ???????????????????????????? */
 
-/* OPT-K53 — app-shell eyebrow tracking (landing 0.34em untouched) */
+/* OPT-K53 ? app-shell eyebrow tracking (landing 0.34em untouched) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell {
   --ux-tracking-eyebrow: 0.08em;
 }
 
-/* OPT-K61b — XP meta stays readable (≥ secondary), not tertiary grey */
+/* OPT-K61b ? XP meta stays readable (? secondary), not tertiary grey */
 :is([data-theme="minimal"]) .app-shell .dashboard-calm .text-accent-amber {
   color: var(--color-text-secondary) !important;
   font-variant-numeric: tabular-nums;
 }
 
-/* OPT-K63 — progress language always pill-capped */
+/* OPT-K63 ? progress language always pill-capped */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm :is(
   .usage-bar,
   .usage-bar-fill,
@@ -1455,7 +1565,7 @@
   border-radius: 9999px !important;
 }
 
-/* OPT-K64 — mastery fill bands (weak / mid / strong) */
+/* OPT-K64 ? mastery fill bands (weak / mid / strong) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .dashboard-progress-fill--mid {
   background: color-mix(in srgb, var(--color-text-secondary) 42%, var(--color-border-subtle));
 }
@@ -1468,7 +1578,7 @@
   background: color-mix(in srgb, var(--color-brand-500) 45%, var(--color-text-secondary));
 }
 
-/* OPT-K57 — non-status brand text in calm dashboard chrome → secondary ink */
+/* OPT-K57 ? non-status brand text in calm dashboard chrome ? secondary ink */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm a.text-brand-400,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm a.text-brand-300,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm button.text-brand-400,
@@ -1481,13 +1591,13 @@
   color: var(--color-text-primary) !important;
 }
 
-/* OPT-K68 — product tour: Skip / step meta readable */
+/* OPT-K68 ? product tour: Skip / step meta readable */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) #product-tour-dialog .type-body-sm.text-text-tertiary,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="product-tour-panel"] .text-text-tertiary {
   color: var(--color-text-secondary);
 }
 
-/* OPT-K66 — coarse pointer CTA sm floor */
+/* OPT-K66 ? coarse pointer CTA sm floor */
 @media (pointer: coarse) {
   :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-primary-cta[data-size="sm"],
   :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-secondary-cta[data-size="sm"],
@@ -1496,7 +1606,7 @@
   }
 }
 
-/* ── OPT-K71 — Vista-inspired clarity (principles only; not Aero/glass clone) ─
+/* ?? OPT-K71 ? Vista-inspired clarity (principles only; not Aero/glass clone) ?
    Borrowed: soft window grouping, cool selection wash, titleband separation,
    whisper elevation, readable scrollbars. Rejected: blur, glossy buttons,
    orb/glow, thick glass, OS chrome clone. */
@@ -1513,7 +1623,7 @@
   --vista-select: color-mix(in srgb, var(--color-brand-500) 10%, var(--color-surface-secondary));
 }
 
-/* Soft titleband — chrome vs content separation */
+/* Soft titleband ? chrome vs content separation */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header--text-first {
   background: linear-gradient(
@@ -1539,7 +1649,7 @@
   border-radius: var(--radius-panel);
 }
 
-/* Cool soft selection (Vista highlight principle → our brand wash) */
+/* Cool soft selection (Vista highlight principle ? our brand wash) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .utility-row--interactive:hover,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .proximity-track > button:hover,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-hub-chip:hover {
@@ -1554,7 +1664,7 @@
     0 8px 24px color-mix(in srgb, var(--color-text-primary) 10%, transparent);
 }
 
-/* Soft, thin scrollbars — clearer chrome than OS default blobs */
+/* Soft, thin scrollbars ? clearer chrome than OS default blobs */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell * {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--color-text-muted) 55%, transparent) transparent;
@@ -1585,9 +1695,9 @@
   white-space: normal;
 }
 
-/* ── OPT-K72 — Windows 8-inspired clarity (principles only; not Metro clone) ─
+/* ?? OPT-K72 ? Windows 8-inspired clarity (principles only; not Metro clone) ?
    Borrowed: flatter than Vista, solid titleband, clear gutters, solid
-   selection wash. No size/height inflation — harmony only.
+   selection wash. No size/height inflation ? harmony only.
    Rejected: live tiles, charms, Segoe branding, heavy accent nav bars,
    Start-screen clone, glossy glass, larger type/controls. */
 
@@ -1599,7 +1709,7 @@
   --w8-select: color-mix(in srgb, var(--color-brand-500) 18%, var(--color-surface-secondary));
 }
 
-/* Flatten Vista soft lift on primary dashboard wells — border-first tiles */
+/* Flatten Vista soft lift on primary dashboard wells ? border-first tiles */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm :is(
   .ux-card,
   .blueprint-surface,
@@ -1613,14 +1723,14 @@
   box-shadow: none;
 }
 
-/* Solid titleband — flat wash + hairline (replaces Vista soft gradient) */
+/* Solid titleband ? flat wash + hairline (replaces Vista soft gradient) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header--text-first {
   background: color-mix(in srgb, var(--color-surface-primary) 92%, var(--color-surface-secondary) 8%);
   border-bottom: 1px solid color-mix(in srgb, var(--color-border-subtle) 90%, transparent);
 }
 
-/* Flat selection / hover wash — slightly more opaque than Vista soft */
+/* Flat selection / hover wash ? slightly more opaque than Vista soft */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .utility-row--interactive:hover,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .proximity-track > button:hover,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-hub-chip:hover {
@@ -1633,25 +1743,25 @@
   box-shadow: 0 4px 16px color-mix(in srgb, var(--color-text-primary) 8%, transparent);
 }
 
-/* Content gutters — safe-area only (no extra padding beyond existing px-4) */
+/* Content gutters ? safe-area only (no extra padding beyond existing px-4) */
 @media (max-width: 639px) {
   :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="dashboard-page"] > div.px-4 {
     padding-inline: max(1rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
   }
 }
 
-/* Hub chips — keep K11b transparent hairline; only drop any residual lift */
+/* Hub chips ? keep K11b transparent hairline; only drop any residual lift */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .hub-quiet-surface .dashboard-hub-chip {
   box-shadow: none;
 }
 
-/* Brand mark — flat (no glow / soft lift residue) */
+/* Brand mark ? flat (no glow / soft lift residue) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .platform-brand-icon {
   box-shadow: none;
   filter: none;
 }
 
-/* ── OPT-K73 — Minimal contrast pass (harmony only; no size inflation) ─────
+/* ?? OPT-K73 ? Minimal contrast pass (harmony only; no size inflation) ?????
    Fix AA text failures: muted/tertiary ladder, brand-300 ink, opacity wash. */
 
 /* Drop opacity wash on hero meta (was cutting secondary/tertiary below AA) */
@@ -1660,7 +1770,7 @@
   opacity: 1;
 }
 
-/* Placeholders — use tertiary floor (muted token now AA; keep hierarchy) */
+/* Placeholders ? use tertiary floor (muted token now AA; keep hierarchy) */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(
   input,
   textarea
@@ -1669,12 +1779,12 @@
   opacity: 1;
 }
 
-/* Shell / dashboard micro meta — muted is AA after token bump; icons match */
+/* Shell / dashboard micro meta ? muted is AA after token bump; icons match */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell #platform-sidebar-nav .shell-nav-group-label {
   color: var(--color-text-tertiary);
 }
 
-/* Mobile inactive nav — tertiary after K73 is ≥4.5:1; keep labels readable */
+/* Mobile inactive nav ? tertiary after K73 is ?4.5:1; keep labels readable */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) #platform-mobile-nav .platform-nav-mobile-item:not(.platform-nav-mobile-active) {
   color: var(--color-text-secondary);
 }
@@ -1683,7 +1793,7 @@
   color: var(--color-text-secondary);
 }
 
-/* Utility row hints/icons — secondary for values-adjacent meta on small type */
+/* Utility row hints/icons ? secondary for values-adjacent meta on small type */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .utility-row-icon,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .utility-row-hint {
   color: var(--color-text-secondary);
@@ -1694,10 +1804,477 @@
   color: var(--color-text-tertiary);
 }
 
-/* Page header subtitle — secondary for body-adjacent support copy */
+/* Page header subtitle ? secondary for body-adjacent support copy */
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header .ux-page-subtitle,
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-page-header--text-first .ux-page-subtitle {
   color: var(--color-text-secondary);
 }
 
 
+
+/* ========== OPT-K104 ? Header ?3% ? hub chrome tabs ? Focus study ? quiet steps ========== */
+
+/* Page header band ?3% padding (all themes via app-shell) */
+.app-shell .ux-page-header {
+  padding-top: calc(0.5rem * 0.9215) !important;
+  padding-bottom: calc(0.5rem * 0.9215) !important;
+}
+
+.app-shell #dashboard-hero-greeting {
+  gap: calc(0.25rem * 0.9215);
+}
+
+/* Non-Minimal page titles ?3% (Minimal has its own stacked multiplier in primer-minimal) */
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell .ux-page-header :is(h1, .ux-page-title) {
+  font-size: calc(var(--ux-type-hero) * 0.9215);
+}
+
+:is([data-theme="dark"], [data-theme="blueprint"], [data-theme="light"], [data-theme="spectrum"], [data-theme="warm-sand"])
+  .app-shell #dashboard-hero-greeting h1 {
+  font-size: calc(var(--ux-type-hero) * 0.9215);
+}
+
+/*
+ * OPT-K108 — Hub chrome as one segmented control (Canon / industry):
+ * single outer border + internal dividers instead of N boxed outlines.
+ * Columns: Today | Quick tools | Alerts (2–3 via --hub-chrome-cols).
+ */
+.dashboard-hub-chrome-tabs {
+  width: 100%;
+}
+
+/* OPT-K110 — frameless hub tabs (wash + ink, no segmented outline cage) */
+.dashboard-hub-chrome-tablist {
+  display: grid;
+  grid-template-columns: repeat(var(--hub-chrome-cols, 2), minmax(0, 1fr));
+  gap: 0.25rem;
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  background: transparent;
+}
+
+.dashboard-hub-chrome-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 2.25rem;
+  min-width: 0;
+  padding: 0.45rem 0.75rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--type-caption);
+  font-weight: 600;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.dashboard-hub-chrome-tab:last-child {
+  border-right: none;
+}
+
+.dashboard-hub-chrome-tab:hover {
+  background: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+}
+
+.dashboard-hub-chrome-tab.is-active,
+.dashboard-hub-chrome-tab[aria-selected="true"] {
+  /* OPT-K111 — text + underline only; never a pill/outline cage */
+  background: transparent;
+  color: var(--color-text-primary);
+  box-shadow: inset 0 -2px 0 0 var(--color-text-primary);
+}
+
+.dashboard-hub-chrome-tab.is-active .ux-chrome-meta-badge,
+.dashboard-hub-chrome-tab[aria-selected="true"] .ux-chrome-meta-badge {
+  background: color-mix(in srgb, var(--color-text-primary) 10%, transparent);
+  color: var(--color-text-primary);
+  border-color: transparent;
+}
+
+.dashboard-hub-chrome-panel {
+  margin-top: 0.5rem;
+  padding-top: 0.35rem;
+  /* Divider only — no second boxed frame */
+  border-top: 1px solid color-mix(in srgb, var(--color-border-subtle) 55%, transparent);
+}
+
+/*
+ * OPT-K108 — Dashboard border diet (selective, Canon-inspired):
+ * Prefer spacing + hairline dividers over stacked full outlines.
+ * Interactive CTAs / inputs keep borders; nested decorative boxes quiet down.
+ */
+[data-testid="dashboard-page"] .dashboard-breath-stack > .collapsible-chrome-section {
+  border-left: none;
+  border-right: none;
+  border-color: color-mix(in srgb, var(--color-border-subtle) 70%, transparent);
+  background: transparent;
+}
+
+/* OPT-K110 — superseded softer K108 colors; masonry stays borderless */
+[data-testid="dashboard-page"] .dashboard-breath-stack .ux-card,
+[data-testid="dashboard-page"] .dashboard-breath-stack .rounded-panel.border,
+[data-testid="dashboard-page"] [data-testid="dashboard-masonry"] .ux-card,
+[data-testid="dashboard-page"] [data-testid="dashboard-masonry"] .rounded-panel,
+[data-testid="dashboard-page"] [data-testid="dashboard-masonry"] .blueprint-surface {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Nested surfaces inside already-bordered sections: drop inner ring */
+[data-testid="dashboard-page"] .collapsible-chrome-section-body .ux-card,
+[data-testid="dashboard-page"] .collapsible-chrome-section-body .blueprint-surface,
+[data-testid="dashboard-page"] .dashboard-hub-chrome-panel .hub-section,
+[data-testid="dashboard-page"] .dashboard-hub-chrome-panel .ux-card {
+  border-color: transparent !important;
+  background: transparent;
+  box-shadow: none !important;
+}
+
+/* OPT-K111 — Secondary CTAs keep a refined hairline (interactive only) */
+[data-testid="dashboard-page"] .ux-secondary-cta,
+[data-testid="dashboard-page"] .dashboard-exam-cta.ux-secondary-cta {
+  border-color: color-mix(in srgb, var(--color-border-subtle) 70%, transparent);
+  background: transparent;
+}
+
+[data-testid="dashboard-page"] .ux-secondary-cta:hover {
+  border-color: var(--color-border-default);
+  background: var(--color-surface-secondary);
+}
+
+/* Hub action chips: wash only */
+[data-testid="dashboard-page"] [data-testid="dashboard-hero-action-grid"] > button,
+[data-testid="dashboard-page"] [data-testid^="dashboard-hero-action-"],
+[data-testid="dashboard-page"] .dashboard-hub-chip {
+  border-color: transparent !important;
+  background: color-mix(in srgb, var(--color-surface-secondary) 80%, transparent);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="dashboard-page"].dashboard-calm .dashboard-breath-stack .ux-card,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) [data-testid="dashboard-page"].hub-quiet .dashboard-breath-stack .blueprint-surface {
+  border: none !important;
+  background: transparent !important;
+}
+
+/*
+ * OPT-K109 — Strict border diet (Canon / industry nest rule):
+ * Spacing + hairline dividers + soft washes > stacked full outlines.
+ * Keep borders on: PrimaryCTA, inputs, dialogs/popovers, segmented controls, focus rings.
+ */
+
+/* Shared nest: never box-in-box (all pages) */
+.app-shell .blueprint-surface-nest,
+.app-shell .ux-card .ux-card,
+.app-shell .blueprint-surface .blueprint-surface,
+.app-shell .ux-card .blueprint-surface,
+.app-shell .blueprint-surface .ux-card {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.app-shell .blueprint-surface-nest {
+  background: color-mix(in srgb, var(--color-surface-secondary) 55%, transparent);
+}
+
+/* Progressive-disclosure chrome: hairline divider, not a framed box */
+.app-shell .collapsible-chrome-section {
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border-subtle) 65%, transparent);
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.app-shell .collapsible-chrome-section-body {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Rail toggle: ghost wash (still always visible — OPT-K107) */
+.app-shell .shell-rail-collapse-bar,
+.app-shell [data-testid="shell-rail-expand-top"] {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--color-surface-secondary) 72%, transparent);
+}
+
+.app-shell .shell-rail-collapse-bar:hover,
+.app-shell .shell-rail-collapse-bar:focus-visible,
+.app-shell [data-testid="shell-rail-expand-top"]:hover,
+.app-shell [data-testid="shell-rail-expand-top"]:focus-visible {
+  border-color: color-mix(in srgb, var(--color-border-subtle) 80%, transparent);
+}
+
+/* Dashboard masonry / panels: unbox; separate with space + washes */
+[data-testid="dashboard-page"] [data-testid="dashboard-masonry"] :is(.ux-card, .blueprint-surface, .rounded-panel) {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent;
+}
+
+[data-testid="dashboard-page"] [data-testid="dashboard-masonry"] > * + * {
+  /* columns layout: rely on gap; reinforce calm vertical rhythm */
+  margin-top: 0;
+}
+
+[data-testid="dashboard-page"] .dashboard-course-grid > * {
+  border: none !important;
+  box-shadow: none !important;
+  background: color-mix(in srgb, var(--color-surface-secondary) 70%, transparent);
+}
+
+[data-testid="dashboard-page"] :is(.ux-callout, .dashboard-urgency-signal, .platform-banner-warn) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+[data-testid="dashboard-page"] [data-testid="dashboard-hero-study-center"] {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="dashboard-page"] [data-testid="dashboard-action-hub"].rounded-2xl {
+  /* Prefer bottom edge only when hero is inset */
+  border-left: none;
+  border-right: none;
+  border-top: none;
+}
+
+/* Soften Minimal global card/callout weight (shared pages inherit calmer nests) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ux-callout {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/*
+ * OPT-K110 — Ultra-strict border diet (Canon / industry):
+ * Nuclear unbox on Dashboard; quieter shared chrome (trust badges, status chips).
+ * Keep borders ONLY on: PrimaryCTA, form controls, dialogs/popovers, focus rings.
+ */
+[data-testid="dashboard-page"] :is(
+  .ux-card,
+  .blueprint-surface,
+  .rounded-panel,
+  .ux-callout,
+  .ux-spark-panel,
+  .platform-panel-md,
+  .platform-panel-lg,
+  .platform-panel-soft,
+  .platform-banner-warn,
+  .dashboard-urgency-signal,
+  .ux-banner-warn,
+  .dashboard-live-preview,
+  [data-testid="syllabus-coverage-widget-compact"],
+  [data-testid="exam-calendar-panel"] .ux-card,
+  [data-testid^="exam-calendar-entry-"],
+  [data-testid^="exam-calendar-filter-"]
+) {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="dashboard-page"] [data-testid="dashboard-action-hub"] {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Navigational course cards: ultra-light hairline (CTA-class interactive) */
+[data-testid="dashboard-page"] .dashboard-course-grid > * {
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 45%, transparent) !important;
+  box-shadow: none !important;
+  background: transparent;
+}
+
+[data-testid="dashboard-page"] .dashboard-hub-chrome-tablist {
+  border: none !important;
+  background: transparent !important;
+}
+
+/* Shared: trust / status chips → wash, no outline cage */
+.app-shell .ux-trust-badge,
+.app-shell .ux-status-badge,
+.app-shell .ux-chrome-meta-badge {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.app-shell .ux-trust-badge {
+  background: color-mix(in srgb, var(--color-surface-secondary) 88%, transparent);
+}
+
+/*
+ * OPT-K111 — CTA-only outline rule (Canon / industry):
+ * Surfaces / panels / callouts / alert rows: no outline cages.
+ * Interactive CTAs (SecondaryCTA, navigational cards): refined hairline only.
+ */
+[data-testid="dashboard-page"][data-border-diet="cta-only"] :is(
+  .ux-card,
+  .blueprint-surface,
+  .rounded-panel,
+  .ux-callout,
+  .ux-spark-panel,
+  .platform-banner-warn,
+  .dashboard-urgency-signal,
+  .ux-banner-warn,
+  .dashboard-live-preview,
+  [data-testid="syllabus-coverage-widget-compact"],
+  [data-testid="exam-calendar-panel"] .ux-card,
+  [data-testid^="exam-calendar-entry-"],
+  [data-testid^="exam-calendar-filter-"],
+  [data-testid^="dashboard-alert-"],
+  .dashboard-alert-row,
+  .collapsible-chrome-section-body > *
+) {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="dashboard-page"][data-border-diet="cta-only"] .ux-card:hover,
+[data-testid="dashboard-page"][data-border-diet="cta-only"] .blueprint-surface:hover {
+  border-color: transparent !important;
+}
+
+[data-testid="dashboard-page"][data-border-diet="cta-only"] :is(
+  .ux-secondary-cta,
+  .dashboard-exam-cta,
+  .dashboard-course-grid > *
+) {
+  border-style: solid !important;
+  border-width: 1px !important;
+  border-color: color-mix(in srgb, var(--color-border-subtle) 55%, transparent) !important;
+  box-shadow: none !important;
+}
+
+[data-testid="dashboard-page"][data-border-diet="cta-only"] .ux-primary-cta {
+  border-color: transparent !important;
+}
+
+/* Shared app-shell: nav never outlined; secondary CTAs stay hairline */
+.app-shell #platform-sidebar-nav .platform-nav-item,
+.app-shell #platform-sidebar-nav .platform-nav-active {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.app-shell .ux-secondary-cta {
+  border-width: 1px;
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--color-border-subtle) 70%, transparent);
+  box-shadow: none;
+}
+
+/*
+ * OPT-K112 — Today at a glance: compact KPI tile grid (not a sparse left stack).
+ */
+.dashboard-today-glance {
+  width: 100%;
+  min-width: 0;
+}
+
+.dashboard-today-glance-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .dashboard-today-glance-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-today-glance-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.dashboard-today-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 0.55rem 0.65rem;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-surface-secondary) 72%, transparent);
+  border: none;
+  box-shadow: none;
+}
+
+.dashboard-today-stat--interactive {
+  cursor: pointer;
+}
+
+.dashboard-today-stat--interactive:hover {
+  background: var(--color-surface-hover);
+}
+
+.dashboard-today-stat--interactive:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-brand-500) 45%, transparent);
+}
+
+.dashboard-today-stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.dashboard-today-stat-value {
+  font-size: var(--type-meta);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  min-width: 0;
+  text-align: right;
+}
+
+.dashboard-today-stat-label {
+  margin: 0;
+  font-size: var(--type-micro);
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--color-text-secondary);
+}
+
+.dashboard-today-stat-icon {
+  display: inline-flex;
+  shrink: 0;
+}
+
+/* OPT-K114 — percent is sole centered ink inside the ring */
+.dashboard-readiness-ring .dashboard-readiness-pct {
+  display: block;
+  line-height: 1 !important;
+  letter-spacing: -0.02em;
+  margin: 0;
+  padding: 0;
+}
+
+/* Quiet step timeline (Canon numbered circles) ? keep rounded-full nodes */
+.app-shell .ws-step-timeline-item--current {
+  background: var(--color-surface-secondary) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.app-shell .ws-step-timeline-node {
+  border-radius: 9999px !important;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .ws-step-timeline-item--current .ws-step-timeline-node {
+  background: var(--color-text-primary) !important;
+  color: var(--color-surface-primary) !important;
+  border-color: transparent !important;
+}

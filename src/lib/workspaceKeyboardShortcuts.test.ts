@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  APP_SHELL_KEYBOARD_SHORTCUTS,
   commandPaletteBadge,
   displayShortcutKeys,
   isApplePlatform,
+  resolveShellFocusStudyShortcut,
   resolveWorkspaceShortcutKey,
   workspaceShortcutGroups,
   WORKSPACE_KEYBOARD_SHORTCUTS,
@@ -53,5 +55,15 @@ describe('workspaceKeyboardShortcuts (SW-P3-08)', () => {
       expect(shown).toMatch(/ctrl/i);
       expect(shown).not.toContain('⌘');
     }
+  });
+
+  it('OPT-K105 — Alt+F resolves Focus study; workspace resolver ignores Alt', () => {
+    expect(resolveShellFocusStudyShortcut({
+      key: 'f', metaKey: false, ctrlKey: false, altKey: true, shiftKey: false,
+    })).toBe('toggle-focus-study');
+    expect(resolveWorkspaceShortcutKey({
+      key: 'f', metaKey: false, ctrlKey: false, altKey: true, shiftKey: false,
+    })).toBeNull();
+    expect(APP_SHELL_KEYBOARD_SHORTCUTS.some((s) => s.id === 'toggle-focus-study')).toBe(true);
   });
 });

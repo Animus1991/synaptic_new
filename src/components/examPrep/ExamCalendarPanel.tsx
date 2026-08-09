@@ -18,18 +18,25 @@ export function ExamCalendarPanel() {
       tone="muted"
       title={t('examCalendarTitle')}
       icon={Calendar}
+      className="border-0 shadow-none bg-transparent"
+      padding="sm"
     >
-      <div className="flex flex-wrap gap-2 mb-4">
+      {/* OPT-K110 — frameless filter cluster (active = wash, not outline pill) */}
+      <div
+        className="exam-calendar-filter-row mb-4 inline-flex flex-wrap gap-1 rounded-lg bg-surface-secondary/55 p-0.5"
+        role="group"
+        aria-label={t('examCalendarTitle')}
+      >
         {(['all', 'general', 'panhellenic-informatics'] as const).map((p) => (
           <button
             key={p}
             type="button"
             onClick={() => setPreset(p)}
             data-testid={`exam-calendar-filter-${p}`}
-            className={`rounded-full px-3 py-1 type-micro font-medium border transition-colors ${
+            className={`rounded-md px-3 py-1 type-micro font-medium border-0 transition-colors ${
               preset === p
-                ? 'border-brand-500/40 bg-surface-secondary text-text-primary border border-border-subtle'
-                : 'border-border-subtle text-text-secondary hover:bg-surface-hover'
+                ? 'bg-surface-primary text-text-primary'
+                : 'bg-transparent text-text-secondary hover:bg-surface-hover/60'
             }`}
           >
             {p === 'all'
@@ -41,11 +48,11 @@ export function ExamCalendarPanel() {
         ))}
       </div>
 
-      <ul className="proximity-track-wide space-y-3">
+      <ul className="proximity-track-wide divide-y divide-border-subtle/70">
         {entries.map((entry) => (
           <li
             key={entry.id}
-            className="rounded-xl border border-border-subtle bg-surface-card/40 p-3"
+            className="py-3 first:pt-0 last:pb-0"
             data-testid={`exam-calendar-entry-${entry.id}`}
           >
             {/* OPT-K9b — link beside title cluster, not far-right of ultrawide card */}
