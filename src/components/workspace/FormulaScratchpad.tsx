@@ -71,7 +71,6 @@ const SCRATCHPAD_SHELL =
 /* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export function FormulaScratchpad({
   noteFormulas = [],
-  emptyMessage,
   hasSource = false,
   onUpload,
   scopeKey,

@@ -61,7 +61,6 @@ export function MasteryRingDecorativeBoard() {
       <rect x="0" y="0" width="320" height="200" rx="12" className="visual-lab-board-bg" />
       {rings.map((ring, i) => {
         const c = 2 * Math.PI * ring.r;
-        const offset = c - (ring.pct / 100) * c;
         return (
           <circle
             key={i}

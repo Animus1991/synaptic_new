@@ -123,6 +123,24 @@ Perf root causes fixed (E0): per-tool intel gates; noteBundle pipeline decoupled
 | RD | Reader densify | **done** — full-bleed reading surface (nest skip + drop nested Reader title / card gutters); warm purpose (no workspace-step / Source text); **Study** PrimaryCTA; Ask Tutor in ⋯; Reading aids nested closed; section chips CSS-truncate only (`waveReaderContract.test.ts`) |
 | E14 | Exit gate | **done** — diagnostics removed; `test:a11y` + `test:e2e:perf` + contrast unit tests green; LHCI a11y ≥0.95 asserted (`npm run test:lhci`, landing/dashboard/demo). Fixes: ReadinessRing band AA ink; Shell Tasks/Search accessible names; Dashboard layout toggle labels |)
 
+## Wave I — Cross-theme micro-harmony (audited 2026-08-10, 13 spectrum-theme screenshots)
+
+Goal: micro-adjustments only (no re-layouts) so every theme×viewport reads calm and even. Reference patterns adopted from Obsidian_protocol (Canon): 12px chrome floor, 17–18px/1.7 prose on tablet+, radius 6/10/14/20 scale, alpha hairline borders, opt-in high-contrast variant. Priority order = table order.
+
+| # | Item | Status / scope |
+| - | - | - |
+| I0 | EL i18n gap sweep | **done** — 30+ untranslated EL values fixed (timerExamPracticeBlocks was visible in Timer screenshot; also reprocess/collab/anno/strip/export/qa/reader/treemap/plugins/leitner/dashboard-pipeline/exam-prep). Proper nouns (Feynman, Leitner, theme names, Google products) intentionally kept |
+| I1 | Spectrum/light clarity parity | cursor-clarity.css has 295 Minimal-gated selectors vs 2 light-gated; screenshots are spectrum → user sees least-polished theme. Port only *neutral* rules (nav active pill, type-role floors, guide chrome quieting) behind `:is(minimal, minimal-dark, spectrum, light)`; leave brand-specific rules Minimal-only. Verify against `minimalClarityContracts` |
+| I2 | Compare cell mid-word truncation | Screenshot 9 shows cells ending mid-word (“utility subj”, “the percen”) — table already wraps (`whitespace-normal break-words`), so truncation is upstream in cell-content generation; find slice site, add ellipsis + full text via row expand/`title` |
+| I3 | Quiz option letter ink | A/B/C/D prefix letters read too pale on spectrum white cards; floor to `text-text-secondary` ≥AA (screenshot 7) |
+| I4 | Progress duplication diet | Screenshot 13: KPI tile “210m Εβδομάδα” + line “210m αυτή την εβδομάδα” repeat; keep one. Session chips overflow (“…+9”) needs accessible expansion |
+| I5 | Studio tile AI badge de-dup | Screenshot 1: “AI” badge repeats on every studio tile (12×) — replace with one grid-level caption/legend; keep per-tile badge only if a tile is *not* AI-backed |
+| I6 | Tutor column repeats | Screenshots 1–13: per-message “Offline – Πρόσθεσε API key” banner + double “Άκου” rows repeat down the transcript; collapse to one sticky offline notice + single listen affordance per message |
+| I7 | Annotations source colorization | Screenshot 12: multi-color spell-gate token ink in the source pane reads as noise; default to neutral ink, colors only in review mode; label the color-dot row |
+| I8 | Timer hero proportion | Screenshot 11: ring + CTA leave a large idle block on ≥lg; cap ring size, surface Exam practice blocks (now translated) beside it on wide panels |
+| I9 | High-contrast variant | Adopt Canon `data-high-contrast` opt-in (2px borders, floored muted ink) as Settings accessibility toggle — additive, no default change |
+| I10 | **Blocker** — clarity contracts red at HEAD | `minimalClarityContracts.test.ts` fails 14/99 at `c9ced92` (pre-existing, verified via stash): K90/K93/K100/K116/K143/K146/K155 groups. Contracts vs OPT-K166 source drifted — reconcile (fix source or update contract pins) before further theme work |
+
 ## Explicitly out of scope
 
 - Rewrite to Next/Remix  
