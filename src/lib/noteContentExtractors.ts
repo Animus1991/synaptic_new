@@ -308,9 +308,10 @@ export function extractComparisons(
   const seen = new Set<string>();
 
   const push = (dim: string, a: string, b: string) => {
-    const d = dim.trim().slice(0, 80);
-    const left = a.trim().slice(0, 100);
-    const right = b.trim().slice(0, 100);
+    /* Wave I2 — word-boundary clip + ellipsis (no mid-word “utility subj” cells) */
+    const d = clipQuizOptionText(dim, 80);
+    const left = clipQuizOptionText(a, 100);
+    const right = clipQuizOptionText(b, 100);
     if (left.length < 2 || right.length < 2) return;
     const k = `${d}|${left}|${right}`;
     if (seen.has(k)) return;
@@ -349,7 +350,7 @@ export function extractComparisons(
         (s) => s.toLowerCase().includes(a.term.toLowerCase()) && s.toLowerCase().includes(b.term.toLowerCase()),
       );
       if (shared) {
-        push(`${a.term} vs ${b.term}`, a.definition.slice(0, 80), b.definition.slice(0, 80));
+        push(`${a.term} vs ${b.term}`, a.definition, b.definition);
       }
       if (rows.length >= 6) return rows;
     }
@@ -361,7 +362,7 @@ export function extractComparisons(
       (d) => conceptRelevanceScore(d.definition, concept) > 0.25,
     );
     for (const d of defs.slice(0, 4)) {
-      push(d.term, d.definition.slice(0, 80), '—');
+      push(d.term, d.definition, '—');
     }
   }
 

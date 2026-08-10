@@ -19,7 +19,7 @@ export function WorkspaceToolSkeleton({ tool, lang, className }: Props) {
 
   return (
     <div
-      className={cn('flex h-full min-h-[12rem] flex-col gap-4 p-4 sm:p-6', className)}
+      className={cn('flex h-full min-h-48 flex-col gap-4 p-4 sm:p-6', className)}
       data-testid={`workspace-tool-skeleton-${tool}`}
       role="status"
       aria-live="polite"
@@ -28,11 +28,11 @@ export function WorkspaceToolSkeleton({ tool, lang, className }: Props) {
       <div className="flex items-center gap-3">
         <UxShimmerSkeleton className="h-9 w-9 shrink-0 rounded-xl" />
         <div className="min-w-0 flex-1 space-y-2">
-          <UxShimmerSkeleton className="h-4 w-32 rounded" />
-          <UxShimmerSkeleton className="h-3 w-48 max-w-full rounded" />
+          <UxShimmerSkeleton className="h-4 w-32 rounded-sm" />
+          <UxShimmerSkeleton className="h-3 w-48 max-w-full rounded-sm" />
         </div>
       </div>
-      <div className="ux-shimmer-panel flex-1 rounded-2xl border border-border-subtle bg-surface-card/40 p-4">
+      <div className="ux-shimmer-panel flex-1 rounded-xl bg-surface-card/40 p-4">
         <UxShimmerPanel lines={3} />
         <UxShimmerSkeleton className="mt-4 h-24 rounded-xl" />
         <div className="flex gap-2 pt-2">

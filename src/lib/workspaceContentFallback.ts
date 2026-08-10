@@ -169,22 +169,25 @@ export function buildFallbackComparisons(
     const b = sections[i + 1]!;
     const titleA = (a.heading ?? `Section ${i + 1}`).slice(0, 48);
     const titleB = (b.heading ?? `Section ${i + 2}`).slice(0, 48);
-    const bodyA = a.text.split('\n').find((l) => l.trim().length > 20)?.trim().slice(0, 80) ?? '—';
-    const bodyB = b.text.split('\n').find((l) => l.trim().length > 20)?.trim().slice(0, 80) ?? '—';
+    /* Wave I2 — word-boundary clip + ellipsis (no mid-word cells) */
+    const rawA = a.text.split('\n').find((l) => l.trim().length > 20)?.trim();
+    const rawB = b.text.split('\n').find((l) => l.trim().length > 20)?.trim();
+    const bodyA = rawA ? clipQuizOptionText(rawA, 80) : '—';
+    const bodyB = rawB ? clipQuizOptionText(rawB, 80) : '—';
     rows.push([`${titleA} vs ${titleB}`, bodyA, bodyB]);
   }
 
   if (rows.length === 0) {
     const phrases = rankKeyphrases(text, 6).map((p) => p.phrase).filter((p) => p.length > 3);
     for (let i = 0; i < phrases.length - 1 && rows.length < 3; i += 2) {
-      rows.push([concept, phrases[i]!.slice(0, 80), phrases[i + 1]!.slice(0, 80)]);
+      rows.push([concept, clipQuizOptionText(phrases[i]!, 80), clipQuizOptionText(phrases[i + 1]!, 80)]);
     }
   }
 
   if (rows.length === 0) {
     const sentences = passageSentences(text, 40);
     if (sentences.length >= 2) {
-      rows.push([concept, sentences[0]!.slice(0, 80), sentences[1]!.slice(0, 80)]);
+      rows.push([concept, clipQuizOptionText(sentences[0]!, 80), clipQuizOptionText(sentences[1]!, 80)]);
     }
   }
 

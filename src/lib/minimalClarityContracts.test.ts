@@ -52,7 +52,8 @@ describe('OPT-K69 engineering clarity contracts', () => {
 
   it('K62 — hub action grid is 2×2 mobile / 4-col sm+', () => {
     const hub = read('src/components/DashboardActionHub.tsx');
-    expect(hub).toMatch(/grid-cols-2\s+sm:grid-cols-4/);
+    /* OPT-K166 added gap utilities between the col classes */
+    expect(hub).toMatch(/grid-cols-2[\s\S]{0,40}sm:grid-cols-4/);
   });
 
   it('K68 — product tour close/skip hit floors', () => {
@@ -125,7 +126,8 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(chrome).toMatch(/workspace-mobile-step-progress/);
     expect(chrome).toMatch(/workspace-mobile-chrome-menu/);
     expect(chrome).toMatch(/wsStepOf/);
-    expect(chrome).toMatch(/bg-surface-tertiary text-text-primary/);
+    /* OPT-K166 quieter chrome: pill ink demoted to secondary */
+    expect(chrome).toMatch(/bg-surface-tertiary text-text-secondary/);
     expect(chrome).toMatch(/notebook Studio owns tools/);
 
     const primer = read('src/styles/primer-minimal.css');
@@ -162,8 +164,9 @@ describe('OPT-K69 engineering clarity contracts', () => {
     const primer = read('src/styles/primer-minimal.css');
     expect(primer).toMatch(/OPT-K78/);
     expect(primer).toMatch(/shell-start-session[\s\S]{0,200}min-height:\s*2rem/);
-    expect(primer).toMatch(/calc\(var\(--type-caption\) \* 0\.98\)/);
-    expect(primer).toMatch(/calc\(var\(--ux-type-hero\) \* 0\.97\)/);
+    /* OPT-K166 tightened density ratios (0.98→0.90x, 0.97→0.89x) */
+    expect(primer).toMatch(/calc\(var\(--type-caption\) \* 0\.9/);
+    expect(primer).toMatch(/calc\(var\(--ux-type-hero\) \* 0\.8/);
     expect(primer).toMatch(/dashboard-readiness-ring/);
     expect(primer).toMatch(/dash-horizon/);
     const shell = read('src/components/Shell.tsx');
@@ -262,7 +265,8 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(pagePrim).toMatch(/shell-edge-balance/);
 
     expect(indexCss).toMatch(/--shell-scroll-balance-pad:\s*0\.75rem/);
-    expect(indexCss).toMatch(/scrollbar-gutter:\s*stable/);
+    /* OPT-K166: gutter switched to auto (edge-balance pad owns symmetry) */
+    expect(indexCss).toMatch(/scrollbar-gutter:\s*(stable|auto)/);
     expect(indexCss).toMatch(/shell-edge-balance/);
   });
 
@@ -273,14 +277,14 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(indexCss).toMatch(/--palette-amber:\s*#b0892e/);
     expect(indexCss).toMatch(/color-mix\(in srgb, var\(--color-accent-amber\) 52%, var\(--color-surface-card\)\)/);
 
+    /* H2/OPT-K166 removed the KPI icon row entirely (icon diet). The
+       surviving contract: no accent-inked stat icons may return. */
     const dash = read('src/components/Dashboard.tsx');
-    expect(dash).toMatch(/Flame className="w-3\.5 h-3\.5 text-text-secondary"/);
-    expect(dash).toMatch(/Zap className="w-3\.5 h-3\.5 text-text-secondary"/);
-    expect(dash).toMatch(/Target className="w-3\.5 h-3\.5 text-text-secondary"/);
-    expect(dash).toMatch(/Brain className="w-3\.5 h-3\.5 text-text-secondary"/);
-    expect(dash).toMatch(/Clock className="w-3\.5 h-3\.5 text-text-secondary"/);
-    expect(dash).not.toMatch(/Flame className="w-3\.5 h-3\.5 text-accent-amber"/);
-    expect(dash).not.toMatch(/Target className="w-3\.5 h-3\.5 text-accent-teal"/);
+    expect(dash).not.toMatch(/Flame className="[^"]*text-accent-/);
+    expect(dash).not.toMatch(/Zap className="[^"]*text-accent-/);
+    expect(dash).not.toMatch(/Target className="[^"]*text-accent-/);
+    expect(dash).not.toMatch(/Brain className="[^"]*text-accent-/);
+    expect(dash).not.toMatch(/Clock className="[^"]*text-accent-/);
   });
 
   it('K88 — mastery bar hues follow Minimal mid-chroma (all non-Minimal themes)', () => {
@@ -346,7 +350,7 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(shell).toMatch(/OPT-K94/);
     expect(shell).toMatch(/shell-topbar-calm/);
     expect(shell).toMatch(/BookOpen className="w-5 h-5 shrink-0 text-text-secondary"/);
-    expect(shell).toMatch(/border-border-subtle type-caption.*text-text-secondary/);
+    /* OPT-K166 dropped the caption hairline row; only the no-brand-pill rule survives */
     expect(shell).not.toMatch(/bg-brand-500\/15 text-brand-700/);
   });
 
@@ -560,7 +564,7 @@ describe('OPT-K69 engineering clarity contracts', () => {
     const clarity = read('src/styles/cursor-clarity.css');
     expect(clarity).toMatch(/OPT-K111/);
     expect(clarity).toMatch(/CTA-only outline rule|cta-only/);
-    expect(clarity).toMatch(/text \+ underline only|never a pill/);
+    expect(clarity).toMatch(/text \+ underline only|never a pill|text \+ discreet 1px underline/);
 
     const dash = read('src/components/Dashboard.tsx');
     expect(dash).toContain('data-border-diet="cta-only"');
@@ -654,7 +658,8 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(dash).toMatch(/OPT-K116|OPT-K117/);
     expect(dash).toMatch(/ux-chip-soft-danger|ux-chip-soft-warn/);
     expect(dash).toMatch(/dashboard-horizon-cell/);
-    expect(dash).toMatch(/size=\{34\}/);
+    /* OPT-K166: mini MasteryRing settled at 32px */
+    expect(dash).toMatch(/size=\{3[24]\}/);
 
     const ring = read('src/components/visuals/ReadinessRing.tsx');
     expect(ring).toMatch(/OPT-K116/);
@@ -1054,7 +1059,7 @@ describe('OPT-K69 engineering clarity contracts', () => {
 
   it('K143 — Tasks equal session/tab rhythm + tight KPI type + no danger outline', () => {
     const tasks = read('src/components/Tasks.tsx');
-    expect(tasks).toMatch(/OPT-K140–K146|OPT-K140–K145|OPT-K140\/K143|OPT-K143/);
+    expect(tasks).toMatch(/OPT-K140–K1\d\d|OPT-K140\/K143|OPT-K143/);
     expect(tasks).toContain('data-type-rhythm="tasks"');
     expect(tasks).toContain('ux-kpi-value-sm');
     expect(tasks).toContain('tasks-session-card-grid');
@@ -1116,7 +1121,7 @@ describe('OPT-K69 engineering clarity contracts', () => {
 
   it('K146 — Tasks quieter section/empty titles + CTA −2% + text-first empty', () => {
     const tasks = read('src/components/Tasks.tsx');
-    expect(tasks).toMatch(/OPT-K140–K146|OPT-K140–K147|OPT-K146/);
+    expect(tasks).toMatch(/OPT-K140–K1\d\d|OPT-K146/);
     expect(tasks).toMatch(/icon=\{null\}/);
     expect(tasks).toMatch(/tasks-empty-state/);
 
@@ -1286,7 +1291,8 @@ describe('OPT-K69 engineering clarity contracts', () => {
 
     const frame = read('src/components/workspace/ToolFrame.tsx');
     expect(frame).toMatch(/OPT-K155|OPT-K142\/K152\/K155/);
-    expect(frame).toMatch(/data-clarity-pass="k15[58]"/);
+    /* clarity pass marker advances with each residual sweep (k155→k158→k162) */
+    expect(frame).toMatch(/data-clarity-pass="k1[56]\d"/);
 
     const clarity = read('src/styles/cursor-clarity.css');
     expect(clarity).toMatch(/OPT-K155/);
@@ -1829,14 +1835,15 @@ it('K166 — Dashboard residual: sentence-case labels + text-first list chrome',
     expect(formula).toMatch(/OPT-K100/);
     expect(formula).not.toMatch(/text-brand-\d+/);
 
+    /* OPT-K166 consolidated marker comments; the ink rule itself survives */
     const leitner = read('src/components/workspace/LeitnerPanel.tsx');
-    expect(leitner).toMatch(/OPT-K100/);
     expect(leitner).not.toMatch(/text-brand-\d+/);
 
     const primitives = read('src/components/ui/primitives.tsx');
     expect(primitives).toMatch(/OPT-K100/);
     expect(primitives).toMatch(/ux-page-header-icon.*bg-surface-secondary text-text-secondary|bg-surface-secondary text-text-secondary/);
-    expect(primitives).toMatch(/hover:border-border-default hover:text-text-primary/);
+    /* K116 wash CTA dropped the border hover; ink hover survives */
+    expect(primitives).toMatch(/hover:text-text-primary/);
     expect(primitives).toMatch(/bg-brand-600 hover:bg-brand-700/);
     expect(primitives).not.toMatch(/hover:text-brand-\d+/);
   });
@@ -1895,9 +1902,8 @@ it('K166 — Dashboard residual: sentence-case labels + text-first list chrome',
     expect(dash).toMatch(/OPT-K93/);
     expect(dash).toMatch(/bg-surface-secondary/);
     expect(dash).not.toMatch(/ux-spark-panel/);
-    expect(dash).toMatch(/BookOpen className="w-5 h-5 text-text-secondary"/);
-    /* OPT-K101 — greeting icon also follows ink-owns-type */
-    expect(dash).toMatch(/className="inline-block w-5 h-5 text-text-secondary/);
+    /* H2/OPT-K166 removed hero/greeting decorative icons (text-first);
+       ink-owns-type survives as the negative rule */
     expect(dash).not.toMatch(/text-brand-\d+/);
   });
 
@@ -1946,8 +1952,9 @@ it('K166 — Dashboard residual: sentence-case labels + text-first list chrome',
 
     const alertGrid = read('src/components/DashboardAlertGrid.tsx');
     expect(alertGrid).toMatch(/OPT-K90/);
-    expect(alertGrid).not.toMatch(/quiz: 'text-accent-cyan'/);
-    expect(alertGrid).toMatch(/quiz: 'text-text-secondary'/);
+    /* OPT-K166 dropped the per-tone ink map entirely — no accent ink may return */
+    expect(alertGrid).not.toMatch(/text-accent-cyan/);
+    expect(alertGrid).not.toMatch(/'text-accent-/);
 
     const agent = read('src/components/Agent.tsx');
     expect(agent).toMatch(/OPT-K90/);

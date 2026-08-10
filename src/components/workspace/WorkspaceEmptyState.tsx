@@ -66,7 +66,7 @@ export function WorkspaceEmptyState({
       className={cn(
         compact
           ? 'flex flex-col items-start gap-2 p-3 text-left min-h-0'
-          : 'flex flex-col items-center justify-center h-full min-h-[200px] p-8 text-center',
+          : 'flex flex-col items-center justify-center h-full min-h-48 p-8 text-center',
       )}
       data-testid="workspace-empty-state"
       data-has-source={hasSource ? 'true' : 'false'}
@@ -75,11 +75,11 @@ export function WorkspaceEmptyState({
     >
       {/* OPT-K99 — empty chrome via type + tertiary icon, not brand wash */}
       {!compact && (
-        <div className="grid h-12 w-12 place-items-center rounded-xl border border-border-subtle bg-surface-secondary mb-4">
+        <div className="grid h-12 w-12 place-items-center rounded-xl bg-surface-secondary/60 mb-4">
           <Icon className="h-5 w-5 text-text-tertiary" aria-hidden />
         </div>
       )}
-      <h3 className={cn('ws-serif font-medium tracking-tight text-text-primary', compact ? 'type-meta' : 'text-lg mb-1.5')}>
+      <h3 className={cn('ws-serif font-medium tracking-tight text-text-primary', compact ? 'type-meta' : '[font-size:var(--type-title)] leading-snug mb-1.5')}>
         {heading}
       </h3>
       <p className={cn('type-body text-text-secondary leading-relaxed', compact ? 'max-w-none' : 'max-w-md')}>

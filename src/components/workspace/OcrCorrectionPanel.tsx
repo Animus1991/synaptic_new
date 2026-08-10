@@ -65,11 +65,11 @@ export function OcrCorrectionPanel({ regions, scopeKey, sourceText, lang = 'en',
           return (
             <li
               key={region.id}
-              className="rounded-lg border border-white/10 bg-surface-card/80 px-2 py-1.5 type-caption"
+              className="rounded-lg bg-surface-card/80 px-2 py-1.5 type-caption"
             >
               {!isEditing ? (
                 <div className="flex items-start gap-2">
-                  <span className="flex-1 text-text-secondary line-clamp-2">
+                  <span className="flex-1 type-caption text-text-secondary line-clamp-2">
                     {fixed?.correctedText ?? region.text}
                     {fixed && (
                       <span className="ml-1 text-accent-emerald">({translate('ocrFixedShort', lang)})</span>
@@ -92,7 +92,7 @@ export function OcrCorrectionPanel({ regions, scopeKey, sourceText, lang = 'en',
                     onChange={(e) => setDraft(e.target.value)}
                     rows={2}
                     className={cn(
-                      'w-full rounded border border-white/15 bg-surface-primary px-2 py-1 type-caption text-text-primary',
+                      'w-full rounded border border-border-subtle bg-surface-primary px-2 py-1 type-caption text-text-primary',
                     )}
                     data-testid={`reader-ocr-edit-input-${blockIndex}`}
                   />

@@ -221,16 +221,16 @@ export function MiniDashboard({
                     </div>
                   ) : (
                     <p className="type-caption text-text-secondary" data-testid="progress-study-week-empty">
-                      {/* UIUX-AUDIT-2026-08 F3 — this branch fires whenever the daily
-                          bar-chart array (recentStudyDays) is empty/all-zero, which can
-                          happen even when studyTimeWeek > 0 (e.g. demo/offline data).
-                          The old copy concatenated the total with t('noActivity'),
-                          producing a self-contradictory "210m · No recent activity"
-                          message, confirmed from a live screenshot. Now: show the total
-                          with "this week" when it's > 0, and only claim no activity when
-                          it's genuinely 0. Rollback: restore the noActivity concatenation. */}
+                      {/* UIUX-AUDIT-2026-08 F3 / Wave I4 — this branch fires when the
+                          daily bar-chart array (recentStudyDays) is empty/all-zero,
+                          which can happen even when studyTimeWeek > 0. The week total
+                          already lives in the StatPill above, so repeating "210m this
+                          week" here duplicated the same fact twice in one panel
+                          (screenshot-confirmed). Now: explain what's missing (daily
+                          breakdown) instead of re-stating the total; keep noActivity
+                          only for a genuinely empty week. */}
                       {studyTimeWeek > 0
-                        ? `${studyTimeWeek}m ${t('dashThisWeek')}`
+                        ? t('noDailyBreakdown')
                         : t('noActivity')}
                     </p>
                   )}

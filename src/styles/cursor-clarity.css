@@ -2262,7 +2262,7 @@
 
 .dashboard-today-stat-icon {
   display: inline-flex;
-  shrink: 0;
+  flex-shrink: 0;
 }
 
 /* OPT-K114/K115 — percent is sole centered ink inside the ring */
@@ -3831,7 +3831,11 @@ body::-webkit-scrollbar-corner,
 [data-testid="tasks-page"] .descriptive-sticky-tab-summary {
   font-size: var(--type-caption);
   line-height: 1.35;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 [data-testid="tasks-page"] .descriptive-sticky-tab-count {
@@ -5020,4 +5024,63 @@ body::-webkit-scrollbar-corner,
 [data-testid="dashboard-live-preview"] .dashboard-live-preview-status {
   text-transform: none !important;
   letter-spacing: 0.01em !important;
+}
+
+/*
+ * Wave I1 — Spectrum/Light shell parity (neutral clarity rules only).
+ * Mirrors the theme-agnostic subset of OPT-K1/K51/K102 so the sidebar and
+ * type roles read identically on spectrum and warm-light. Brand-specific
+ * Minimal rules stay Minimal-gated; minimal/minimal-dark are untouched here.
+ */
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-sidebar-nav {
+  background: var(--color-surface-primary);
+}
+
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-sidebar-nav .platform-nav-item {
+  border-radius: var(--radius-md);
+  font-weight: 500;
+}
+
+/* High-contrast “where am I” pill: ink fill + inverted label */
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-sidebar-nav .platform-nav-active {
+  background: var(--color-text-primary);
+  border-color: transparent;
+  border-left: none;
+  color: var(--color-surface-primary);
+  box-shadow: none;
+  font-weight: 600;
+}
+
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-sidebar-nav .platform-nav-item.platform-nav-active :is(svg, .relative) {
+  color: inherit;
+}
+
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-sidebar-nav .platform-nav-item.platform-nav-active .platform-nav-subtitle {
+  color: color-mix(in srgb, var(--color-surface-primary) 78%, transparent);
+}
+
+/* Keep task-due chip readable on the inverted active pill */
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-sidebar-nav .platform-nav-item.platform-nav-active .ws-chip-danger {
+  background: color-mix(in srgb, var(--color-surface-primary) 18%, transparent);
+  color: var(--color-surface-primary);
+  border-color: color-mix(in srgb, var(--color-surface-primary) 35%, transparent);
+}
+
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-sidebar-nav .platform-nav-item.platform-nav-active::before {
+  display: none !important;
+}
+
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-sidebar-nav .shell-nav-group-label {
+  font-size: var(--type-micro);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding: 0.65rem 0.5rem 0.25rem;
+}
+
+/* Type role floors match Minimal (micro never below 11px) */
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell {
+  --type-micro: 0.6875rem;
+  --type-caption: 0.75rem;
 }

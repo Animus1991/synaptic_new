@@ -14,6 +14,17 @@ const VARIANT_CLASS: Record<StatusChipVariant, string> = {
   exam: 'ux-chip-warn',
 };
 
+// In minimal/soft mode: neutral bg but retain semantic text color for signal.
+const SOFT_TEXT_CLASS: Record<StatusChipVariant, string> = {
+  info:     'text-text-secondary',
+  warn:     'text-accent-amber',
+  error:    'text-accent-rose',
+  mastered: 'text-accent-teal',
+  weak:     'text-accent-amber',
+  due:      'text-text-secondary',
+  exam:     'text-accent-amber',
+};
+
 type Props = {
   children: ReactNode;
   variant?: StatusChipVariant;
@@ -28,8 +39,8 @@ export function StatusChip({ children, variant = 'info', className }: Props) {
       className={cn(
         'ux-status-badge inline-flex items-center rounded-md px-2 py-0.5 type-micro font-semibold',
         soft
-          ? /* OPT-K110 — wash chip, no outline */
-            'border border-transparent bg-surface-secondary text-text-primary'
+          ? /* OPT-K110 — wash chip, no outline; semantic text color preserved for signal */
+            cn('border border-transparent bg-surface-secondary', SOFT_TEXT_CLASS[variant])
           : VARIANT_CLASS[variant],
         className,
       )}

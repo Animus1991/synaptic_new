@@ -1725,7 +1725,7 @@
 }
 [data-theme="blueprint"] .ux-tier-b-quiz-session .ux-quiz-session-header {
   padding: 0.375rem 0.625rem;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-lg);
   border: 1px solid color-mix(in srgb, #ffffff 8%, transparent);
   background: color-mix(in srgb, #020617 85%, transparent);
 }
@@ -2476,7 +2476,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-lg);
   font-size: calc(0.875rem * 0.98);
   padding: calc(0.5rem * 0.98) calc(1rem * 0.98);
   min-height: calc(2.25rem * 0.98);
@@ -3925,6 +3925,13 @@ html[data-density="compact"] .app-shell {
 /* Raw source / code — system monospace stack only */
 .ws-source-code {
   font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
+  font-size: var(--type-caption);
+  line-height: 1.65;
+}
+@media (min-width: 640px) {
+  .ws-source-code {
+    font-size: var(--type-meta);
+  }
 }
 
 /* Package 2 — spacing / elevation / radius utilities */
@@ -6020,7 +6027,7 @@ body { letter-spacing: -0.005em; }
 
 /* ─── Focus Ring (cross-pollinated from ai_tutor_studio) ──────── */
 .focus-ring:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--color-brand-500) 50%, transparent);
+  outline: 2px solid var(--color-focus-ring, var(--color-brand-500));
   outline-offset: 2px;
   border-radius: inherit;
 }
@@ -6032,7 +6039,7 @@ body { letter-spacing: -0.005em; }
 
 /* ─── Stat Tile hover micro-interaction ──────────────────────── */
 .ux-stat-tile {
-  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--motion-duration-ui) var(--motion-ease), box-shadow var(--motion-duration-ui) var(--motion-ease);
 }
 .ux-stat-tile:hover {
   transform: translateY(-1px);

@@ -629,7 +629,7 @@ export function AnnotationOverlay({
           ref={contentRef}
           onScroll={handleSourceScroll}
           className={cn(
-            'ws-annotation-source-scroll ws-source-code relative min-h-0 w-full flex-1 overflow-y-auto overscroll-contain p-3 text-[12px] leading-[20px] text-text-secondary sm:p-4 sm:text-[13px] sm:leading-[21px]',
+            'ws-annotation-source-scroll ws-source-code relative min-h-0 w-full flex-1 overflow-y-auto overscroll-contain p-3 text-text-secondary sm:p-4',
             scrollActive && 'ws-annotation-source-scroll--active',
           )}
           data-testid="annotation-source-scroll"

@@ -87,7 +87,7 @@ export function WorkspaceContextBar({
           type="button"
           onClick={onOpenIntelSheet}
           className={cn(
-            'ws-eyebrow shrink-0 rounded-full border px-2 py-0.5 type-caption font-mono normal-case tracking-normal',
+            'shrink-0 rounded-full border px-2 py-0.5 type-caption font-mono font-semibold tracking-normal',
             bandClass[band],
           )}
           data-testid="context-bar-quality-chip"

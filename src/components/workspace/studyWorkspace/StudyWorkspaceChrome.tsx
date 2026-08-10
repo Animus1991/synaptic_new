@@ -157,7 +157,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       onClick={onClose}
                       aria-label={t('wsCloseWorkspace')}
                       data-testid="workspace-chrome-close"
-                      className="p-2 -ml-2 rounded-full hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
+                      className="p-2 -ml-2 rounded-full hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors min-h-10 min-w-10 flex items-center justify-center"
                     >
                       <X className="w-5 h-5" aria-hidden />
                     </button>
@@ -176,9 +176,9 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         onClick={handleOpenAgent}
                         aria-label={t('agentBtn')}
                         data-testid="workspace-mobile-open-agent"
-                        className="p-2 rounded-full bg-surface-secondary hover:bg-surface-hover text-text-secondary transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
+                        className="p-2 rounded-full bg-surface-secondary hover:bg-surface-hover text-text-secondary transition-colors min-h-10 min-w-10 flex items-center justify-center"
                       >
-                        <Sparkles className="w-4 h-4 text-text-secondary" />
+                        <Sparkles className="w-4 h-4" aria-hidden />
                       </button>
                       <button
                         type="button"
@@ -186,9 +186,9 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         aria-expanded={mobileMenuOpen}
                         aria-label={t('wsMoreTools')}
                         data-testid="workspace-mobile-chrome-menu"
-                        className="p-2 rounded-full bg-surface-secondary hover:bg-surface-hover text-text-secondary transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
+                        className="p-2 rounded-full bg-surface-secondary hover:bg-surface-hover text-text-secondary transition-colors min-h-10 min-w-10 flex items-center justify-center"
                       >
-                        <SlidersHorizontal className="w-4 h-4" />
+                        <SlidersHorizontal className="w-4 h-4" aria-hidden />
                       </button>
                       {mobileMenuOpen && (
                         <div className="absolute right-0 top-full mt-1 z-30 w-52 rounded-xl border border-border-subtle bg-surface-card shadow-lg py-1 type-caption">

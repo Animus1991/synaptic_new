@@ -68,7 +68,7 @@ export function CoReadingHubPanel({ lang, roomId, memberId, displayName }: Props
   };
 
   return (
-    <div className="space-y-2 rounded-lg border-0 bg-surface-secondary/45 p-2.5" data-testid="co-reading-hub" data-clarity-pass="k161">
+    <div className="space-y-2 rounded-lg bg-surface-secondary/45 p-2.5" data-testid="co-reading-hub" data-clarity-pass="k161">
       <p className="type-caption font-medium text-text-secondary">{tr('collabCoReadingTitle')}</p>
       <CollabDeviceLocalBanner lang={lang} surface="coreading" />
       <p className="type-caption text-text-muted">{tr('collabCoReadingHint')}</p>
@@ -102,7 +102,7 @@ export function CoReadingHubPanel({ lang, roomId, memberId, displayName }: Props
         {store.challenges.slice(0, 5).map((ch) => {
           const ranked = rankExplanations(ch);
           return (
-            <div key={ch.id} className="rounded-md border-0 bg-surface-secondary/40 p-2 space-y-2" data-testid={`co-reading-challenge-${ch.id}`}>
+            <div key={ch.id} className="rounded-md bg-surface-secondary/40 p-2 space-y-2" data-testid={`co-reading-challenge-${ch.id}`}>
               <p className="type-caption text-text-secondary whitespace-pre-wrap">{ch.sourceExcerpt}</p>
               {ch.sourceRef ? <p className="type-caption text-text-muted">{ch.sourceRef}</p> : null}
 
@@ -146,7 +146,7 @@ export function CoReadingHubPanel({ lang, roomId, memberId, displayName }: Props
                 const continuity = continuityOverlapScore(ch.sourceExcerpt, ex.text);
                 const isExemplar = ch.exemplarId === ex.id;
                 return (
-                  <div key={ex.id} className="rounded border-0 bg-surface-primary/40 p-2 space-y-1" data-testid={`co-reading-explanation-${ex.id}`}>
+                  <div key={ex.id} className="rounded bg-surface-primary/40 p-2 space-y-1" data-testid={`co-reading-explanation-${ex.id}`}>
                     <div className="flex flex-wrap items-center gap-2 type-caption text-text-muted">
                       <span>{ex.authorName}</span>
                       <span>{ex.aiAssisted ? tr('collabAiAssistedBadge') : tr('collabHumanBadge')}</span>
