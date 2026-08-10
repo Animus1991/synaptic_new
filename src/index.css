@@ -2657,12 +2657,19 @@
   margin-top: 0.5rem;
 }
 
-/* Wave R1 — calm/spark rhythm + light border-over-shadow (Replit clarity) */
+/* Wave R1 — calm/spark rhythm + light border-over-shadow (Replit clarity).
+   Wave Q+ micro-lift: replace flat none with a dual-layer warm micro-shadow
+   (~10 % combined opacity) so cards detach from the cream page ground without
+   adding hard contrast or visual noise. */
 [data-theme="light"] .app-shell :is(.platform-panel-md, .platform-panel-lg, .platform-panel-xl, .platform-panel-soft, .ux-card) {
-  box-shadow: none;
+  box-shadow:
+    0 1px 2px rgba(100, 75, 50, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
 }
 [data-theme="light"] .app-shell .ux-calm-panel.blueprint-surface {
-  box-shadow: none;
+  box-shadow:
+    0 1px 2px rgba(100, 75, 50, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
 }
 [data-theme="light"] .ux-spark-panel.ux-callout-next {
   border-width: 1.5px;
