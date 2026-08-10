@@ -193,7 +193,7 @@ export function WhiteboardPanel({
         >
           <div className="px-4 py-3 space-y-2">
             {session.sectionLabel && (
-              <p className="type-caption text-text-muted" data-testid="whiteboard-section-label">
+              <p className="type-caption" data-testid="whiteboard-section-label">
                 <span className="font-medium text-text-secondary">{t('wsSectionLabel')}</span>
                 <span className="ml-2 text-text-secondary">{session.sectionLabel}</span>
               </p>

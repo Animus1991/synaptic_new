@@ -126,7 +126,7 @@ export function StudyRoomPanel(props: Props) {
         data-testid="study-room-panel"
         data-clarity-pass="k161"
       >
-        <header className="ws-cognitive-sheet-header flex shrink-0 items-center justify-between gap-3 border-b border-transparent px-4 py-3">
+        <header className="ws-cognitive-sheet-header flex shrink-0 items-center justify-between gap-3 px-4 py-3">
           <div className="min-w-0">
             <h2 className="type-caption font-semibold truncate text-text-primary">{tr('studyRoomTitle')}</h2>
             {apiStatus?.localFallback && (

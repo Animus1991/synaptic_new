@@ -67,7 +67,7 @@ export function WorkspaceMobileIntelligenceBottomSheet({
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-              className="rounded-b-none border-b-0 max-h-[min(70vh,28rem)] flex flex-col shadow-[0_-12px_40px_rgba(42,31,18,0.18)]"
+              className="rounded-b-none border-b-0 max-h-[min(70vh,28rem)] flex flex-col shadow-[0_-12px_40px_rgba(0,0,0,0.15)]"
               role="dialog"
               aria-modal="true"
               aria-label={t('learningIntelAria')}

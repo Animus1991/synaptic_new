@@ -444,7 +444,7 @@ export function ReprocessPreviewModal({
 
                       {id === 'edit' && manualEdits > 0 && (
 
-                        <span className="ml-1.5 rounded-full bg-brand-600/20 px-1.5 type-micro text-text-primary">
+                        <span className="ml-1.5 rounded-full bg-brand-600/20 px-1.5 type-micro text-text-secondary">
 
                           {manualEdits}
 

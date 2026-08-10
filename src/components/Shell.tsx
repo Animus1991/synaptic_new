@@ -992,7 +992,7 @@ export function Shell({
                             setChromeMoreOpen(false);
                             onOpenWorkspace();
                           }}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption text-text-primary hover:bg-surface-hover"
+                          className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                         >
                           <Layout className="w-3.5 h-3.5 text-text-tertiary shrink-0" aria-hidden />
                           {t('navStudyWorkspace')}
@@ -1005,7 +1005,7 @@ export function Shell({
                             role="menuitem"
                             data-testid="shell-focus-overflow-analytics"
                             onClick={() => { setChromeMoreOpen(false); onNavigate('analytics'); }}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption text-text-primary hover:bg-surface-hover"
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                           >
                             <BarChart3 className="w-3.5 h-3.5 text-text-tertiary shrink-0" aria-hidden />
                             {t('analytics')}
@@ -1015,7 +1015,7 @@ export function Shell({
                             role="menuitem"
                             data-testid="shell-focus-overflow-tasks"
                             onClick={() => { setChromeMoreOpen(false); onNavigate('tasks'); }}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption text-text-primary hover:bg-surface-hover"
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                           >
                             <CalendarBlank className="w-3.5 h-3.5 text-text-tertiary shrink-0" aria-hidden />
                             {t('tasks')}

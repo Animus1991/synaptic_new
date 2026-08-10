@@ -77,7 +77,7 @@ export function WorkspaceDiscoverabilityPanel({
         className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left hover:bg-white/[0.03] transition-colors"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <Link2 className="w-3.5 h-3.5 text-text-secondary shrink-0" />
+          <Link2 className="w-3.5 h-3.5 text-text-secondary shrink-0" aria-hidden />
           <div className="min-w-0">
             <p className="type-caption font-semibold text-text-secondary truncate">{headline}</p>
             <p className="type-caption text-text-tertiary truncate">{subline}</p>

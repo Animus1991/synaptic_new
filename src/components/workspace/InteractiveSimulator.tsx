@@ -190,7 +190,7 @@ export function InteractiveSimulator({
     if (numericCues.length > 0) {
       return (
         <div className="flex h-full flex-col overflow-hidden">
-          <div className="flex items-center justify-between border-b border-transparent bg-surface-secondary/25 px-4 py-2.5 shrink-0">
+          <div className="flex items-center justify-between bg-surface-secondary/25 px-4 py-2.5 shrink-0">
             <span className="type-caption font-semibold text-text-secondary">
               {t('parametricSandbox')}
             </span>

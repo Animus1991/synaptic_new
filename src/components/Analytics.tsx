@@ -374,7 +374,7 @@ function OverviewTab({
             <ReadinessRing value={learnerModel.overallMastery} size={200} sublabel={t('analyticsReadinessSublabel')} />
           </div>
         ) : (
-          <div className="platform-panel-lg flex flex-col items-center justify-center text-center type-body text-text-muted min-h-[200px]">
+          <div className="platform-panel-lg flex flex-col items-center justify-center text-center type-body text-text-muted min-h-48">
             <Target className="w-8 h-8 text-text-tertiary mb-2" />
             <p>{t('analyticsResearchEmpty')}</p>
           </div>
@@ -382,7 +382,7 @@ function OverviewTab({
         {hasRetentionData ? (
           <RetentionCurve dataPoints={retentionPoints} />
         ) : (
-          <div className="platform-panel-lg flex flex-col items-center justify-center text-center type-body text-text-muted min-h-[200px]">
+          <div className="platform-panel-lg flex flex-col items-center justify-center text-center type-body text-text-muted min-h-48">
             <Activity className="w-8 h-8 text-text-tertiary mb-2" />
             <p>{t('analyticsResearchEmpty')}</p>
           </div>
@@ -401,17 +401,17 @@ function OverviewTab({
           <p className="type-micro text-text-muted mb-2.5">{t('analyticsFsrsForecastHint')}</p>
           {/* OPT-K128 — denser wash FSRS tiles (width parity with KPI rhythm) */}
           <div className="grid grid-cols-3 gap-2.5 mb-2.5" data-testid="analytics-fsrs-kpi-row">
-            <div className="rounded-xl border-0 bg-surface-secondary/50 px-3 py-2 min-h-[3.75rem]">
+            <div className="rounded-xl bg-surface-secondary/50 px-3 py-2 min-h-[3.75rem]">
               <p className="type-micro text-text-muted">{t('analyticsFsrsRetrievability')}</p>
               <p className="ux-kpi-value-sm">
                 {Math.round(fsrsSummary.avgRetrievabilityToday * 100)}%
               </p>
             </div>
-            <div className="rounded-xl border-0 bg-surface-secondary/50 px-3 py-2 min-h-[3.75rem]">
+            <div className="rounded-xl bg-surface-secondary/50 px-3 py-2 min-h-[3.75rem]">
               <p className="type-micro text-text-muted">{t('analyticsFsrsDueWeek')}</p>
               <p className="ux-kpi-value-sm">{fsrsSummary.dueNext7Days}</p>
             </div>
-            <div className="rounded-xl border-0 bg-surface-secondary/50 px-3 py-2 min-h-[3.75rem]">
+            <div className="rounded-xl bg-surface-secondary/50 px-3 py-2 min-h-[3.75rem]">
               <p className="type-micro text-text-muted">{t('analyticsFsrsTracked')}</p>
               <p className="ux-kpi-value-sm">{fsrsSummary.trackedConcepts}</p>
             </div>
@@ -492,7 +492,7 @@ function OverviewTab({
                 return (
                   <div
                     key={i}
-                    className="heatmap-cell w-full aspect-square rounded-[2px]"
+                    className="heatmap-cell w-full aspect-square rounded-sm"
                     style={{ backgroundColor: heatmapVar }}
                     title={formatHeatmapDayTooltip(day.date, day.minutes, lang)}
                   />
@@ -504,7 +504,7 @@ function OverviewTab({
               {[0, 1, 2, 3, 4].map((step) => (
                 <div
                   key={step}
-                  className="w-2.5 h-2.5 rounded-[2px]"
+                  className="w-2.5 h-2.5 rounded-sm"
                   style={{ backgroundColor: `var(--color-heatmap-scale-${step})` }}
                 />
               ))}
@@ -960,7 +960,7 @@ function BehaviorTab({
         <h3 className="type-meta font-semibold flex items-center gap-2 mb-4"><AlertTriangle className="w-4 h-4 text-accent-orange" />{t('analyticsErrorPatterns')}</h3>
         <div className="space-y-3">
           {learnerModel.errorPatterns.map((p, i) => (
-            <div key={i} className="p-4 rounded-xl border-0 bg-surface-secondary/50">
+            <div key={i} className="p-4 rounded-xl bg-surface-secondary/50">
               <div className="flex items-center justify-between mb-2">
                 <span className="type-meta font-medium">{p.type}</span>
                 <span className={cn('type-micro px-2 py-0.5 rounded-full font-medium capitalize',
@@ -993,7 +993,7 @@ function BehaviorTab({
           <h3 className="type-meta font-semibold mb-4">{t('analyticsAdaptiveModelVars')}</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {modelVars.map((item) => (
-              <div key={item.labelKey} className="p-3 rounded-xl border-0 bg-surface-secondary/50 text-center">
+              <div key={item.labelKey} className="p-3 rounded-xl bg-surface-secondary/50 text-center">
                 <p className="type-micro text-text-muted mb-1">{t(item.labelKey)}</p>
                 <p className="type-meta font-semibold capitalize">{item.value}</p>
               </div>
@@ -1210,7 +1210,7 @@ function MetricCard({ icon, label, value, sub }: { icon: React.ReactNode; label:
     );
   }
   return (
-    <div className="p-3 rounded-xl border-0 bg-surface-secondary/50">
+    <div className="p-3 rounded-xl bg-surface-secondary/50">
       <div className="flex items-center gap-2 mb-1.5">{icon}<span className="type-micro font-medium text-text-muted"><AllCapsLabel>{label}</AllCapsLabel></span></div>
       <p className="ux-kpi-value-sm">{value}</p>
       <p className="type-caption text-text-muted mt-0.5">{sub}</p>

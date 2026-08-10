@@ -95,7 +95,7 @@ export function DemoSandboxBanner() {
                         setMoreOpen(false);
                         googleSignIn();
                       }}
-                      className="flex w-full items-center gap-2 px-3 py-1.5 text-left type-caption text-text-primary hover:bg-surface-hover"
+                      className="flex w-full items-center gap-2 px-3 py-1.5 text-left type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                     >
                       <LogIn className="w-3.5 h-3.5 text-text-tertiary" aria-hidden />
                       {t('demoSandboxGoogleSignIn')}
@@ -109,7 +109,7 @@ export function DemoSandboxBanner() {
                       setMoreOpen(false);
                       setShowUploadModal(true);
                     }}
-                    className="flex w-full items-center gap-2 px-3 py-1.5 text-left type-caption text-text-primary hover:bg-surface-hover"
+                    className="flex w-full items-center gap-2 px-3 py-1.5 text-left type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                   >
                     <Upload className="w-3.5 h-3.5 text-text-tertiary" aria-hidden />
                     {t('demoSandboxUpload')}

@@ -89,7 +89,7 @@ export function WeakAreasFocusRail({
               );
             })}
           </div>
-          <div className="px-3 pb-3 space-y-2 border-t border-border-subtle/60 pt-2 max-h-40 overflow-y-auto">
+          <div className="px-3 pb-3 space-y-2 pt-2 max-h-40 overflow-y-auto">
             {spots.map((spot) => (
               <div
                 key={`detail-${spot.concept}`}
@@ -99,7 +99,7 @@ export function WeakAreasFocusRail({
                 <button
                   type="button"
                   onClick={() => onFocusWeakSpot(spot.concept)}
-                  className="type-caption font-semibold text-text-primary hover:text-text-primary truncate block max-w-full text-left"
+                  className="type-caption font-semibold text-text-primary truncate block max-w-full text-left hover:opacity-80"
                 >
                   {spot.concept}
                   <span className="ml-1.5 font-normal text-text-muted">{spot.mastery}%</span>

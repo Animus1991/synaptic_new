@@ -107,7 +107,7 @@ export function TimerPanel({
       data-bleed="full"
       data-clarity-pass="k154"
     >
-      <div className="shrink-0 space-y-1.5 border-b border-transparent px-3 py-2">
+      <div className="shrink-0 space-y-1.5 px-3 py-2">
         {session.sectionLabel && (
           <p className="type-caption text-text-muted" data-testid="timer-section-label">
             {t('wsSectionColon')}{' '}
@@ -201,7 +201,7 @@ export function TimerPanel({
                 {filterMatches.slice(0, 4).map((log, i) => (
                   <span
                     key={`${log.at}-${i}`}
-                    className="rounded-lg border border-border-subtle bg-surface-secondary/40 px-2 py-0.5 type-caption text-text-secondary"
+                    className="rounded-lg bg-surface-secondary/40 px-2 py-0.5 type-caption text-text-secondary"
                   >
                     {log.label.slice(0, 40)}{log.label.length > 40 ? '…' : ''} · {log.minutes}m
                   </span>

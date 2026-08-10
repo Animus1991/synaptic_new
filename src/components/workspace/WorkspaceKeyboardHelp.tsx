@@ -38,14 +38,14 @@ export function WorkspaceKeyboardHelp({ open, onClose, lang, variant = 'workspac
       <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
         <div className="flex items-center gap-2">
           <Keyboard className="h-4 w-4 text-text-secondary" />
-          <h2 className="type-meta font-semibold text-text-secondary">
+          <h2 className="type-meta font-semibold text-text-primary">
             {t('keyboardShortcuts', lang)}
           </h2>
         </div>
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg p-1 text-text-muted hover:bg-surface-hover hover:text-text-secondary min-h-11 min-w-11 inline-flex items-center justify-center"
+          className="rounded-lg p-1 text-text-muted hover:bg-surface-hover hover:text-text-primary min-h-11 min-w-11 inline-flex items-center justify-center"
           aria-label={t('close', lang)}
         >
           <X className="h-4 w-4" />

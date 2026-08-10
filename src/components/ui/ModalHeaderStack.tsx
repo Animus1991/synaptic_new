@@ -28,7 +28,7 @@ export function ModalHeaderStack({
         id={titleId}
         className={cn(
           /* OPT-K95 — same calm title weight on every theme (Minimal clarity) */
-          'ux-modal-title text-base font-semibold text-text-primary leading-snug',
+          'ux-modal-title type-title font-semibold text-text-primary leading-snug',
           titleClassName,
         )}
       >

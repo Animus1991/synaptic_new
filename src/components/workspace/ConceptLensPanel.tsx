@@ -70,16 +70,16 @@ export function ConceptLensPanel({
       data-testid={isStrip ? 'concept-lens-strip' : 'concept-lens-panel'}
     >
       <div className={cn(
-        'concept-lens-chip flex items-center gap-2 w-full rounded-full border border-white/10 bg-surface-secondary/85 backdrop-blur px-2.5 py-1 shadow-[0_8px_30px_rgba(2,6,23,0.45)]',
+        'concept-lens-chip flex items-center gap-2 w-full rounded-full border border-white/10 bg-surface-secondary/85 backdrop-blur px-2.5 py-1 shadow-[0_8px_30px_rgba(0,0,0,0.18)]',
         isStrip && 'shadow-none max-w-full',
       )}>
-        <Aperture className="w-3.5 h-3.5 text-text-secondary shrink-0" />
+        <Aperture className="w-3.5 h-3.5 text-text-secondary shrink-0" aria-hidden />
         <button
           type="button"
           onClick={() => onFocus(label)}
           title={t('lensFocusAllTools')}
           className={cn(
-            'type-caption font-semibold truncate text-text-primary hover:text-text-primary transition-colors',
+            'type-caption font-semibold truncate text-text-primary hover:opacity-80 transition-opacity',
             isStrip ? 'max-w-[min(200px,40vw)]' : 'max-w-[140px]',
           )}
         >

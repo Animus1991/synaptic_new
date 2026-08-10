@@ -71,7 +71,7 @@ export function WorkspaceSelectionActionBar({
               'inline-flex items-center rounded-lg border px-2 py-0.5 type-caption font-medium transition-colors',
               action.id === 'ask-agent' || action.id === 'ask-ai-inline'
                 ? 'ws-chip-brand hover:bg-accent-cyan/20'
-                : 'border-white/10 bg-surface-card/80 text-text-secondary hover:border-brand-500/30 hover:text-text-primary',
+                : 'border-border-subtle bg-surface-card/80 text-text-secondary hover:border-brand-500/30 hover:text-text-primary',
             )}
           >
             {action.label}

@@ -487,7 +487,7 @@ export function DashboardActionHub({
                                   role="menuitem"
                                   data-testid={`dashboard-hero-overflow-${action.id}`}
                                   onClick={() => handleCardClick(action.id)}
-                                  className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption text-text-primary hover:bg-surface-hover/50"
+                                  className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption text-text-secondary hover:bg-surface-hover/50 hover:text-text-primary"
                                 >
                                   <Icon className="h-3.5 w-3.5 shrink-0 text-text-secondary" aria-hidden />
                                   <span className="min-w-0 flex-1 truncate">{t(action.chipLabelKey)}</span>
