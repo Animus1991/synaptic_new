@@ -5084,3 +5084,155 @@ body::-webkit-scrollbar-corner,
   --type-micro: 0.6875rem;
   --type-caption: 0.75rem;
 }
+
+/* ??????????????????????????????????????????????????????????????????????????
+ * OPT-K167 — Dashboard soft component separation (Wave I)
+ * Reintroduces gentle grouping between top-level dashboard components without
+ * adding visual noise. K117 kept the masonry frameless (bleed-together); this
+ * layer restores a whisper-soft surface tint + barely-there hairline + faint
+ * elevation on each TOP-LEVEL component group only. Nested wells stay flat
+ * (single-well depth preserved by K11/K117), so perceived noise goes DOWN.
+ * Specificity is tuned to win over the K117 !important purges by source order.
+ * ??????????????????????????????????????????????????????????????????????????? */
+[data-testid="dashboard-page"] {
+  --dash-card-bg: color-mix(in srgb, var(--color-surface-secondary) 32%, transparent);
+  --dash-card-border: color-mix(in srgb, var(--color-border-subtle) 60%, transparent);
+  --dash-card-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --dash-card-radius: var(--radius-panel, 0.75rem);
+  --dash-card-pad-block: 0.9rem;
+  --dash-card-pad-inline: 1rem;
+}
+
+/* Non-minimal themes (spectrum / light / dark): theme-agnostic, beats the
+ * light (0,2,0) divider purge at K117. */
+[data-testid="dashboard-page"] [data-testid="dashboard-masonry"] > *:not(.dashboard-pair-row),
+[data-testid="dashboard-page"] [data-testid="dashboard-masonry"] > .dashboard-pair-row > * {
+  border: 1px solid var(--dash-card-border) !important;
+  border-radius: var(--dash-card-radius) !important;
+  background: var(--dash-card-bg) !important;
+  box-shadow: var(--dash-card-shadow) !important;
+  padding: var(--dash-card-pad-block) var(--dash-card-pad-inline) !important;
+}
+
+/* Minimal / minimal-dark: mirror the K117 purge chain + [data-testid] to reach
+ * (0,6,0) specificity so it wins over the frameless multi-column purge. */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack[data-testid="dashboard-masonry"] > *:not(.dashboard-pair-row),
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack[data-testid="dashboard-masonry"] > .dashboard-pair-row > * {
+  border: 1px solid var(--dash-card-border) !important;
+  border-radius: var(--dash-card-radius) !important;
+  background: var(--dash-card-bg) !important;
+  box-shadow: var(--dash-card-shadow) !important;
+  padding: var(--dash-card-pad-block) var(--dash-card-pad-inline) !important;
+}
+
+/* The pair-row wrapper itself stays a transparent 2-panel layout track (no
+ * outer cage) so each panel reads as its own separated component. */
+[data-testid="dashboard-page"] [data-testid="dashboard-masonry"] > .dashboard-pair-row {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* Comfortable, even air between the separated component groups. */
+[data-testid="dashboard-page"] .hub-section-stack > * + *,
+[data-testid="dashboard-page"] [data-testid="dashboard-masonry"] > * + * {
+  margin-top: 1rem !important;
+}
+
+/* Wider vertical gutter between the masonry columns (full height), for both
+ * 2-col and 3-col layouts. CSS multi-column gutter is column-gap, so set it
+ * explicitly (Tailwind gap-* is not reliably applied to multicol). */
+@media (min-width: 1280px) {
+  [data-testid="dashboard-page"] [data-testid="dashboard-masonry"][data-dashboard-columns="2"],
+  [data-testid="dashboard-page"] [data-testid="dashboard-masonry"][data-dashboard-columns="3"] {
+    column-gap: 2.5rem !important;
+  }
+}
+
+/* ??????????????????????????????????????????????????????????????????????????
+ * OPT-K168 — Reusable soft component separation (Wave I, cross-page)
+ * Generalises the Dashboard's OPT-K167 treatment so every page can opt-in by
+ * tagging its top-level component stack with `data-soft-sep="stack"`. Each
+ * DIRECT child becomes a whisper-soft card (tint + hairline + radius + faint
+ * elevation), while nested wells stay flat (single-well depth). Individual
+ * children can opt out with `data-soft-card="off"` (e.g. inline hints/banners).
+ * Specificity is (0,4,0) + end-of-file source order so it wins over the
+ * page-level CTA-only border-diet purges without removing them.
+ * ??????????????????????????????????????????????????????????????????????????? */
+.app-shell {
+  --soft-card-bg: color-mix(in srgb, var(--color-surface-secondary) 32%, transparent);
+  --soft-card-border: color-mix(in srgb, var(--color-border-subtle) 60%, transparent);
+  --soft-card-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --soft-card-radius: var(--radius-panel, 0.75rem);
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"], [data-theme="spectrum"], [data-theme="light"]) .app-shell [data-soft-sep="stack"] > *:not([data-soft-card="off"]):not(.dashboard-pair-row):not(.ux-page-header):not(.descriptive-sticky-tabs-shell):not([data-minimal-chrome="true"]):not(.ux-callout),
+:is([data-theme="minimal"], [data-theme="minimal-dark"], [data-theme="spectrum"], [data-theme="light"]) .app-shell [data-soft-sep="stack"] > .dashboard-pair-row > *:not([data-soft-card="off"]) {
+  border: 1px solid var(--soft-card-border) !important;
+  border-radius: var(--soft-card-radius) !important;
+  background: var(--soft-card-bg) !important;
+  box-shadow: var(--soft-card-shadow) !important;
+  padding: 0.9rem 1rem !important;
+}
+
+/* Pair-row wrapper stays a transparent 2-panel track (each panel cards itself). */
+:is([data-theme="minimal"], [data-theme="minimal-dark"], [data-theme="spectrum"], [data-theme="light"]) .app-shell [data-soft-sep="stack"] > .dashboard-pair-row:not([data-soft-card="off"]) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* Even air between the separated component groups. Shared chrome (page header,
+ * sticky tab bars, collapsible chrome) is excluded from carding above, so it is
+ * also excluded from the extra top-margin to keep chrome flush. */
+[data-soft-sep="stack"] > *:not(.ux-page-header):not(.descriptive-sticky-tabs-shell):not([data-minimal-chrome="true"]) + *:not(.ux-page-header):not(.descriptive-sticky-tabs-shell):not([data-minimal-chrome="true"]) {
+  margin-top: 0.85rem !important;
+}
+
+/* Wave Q+ — Light-mode notebook workspace micro-lift.
+ * Mirrors the dashboard panel shadow treatment:
+ * the same warm dual-layer micro-shadow lifts the workspace card off
+ * the warm-cream page ground, restores column separator hairlines, restores
+ * panel header bottom borders, and gives studio tool tiles a white surface
+ * so they read as distinct interactive cards. All scoped to [data-theme="light"]
+ * so dark / blueprint / minimal themes are completely unaffected. */
+
+/* 1. Outer workspace card — same shadow as dashboard platform panels */
+[data-theme="light"] .notebook-workspace-card {
+  box-shadow:
+    0 1px 2px rgba(100, 75, 50, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* 2. Panel column separators — restore visible hairline at rest
+   (overrides the transparent !important rule higher in this file) */
+[data-theme="light"] [data-testid="notebook-workspace-layout"] .notebook-panel-resizer,
+[data-theme="light"] [data-testid="notebook-workspace-layout"] [data-testid^="notebook-resizer-"] {
+  background: var(--color-border-subtle) !important;
+}
+[data-theme="light"] [data-testid="notebook-workspace-layout"] .notebook-panel-resizer:hover,
+[data-theme="light"] [data-testid="notebook-workspace-layout"] [data-testid^="notebook-resizer-"]:hover {
+  background: color-mix(in srgb, var(--color-brand-500) 35%, transparent) !important;
+}
+
+/* 3. Panel header bottom border — restore in light mode
+   (overrides the border-diet transparent !important rule; wins on specificity) */
+[data-theme="light"] [data-testid="notebook-workspace-layout"][data-border-diet="cta-only"] :is(
+  [data-testid="notebook-sources-panel"] > header,
+  [data-testid="notebook-chat-panel"] > header,
+  [data-testid="notebook-studio-panel"] > header
+) {
+  border-color: var(--color-border-subtle) !important;
+}
+
+/* 4. Studio tool cards — white surface + micro-shadow so tiles read as
+   distinct interactive cards (background also overrides the 45%-secondary wash) */
+[data-theme="light"] [data-testid="notebook-workspace-layout"] [data-testid^="studio-card-"]:not([data-testid^="studio-card-ai-"]) {
+  background: var(--color-surface-card) !important;
+  box-shadow:
+    0 1px 2px rgba(100, 75, 50, 0.05),
+    0 1px 4px rgba(0, 0, 0, 0.03) !important;
+  border: 1px solid var(--color-border-subtle) !important;
+}

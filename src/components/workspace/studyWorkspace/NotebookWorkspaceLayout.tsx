@@ -691,7 +691,7 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-2">
       <Group
         orientation="horizontal"
-        className="h-full min-h-0 w-full flex-1 gap-0 overflow-hidden rounded-2xl bg-surface-card p-0"
+        className="notebook-workspace-card h-full min-h-0 w-full flex-1 gap-0 overflow-hidden rounded-2xl bg-surface-card p-0"
       >
         <Panel
           id="nb-sources"
