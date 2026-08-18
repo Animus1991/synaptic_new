@@ -100,7 +100,7 @@ export function WorkspaceToolStrip({
           </button>
           {moreOpen && (
             <div
-              className="absolute right-0 top-full z-50 mt-1 min-w-[140px] rounded-xl border border-border-subtle bg-surface-card py-1 shadow-lg"
+              className="absolute right-0 top-full z-50 mt-1 min-w-36 rounded-xl border border-border-subtle bg-surface-card py-1 shadow-lg"
               data-testid="workspace-tool-more-menu"
             >
               {secondary.map(({ id, icon: Icon, label, labelEl }) => (

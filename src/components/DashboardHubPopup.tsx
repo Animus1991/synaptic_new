@@ -74,9 +74,9 @@ export function DashboardHubPopupBody({
   };
 
   const primaryBtn =
-    'inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 text-white type-meta font-medium hover:bg-brand-500 transition-colors';
+    'inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 text-white type-meta font-medium hover:bg-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 transition-colors';
   const ghostBtn =
-    'inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-border-subtle type-meta text-text-secondary hover:bg-surface-hover transition-colors';
+    'inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-border-subtle type-meta text-text-secondary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 transition-colors';
 
   const launchAfterClose = (fn?: () => void) => {
     onClose();

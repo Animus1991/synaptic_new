@@ -172,7 +172,7 @@ export function WorkspaceContextBar({
   return (
     <div
       className={cn(
-        'relative z-10 flex min-h-[2.25rem] items-center gap-1.5 border-b border-border-subtle/70 bg-surface-primary/85 px-2 py-1 shrink-0',
+        'relative z-10 flex min-h-9 items-center gap-1.5 border-b border-border-subtle/70 bg-surface-primary/85 px-2 py-1 shrink-0',
         statusInbox ? 'flex-wrap max-h-none' : 'max-h-12 overflow-x-auto scrollbar-none',
         className,
       )}
@@ -205,7 +205,7 @@ export function WorkspaceContextBar({
             onClick={() => setInboxOpen((v) => !v)}
           >
             {t('chromeMoreStatus')}
-            {inboxOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+            {inboxOpen ? <ChevronDown className="h-3 w-3" aria-hidden /> : <ChevronRight className="h-3 w-3" aria-hidden />}
           </button>
           {inboxOpen ? (
             <div

@@ -13,6 +13,8 @@ import { GoogleIntegrationsPanel } from './GoogleIntegrationsPanel';
 import { googleAuthStartUrl } from '../lib/googleClient';
 import { loadLibrarySync } from '../features/library';
 import { Page, PageHeader, AnimatedCard, PrimaryCTA, SecondaryCTA } from './ui/primitives';
+import { Button } from './ui/Button';
+import { ConfirmDialog } from './ui/ConfirmDialog';
 import { WorkspaceTTIPanel } from './WorkspaceTTIPanel';
 import { useI18n } from '../lib/i18n';
 import { getSettingsContent } from '../lib/settingsContent';
@@ -20,6 +22,7 @@ import { RagIndexProgressBanner } from './RagIndexProgressBanner';
 import { PluginMarketplacePanel } from './PluginMarketplacePanel';
 import { privacyPolicyUrl } from '../lib/siteConfig';
 import { ColorCodingReferencePanel } from './ui/ColorCodingReferencePanel';
+import { ServerOfflineNotice } from './ui/ServerOfflineNotice';
 import {
   getNotebookLmParityOverride,
   resolveNotebookLmParity,
@@ -74,6 +77,8 @@ export function Settings({
   const [authPassword, setAuthPassword] = useState('');
   const [authStatus, setAuthStatus] = useState<string | null>(null);
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('');
+  const [clearDataOpen, setClearDataOpen] = useState(false);
+  const [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
   const [sessions, setSessions] = useState<AuthDeviceSession[]>([]);
   const [sessionsStatus, setSessionsStatus] = useState<string | null>(null);
   const [parityTick, setParityTick] = useState(0);
@@ -246,7 +251,7 @@ export function Settings({
   }, [activeSection]);
 
   return (
-    <Page className={cn('ux-flow-shell settings-ide', isMinimal && 'enterprise-calm')}>
+    <Page className="ux-flow-shell settings-ide enterprise-calm">
       <div
         data-testid="settings-page"
         data-bleed="full"
@@ -266,7 +271,7 @@ export function Settings({
               size="sm"
               data-testid="settings-done-studying"
               onClick={onDoneStudying}
-              className="ws-touch-floor min-h-9 shrink-0 rounded-lg px-3"
+              className="ws-touch-floor min-h-9 shrink-0 rounded-xl px-3"
             >
               {c.doneStudyingCta}
             </PrimaryCTA>
@@ -286,7 +291,7 @@ export function Settings({
       >
         {settingsNavGroups.map((group) => (
           <div key={group.id} className="flex min-w-0 flex-col gap-0.5" data-testid={`settings-nav-group-${group.id}`}>
-            <p className="type-micro font-semibold uppercase tracking-[0.08em] text-text-muted px-2.5 py-1 shrink-0">
+            <p className="type-micro font-semibold text-text-muted px-2.5 py-1 shrink-0">
               {group.title}
             </p>
             <div className="flex gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
@@ -298,7 +303,7 @@ export function Settings({
                     href={`#${section.id}`}
                     aria-current={isActive ? 'true' : undefined}
                     className={cn(
-                      'settings-ide-nav-item shrink-0 rounded-md px-2.5 py-1.5 text-left type-caption font-medium text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary lg:w-full',
+                      'settings-ide-nav-item inline-flex min-h-9 shrink-0 items-center rounded-md px-2.5 py-1.5 text-left type-caption font-medium text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 lg:w-full',
                       isActive && 'is-active',
                     )}
                     onClick={() => setActiveSection(section.id)}
@@ -313,7 +318,7 @@ export function Settings({
       </nav>
 
       {/* Wave H3 — single full-bleed column (drop masonry card gutters on all themes) */}
-      <div className="settings-ide-content w-full max-w-none space-y-3" data-bleed="full">
+      <div className="settings-ide-content w-full max-w-none space-y-3" data-bleed="full" data-soft-sep="stack">
       <SettingsSection id="settings-teaching" title={c.sectionTeachingApproach} icon={<Brain className="w-5 h-5 text-text-secondary" />} delay={0.05}>
         <ToggleRow label={c.labelTeachingStyle} options={c.teachingStyleOptions} value={settings.teachingStyle} onChange={v => onUpdate({ teachingStyle: v as UserSettings['teachingStyle'] })} />
         <ToggleRow label={c.labelExplanationDepth} options={c.explanationDepthOptions} value={settings.explanationDepth} onChange={v => onUpdate({ explanationDepth: v as UserSettings['explanationDepth'] })} />
@@ -361,7 +366,7 @@ export function Settings({
                   type="button"
                   onClick={() => onUpdate({ dailyGoalMinutes: m })}
                   className={cn(
-                    'settings-pref-chip rounded-md border-0 px-3 py-1.5 type-caption font-medium transition-colors',
+                    'settings-pref-chip min-h-9 rounded-md border-0 px-3 py-1.5 type-caption font-medium transition-colors',
                     settings.dailyGoalMinutes === m
                       ? 'is-active bg-surface-secondary text-text-primary'
                       : 'bg-surface-secondary/45 text-text-muted hover:bg-surface-hover',
@@ -577,6 +582,7 @@ export function Settings({
       </SettingsSection>
 
       <SettingsSection id="settings-account" title={c.sectionAccountSync} icon={<KeyRound className="w-5 h-5 text-accent-teal" />} delay={0.34}>
+        <ServerOfflineNotice settings={settings} className="mb-3" />
         {settings.authToken && (
           <div className="flex flex-wrap items-center gap-2 mb-3">
             <span className="type-caption px-2 py-1 rounded-lg bg-surface-hover border border-border-subtle">
@@ -584,28 +590,28 @@ export function Settings({
             </span>
             {(settings.authPlan ?? 'free') === 'free' && (
               <>
-                <button
-                  type="button"
+                <Button
+                  variant="primary"
+                  size="sm"
                   data-testid="upgrade-pro"
-                  className="px-3 py-1.5 rounded-lg type-caption font-medium bg-brand-600 text-white"
                   onClick={() => void startCheckout('pro')}
                 >
                   {c.upgradePro}
-                </button>
-                <button
-                  type="button"
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
                   data-testid="upgrade-team"
-                  className="px-3 py-1.5 rounded-lg type-caption font-medium border border-brand-500/40 text-text-secondary"
                   onClick={() => void startCheckout('team')}
                 >
                   {c.upgradeTeam}
-                </button>
+                </Button>
               </>
             )}
             {onRefreshPlan && (
-              <button
-                type="button"
-                className="px-3 py-1.5 rounded-lg type-caption font-medium border border-border-subtle text-text-secondary"
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={async () => {
                   try {
                     await onRefreshPlan();
@@ -616,7 +622,7 @@ export function Settings({
                 }}
               >
                 {c.refreshPlan}
-              </button>
+              </Button>
             )}
           </div>
         )}
@@ -647,9 +653,8 @@ export function Settings({
           />
         </div>
         <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            className="px-4 py-2 rounded-xl type-meta font-medium bg-brand-600 text-white"
+          <Button
+            variant="primary"
             onClick={async () => {
               try {
                 const session = await authLogin(authEmail, authPassword, settings);
@@ -660,10 +665,9 @@ export function Settings({
             }}
           >
             {c.signIn}
-          </button>
-          <button
-            type="button"
-            className="px-4 py-2 rounded-xl type-meta font-medium border border-border-subtle"
+          </Button>
+          <Button
+            variant="secondary"
             onClick={async () => {
               try {
                 const session = await authRegister(authEmail, authPassword, settings);
@@ -674,10 +678,9 @@ export function Settings({
             }}
           >
             {c.register}
-          </button>
-          <button
-            type="button"
-            className="px-4 py-2 rounded-xl type-meta font-medium border border-border-subtle inline-flex items-center gap-2"
+          </Button>
+          <Button
+            variant="secondary"
             data-testid="settings-google-sign-in"
             onClick={() => {
               window.location.href = googleAuthStartUrl(
@@ -688,11 +691,10 @@ export function Settings({
             }}
           >
             {c.google}
-          </button>
+          </Button>
           {settings.authToken && (
-            <button
-              type="button"
-              className="px-4 py-2 rounded-xl type-meta font-medium border border-border-subtle"
+            <Button
+              variant="secondary"
               onClick={() =>
                 onUpdate({
                   authToken: undefined,
@@ -704,12 +706,11 @@ export function Settings({
               }
             >
               {c.signOut}
-            </button>
+            </Button>
           )}
           {settings.authToken && onPullLibrary && (
-            <button
-              type="button"
-              className="px-4 py-2 rounded-xl type-meta font-medium border border-border-subtle"
+            <Button
+              variant="secondary"
               onClick={async () => {
                 try {
                   await onPullLibrary();
@@ -720,12 +721,12 @@ export function Settings({
               }}
             >
               {c.pullLibrary}
-            </button>
+            </Button>
           )}
           {settings.authToken && (
-            <button
-              type="button"
-              className="px-4 py-2 rounded-xl type-meta font-medium border border-accent-teal/40 text-accent-teal"
+            <Button
+              variant="secondary"
+              className="settings-sync-push"
               onClick={async () => {
                 try {
                   const lib = loadLibrarySync();
@@ -737,12 +738,11 @@ export function Settings({
               }}
             >
               {c.pushLibrary}
-            </button>
+            </Button>
           )}
           {settings.authToken && onPullSession && (
-            <button
-              type="button"
-              className="px-4 py-2 rounded-xl type-meta font-medium border border-border-subtle"
+            <Button
+              variant="secondary"
               onClick={async () => {
                 try {
                   await onPullSession();
@@ -753,12 +753,12 @@ export function Settings({
               }}
             >
               {c.pullProgress}
-            </button>
+            </Button>
           )}
           {settings.authToken && onPushSession && (
-            <button
-              type="button"
-              className="px-4 py-2 rounded-xl type-meta font-medium border border-accent-teal/40 text-accent-teal"
+            <Button
+              variant="secondary"
+              className="settings-sync-push"
               onClick={async () => {
                 try {
                   await onPushSession();
@@ -769,7 +769,7 @@ export function Settings({
               }}
             >
               {c.pushProgress}
-            </button>
+            </Button>
           )}
         </div>
         {settings.authEmail && (
@@ -901,37 +901,22 @@ export function Settings({
               placeholder={settings.authEmail ?? 'email@example.com'}
               className="w-full px-3 py-2 rounded-xl bg-surface-input border border-border-subtle type-body"
             />
-            <button
-              type="button"
+            <Button
+              variant="danger"
+              size="sm"
               data-testid="gdpr-delete-account"
               disabled={!deleteConfirmEmail.trim()}
-              className="px-3 py-2 rounded-xl type-caption font-medium border border-accent-rose/30 text-accent-rose hover:bg-accent-rose/10 disabled:opacity-50"
-              onClick={async () => {
+              onClick={() => {
                 if (!settings.authToken || !settings.authEmail) return;
                 if (deleteConfirmEmail.trim().toLowerCase() !== settings.authEmail.toLowerCase()) {
                   setAuthStatus(t('gdprDeleteConfirm'));
                   return;
                 }
-                if (!window.confirm(t('gdprDeleteHint'))) return;
-                try {
-                  await authDeleteAccount(settings.authToken, settings, deleteConfirmEmail.trim());
-                  onUpdate({
-                    authToken: undefined,
-                    authRefreshToken: undefined,
-                    authSessionId: undefined,
-                    authEmail: undefined,
-                    authPlan: undefined,
-                  });
-                  clearAllSessionData();
-                  setDeleteConfirmEmail('');
-                  setAuthStatus(t('gdprDeleteSuccess'));
-                } catch (e) {
-                  setAuthStatus(e instanceof Error ? e.message : c.deleteFailed);
-                }
+                setDeleteAccountOpen(true);
               }}
             >
               {t('gdprDeleteAccount')}
-            </button>
+            </Button>
           </div>
         )}
         {authStatus && <p className="type-caption text-text-muted">{authStatus}</p>}
@@ -968,6 +953,13 @@ export function Settings({
           value={settings.chromeDensity ?? 'comfortable'}
           onChange={v => onUpdate({ chromeDensity: v as UserSettings['chromeDensity'] })}
         />
+        <ToggleRow
+          label={c.labelA11yBoost}
+          options={c.a11yBoostOptions}
+          value={settings.a11yContrastBoost ? 'on' : 'off'}
+          onChange={v => onUpdate({ a11yContrastBoost: v === 'on' })}
+        />
+        <p className="type-caption text-text-muted">{c.a11yBoostHint}</p>
       </SettingsSection>
 
       <CollapsibleChromeSection
@@ -984,32 +976,24 @@ export function Settings({
         <ToggleRow label={c.labelDemoContent} options={c.demoContentOptions} value={settings.showDemoContent ? 'on' : 'off'} onChange={v => onUpdate({ showDemoContent: v === 'on' })} />
         <p className="type-caption text-text-muted">{c.demoContentHint}</p>
         <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => { downloadBackup(); setBackupStatus(c.backupDownloaded); }}
-            className="px-3 py-2 rounded-xl type-caption font-medium bg-surface-secondary text-text-primary border border-border-default hover:bg-brand-600/30"
           >
             {c.exportBackup}
-          </button>
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="px-3 py-2 rounded-xl type-caption font-medium border border-border-subtle text-text-secondary hover:border-brand-500/30"
-          >
+          </Button>
+          <Button variant="secondary" size="sm" onClick={() => fileInputRef.current?.click()}>
             {c.importBackup}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              if (window.confirm(c.clearConfirm)) {
-                const n = clearAllSessionData();
-                setBackupStatus(c.formatCleared(n));
-              }
-            }}
-            className="px-3 py-2 rounded-xl type-caption font-medium border border-accent-rose/30 text-accent-rose hover:bg-accent-rose/10"
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            data-testid="settings-clear-local-data"
+            onClick={() => setClearDataOpen(true)}
           >
             {c.clearLocalData}
-          </button>
+          </Button>
         </div>
         <input
           ref={fileInputRef}
@@ -1075,11 +1059,57 @@ export function Settings({
         </p>
       </div>
       </div>
+
+      {/* Destructive actions go through the shared dialog, not a native browser prompt. */}
+      <ConfirmDialog
+        open={clearDataOpen}
+        onClose={() => setClearDataOpen(false)}
+        onConfirm={() => {
+          const n = clearAllSessionData();
+          setBackupStatus(c.formatCleared(n));
+          setClearDataOpen(false);
+        }}
+        title={c.clearLocalData}
+        description={c.clearConfirm}
+        confirmLabel={c.clearLocalData}
+        cancelLabel={t('cancel')}
+        destructive
+        data-testid="settings-clear-data-dialog"
+      />
+      <ConfirmDialog
+        open={deleteAccountOpen}
+        onClose={() => setDeleteAccountOpen(false)}
+        onConfirm={async () => {
+          setDeleteAccountOpen(false);
+          if (!settings.authToken) return;
+          try {
+            await authDeleteAccount(settings.authToken, settings, deleteConfirmEmail.trim());
+            onUpdate({
+              authToken: undefined,
+              authRefreshToken: undefined,
+              authSessionId: undefined,
+              authEmail: undefined,
+              authPlan: undefined,
+            });
+            clearAllSessionData();
+            setDeleteConfirmEmail('');
+            setAuthStatus(t('gdprDeleteSuccess'));
+          } catch (e) {
+            setAuthStatus(e instanceof Error ? e.message : c.deleteFailed);
+          }
+        }}
+        title={t('gdprDeleteAccount')}
+        description={t('gdprDeleteHint')}
+        confirmLabel={t('gdprDeleteAccount')}
+        cancelLabel={t('cancel')}
+        destructive
+        data-testid="settings-delete-account-dialog"
+      />
     </Page>
   );
 }
 
-function SettingsSection({ id, title, icon, children, delay }: { id: string; title: string; icon: React.ReactNode; children: React.ReactNode; delay: number }) {
+function SettingsSection({ id, title, icon: _icon, children, delay }: { id: string; title: string; icon?: React.ReactNode; children: React.ReactNode; delay: number }) {
   const isMinimal = useMinimalTheme();
   return (
     /* Wave H3 — denser section chrome on every theme (IDE section, not masonry card) */
@@ -1089,8 +1119,7 @@ function SettingsSection({ id, title, icon, children, delay }: { id: string; tit
       padding="md"
       className="settings-ide-section scroll-mt-28"
     >
-      <h3 className="settings-ide-section-title ws-serif type-meta font-medium flex items-center gap-2 mb-3 text-text-primary">
-        {icon}
+      <h3 className="settings-ide-section-title type-meta font-medium mb-3 text-text-primary">
         {title}
       </h3>
       <div className="space-y-3">{children}</div>
@@ -1131,7 +1160,7 @@ function ToggleRow({ label, options, value, onChange }: { label: string; options
             type="button"
             onClick={() => onChange(opt.value)}
             className={cn(
-              'settings-pref-chip rounded-md border-0 px-2.5 py-1.5 type-caption font-medium transition-colors',
+              'settings-pref-chip min-h-9 rounded-md border-0 px-2.5 py-1.5 type-caption font-medium transition-colors',
               value === opt.value
                 ? 'is-active bg-surface-secondary text-text-primary'
                 : 'bg-surface-secondary/45 text-text-muted hover:bg-surface-hover hover:text-text-secondary',

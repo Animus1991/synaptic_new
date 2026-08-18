@@ -56,7 +56,7 @@ export function LandingFooter({ tagline }: LandingFooterProps) {
         </nav>
       </div>
 
-      <p className="type-caption text-text-muted mt-6" style={{ fontFamily: 'var(--font-mono)' }}>
+      <p className="type-caption text-text-muted mt-6 font-mono">
         {tagline}
       </p>
     </footer>

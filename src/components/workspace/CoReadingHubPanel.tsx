@@ -1,14 +1,16 @@
 /**
  * Wave CH-3/4 UI — Co-reading explanation challenges + protected peer votes.
- * Storage is device-local until collab review sync ships (see collabReviewSync).
+ * Multi-device: GET/PUT /v1/study-rooms/:id/coreading when sync is on.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { t, type Lang } from '../../lib/i18n';
+import type { UserSettings } from '../../types';
 import {
   PEER_DIMENSIONS,
   continuityOverlapScore,
   createExplanationChallenge,
   loadCoReadingHub,
+  mergeCoReadingHubs,
   rankExplanations,
   saveCoReadingHub,
   setChallengeExemplar,
@@ -17,6 +19,8 @@ import {
   type PeerDimension,
 } from '../../lib/coReadingHub';
 import { castPeerDimensionVote } from '../../lib/collabPeerReview';
+import { isCollabReviewMultiDeviceSyncEnabled } from '../../lib/collabReviewSync';
+import { fetchCoReadingHub, pushCoReadingHub } from '../../lib/studyRoomClient';
 import { CollabDeviceLocalBanner } from './CollabDeviceLocalBanner';
 
 type Props = {
@@ -24,6 +28,7 @@ type Props = {
   roomId: string;
   memberId: string;
   displayName: string;
+  userSettings?: UserSettings;
 };
 
 function dimensionLabel(dim: PeerDimension, lang: Lang): string {
@@ -37,7 +42,7 @@ function dimensionLabel(dim: PeerDimension, lang: Lang): string {
   return el ? map[dim][1] : map[dim][0];
 }
 
-export function CoReadingHubPanel({ lang, roomId, memberId, displayName }: Props) {
+export function CoReadingHubPanel({ lang, roomId, memberId, displayName, userSettings }: Props) {
   const tr = (key: Parameters<typeof t>[0]) => t(key, lang);
   const [store, setStore] = useState<CoReadingHubStore>(() => loadCoReadingHub(roomId));
   const [excerpt, setExcerpt] = useState('');
@@ -45,14 +50,49 @@ export function CoReadingHubPanel({ lang, roomId, memberId, displayName }: Props
   const [explainDraft, setExplainDraft] = useState<Record<string, string>>({});
   // Keyed per challenge: the human/AI attribution badge feeds ranking + steward flows.
   const [aiAssisted, setAiAssisted] = useState<Record<string, boolean>>({});
+  const storeRef = useRef(store);
+  storeRef.current = store;
+  const syncOn = isCollabReviewMultiDeviceSyncEnabled('coreading');
 
   useEffect(() => {
     setStore(loadCoReadingHub(roomId));
   }, [roomId]);
 
+  useEffect(() => {
+    if (!syncOn) return;
+    let cancelled = false;
+    const pull = async () => {
+      try {
+        const remote = await fetchCoReadingHub(roomId, userSettings);
+        if (cancelled) return;
+        const merged = mergeCoReadingHubs(storeRef.current, remote);
+        saveCoReadingHub(merged);
+        setStore(merged);
+      } catch {
+        /* keep the local cache when the room API is unreachable */
+      }
+    };
+    void pull();
+    const id = window.setInterval(() => void pull(), 4000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [roomId, syncOn, userSettings]);
+
   const persist = (next: CoReadingHubStore) => {
     saveCoReadingHub(next);
     setStore(next);
+    if (!syncOn) return;
+    void pushCoReadingHub(roomId, next, userSettings)
+      .then((remote) => {
+        const merged = mergeCoReadingHubs(next, remote);
+        saveCoReadingHub(merged);
+        setStore(merged);
+      })
+      .catch(() => {
+        /* local cache already saved */
+      });
   };
 
   const createChallenge = () => {
@@ -68,7 +108,7 @@ export function CoReadingHubPanel({ lang, roomId, memberId, displayName }: Props
   };
 
   return (
-    <div className="space-y-2 rounded-lg bg-surface-secondary/45 p-2.5" data-testid="co-reading-hub" data-clarity-pass="k161">
+    <div className="space-y-2 rounded-lg border-0 bg-surface-secondary/45 p-2.5" data-testid="co-reading-hub" data-clarity-pass="k161">
       <p className="type-caption font-medium text-text-secondary">{tr('collabCoReadingTitle')}</p>
       <CollabDeviceLocalBanner lang={lang} surface="coreading" />
       <p className="type-caption text-text-muted">{tr('collabCoReadingHint')}</p>
@@ -169,6 +209,7 @@ export function CoReadingHubPanel({ lang, roomId, memberId, displayName }: Props
                           type="button"
                           className="ws-chrome-btn type-caption px-1.5 py-0.5"
                           data-testid={`co-reading-vote-${ex.id}-${dim}`}
+                          aria-label={`${dimensionLabel(dim, lang)} (${ex.votes[dim]})`}
                           onClick={() => {
                             const { store: next } = castPeerDimensionVote(
                               store,
@@ -187,6 +228,7 @@ export function CoReadingHubPanel({ lang, roomId, memberId, displayName }: Props
                         type="button"
                         className="ws-chrome-btn type-caption px-1.5 py-0.5"
                         data-testid={`co-reading-exemplar-${ex.id}`}
+                        aria-label={tr('collabMarkExemplar')}
                         onClick={() => persist(setChallengeExemplar(
                           store,
                           ch.id,

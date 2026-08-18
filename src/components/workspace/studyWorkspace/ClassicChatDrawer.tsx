@@ -75,7 +75,7 @@ export function ClassicChatDrawer({ model }: ClassicChatDrawerProps) {
         defaultSize={28}
         minSize={20}
         maxSize={45}
-        className="flex flex-col min-h-0 overflow-hidden bg-surface-primary border-l border-transparent"
+        className="flex flex-col min-h-0 overflow-hidden bg-surface-primary"
         data-testid="classic-chat-drawer"
       >
         {body}

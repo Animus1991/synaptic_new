@@ -126,21 +126,8 @@ export function DashboardAlertGrid({
     >
       {slots.slice(0, 4).map((slot) => {
         const Icon = IconFor[slot.tone];
-        return (
-          <button
-            key={slot.id}
-            type="button"
-            onClick={slot.onClick}
-            disabled={!slot.onClick}
-            className={cn(
-              'dashboard-alert-row flex w-full items-start gap-2.5 rounded-lg border-0 bg-transparent px-1.5 py-2 text-left transition-colors',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
-              slot.onClick && 'cursor-pointer hover:bg-surface-secondary/55',
-              !slot.onClick && 'cursor-default',
-            )}
-            data-tone={slot.tone}
-            data-testid={`dashboard-alert-${slot.id}`}
-          >
+        const rowContent = (
+          <>
             <Icon
               className={cn('mt-0.5 h-4 w-4 shrink-0', iconClass)}
               weight={quiet ? 'regular' : 'duotone'}
@@ -155,7 +142,37 @@ export function DashboardAlertGrid({
             {slot.onClick && (
               <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden />
             )}
-          </button>
+          </>
+        );
+        const rowClass = cn(
+          'dashboard-alert-row flex w-full items-start gap-2.5 rounded-lg border-0 bg-transparent px-1.5 py-2 text-left transition-colors',
+          slot.onClick && 'cursor-pointer hover:bg-surface-secondary/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
+        );
+        if (slot.onClick) {
+          return (
+            <button
+              key={slot.id}
+              type="button"
+              onClick={slot.onClick}
+              className={rowClass}
+              data-tone={slot.tone}
+              data-testid={`dashboard-alert-${slot.id}`}
+              aria-label={`${slot.title}: ${slot.body}`}
+            >
+              {rowContent}
+            </button>
+          );
+        }
+        return (
+          <div
+            key={slot.id}
+            role="listitem"
+            className={rowClass}
+            data-tone={slot.tone}
+            data-testid={`dashboard-alert-${slot.id}`}
+          >
+            {rowContent}
+          </div>
         );
       })}
     </div>

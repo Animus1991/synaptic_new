@@ -393,7 +393,14 @@ export function ExamPrepView({
                 </div>
               </div>
 
-              <div className="h-1.5 rounded-full bg-surface-hover">
+              <div
+                className="h-1.5 rounded-full bg-surface-hover"
+                role="progressbar"
+                aria-valuenow={answeredCount}
+                aria-valuemin={0}
+                aria-valuemax={examQuestions.length}
+                aria-label={t('examPrepProgressAria')}
+              >
                 <div
                   className="h-full rounded-full bg-brand-500 transition-all"
                   style={{ width: `${(answeredCount / Math.max(examQuestions.length, 1)) * 100}%` }}

@@ -112,7 +112,7 @@ export function WorkspaceDock({ activeTool, onSelectTool, availableTools, lang =
                     <span
                       aria-hidden="true"
                       className={cn(
-                        'absolute left-0 top-0 h-full w-[2px] transition-colors',
+                        'absolute left-0 top-0 h-full w-px transition-colors',
                         active ? 'bg-brand-400' : 'bg-transparent group-hover:bg-border-subtle',
                       )}
                     />
