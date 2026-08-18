@@ -841,35 +841,30 @@ export function Tasks({
                   )}
                 >
                   <div
-                    className={cn('flex items-center gap-3 cursor-pointer', layoutMode === 'list' ? 'p-3' : 'p-4')}
-                    role="button"
-                    tabIndex={0}
-                    aria-expanded={isExpanded}
-                    onClick={() => setExpandedTask(isExpanded ? null : task.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        setExpandedTask(isExpanded ? null : task.id);
-                      }
-                    }}
+                    className={cn('flex items-center gap-3', layoutMode === 'list' ? 'p-3' : 'p-4')}
                   >
                     {layoutMode === 'board' && (
                       <span className={cn('tasks-kanban-status-dot shrink-0', `tasks-kanban-status-${kanbanStatus}`)} aria-hidden />
                     )}
-                    <button type="button" onClick={(e) => { e.stopPropagation(); onComplete(task.id); }} className="inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-md hover:bg-surface-hover" data-testid={`task-complete-${task.id}`} aria-label={c.completeTaskAria(task.title)}>
-                      <Circle className="w-5 h-5 text-text-muted hover:text-text-primary" />
+                    <button type="button" onClick={() => onComplete(task.id)} className="inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-md hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50" data-testid={`task-complete-${task.id}`} aria-label={c.completeTaskAria(task.title)}>
+                      <Circle className="w-5 h-5 text-text-muted hover:text-text-primary" aria-hidden />
                     </button>
-                    <div className="tasks-row-icon w-8 h-8 bg-brand-600/15 flex items-center justify-center shrink-0">
+                    <div className="tasks-row-icon w-8 h-8 bg-brand-600/15 flex items-center justify-center shrink-0" aria-hidden>
                       <TaskActionIcon task={task} size="sm" />
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <button
+                      type="button"
+                      className="flex-1 min-w-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-inset rounded"
+                      aria-expanded={isExpanded}
+                      onClick={() => setExpandedTask(isExpanded ? null : task.id)}
+                    >
                       <p className="type-body font-medium text-text-primary truncate">{task.title}</p>
                       <div className="flex items-center gap-2 mt-0.5 type-caption text-text-tertiary flex-wrap">
                         <span>{task.courseName}</span>
-                        <span>·</span>
+                        <span aria-hidden>·</span>
                         <span className="flex items-center gap-1"><Clock className="w-3 h-3" aria-hidden />{task.estimatedMinutes} min</span>
                       </div>
-                    </div>
+                    </button>
                     <div className="flex items-center gap-2 shrink-0">
                       {isRunningNow && (
                         <span
@@ -892,10 +887,10 @@ export function Tasks({
                       <SecondaryCTA
                         type="button"
                         size="sm"
-                        onClick={(e) => { e.stopPropagation(); onStartTask?.(task.id); }}
+                        onClick={() => onStartTask?.(task.id)}
                         className="tasks-row-start-cta min-h-9"
                       >
-                        <Play className="w-3.5 h-3.5" /> {startButtonLabel(task, lang)}
+                        <Play className="w-3.5 h-3.5" aria-hidden /> {startButtonLabel(task, lang)}
                       </SecondaryCTA>
                     </div>
                   </div>
