@@ -550,7 +550,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                         onClick={() => (examTask ? onStartTask?.(examTask.id) : onOpenExamTimer?.() ?? onOpenWorkspace?.())}
                         className="platform-link type-caption flex items-center gap-1 shrink-0"
                       >
-                        {examTask ? t('dashStartExamPrep') : t('dashExamPrep')} <ArrowRight className="w-3 h-3" />
+                        {examTask ? t('dashStartExamPrep') : t('dashExamPrep')} <ArrowRight className="w-3 h-3" aria-hidden />
                       </button>
                     }
                   >
@@ -578,7 +578,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                         onClick={() => (firstReviewTask ? onStartTask?.(firstReviewTask.id) : onNavigate('tasks'))}
                         className="mt-1.5 platform-link type-caption flex items-center gap-1"
                       >
-                        {t('dashTakeQuiz')} <ArrowRight className="w-3 h-3" />
+                        {t('dashTakeQuiz')} <ArrowRight className="w-3 h-3" aria-hidden />
                       </button>
                     </div>
                   </div>
@@ -849,7 +849,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <h2 className="dashboard-panel-title font-medium">
                 {t('dashPriorityTasks')}
               </h2>
-              <CardLink onClick={() => onNavigate('tasks')} className="dashboard-panel-action">{t('dashViewAll')} <ChevronRight className="w-4 h-4" /></CardLink>
+              <CardLink onClick={() => onNavigate('tasks')} className="dashboard-panel-action">{t('dashViewAll')} <ChevronRight className="w-4 h-4" aria-hidden /></CardLink>
             </div>
             <div className="space-y-2">
               {criticalTasks.slice(0, 5).map((task, i) => (
@@ -903,7 +903,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   >
                     <span className="type-meta flex-1 truncate group-hover:text-text-primary transition-colors">{task.title}</span>
                     <span className="type-caption text-text-tertiary">{taskDurationLabel(task.estimatedMinutes, t)}</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-text-muted group-hover:text-text-secondary" />
+                    <ChevronRight className="w-3.5 h-3.5 text-text-muted group-hover:text-text-secondary" aria-hidden />
                   </button>
                 ))}
               </div>
@@ -914,7 +914,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           <BlueprintSurface className="p-2 sm:p-2.5">
             <div className="flex items-center justify-between mb-1.5">
               <h2 className="dashboard-panel-title font-medium">{t('dashActiveCourses')}</h2>
-              <CardLink onClick={() => onNavigate('library')} className="dashboard-panel-action">{t('dashLibrary')} <ChevronRight className="w-4 h-4" /></CardLink>
+              <CardLink onClick={() => onNavigate('library')} className="dashboard-panel-action">{t('dashLibrary')} <ChevronRight className="w-4 h-4" aria-hidden /></CardLink>
             </div>
             {activeCourses.length > 0 ? (
               <div
@@ -970,7 +970,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   onClick={() => onNavigate('library')}
                   className="mt-3 inline-flex items-center gap-1 type-caption text-text-secondary hover:text-text-primary"
                 >
-                  {t('dashLibrary')} <ChevronRight className="w-3.5 h-3.5" />
+                  {t('dashLibrary')} <ChevronRight className="w-3.5 h-3.5" aria-hidden />
                 </button>
               </div>
             )}
@@ -1339,8 +1339,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                           </div>
                         );
                       })}
-                      <button onClick={() => onNavigate('analytics')} className="mt-2 w-full type-caption text-text-secondary hover:text-text-primary flex items-center justify-center gap-1">
-                        {t('dashFullAnalytics')} <ArrowRight className="w-3 h-3" />
+                      <button type="button" onClick={() => onNavigate('analytics')} className="mt-2 w-full type-caption text-text-secondary hover:text-text-primary flex items-center justify-center gap-1">
+                        {t('dashFullAnalytics')} <ArrowRight className="w-3 h-3" aria-hidden />
                       </button>
                     </div>
                   )}
@@ -1383,8 +1383,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     </div>
                   );
                 })}
-                <button onClick={() => onNavigate('analytics')} className="mt-2 w-full type-caption text-text-secondary hover:text-text-primary flex items-center justify-center gap-1">
-                  {t('dashFullAnalytics')} <ArrowRight className="w-3 h-3" />
+                <button type="button" onClick={() => onNavigate('analytics')} className="mt-2 w-full type-caption text-text-secondary hover:text-text-primary flex items-center justify-center gap-1">
+                  {t('dashFullAnalytics')} <ArrowRight className="w-3 h-3" aria-hidden />
                 </button>
               </BlueprintSurface>
               )}
@@ -1408,6 +1408,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     <p className="text-text-secondary mt-0.5">{m.description}</p>
                     {onResolveMisconception && (
                       <button
+                        type="button"
                         onClick={() => onResolveMisconception(m.id)}
                         className="dashboard-misconception-resolve mt-1.5 platform-link type-micro flex items-center gap-1"
                       >

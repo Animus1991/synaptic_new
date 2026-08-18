@@ -20,8 +20,8 @@ import { resolveCourseColor } from '../lib/masteryPalette';
 import { CourseIcon } from './ui/CourseIcon';
 import { cn } from '../utils/cn';
 import { Page, PageHeader, TabBar } from './ui/primitives';
-import { SectionLabel } from './ui/SectionLabel';
-import { AllCapsLabel } from './ui/AllCapsLabel';
+import { Button } from './ui/Button';
+import { CompactProgressBar } from './ui/CompactProgressBar';
 import { useWarmSandPageScope, warmSandScopeProps } from '../lib/useDocumentTheme';
 import { ReadinessRing } from './visuals/ReadinessRing';
 import { RetentionCurve } from './visuals/DiagramGenerator';
@@ -72,9 +72,10 @@ import { SubjectDrillDown } from './analytics/SubjectDrillDown';
 import { StudyBehaviorCharts } from './analytics/StudyBehaviorCharts';
 import { AIInsightsPanel } from './analytics/AIInsightsPanel';
 import { buildSubjectMasteryTiles, type SubjectMasteryTile } from '../features/analytics/subjectMasteryAnalytics';
-import { filterActivitiesByRange } from '../features/analytics/analyticsDateRange';
+import { filterActivitiesByRange, filterEventsByRange } from '../features/analytics/analyticsDateRange';
 import { useAppStore } from '../store/useStore';
 import { SectionHeader } from './ui/platformChrome';
+import { SectionLabel } from './ui/SectionLabel';
 import { loadVisualLabOpen, saveVisualLabOpen } from '../lib/visualLabPrefs';
 
 interface AnalyticsProps {
@@ -209,13 +210,12 @@ export function Analytics({
   const [tab, setTab] = useState<AnalyticsTab>('overview');
   const { t } = useI18n();
   const warmSandPage = useWarmSandPageScope();
-  const isMinimal = useMinimalTheme();
 
   return (
     <AnalyticsDateRangeProvider>
       <div
         {...warmSandScopeProps(warmSandPage)}
-        className={cn(isMinimal && 'enterprise-calm analytics-quiet')}
+        className="enterprise-calm analytics-quiet"
         data-testid="analytics-page"
         data-type-rhythm="dashboard"
         /* OPT-K128 / OPT-K130 — Analytics clarity: CTA-only border diet (wash panels) */
@@ -313,15 +313,12 @@ function OverviewTab({
     ? computeCalibration(learnerModel.confidenceCalibration)
     : null;
   const retentionPoints = retentionCurveFromActivities(rangedActivities);
-  const weekly = learnerModel.weeklyMastery.some((v) => v > 0)
-    ? learnerModel.weeklyMastery
-    : weeklyMasteryFromActivities(rangedActivities);
+  const weekly = weeklyMasteryFromActivities(rangedActivities);
   const hasRetentionData = rangedActivities.some(
     (a) => a.type === 'quiz_passed' || a.type === 'quiz_failed' || a.type === 'review_done',
   );
   const fsrsSummary = summarizeRetentionForecast(learnerModel.spacingIntervals);
   const fsrsForecast = buildRetentionForecast(learnerModel.spacingIntervals, 14);
-  const isMinimal = useMinimalTheme();
   const progressKpis = buildProgressKpis(learnerModel, stats, daysToExam, lang);
   const confidenceBuckets = hasConfidenceMetrics
     ? buildConfidenceBuckets(learnerModel, lang)
@@ -333,7 +330,7 @@ function OverviewTab({
   const treemapModel = buildConceptTreemap(courses, learnerModel);
   const timelineModel = buildLearningTimeline(rangedActivities, lang);
   return (
-    <div className={cn(isMinimal ? 'hub-section-stack analytics-hub-stack' : 'space-y-3')}>
+    <div className="hub-section-stack analytics-hub-stack" data-soft-sep="stack">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <ProgressKpiRow kpis={progressKpis} />
       </motion.div>
@@ -347,7 +344,7 @@ function OverviewTab({
           <button
             type="button"
             data-testid="analytics-flow-banner"
-            className="w-full flex items-center gap-3 rounded-xl border-0 bg-surface-secondary/55 px-3.5 py-2.5 text-left transition-colors hover:bg-surface-hover"
+            className="flex w-full min-h-11 items-center gap-3 rounded-xl border-0 bg-surface-secondary/55 px-3.5 py-2.5 text-left transition-colors hover:bg-surface-hover"
             onClick={() => {
               const el = document.querySelector('[data-testid="analytics-flow-disclosure"]') as HTMLDetailsElement | null;
               if (el) {
@@ -374,17 +371,17 @@ function OverviewTab({
             <ReadinessRing value={learnerModel.overallMastery} size={200} sublabel={t('analyticsReadinessSublabel')} />
           </div>
         ) : (
-          <div className="platform-panel-lg flex flex-col items-center justify-center text-center type-body text-text-muted min-h-48">
-            <Target className="w-8 h-8 text-text-tertiary mb-2" />
-            <p>{t('analyticsResearchEmpty')}</p>
+          <div className="platform-panel-lg flex flex-col items-center justify-center text-center min-h-36 px-4">
+            <Target className="w-6 h-6 text-text-tertiary mb-2" aria-hidden />
+            <p className="type-caption text-text-secondary">{t('analyticsReadinessEmpty')}</p>
           </div>
         )}
         {hasRetentionData ? (
           <RetentionCurve dataPoints={retentionPoints} />
         ) : (
-          <div className="platform-panel-lg flex flex-col items-center justify-center text-center type-body text-text-muted min-h-48">
-            <Activity className="w-8 h-8 text-text-tertiary mb-2" />
-            <p>{t('analyticsResearchEmpty')}</p>
+          <div className="platform-panel-lg flex flex-col items-center justify-center text-center min-h-36 px-4">
+            <Activity className="w-6 h-6 text-text-tertiary mb-2" aria-hidden />
+            <p className="type-caption text-text-secondary">{t('analyticsRetentionEmpty')}</p>
           </div>
         )}
       </motion.div>
@@ -454,12 +451,12 @@ function OverviewTab({
 
       {/* OPT-K130 — equal-width 3-col pack (no CSS-columns stagger) */}
       <div
-        className="grid grid-cols-1 lg:grid-cols-3 gap-3 items-start"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-3 items-stretch"
         data-testid="analytics-overview-mastery-row"
       >
-        <div className="space-y-3 min-w-0">
+        <div className="flex min-h-0 min-w-0 flex-col space-y-3">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
-            <h3 className="type-meta font-semibold flex items-center gap-2 mb-2.5"><TrendingUp className="w-4 h-4 text-text-secondary" />{t('analyticsWeeklyTrend')}</h3>
+            <h3 className="type-meta font-semibold flex items-center gap-2 mb-2.5"><TrendingUp className="w-4 h-4 text-text-secondary" aria-hidden />{t('analyticsWeeklyTrend')}</h3>
             <div className="flex items-end gap-1.5 h-28" data-testid="analytics-weekly-trend">
               {weekly.map((val, i) => (
                 <div key={i} className="analytics-weekly-col flex h-full flex-1 flex-col items-center justify-end gap-1 min-h-0">
@@ -483,8 +480,8 @@ function OverviewTab({
             </div>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="platform-panel-md">
-            <h3 className="type-meta font-semibold flex items-center gap-2 mb-2.5"><Calendar className="w-4 h-4 text-text-secondary" />{t('analyticsStudyHeatmap')}</h3>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="platform-panel-md flex-1">
+            <h3 className="type-meta font-semibold flex items-center gap-2 mb-2.5"><Calendar className="w-4 h-4 text-text-secondary" aria-hidden />{t('analyticsStudyHeatmap')}</h3>
             <div className="grid grid-cols-[repeat(13,1fr)] gap-[3px]" data-testid="analytics-heatmap-grid">
               {learnerModel.heatmapData.slice(-91).map((day, i) => {
                 const intensity = day.minutes === 0 ? 0 : day.minutes < 15 ? 1 : day.minutes < 30 ? 2 : day.minutes < 60 ? 3 : 4;
@@ -516,28 +513,33 @@ function OverviewTab({
         <div className="space-y-3 min-w-0">
           <div className="platform-panel-md">
             <h3 className="type-meta font-semibold mb-2.5 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-text-secondary" />
+              <CheckCircle2 className="w-4 h-4 text-text-secondary" aria-hidden />
               {t('analyticsCoursesColumn')}
             </h3>
             <div className="space-y-2">
               {courses.filter(c => c.status !== 'generating').slice(0, 6).map(course => (
                 <div key={course.id} className="flex items-center gap-2">
                   <CourseIcon icon={course.icon} size="sm" colorClassName="text-text-secondary shrink-0" />
-                  <span className="type-caption text-text-secondary flex-1 truncate">{course.title}</span>
-                  <div className="w-16 rounded-full h-1 shrink-0" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
-                    <div
-                      className="analytics-course-bar-fill h-1 rounded-full"
-                      style={{ width: `${course.mastery}%`, backgroundColor: resolveCourseColor(course.color) }}
+                  <span className="type-caption text-text-secondary min-w-0 flex-1 truncate">{course.title}</span>
+                  <div className="w-20 shrink-0">
+                    <CompactProgressBar
+                      pct={course.mastery}
+                      color={resolveCourseColor(course.color)}
+                      size="md"
+                      aria-label={`${course.title} ${course.mastery}%`}
                     />
                   </div>
                   <span className="type-micro font-semibold tabular-nums w-8 text-right shrink-0">{course.mastery}%</span>
                 </div>
               ))}
+              {courses.filter(c => c.status !== 'generating').length === 0 && (
+                <p className="type-caption text-text-muted">{t('analyticsSubjectMasteryEmpty')}</p>
+              )}
             </div>
           </div>
           <div className="platform-panel-md">
             <h3 className="type-meta font-semibold mb-2.5 flex items-center gap-2">
-              <Brain className="w-4 h-4 text-text-secondary" />
+              <Brain className="w-4 h-4 text-text-secondary" aria-hidden />
               {t('analyticsConceptsColumn')}
             </h3>
             <div className="space-y-2">
@@ -545,19 +547,27 @@ function OverviewTab({
                 .slice(0, 6)
                 .map((skill) => (
                   <div key={skill.concept} className="flex items-center gap-2">
-                    <span className="type-caption text-text-secondary flex-1 truncate">{skill.concept}</span>
-                    <div className="w-16 rounded-full h-1 shrink-0" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
-                      <div
-                        className={cn(
-                          'h-1 rounded-full',
-                          skill.mastery >= 75 ? 'bg-accent-emerald' : skill.mastery >= 50 ? 'bg-accent-amber' : 'bg-accent-rose',
-                        )}
-                        style={{ width: `${Math.max(3, skill.mastery)}%` }}
+                    <span className="type-caption text-text-secondary min-w-0 flex-1 truncate">{skill.concept}</span>
+                    <div className="w-20 shrink-0">
+                      <CompactProgressBar
+                        pct={skill.mastery}
+                        color={
+                          skill.mastery >= 75
+                            ? 'var(--color-accent-emerald)'
+                            : skill.mastery >= 50
+                              ? 'var(--color-accent-amber)'
+                              : 'var(--color-accent-rose)'
+                        }
+                        size="md"
+                        aria-label={`${skill.concept} ${Math.round(skill.mastery)}%`}
                       />
                     </div>
                     <span className="type-micro font-semibold tabular-nums w-8 text-right">{Math.round(skill.mastery)}%</span>
                   </div>
                 ))}
+              {learnerModel.weakAreas.length + learnerModel.almostKnown.length + learnerModel.strongAreas.length === 0 && (
+                <p className="type-caption text-text-muted">{t('analyticsConceptsEmpty')}</p>
+              )}
             </div>
           </div>
         </div>
@@ -565,7 +575,7 @@ function OverviewTab({
         <div className="min-w-0">
           <div className="platform-panel-md h-full">
             <h3 className="type-meta font-semibold mb-2.5 flex items-center gap-2">
-              <Eye className="w-4 h-4 text-text-secondary" />
+              <Eye className="w-4 h-4 text-text-secondary" aria-hidden />
               {t('analyticsCalibrationColumn')}
             </h3>
             <div className="space-y-2">
@@ -604,7 +614,7 @@ function OverviewTab({
                 );
               })}
               {learnerModel.confidenceCalibration.length === 0 && (
-                <p className="type-caption text-text-muted py-4 text-center">{t('analyticsResearchEmpty')}</p>
+                <p className="type-caption text-text-muted py-4 text-center">{t('analyticsCalibrationEmpty')}</p>
               )}
             </div>
           </div>
@@ -630,7 +640,11 @@ function OverviewTab({
         }}
       />
 
-      <details className="ux-disclosure" data-testid="analytics-flow-disclosure">
+      <details
+        className="ux-disclosure"
+        data-testid="analytics-flow-disclosure"
+        defaultOpen={sankeyModel.hasData || waterfallModel.hasData || treemapModel.hasData || timelineModel.hasData}
+      >
         <summary className="ux-disclosure-summary">{t('analyticsFlowDisclosure')}</summary>
         <div className="ux-disclosure-body space-y-4">
           <SectionHeader
@@ -727,6 +741,8 @@ function OverviewTab({
                   sankeyHasData={sankeyModel.hasData}
                   forecast={fsrsForecast}
                   skills={[...learnerModel.weakAreas, ...learnerModel.almostKnown, ...learnerModel.strongAreas]}
+                  overallMastery={learnerModel.overallMastery}
+                  courseCount={generatedCourseCount}
                 />
               </motion.div>
             )}
@@ -741,7 +757,7 @@ function OverviewTab({
       >
         <button
           type="button"
-          className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left transition-colors hover:bg-surface-hover/80"
+          className="flex w-full min-h-11 items-center gap-3 px-3.5 py-2.5 text-left transition-colors hover:bg-surface-hover/80"
           aria-expanded={visualLabOpen}
           onClick={() => {
             const next = !visualLabOpen;
@@ -782,7 +798,6 @@ function MasteryTab({
   activities: ActivityItem[];
 }) {
   const { t } = useI18n();
-  const isMinimal = useMinimalTheme();
   const { range } = useAnalyticsDateRange();
   const store = useAppStore();
   const [drillTile, setDrillTile] = useState<SubjectMasteryTile | null>(null);
@@ -797,7 +812,7 @@ function MasteryTab({
   const graph = buildMasteryGraph(learnerModel, courses);
   const masteryHeatmap = buildConceptMasteryHeatmap(rangedActivities, courses, learnerModel);
   return (
-    <div className={cn(isMinimal ? 'hub-section-stack' : 'space-y-4')}>
+    <div className="hub-section-stack" data-soft-sep="stack">
       <SubjectMasteryGrid tiles={subjectTiles} onSelect={setDrillTile} />
       <SubjectDrillDown
         tile={drillTile}
@@ -910,7 +925,12 @@ function BehaviorTab({
 }) {
   const { t, lang } = useI18n();
   const isMinimal = useMinimalTheme();
-  const inference = inferBehaviorFromActivities(activities, readAllLearningEvents());
+  const { range } = useAnalyticsDateRange();
+  const rangedActivities = useMemo(
+    () => filterActivitiesByRange(activities, range),
+    [activities, range],
+  );
+  const inference = inferBehaviorFromActivities(rangedActivities, filterEventsByRange(readAllLearningEvents(), range));
   const radarDimensions = buildLearningRadar(learnerModel, lang);
   const modelVars: { labelKey: I18nKey; value: string; barPct?: number }[] = [
     { labelKey: 'analyticsRetrievalPerformance', value: `${Math.round(learnerModel.retrievalPerformance * 100)}%`, barPct: Math.round(learnerModel.retrievalPerformance * 100) },
@@ -927,27 +947,19 @@ function BehaviorTab({
     { icon: <Shield className="w-5 h-5 text-text-tertiary" />, label: t('analyticsPersistence'), value: `${Math.round(learnerModel.persistenceScore * 100)}%`, sub: t('analyticsPersistenceSub') },
   ];
   return (
-    <div className={cn(isMinimal ? 'hub-section-stack' : 'space-y-4')}>
-      <StudyBehaviorCharts activities={activities} />
+    <div className="hub-section-stack" data-soft-sep="stack">
+      <StudyBehaviorCharts activities={rangedActivities} />
       {inference.inferenceConfidence === 'low' && (
-        <p className="type-caption text-accent-amber">{t('analyticsBehaviorLowConfidence')}</p>
+        <p className="type-caption text-accent-amber" data-soft-card="off">{t('analyticsBehaviorLowConfidence')}</p>
       )}
       {inference.inferenceConfidence !== 'low' && (
-        <p className="type-caption text-text-tertiary">{t('analyticsBehaviorInferred')}</p>
+        <p className="type-caption text-text-tertiary" data-soft-card="off">{t('analyticsBehaviorInferred')}</p>
       )}
-      {isMinimal ? (
-        <HubSection data-testid="analytics-behavior-metrics">
-          {behaviorMetrics.map((m) => (
-            <MetricCard key={m.label} icon={m.icon} label={m.label} value={m.value} sub={m.sub} />
-          ))}
-        </HubSection>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="analytics-behavior-metrics">
-          {behaviorMetrics.map((m) => (
-            <MetricCard key={m.label} icon={m.icon} label={m.label} value={m.value} sub={m.sub} />
-          ))}
-        </div>
-      )}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="analytics-behavior-metrics">
+        {behaviorMetrics.map((m) => (
+          <MetricCard key={m.label} icon={m.icon} label={m.label} value={m.value} sub={m.sub} />
+        ))}
+      </div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
         <LearningRadarChart
@@ -1020,13 +1032,18 @@ function InsightsTab({
   courses: Course[];
 }) {
   const { t, lang } = useI18n();
-  const tips = adaptiveRecommendations(learnerModel, activities, repairs);
-  const profileInsights = buildLearnerInsights(learnerModel, activities, courses, lang);
+  const { range } = useAnalyticsDateRange();
+  const rangedActivities = useMemo(
+    () => filterActivitiesByRange(activities, range),
+    [activities, range],
+  );
+  const tips = adaptiveRecommendations(learnerModel, rangedActivities, repairs);
+  const profileInsights = buildLearnerInsights(learnerModel, rangedActivities, courses, lang);
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-soft-sep="stack">
       <AIInsightsPanel
         learnerModel={learnerModel}
-        activities={activities}
+        activities={rangedActivities}
         courses={courses}
       />
 
@@ -1079,13 +1096,17 @@ function ResearchTab({
   courses: Course[];
 }) {
   const { t } = useI18n();
-  const isMinimal = useMinimalTheme();
-  const events = readAllLearningEvents();
-  const metrics = computeResearchMetrics(learnerModel, activities, events);
+  const { range } = useAnalyticsDateRange();
+  const rangedActivities = useMemo(
+    () => filterActivitiesByRange(activities, range),
+    [activities, range],
+  );
+  const events = filterEventsByRange(readAllLearningEvents(), range);
+  const metrics = computeResearchMetrics(learnerModel, rangedActivities, events);
   const hasData = metrics.bktConcepts.length > 0 || metrics.sampleActivities >= 3;
 
   const handleExport = () => {
-    const manifest = buildResearchExport(learnerModel, activities, events, courses);
+    const manifest = buildResearchExport(learnerModel, rangedActivities, events, courses);
     downloadResearchExport(manifest);
   };
 
@@ -1117,22 +1138,14 @@ function ResearchTab({
   ];
 
   return (
-    <div className={cn(isMinimal ? 'hub-section-stack' : 'space-y-4')}>
-      <p className="type-body text-text-secondary">{t('analyticsResearchSubtitle')}</p>
+    <div className="hub-section-stack" data-soft-sep="stack">
+      <p className="type-body text-text-secondary" data-soft-card="off">{t('analyticsResearchSubtitle')}</p>
 
-      {isMinimal ? (
-        <HubSection data-testid="analytics-research-metrics">
-          {researchMetrics.map((m) => (
-            <MetricCard key={m.label} icon={m.icon} label={m.label} value={m.value} sub={m.sub} />
-          ))}
-        </HubSection>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="analytics-research-metrics">
-          {researchMetrics.map((m) => (
-            <MetricCard key={m.label} icon={m.icon} label={m.label} value={m.value} sub={m.sub} />
-          ))}
-        </div>
-      )}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="analytics-research-metrics">
+        {researchMetrics.map((m) => (
+          <MetricCard key={m.label} icon={m.icon} label={m.label} value={m.value} sub={m.sub} />
+        ))}
+      </div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="platform-panel-md">
         <h3 className="type-meta font-semibold flex items-center gap-2 mb-1">
@@ -1177,14 +1190,10 @@ function ResearchTab({
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
         <h3 className="type-meta font-semibold mb-2">{t('analyticsResearchExport')}</h3>
         <p className="type-caption text-text-tertiary mb-4">{t('analyticsResearchExportHint')}</p>
-        <button
-          type="button"
-          onClick={handleExport}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl type-meta font-medium bg-brand-600 hover:bg-brand-500 text-white transition-all"
-        >
+        <Button type="button" variant="primary" size="sm" onClick={handleExport}>
           <Download className="w-4 h-4" />
           {t('analyticsResearchExport')}
-        </button>
+        </Button>
       </motion.div>
     </div>
   );
@@ -1197,55 +1206,25 @@ function parseTrailingPct(value: string): number | undefined {
 }
 
 function MetricCard({ icon, label, value, sub }: { icon: React.ReactNode; label: string; value: string; sub: string }) {
-  const isMinimal = useMinimalTheme();
-  if (isMinimal) {
-    return (
-      <UtilityRow
-        icon={icon}
-        label={label}
-        value={value}
-        hint={sub}
-        barPct={parseTrailingPct(value)}
-      />
-    );
-  }
   return (
-    <div className="p-3 rounded-xl bg-surface-secondary/50">
-      <div className="flex items-center gap-2 mb-1.5">{icon}<span className="type-micro font-medium text-text-muted"><AllCapsLabel>{label}</AllCapsLabel></span></div>
-      <p className="ux-kpi-value-sm">{value}</p>
-      <p className="type-caption text-text-muted mt-0.5">{sub}</p>
-    </div>
+    <UtilityRow
+      icon={icon}
+      label={label}
+      value={value}
+      hint={sub}
+      barPct={parseTrailingPct(value)}
+    />
   );
 }
 
-function SkillBar({ concept, mastery, retention, count, color }: { concept: string; mastery: number; retention: number; count: number; color: string }) {
+function SkillBar({ concept, mastery, retention, count }: { concept: string; mastery: number; retention: number; count: number; color?: string }) {
   const { t } = useI18n();
-  const isMinimal = useMinimalTheme();
-  if (isMinimal) {
-    return (
-      <UtilityRow
-        label={concept}
-        value={`${mastery}%`}
-        barPct={mastery}
-        hint={`${t('analyticsSkillRetention')}: ${Math.round(retention * 100)}% · ${t('analyticsSkillPracticed')} ${count}×`}
-      />
-    );
-  }
-  const barColor = color === 'emerald' ? 'bg-accent-emerald' : color === 'rose' ? 'bg-accent-rose' : 'bg-accent-amber';
   return (
-    <div>
-      <div className="flex justify-between items-center mb-1">
-        <span className="type-meta font-medium">{concept}</span>
-        <span className={cn('type-caption font-medium', `text-accent-${color}`)}>{mastery}%</span>
-      </div>
-      {/* Wave P-2 C08 — SkillBar (research view) track uses --viz-bar-track. */}
-      <div className="w-full rounded-full h-2" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
-        <div className={cn('h-2 rounded-full transition-all', barColor)} style={{ width: `${Math.max(mastery, 3)}%` }} />
-      </div>
-      <div className="flex gap-3 mt-1 type-micro text-text-muted">
-        <span>{t('analyticsSkillRetention')}: {Math.round(retention * 100)}%</span>
-        <span>{t('analyticsSkillPracticed')} {count}×</span>
-      </div>
-    </div>
+    <UtilityRow
+      label={concept}
+      value={`${mastery}%`}
+      barPct={mastery}
+      hint={`${t('analyticsSkillRetention')}: ${Math.round(retention * 100)}% · ${t('analyticsSkillPracticed')} ${count}×`}
+    />
   );
 }

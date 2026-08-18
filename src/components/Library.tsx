@@ -439,18 +439,18 @@ export function Library({
                   onClick={() => setViewMode('grid')}
                   aria-label={t('libGridView', userLanguage)}
                   aria-pressed={viewMode === 'grid'}
-                  className={cn('inline-flex min-h-9 min-w-9 items-center justify-center rounded-md border-0', viewMode === 'grid' ? 'bg-surface-primary text-text-primary' : 'text-text-tertiary hover:text-text-secondary')}
+                  className={cn('inline-flex min-h-9 min-w-9 items-center justify-center rounded-md border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50', viewMode === 'grid' ? 'bg-surface-primary text-text-primary' : 'text-text-tertiary hover:text-text-secondary')}
                 >
-                  <Grid3X3 className="w-4 h-4" />
+                  <Grid3X3 className="w-4 h-4" aria-hidden />
                 </button>
                 <button
                   type="button"
                   onClick={() => setViewMode('list')}
                   aria-label={t('libListView', userLanguage)}
                   aria-pressed={viewMode === 'list'}
-                  className={cn('inline-flex min-h-9 min-w-9 items-center justify-center rounded-md border-0', viewMode === 'list' ? 'bg-surface-primary text-text-primary' : 'text-text-tertiary hover:text-text-secondary')}
+                  className={cn('inline-flex min-h-9 min-w-9 items-center justify-center rounded-md border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50', viewMode === 'list' ? 'bg-surface-primary text-text-primary' : 'text-text-tertiary hover:text-text-secondary')}
                 >
-                  <List className="w-4 h-4" />
+                  <List className="w-4 h-4" aria-hidden />
                 </button>
               </div>
             )}
@@ -577,7 +577,7 @@ export function Library({
                     className="inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-md text-text-muted hover:text-text-secondary"
                     aria-label={t('close', userLanguage)}
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <X className="w-3.5 h-3.5" aria-hidden />
                   </button>
                 </div>
               )}
@@ -871,7 +871,7 @@ export function Library({
                   onClick={() => setFolderDialog('create')}
                   data-testid="library-new-folder"
                 >
-                  <Folder className="w-3.5 h-3.5" />
+                  <Folder className="w-3.5 h-3.5" aria-hidden />
                   {t('libNewFolder', userLanguage)}
                 </Button>
               </div>
@@ -1114,7 +1114,7 @@ function CourseCard({
               className="pointer-events-auto inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border-0 p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-surface-secondary hover:text-text-secondary hover:opacity-100"
               aria-label={t('libRenameCourseAria', userLanguage)}
             >
-              <Pencil className="w-4 h-4" />
+              <Pencil className="w-4 h-4" aria-hidden />
             </button>
           )}
           {canDelete && !isGenerating && (
@@ -1125,7 +1125,7 @@ function CourseCard({
               className="pointer-events-auto inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border-0 p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-surface-secondary hover:text-text-secondary hover:opacity-100"
               aria-label={t('libDeleteCourseAria', userLanguage)}
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4" aria-hidden />
             </button>
           )}
           {isOldPipeline && !isGenerating && (
@@ -1133,7 +1133,7 @@ function CourseCard({
               className="flex items-center gap-1 px-2 py-1 rounded-md type-micro font-semibold border-0 bg-surface-secondary text-text-secondary"
               title={t('libOldPipelineHint', userLanguage)}
             >
-              <RefreshCw className="w-3 h-3" />
+              <RefreshCw className="w-3 h-3" aria-hidden />
               {t('libOldPipeline', userLanguage)}
             </div>
           )}
@@ -1173,26 +1173,26 @@ function CourseCard({
 
       <div className="flex flex-wrap items-center gap-2.5 type-caption text-text-tertiary mb-2">
         <span className="flex items-center gap-1">
-          <BookOpen className="w-3.5 h-3.5" />
+          <BookOpen className="w-3.5 h-3.5" aria-hidden />
           {course.totalLessons} {t('libLessons', userLanguage)}
         </span>
         <span className="flex items-center gap-1">
-          <Clock className="w-3.5 h-3.5" />
+          <Clock className="w-3.5 h-3.5" aria-hidden />
           {course.estimatedHours}h
         </span>
         <span className="flex items-center gap-1 tabular-nums">
-          <BarChart3 className="w-3.5 h-3.5" />
+          <BarChart3 className="w-3.5 h-3.5" aria-hidden />
           {course.mastery}%
         </span>
         {!isGenerating && pendingTasks > 0 && (
           <span className="flex items-center gap-1 text-text-secondary" title={t('libCardTasks', userLanguage)}>
-            <List className="w-3.5 h-3.5" />
+            <List className="w-3.5 h-3.5" aria-hidden />
             {pendingTasks}
           </span>
         )}
         {!isGenerating && dueReviews > 0 && (
           <span className="flex items-center gap-1 text-text-secondary" title={t('libCardReviews', userLanguage)}>
-            <Clock className="w-3.5 h-3.5" />
+            <Clock className="w-3.5 h-3.5" aria-hidden />
             {dueReviews}
           </span>
         )}
@@ -1239,7 +1239,7 @@ function CourseCard({
               }}
               data-testid={`library-notebook-shell-${course.id}`}
             >
-              <BookOpen className="w-3.5 h-3.5" />
+              <BookOpen className="w-3.5 h-3.5" aria-hidden />
               {t('libNotebookShellShort', userLanguage)}
             </Button>
           )}
@@ -1426,7 +1426,7 @@ function CourseListItem({
                 className="inline-flex items-center gap-1 rounded-md border-0 bg-surface-secondary px-1.5 py-0.5 type-caption font-medium text-text-secondary"
                 title={t('libOldPipelineHint', userLanguage)}
               >
-                <RefreshCw className="w-3 h-3" />
+                <RefreshCw className="w-3 h-3" aria-hidden />
                 {t('libOldPipeline', userLanguage)}
               </span>
             )}
@@ -1457,7 +1457,7 @@ function CourseListItem({
           <span className="type-meta font-medium w-12 text-right text-text-primary">{course.mastery}%</span>
         </div>
         <span className="sm:hidden type-caption tabular-nums text-text-secondary shrink-0">{course.mastery}%</span>
-        <ChevronRight className="w-4 h-4 shrink-0 text-text-secondary" />
+        <ChevronRight className="w-4 h-4 shrink-0 text-text-secondary" aria-hidden />
       </button>
       {onOpenNotebookShell && (
         <Button
@@ -1469,7 +1469,7 @@ function CourseListItem({
           aria-label={t('libNotebookShellShort', userLanguage)}
           className="min-w-9 px-2"
         >
-          <BookOpen className="w-3.5 h-3.5" />
+          <BookOpen className="w-3.5 h-3.5" aria-hidden />
           <span className="hidden sm:inline">{t('libNotebookShellShort', userLanguage)}</span>
         </Button>
       )}
@@ -1781,7 +1781,7 @@ function FileItem({
               title={t('libRenameFileTooltip', userLanguage)}
               aria-label={t('libRenameFileTooltip', userLanguage)}
             >
-              <Pencil className="w-4 h-4" />
+              <Pencil className="w-4 h-4" aria-hidden />
             </button>
           )}
           {canOrganize && onMoveFile && (
@@ -1804,7 +1804,7 @@ function FileItem({
               className="inline-flex min-h-9 min-w-9 items-center justify-center p-1.5 rounded-lg border-0 bg-surface-secondary text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
               title={t('libRemoveFileTooltip', userLanguage)}
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-4 h-4" aria-hidden />
             </button>
           )}
           {canExpand && (

@@ -81,7 +81,7 @@ export function LeitnerDueQueuePanel({
                 data-testid="leitner-due-queue-item"
                 onClick={() => onSelect?.(item.concept)}
                 className={cn(
-                  'w-full text-left rounded-lg transition-colors hover:bg-surface-secondary/70',
+                  'w-full text-left rounded-lg transition-colors hover:bg-surface-secondary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
                   isCard ? 'px-2 py-1.5' : 'px-1.5 py-1',
                   item.overdue && 'bg-surface-secondary/40',
                 )}

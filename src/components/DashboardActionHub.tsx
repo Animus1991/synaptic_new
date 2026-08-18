@@ -54,6 +54,8 @@ interface Props {
   wallpaperDataUrl?: string;
   onWallpaperChange?: (dataUrl: string | undefined) => void;
   workspaceLive?: WorkspaceLiveSync | null;
+  /** Hide the generic workspace strip when Dashboard already has a stronger next action. */
+  showDefaultStudyCenter?: boolean;
   lang?: Lang;
   onUpload?: () => void;
   onStartSession?: (session: SessionType) => void;
@@ -79,6 +81,8 @@ interface Props {
   promptsSlot?: ReactNode;
   /** Optional count badge on the Study prompts tab. */
   promptsMeta?: number;
+  /** Primary dashboard prompt between greeting and page-level actions. */
+  headerAside?: ReactNode;
   /** Flush to shell top — no side/top gap under demo banner. */
   flushTop?: boolean;
 }
@@ -97,6 +101,7 @@ export function DashboardActionHub({
   wallpaperDataUrl,
   onWallpaperChange,
   workspaceLive = null,
+  showDefaultStudyCenter = true,
   lang = 'en',
   onUpload,
   onStartSession,
@@ -111,6 +116,7 @@ export function DashboardActionHub({
   alertsMeta,
   promptsSlot,
   promptsMeta,
+  headerAside,
   flushTop = false,
 }: Props) {
   const { t } = useI18n();
@@ -173,8 +179,8 @@ export function DashboardActionHub({
   /* OPT-K72 — Minimal: flat overlay (no Aero/blur); other themes keep soft glass */
   const glassCard = onHero
     ? hubQuiet
-      ? 'bg-surface-card/90 border-white/10'
-      : 'bg-surface-card/82 backdrop-blur-md border-white/10'
+      ? 'bg-surface-card/90 border-border-subtle/40'
+      : 'bg-surface-card/82 backdrop-blur-md border-border-subtle/40'
     : undefined;
   const heroText = onHero ? 'text-white' : undefined;
 
@@ -236,24 +242,31 @@ export function DashboardActionHub({
         }
       >
         {/* Wave H2 — hero budget: greeting · Continue · nest stats/tools */}
-        <div className={cn('space-y-2.5 px-3 py-3 sm:px-4', heroText)}>
-          {(greetingTitle || headerActions) && (
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className={cn('space-y-1.5 py-1.5', heroText)}>
+          {(greetingTitle || headerAside || headerActions) && (
+            <div className="dashboard-hero-heading-row flex flex-col gap-2">
               <div className="min-w-0" id="dashboard-hero-greeting">
                 {greetingEyebrow && (
                   <p className="ws-eyebrow mb-1 type-micro font-semibold text-text-secondary">{greetingEyebrow}</p>
                 )}
                 {greetingTitle && (
-                  <h1 className="ws-serif font-semibold tracking-tight text-[length:var(--ux-type-hero)] leading-tight">
+                  <h1 className="font-semibold tracking-tight text-[length:var(--ux-type-hero)] leading-tight">
                     {greetingTitle}
                   </h1>
                 )}
                 {greetingSubtitle && (
-                  <div className="ux-page-subtitle mt-1 type-body line-clamp-2 sm:line-clamp-none">{greetingSubtitle}</div>
+                  <div className="ux-page-subtitle mt-1 type-meta line-clamp-2 sm:line-clamp-none">{greetingSubtitle}</div>
                 )}
               </div>
+              {headerAside && (
+                <div className="dashboard-hero-heading-aside min-w-0">
+                  {headerAside}
+                </div>
+              )}
               {headerActions && (
-                <div className="flex shrink-0 flex-wrap items-center gap-2">{headerActions}</div>
+                <div className="dashboard-hero-heading-actions flex shrink-0 flex-wrap items-center gap-2">
+                  {headerActions}
+                </div>
               )}
             </div>
           )}
@@ -280,41 +293,38 @@ export function DashboardActionHub({
               >
                 <DashboardLivePreview live={workspaceLive} lang={lang} onOpenWorkspace={onOpenWorkspace} compact />
               </div>
-            ) : (
+            ) : showDefaultStudyCenter ? (
               <div
                 className={cn(
                   /* OPT-K110 — bare study strip (spacing only; no wash cage) */
-                  'flex w-full max-w-none flex-col gap-2 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3',
+                  'dashboard-study-band flex w-full flex-row items-center justify-start gap-3 px-3 py-2',
                   glassCard,
                 )}
                 data-testid="dashboard-hero-study-center"
                 data-bleed="full"
               >
-                <div className="min-w-0 flex-1 px-0.5">
-                  <p className={cn('type-micro font-semibold', onHero ? 'text-white/80' : 'text-text-secondary')}>
-                    {t('dashboardLivePreviewEyebrow')}
-                  </p>
-                  <p className={cn('mt-0.5 type-meta font-medium', onHero ? 'text-white' : 'text-text-primary')}>
+                <div className="min-w-0 max-w-xl px-0.5">
+                  <p className={cn('type-meta font-medium', onHero ? 'text-white' : 'text-text-primary')}>
                     {t('dashboardHeroHubSideTitle')}
                   </p>
-                  <p className={cn('mt-0.5 type-caption leading-relaxed', onHero ? 'text-white/75' : 'text-text-secondary')}>
+                  <p className={cn('mt-0.5 type-caption', onHero ? 'text-white/75' : 'text-text-secondary')}>
                     {t('dashboardHeroHubSideBody')}
                   </p>
                 </div>
                 {onOpenWorkspace && (
                   <PrimaryCTA
                     type="button"
-                    size="md"
+                    size="sm"
                     onClick={onOpenWorkspace}
                     data-testid="dashboard-resume-workspace"
-                    className="dashboard-continue-hero ws-touch-floor min-h-10 shrink-0 self-start rounded-lg px-4 sm:self-center"
+                    className="dashboard-continue-hero ws-touch-floor min-h-8 shrink-0 rounded-lg px-3"
                   >
                     {t('dashboardResumeContinue')}
                     <ArrowRight className="h-3.5 w-3.5" aria-hidden />
                   </PrimaryCTA>
                 )}
               </div>
-            )}
+            ) : null}
 
             {/* OPT-K112 — Today | Quick tools | Study prompts | Alerts (frameless underline tabs). */}
             <div
