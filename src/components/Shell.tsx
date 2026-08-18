@@ -28,6 +28,7 @@ import { OfflineShellBanner } from './OfflineShellBanner';
 import { DemoSandboxBanner } from './DemoSandboxBanner';
 import { HeaderAccountAuth } from './HeaderAccountAuth';
 import { HeaderLangPill, HeaderTrustBadgeRow, SynapseBrandGlyph } from './ui/platformChrome';
+import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import type { Lang } from '../lib/i18n';
 import {
   commandPaletteBadge,
@@ -38,11 +39,10 @@ import {
 import { quickAccessActions, type GlobalQuickActionId } from '../lib/globalActionRegistry';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
 import { loadShellRailCollapsed, persistShellRailCollapsed } from '../lib/shellRailCollapsed';
-import { groupShellNavEntries, type ShellNavGroupId } from '../lib/shellNavGroups';
-import { asAllCapsLabel } from '../lib/greekTypography';
-import { AllCapsLabel } from './ui/AllCapsLabel';
+import { groupShellNavEntries, shouldShowShellNavGroupLabel, type ShellNavGroupId } from '../lib/shellNavGroups';
 import { useMotionInitial, useMotionTransition } from '../lib/motionPrefs';
 import { useFocusStudy } from '../lib/focusStudy';
+import { isFocusStudyView } from '../lib/focusStudyPages';
 
 interface ShellProps {
   children: ReactNode;
@@ -189,28 +189,31 @@ export function Shell({
   const chromeMoreRef = useRef<HTMLDivElement>(null);
   /** OPT-K104/K105 — Focus study: hide secondary topbar chrome (still in ⋯). */
   const { focusStudy, setFocusStudy, toggleFocusStudy } = useFocusStudy();
+  const focusEligible = isFocusStudyView(currentView, Boolean(studyWorkspaceOpen));
+  const focusApplies = focusStudy && focusEligible;
   const focusChipInitial = useMotionInitial({ opacity: 0, y: -12 });
   const focusChipTransition = useMotionTransition({ duration: 0.18 });
 
-  /** OPT-K105 — Alt+F toggles Focus study; Esc exits when no aria-modal is open. */
+  /** OPT-K105 — Alt+F toggles Focus study on study pages; Esc exits when no aria-modal is open. */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (isTypingTarget(e.target)) return;
       if (resolveShellFocusStudyShortcut(e) === 'toggle-focus-study') {
+        if (!isFocusStudyView(currentView, Boolean(studyWorkspaceOpen))) return;
         e.preventDefault();
         toggleFocusStudy();
         return;
       }
-      if (e.key === 'Escape' && focusStudy && !isAriaModalOpen()) {
+      if (e.key === 'Escape' && focusStudy && focusEligible && !isAriaModalOpen()) {
         e.preventDefault();
         setFocusStudy(false);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [focusStudy, toggleFocusStudy, setFocusStudy]);
+  }, [focusStudy, focusEligible, currentView, studyWorkspaceOpen, toggleFocusStudy, setFocusStudy]);
 
-  const iconRail = railCollapsed;
+  const iconRail = railCollapsed || focusApplies;
   const toggleRailCollapsed = useCallback(() => {
     setRailCollapsed((prev) => {
       const next = !prev;
@@ -242,7 +245,7 @@ export function Shell({
           : id === 'account'
             ? shellUx.navGroupAccount
             : shellUx.navGroupStudy;
-    return asAllCapsLabel(raw);
+    return raw;
   };
   const mobileNavItems = buildMobileBarItems(
     navViews,
@@ -250,6 +253,12 @@ export function Shell({
     mobileOverflowNav(navViews).length > 0,
   );
   const quickActions = quickAccessActions(hasCourses);
+  const profileLevelLabel = t('shellProfileLevel')
+    .replace('{level}', String(user.level))
+    .replace('{xp}', String(user.xp));
+  const profileAria = t('shellProfileAria')
+    .replace('{name}', user.name)
+    .replace('{level}', String(user.level));
   const mobileDrawerRef = useRef<HTMLDivElement>(null);
   const mobileMoreRef = useRef<HTMLButtonElement>(null);
   const mobileMenuRef = useRef<HTMLButtonElement>(null);
@@ -306,7 +315,7 @@ export function Shell({
   return (
     <div
       className="app-shell min-h-screen bg-surface-primary flex relative overflow-x-hidden"
-      data-focus-study={focusStudy ? 'true' : undefined}
+      data-focus-study={focusApplies ? 'true' : undefined}
     >
       <div className="platform-blueprint-orbs" aria-hidden="true">
         <div className="platform-blueprint-orb platform-blueprint-orb-cyan" />
@@ -315,7 +324,7 @@ export function Shell({
       <PlatformSkipLinks />
       {/* OPT-K105 — Canon-style Focus study floating exit chip */}
       <AnimatePresence>
-        {focusStudy && (
+        {focusApplies && (
           <motion.div
             initial={focusChipInitial}
             animate={{ opacity: 1, y: 0 }}
@@ -363,7 +372,7 @@ export function Shell({
             <div className="w-8 h-8 rounded-lg platform-brand-icon flex items-center justify-center shrink-0" title="Synapse">
               <SynapseBrandGlyph />
             </div>
-            {!iconRail && <span className="min-w-0 flex-1 truncate text-lg font-bold ws-serif">Synapse</span>}
+            {!iconRail && <span className="min-w-0 flex-1 truncate type-title font-bold ws-serif">Synapse</span>}
           </div>
           {/*
             OPT-K107 — full-width rail toggle under brand (always in viewport).
@@ -384,7 +393,7 @@ export function Shell({
             </button>
           )}
           {/* OPT-K13 — expand control near brand when compact. */}
-          {iconRail && (
+          {iconRail && !focusApplies && (
             <button
               type="button"
               onClick={toggleRailCollapsed}
@@ -400,7 +409,7 @@ export function Shell({
         </div>
 
         <nav className={cn('min-h-0 flex-1 space-y-1 overflow-y-auto', iconRail ? 'p-1.5' : 'p-3')}>
-          {onTakeBreath && (
+          {onTakeBreath && !focusApplies && (
             <button
               type="button"
               onClick={onTakeBreath}
@@ -409,13 +418,13 @@ export function Shell({
               aria-label={t('wellnessTakeBreath')}
               className={cn(shellNavClass(false, quietNav, iconRail), 'mb-1')}
             >
-              <Wind className="w-5 h-5 shrink-0" />
+              <Wind className="w-5 h-5 shrink-0" aria-hidden />
               <span className={cn(iconRail ? 'sr-only' : 'flex-1 text-left truncate')}>{t('wellnessTakeBreath')}</span>
             </button>
           )}
           {navGroups.map((group) => (
             <div key={group.id} className="shell-nav-group" data-nav-group={group.id}>
-              {showNavGroupLabels && (
+              {showNavGroupLabels && shouldShowShellNavGroupLabel(group) && (
                 <p className="shell-nav-group-label" aria-hidden>
                   {navGroupLabel(group.id)}
                 </p>
@@ -442,7 +451,7 @@ export function Shell({
                       {currentView === item.view && !studyWorkspaceOpen && (
                         <NavActiveIndicator quiet={quietNav} />
                       )}
-                      <NavIcon className="w-5 h-5 shrink-0 relative z-[1]" />
+                      <NavIcon className="w-5 h-5 shrink-0 relative z-[1]" aria-hidden />
                       <span className={cn(iconRail ? 'sr-only' : 'flex-1 text-left min-w-0 relative z-[1]')}>
                         <span className="block truncate">{label}</span>
                         {subtitle && !quietNav && !iconRail && (
@@ -477,7 +486,7 @@ export function Shell({
                         aria-label={`${t('navStudyWorkspace')} — ${t('navSubtitleWorkspace')}`}
                         className={cn(shellNavClass(studyWorkspaceOpen, quietNav, iconRail), 'mt-1')}
                       >
-                        <Layout className="w-5 h-5 shrink-0" />
+                        <Layout className="w-5 h-5 shrink-0" aria-hidden />
                         <span className={cn(iconRail ? 'sr-only' : 'flex-1 text-left min-w-0')}>
                           <span className="block truncate">{t('navStudyWorkspace')}</span>
                           {!quietNav && !iconRail && (
@@ -502,35 +511,64 @@ export function Shell({
               })}
             </div>
           ))}
-          {onQuickAccess && quickActions.length > 0 && (
-            <>
-              {!iconRail && (
-                <div className="pt-4 pb-2">
-                  <p className="type-micro font-semibold text-text-tertiary uppercase tracking-wider px-2">
-                    <AllCapsLabel>{shellUx.quickAccessTitle}</AllCapsLabel>
-                  </p>
-                </div>
-              )}
-              {quickActions.map((action) => {
-                const visual = QUICK_ACCESS_ICONS[action.id];
-                const actionLabel = t(action.labelKey);
-                return (
-                <button
-                  key={action.id}
-                  type="button"
-                  data-testid={`quick-access-${action.id}`}
-                  onClick={() => onQuickAccess(action.id)}
-                  title={actionLabel}
-                  aria-label={actionLabel}
-                  className={cn(shellNavClass(false, quietNav, iconRail), 'py-2')}
-                >
-                  <span className={cn('ux-quick-icon', quietNav ? 'bg-surface-secondary' : visual.washClass)}>
-                    <visual.icon className={cn('w-3 h-3', quietNav ? 'text-text-secondary' : visual.inkClass)} />
-                  </span>
-                  <span className={cn(iconRail ? 'sr-only' : 'type-caption truncate')}>{actionLabel}</span>
-                </button>
-              );})}
-            </>
+          {onQuickAccess && quickActions.length > 0 && !focusApplies && (
+            iconRail ? (
+              <>
+                {quickActions.map((action) => {
+                  const visual = QUICK_ACCESS_ICONS[action.id];
+                  const actionLabel = t(action.labelKey);
+                  return (
+                  <button
+                    key={action.id}
+                    type="button"
+                    data-testid={`quick-access-${action.id}`}
+                    onClick={() => onQuickAccess(action.id)}
+                    title={actionLabel}
+                    aria-label={actionLabel}
+                    className={cn(
+                      shellNavClass(action.id === 'exam' && currentView === 'exam-prep', quietNav, iconRail),
+                      'py-2',
+                    )}
+                  >
+                    <span className="ux-quick-icon bg-surface-secondary">
+                      <visual.icon className="w-3 h-3 text-text-secondary" aria-hidden />
+                    </span>
+                    <span className="sr-only">{actionLabel}</span>
+                  </button>
+                );})}
+              </>
+            ) : (
+              <CollapsibleChromeSection
+                title={shellUx.quickAccessTitle}
+                alwaysCollapse
+                meta={quickActions.length}
+                data-testid="nav-quick-access-chrome"
+                className="pt-2"
+              >
+                {quickActions.map((action) => {
+                  const visual = QUICK_ACCESS_ICONS[action.id];
+                  const actionLabel = t(action.labelKey);
+                  return (
+                  <button
+                    key={action.id}
+                    type="button"
+                    data-testid={`quick-access-${action.id}`}
+                    onClick={() => onQuickAccess(action.id)}
+                    title={actionLabel}
+                    aria-label={actionLabel}
+                    className={cn(
+                      shellNavClass(action.id === 'exam' && currentView === 'exam-prep', quietNav, iconRail),
+                      'py-2',
+                    )}
+                  >
+                    <span className="ux-quick-icon bg-surface-secondary">
+                      <visual.icon className="w-3 h-3 text-text-secondary" aria-hidden />
+                    </span>
+                    <span className="type-caption truncate">{actionLabel}</span>
+                  </button>
+                );})}
+              </CollapsibleChromeSection>
+            )
           )}
           {activeCourse && onContinueCourse && (
             iconRail ? (
@@ -542,7 +580,7 @@ export function Shell({
                 aria-label={`${activeCourse.title} — ${shellUx.continueCourse}`}
                 className={cn(shellNavClass(false, quietNav, true), 'mt-2')}
               >
-                <BookOpen className="w-5 h-5 shrink-0 text-text-secondary" />
+                <BookOpen className="w-5 h-5 shrink-0 text-text-secondary" aria-hidden />
                 <span className="sr-only">{activeCourse.title}</span>
               </button>
             ) : (
@@ -554,7 +592,7 @@ export function Shell({
                 <p className="type-caption font-medium text-text-primary leading-tight truncate">{activeCourse.title}</p>
               </div>
               <div className="flex items-center gap-2 type-caption text-text-tertiary mb-1.5">
-                <Clock className="w-3 h-3" />
+                <Clock className="w-3 h-3" aria-hidden />
                 <span>
                   {activeCourse.daysToExam === null
                     ? shellUx.noExamDate
@@ -574,7 +612,7 @@ export function Shell({
                   className="type-caption text-text-secondary hover:text-text-primary flex items-center gap-1"
                 >
                   {shellUx.continueCourse}
-                  <ChevronRight className="w-3 h-3" />
+                  <ChevronRight className="w-3 h-3" aria-hidden />
                 </button>
               </div>
             </div>
@@ -598,7 +636,7 @@ export function Shell({
               iconRail ? 'justify-center px-2 py-2.5' : 'gap-2 px-4 py-3',
             )}
           >
-            <Upload className="w-4 h-4 shrink-0" />
+            <Upload className="w-4 h-4 shrink-0" aria-hidden />
             <span className={iconRail ? 'sr-only' : undefined}>{t('uploadMaterial')}</span>
           </button>
         </div>
@@ -608,8 +646,8 @@ export function Shell({
             type="button"
             onClick={() => onNavigate('settings')}
             data-testid="nav-profile-settings"
-            title={`${user.name} · Level ${user.level}`}
-            aria-label={`${user.name} · Level ${user.level}`}
+            title={profileAria}
+            aria-label={profileAria}
             className={cn(
               'w-full flex items-center rounded-lg hover:bg-surface-hover transition-colors',
               iconRail ? 'justify-center p-1.5' : 'gap-3 px-2 text-left',
@@ -621,7 +659,7 @@ export function Shell({
             {!iconRail && (
               <div className="flex-1 min-w-0">
                 <p className="type-meta font-medium truncate">{user.name}</p>
-                <p className="type-caption text-text-tertiary">Level {user.level} · {user.xp} XP</p>
+                <p className="type-caption text-text-tertiary">{profileLevelLabel}</p>
               </div>
             )}
           </button>
@@ -645,15 +683,15 @@ export function Shell({
                 <div className="w-8 h-8 rounded-lg platform-brand-icon flex items-center justify-center">
                   <SynapseBrandGlyph />
                 </div>
-                <span className="text-lg font-bold ws-serif">Synapse</span>
+                <span className="type-title font-bold ws-serif">Synapse</span>
               </div>
               <button
                 type="button"
                 onClick={() => onToggleSidebar(false)}
                 aria-label={t('close')}
-                className="p-2.5 min-w-10 min-h-10 rounded-lg hover:bg-surface-hover inline-flex items-center justify-center"
+                className="p-2.5 min-w-10 min-h-10 rounded-lg hover:bg-surface-hover inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               >
-                <X className="w-5 h-5 text-text-secondary" />
+                <X className="w-5 h-5 text-text-secondary" aria-hidden />
               </button>
             </div>
 
@@ -665,7 +703,7 @@ export function Shell({
                   data-testid="nav-mobile-take-breath"
                   className={cn(shellNavClass(false, quietNav), 'mb-1')}
                 >
-                  <Wind className="w-5 h-5" />
+                  <Wind className="w-5 h-5" aria-hidden />
                   {t('wellnessTakeBreath')}
                 </button>
               )}
@@ -681,7 +719,7 @@ export function Shell({
                   title={subtitle ? `${label} — ${subtitle}` : label}
                   className={shellNavClass(currentView === item.view && !studyWorkspaceOpen, quietNav)}
                 >
-                  <NavIcon className="w-5 h-5" />
+                  <NavIcon className="w-5 h-5" aria-hidden />
                   <span className="flex-1 min-w-0 text-left">
                     <span className="block truncate">{label}</span>
                     {subtitle && !quietNav && (
@@ -700,14 +738,89 @@ export function Shell({
                   )}
                 </button>
               );})}
+              {onQuickAccess && quickActions.length > 0 && !focusApplies && (
+                <div className="pt-3" data-testid="nav-mobile-quick-access">
+                  <CollapsibleChromeSection
+                    title={shellUx.quickAccessTitle}
+                    alwaysCollapse
+                    meta={quickActions.length}
+                    data-testid="nav-mobile-quick-access-chrome"
+                  >
+                  {quickActions.map((action) => {
+                    const visual = QUICK_ACCESS_ICONS[action.id];
+                    const actionLabel = t(action.labelKey);
+                    return (
+                      <button
+                        key={action.id}
+                        type="button"
+                        data-testid={`quick-access-mobile-${action.id}`}
+                        onClick={() => {
+                          onQuickAccess(action.id);
+                          onToggleSidebar(false);
+                        }}
+                        title={actionLabel}
+                        aria-label={actionLabel}
+                        className={cn(
+                          shellNavClass(action.id === 'exam' && currentView === 'exam-prep', quietNav),
+                          'py-2',
+                        )}
+                      >
+                        <span className="ux-quick-icon bg-surface-secondary">
+                          <visual.icon className="w-3 h-3 text-text-secondary" aria-hidden />
+                        </span>
+                        <span className="type-caption truncate">{actionLabel}</span>
+                      </button>
+                    );
+                  })}
+                  </CollapsibleChromeSection>
+                </div>
+              )}
+              {activeCourse && onContinueCourse && (
+                <div className="mt-3 mx-1 p-3 rounded-xl bg-surface-secondary/55" data-testid="active-course-card-mobile">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-5 h-5 rounded-md bg-surface-secondary flex items-center justify-center shrink-0">
+                      <BookOpen className="w-3 h-3 text-text-secondary" aria-hidden />
+                    </div>
+                    <p className="type-caption font-medium text-text-primary leading-tight truncate">{activeCourse.title}</p>
+                  </div>
+                  <div className="flex items-center gap-2 type-caption text-text-tertiary mb-1.5">
+                    <Clock className="w-3 h-3" aria-hidden />
+                    <span>
+                      {activeCourse.daysToExam === null
+                        ? shellUx.noExamDate
+                        : activeCourse.daysToExam === 0
+                          ? shellUx.examToday
+                          : shellUx.daysToExam(activeCourse.daysToExam)}
+                    </span>
+                  </div>
+                  <div className="ux-progress-track">
+                    <div className="ux-progress-fill" style={{ width: `${Math.min(100, activeCourse.mastery)}%` }} />
+                  </div>
+                  <div className="flex items-center justify-between mt-1.5">
+                    <span className="type-caption text-text-tertiary">{shellUx.percentComplete(Math.round(activeCourse.mastery))}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onContinueCourse();
+                        onToggleSidebar(false);
+                      }}
+                      className="type-caption text-text-secondary hover:text-text-primary flex items-center gap-1"
+                    >
+                      {shellUx.continueCourse}
+                      <ChevronRight className="w-3 h-3" aria-hidden />
+                    </button>
+                  </div>
+                </div>
+              )}
             </nav>
 
             <div className="p-3 border-t border-transparent">
               <button
+                type="button"
                 onClick={() => { onUpload(); onToggleSidebar(false); }}
                 className="w-full flex items-center gap-2 px-4 py-3 rounded-xl ws-fab font-medium type-meta"
               >
-                <Upload className="w-4 h-4" />
+                <Upload className="w-4 h-4" aria-hidden />
                 {t('uploadMaterial')}
               </button>
             </div>
@@ -744,12 +857,13 @@ export function Shell({
           >
             <div className="flex items-center gap-2 min-w-0">
               <button
+                type="button"
                 onClick={() => onToggleSidebar(true)}
                 ref={mobileMenuRef}
-                className="lg:hidden p-1.5 rounded-lg hover:bg-surface-hover shrink-0"
+                className="lg:hidden p-1.5 rounded-lg hover:bg-surface-hover shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                 aria-label={t('openMenu')}
               >
-                <Menu className="w-4 h-4 text-text-secondary" />
+                <Menu className="w-4 h-4 text-text-secondary" aria-hidden />
               </button>
               <div className="hidden sm:flex items-center gap-1.5 type-caption text-text-tertiary min-w-0" aria-current="page">
                 {breadcrumb?.course ? (
@@ -779,7 +893,7 @@ export function Shell({
               <div
                 className={cn(
                   'items-center gap-0.5',
-                  focusStudy ? 'hidden' : 'hidden md:flex',
+                  focusApplies ? 'hidden' : 'hidden md:flex',
                 )}
                 data-testid="shell-utility-icons"
               >
@@ -796,7 +910,7 @@ export function Shell({
                   aria-label={t('analytics')}
                   title={t('analytics')}
                 >
-                  <BarChart3 className="w-4 h-4" />
+                  <BarChart3 className="w-4 h-4" aria-hidden />
                 </button>
                 <button
                   type="button"
@@ -811,17 +925,18 @@ export function Shell({
                   aria-label={t('tasks')}
                   title={t('tasks')}
                 >
-                  <CalendarBlank className="w-4 h-4" />
+                  <CalendarBlank className="w-4 h-4" aria-hidden />
                 </button>
               </div>
 
-              {onLanguageChange && !focusStudy && (
+              {onLanguageChange && !focusApplies && (
                 <HeaderLangPill
                   lang={activeLang}
                   onChange={onLanguageChange}
                   className="hidden lg:inline-flex h-8 origin-right"
                 />
               )}
+              {focusEligible && (
               <button
                 type="button"
                 onClick={toggleFocusStudy}
@@ -841,7 +956,8 @@ export function Shell({
                   {focusStudy ? t('wsFocusStudyOn') : t('wsFocusStudy')}
                 </span>
               </button>
-              {onTakeBreath && (
+              )}
+              {onTakeBreath && !focusApplies && (
                 <button
                   type="button"
                   onClick={onTakeBreath}
@@ -850,7 +966,7 @@ export function Shell({
                   aria-label={t('wellnessTakeBreath')}
                   title={t('wellnessBreathTitle')}
                 >
-                  <Wind className="w-4 h-4" />
+                  <Wind className="w-4 h-4" aria-hidden />
                 </button>
               )}
               <button
@@ -873,17 +989,18 @@ export function Shell({
               </button>
 
               <button
+                type="button"
                 onClick={onOpenNotifications}
                 data-testid="shell-notifications-bell"
                 data-unread-count={notificationCount > 0 ? String(notificationCount) : '0'}
-                className="relative inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-surface-hover transition-colors"
+                className="relative inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-surface-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                 aria-label={
                   notificationCount > 0
                     ? `${t('notifications')} (${notificationCount})`
                     : t('notifications')
                 }
               >
-                <Bell className="w-4 h-4 text-text-secondary" />
+                <Bell className="w-4 h-4 text-text-secondary" aria-hidden />
                 {notificationCount > 0 && (
                   <span
                     className="absolute top-1 right-1 min-w-[7px] h-1.5 px-0.5 bg-accent-rose rounded-full"
@@ -909,8 +1026,9 @@ export function Shell({
                             : 'switchDark';
                 return (
                   <button
+                    type="button"
                     onClick={onToggleTheme}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-surface-hover transition-colors"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-surface-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                     title={t(labelKey)}
                     aria-label={t(labelKey)}
                   >
@@ -948,7 +1066,7 @@ export function Shell({
                         : 'bg-brand-700 text-white hover:bg-brand-800',
                   )}
                 >
-                  <Play className="w-3.5 h-3.5 shrink-0" weight="fill" />
+                  <Play className="w-3.5 h-3.5 shrink-0" weight="fill" aria-hidden />
                   {t('startSession')}
                 </button>
               )}
@@ -962,7 +1080,7 @@ export function Shell({
               )}
 
               {/* OPT-K10/K104 — overflow: study space + utilities + trust (reachable when Focus study) */}
-              {(quietNav || focusStudy) && (
+              {(quietNav || focusApplies) && (
                 <div className="relative hidden md:block" ref={chromeMoreRef}>
                   <button
                     type="button"
@@ -998,7 +1116,7 @@ export function Shell({
                           {t('navStudyWorkspace')}
                         </button>
                       )}
-                      {focusStudy && (
+                      {focusApplies && (
                         <>
                           <button
                             type="button"
@@ -1031,8 +1149,8 @@ export function Shell({
                         className="border-t border-border-subtle px-3 py-2"
                         data-testid="shell-chrome-status"
                       >
-                        <p className="mb-1.5 type-micro font-semibold uppercase tracking-wide text-text-muted">
-                          <AllCapsLabel>{t('chromeMoreStatus')}</AllCapsLabel>
+                        <p className="mb-1.5 type-micro font-semibold text-text-muted">
+                          {t('chromeMoreStatus')}
                         </p>
                         <HeaderTrustBadgeRow lang={activeLang} className="flex flex-col items-start gap-1.5" />
                       </div>
@@ -1041,7 +1159,7 @@ export function Shell({
                 </div>
               )}
 
-              {!quietNav && !focusStudy && onOpenWorkspace && (
+              {!quietNav && !focusApplies && onOpenWorkspace && (
                 <button
                   type="button"
                   onClick={onOpenWorkspace}
@@ -1050,7 +1168,7 @@ export function Shell({
                   {...workspaceEntryPrefetchHandlers()}
                   className="hidden md:inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg border border-transparent bg-surface-secondary/70 type-caption font-medium leading-none text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors whitespace-nowrap"
                 >
-                  <Layout className="w-3.5 h-3.5 shrink-0" />
+                  <Layout className="w-3.5 h-3.5 shrink-0" aria-hidden />
                   {t('navStudyWorkspace')}
                 </button>
               )}
@@ -1066,10 +1184,10 @@ export function Shell({
                 </div>
                 <div className="hidden sm:flex items-center gap-0.5">
                   <span className="type-caption font-medium text-accent-amber inline-flex items-center gap-0.5">
-                    <Flame className="w-3 h-3" weight="fill" />
+                    <Flame className="w-3 h-3" weight="fill" aria-hidden />
                     {stats.streak}
                   </span>
-                  <ChevronRight className="w-3 h-3 text-text-tertiary" />
+                  <ChevronRight className="w-3 h-3 text-text-tertiary" aria-hidden />
                 </div>
               </button>
             </div>
@@ -1141,7 +1259,7 @@ export function Shell({
                   )}
                   title={item.kind === 'workspace' ? `${label} — ${workspaceHint}` : label}
                 >
-                  <Icon className="w-5 h-5 shrink-0" />
+                  <Icon className="w-5 h-5 shrink-0" aria-hidden />
                   <span className="type-micro font-medium w-full text-center leading-tight truncate">
                     {label}
                   </span>
