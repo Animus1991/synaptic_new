@@ -63,13 +63,13 @@ export function PrerequisiteRepairView({
     <div className="fixed inset-0 z-50 bg-surface-primary flex flex-col">
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-border-subtle bg-surface-secondary/50">
         <div className="flex items-center gap-3">
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-hover">
-            <X className="w-5 h-5 text-text-secondary" />
+          <button type="button" onClick={onClose} aria-label="Close prerequisite repair" className="p-1.5 rounded-lg hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50">
+            <X className="w-5 h-5 text-text-secondary" aria-hidden />
           </button>
           <div>
             <p className="type-meta font-semibold">{sessionTitle}</p>
             <p className="type-caption text-text-tertiary flex items-center gap-1">
-              <ArrowDownRight className="w-3 h-3 text-accent-amber" />
+              <ArrowDownRight className="w-3 h-3 text-accent-amber" aria-hidden />
               {courseName ?? 'Prerequisite repair'}
               {targetConcept ? ` · before ${targetConcept}` : ''}
             </p>
@@ -77,16 +77,25 @@ export function PrerequisiteRepairView({
         </div>
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={onOpenAgent}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg type-caption font-medium border border-border-subtle hover:border-brand-500/30 transition-all"
+            aria-label="Ask Agent"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg type-caption font-medium border border-border-subtle hover:border-brand-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 transition-all"
           >
-            <Sparkles className="w-3.5 h-3.5 text-text-secondary" /> Ask Agent
+            <Sparkles className="w-3.5 h-3.5 text-text-secondary" aria-hidden /> Ask Agent
           </button>
           <span className="type-caption text-accent-amber font-medium">+{xpReward} XP</span>
         </div>
       </div>
 
-      <div className="h-1 bg-surface-hover">
+      <div
+        className="h-1 bg-surface-hover"
+        role="progressbar"
+        aria-valuenow={Math.round(((stepIndex + 1) / repairSteps.length) * 100)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Prerequisite repair progress"
+      >
         <div
           className="h-1 bg-accent-amber transition-all duration-300"
           style={{ width: `${((stepIndex + 1) / repairSteps.length) * 100}%` }}

@@ -169,8 +169,8 @@ export function ExamPrepView({
     <div className="fixed inset-0 z-50 bg-surface-primary flex flex-col">
       <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle bg-surface-secondary/50">
         <div className="flex items-center gap-3">
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-hover">
-            <X className="w-5 h-5 text-text-secondary" />
+          <button type="button" onClick={onClose} aria-label={t('close')} className="p-1.5 rounded-lg hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50">
+            <X className="w-5 h-5 text-text-secondary" aria-hidden />
           </button>
           <div>
             <p className="type-meta font-semibold">{sessionTitle}</p>
@@ -424,7 +424,7 @@ export function ExamPrepView({
                   )}
                 </div>
 
-                <p className="text-base font-medium text-text-primary leading-relaxed mb-6">{currentQuestion.question}</p>
+                <p className="type-body font-medium text-text-primary leading-relaxed mb-6">{currentQuestion.question}</p>
 
                 <div className="space-y-3">
                   {currentQuestion.options.map((opt, i) => {

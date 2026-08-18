@@ -3,11 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { emphasizedTransition, expandHeight } from '../lib/motion';
 import {
   CheckCircle2, Circle, Clock, AlertTriangle, Calendar,
-  Play, Flame, Brain,
+  Play, Brain,
   HelpCircle, XCircle, RefreshCw, ArrowDownRight, TrendingUp, Minus, ArrowRight,
-  List, LayoutGrid,
+  List, LayoutGrid, ChevronDown, ChevronRight,
 } from '@/lib/lucide-shim';
-import type { Task, MistakeRecord, SkillNode, SpacingData } from '../types';
+import type { Task, MistakeRecord, SkillNode, SpacingData, UserSettings } from '../types';
 import type { Lang } from '../lib/i18n';
 import { t } from '../lib/i18n';
 import { cn } from '../utils/cn';
@@ -19,25 +19,34 @@ import {
   type TaskFilter,
 } from '../lib/tasksContent';
 import { getRecommendedSessionType } from '../lib/recommendedSessionType';
+import { resolveStudyPlanLaunch } from '../lib/studyPlanLaunch';
 import { TaskActionIcon } from './ui/TaskActionIcon';
-import { Page, PageHeader, PrimaryCTA } from './ui/primitives';
+import { Page, PageHeader, PrimaryCTA, SecondaryCTA } from './ui/primitives';
+import { Button } from './ui/Button';
+import { ConfirmDialog } from './ui/ConfirmDialog';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
-import { HeroGlow, SectionHeader, SessionLauncherCard, UxCallout, DescriptiveStickyTabBar } from './ui/platformChrome';
+import { TaskFormDialog } from './TaskFormDialog';
+import { isManualTask, type ManualTaskCourse } from '../lib/personalTask';
+import { downloadTaskIcs } from '../lib/taskIcs';
+import { SectionHeader, SessionLauncherCard, UxCallout, DescriptiveStickyTabBar } from './ui/platformChrome';
 import { TasksKanbanStatusStrip, tasksKanbanCardStatus } from './TasksKanbanStatusStrip';
-import { BlueprintSurface } from './ui/BlueprintSurface';
-import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { LeitnerDueQueuePanel } from './workspace/LeitnerDueQueuePanel';
 import { buildFsrsDueQueue } from '../lib/leitnerDueQueue';
 import { useWarmSandPageScope, warmSandScopeProps } from '../lib/useDocumentTheme';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
-import { AllCapsLabel } from './ui/AllCapsLabel';
-
 /* OPT-K98 — markup debt: decorative brand type -> ink */
 /* OPT-K140–K151 — Tasks CTA-only diet; denser Tasks type (restored pre-K150) */
 export type { TaskFilter } from '../lib/tasksContent';
 
 type CommandTab = 'today' | 'weak' | 'reviews' | 'mistakes';
 type TasksLayoutMode = 'list' | 'board';
+type TasksHubTab = 'today' | 'sessions' | 'plan' | 'alerts' | null;
+
+function HubChromeChevron({ open }: { open: boolean }) {
+  return open
+    ? <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-70" aria-hidden />
+    : <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-70" aria-hidden />;
+}
 
 interface TasksProps {
   tasks: Task[];
@@ -45,7 +54,7 @@ interface TasksProps {
   onComplete: (taskId: string) => void;
   onReviewRating?: (taskId: string, rating: FsrsRating) => void;
   onStartTask?: (taskId: string) => void;
-  onStartSession?: (session: SessionType) => void;
+  onStartSession?: (session: SessionType, preferredTaskIds?: readonly string[]) => void;
   daysToExam?: number | null;
   expandedTaskId?: string | null;
   onExpandedTaskChange?: (taskId: string | null) => void;
@@ -70,10 +79,38 @@ interface TasksProps {
   sessionTotal?: number;
   sessionQueueIds?: string[];
   activeTaskId?: string | null;
+  courses?: ManualTaskCourse[];
+  defaultCourseId?: string | null;
+  onUpsertTask?: (task: Task) => void;
+  onDeleteTask?: (taskId: string) => void;
+  pacing?: UserSettings['pacing'];
+  studyTimeToday?: number;
+  dailyGoalMinutes?: number;
 }
 
 function daysSince(iso: string): number {
   return Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86400000));
+}
+
+const TASKS_LAYOUT_KEY = 'synapse:tasks-layout';
+
+function loadTasksLayoutMode(fallback: TasksLayoutMode): TasksLayoutMode {
+  if (typeof window === 'undefined') return fallback;
+  try {
+    const raw = window.localStorage.getItem(TASKS_LAYOUT_KEY);
+    if (raw === 'list' || raw === 'board') return raw;
+  } catch {
+    /* ignore quota / private mode */
+  }
+  return fallback;
+}
+
+function saveTasksLayoutMode(mode: TasksLayoutMode) {
+  try {
+    window.localStorage.setItem(TASKS_LAYOUT_KEY, mode);
+  } catch {
+    /* ignore quota / private mode */
+  }
 }
 
 export function Tasks({
@@ -107,13 +144,27 @@ export function Tasks({
   sessionTotal = 0,
   sessionQueueIds = [],
   activeTaskId = null,
+  courses = [],
+  defaultCourseId = null,
+  onUpsertTask,
+  onDeleteTask,
+  pacing,
+  studyTimeToday,
+  dailyGoalMinutes,
 }: TasksProps) {
   const c = getTasksContent(lang);
   const isMinimal = useMinimalTheme();
   const sessionTypes = getSessionTypes(lang);
   const [tab, setTab] = useState<CommandTab>('today');
+  const [hubChromeTab, setHubChromeTab] = useState<TasksHubTab>(null);
   const [sessionMode, setSessionMode] = useState<SessionType | null>(null);
-  const [layoutMode, setLayoutMode] = useState<TasksLayoutMode>(() => (isMinimal ? 'list' : 'board'));
+  const [layoutMode, setLayoutMode] = useState<TasksLayoutMode>(() =>
+    loadTasksLayoutMode(isMinimal ? 'list' : 'board'),
+  );
+  const setTasksLayout = (mode: TasksLayoutMode) => {
+    setLayoutMode(mode);
+    saveTasksLayoutMode(mode);
+  };
   const [showAllCourses, setShowAllCourses] = useState(false);
   const [localExpanded, setLocalExpanded] = useState<string | null>(null);
   const [entryHintDismissed, setEntryHintDismissed] = useState(() => {
@@ -132,6 +183,9 @@ export function Tasks({
       return false;
     }
   });
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [deletingTask, setDeletingTask] = useState<Task | null>(null);
   const expandedTask = expandedTaskId ?? localExpanded;
   const setExpandedTask = (id: string | null) => {
     setLocalExpanded(id);
@@ -202,24 +256,15 @@ export function Tasks({
     { rating: 'easy', label: c.fsrsEasy, color: 'border-0 bg-accent-emerald/15 text-accent-emerald' },
   ];
 
-  const subtitle = useMemo(() => {
-    const dateStr = new Date().toLocaleDateString(lang === 'el' ? 'el-GR' : 'en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-    const examPart = daysToExam === null
-      ? ''
-      : daysToExam === 0
-        ? ` · ${c.examToday}`
-        : ` · ${c.examInDays(daysToExam)}`;
-    return `${dateStr}${examPart}`;
-  }, [lang, daysToExam, c]);
-
   const recommendedSession = useMemo(
     () => getRecommendedSessionType({
       daysToExam,
       reviewDueCount: reviewTasks.length || fsrsQueue.length,
       weakCount: scopedWeak.length,
       openTaskCount: todayTasks.length,
+      pacing,
     }),
-    [daysToExam, reviewTasks.length, fsrsQueue.length, scopedWeak.length, todayTasks.length],
+    [daysToExam, reviewTasks.length, fsrsQueue.length, scopedWeak.length, todayTasks.length, pacing],
   );
   /* Hierarchy: recommended first — all five session types remain available */
   const orderedSessionTypes = useMemo(() => {
@@ -263,23 +308,65 @@ export function Tasks({
 
   const recommendedSessionTasks = filterTasksForSession(visibleTasks, recommendedSession);
   const canStartRecommended = recommendedSessionTasks.length > 0;
+  const todayAlertCount =
+    (daysToExam !== null && daysToExam <= 14 ? 1 : 0)
+    + (almostKnownPreview.length > 0 ? 1 : 0)
+    + (antiPassiveAlert ? 1 : 0);
+  const showSrAlert = !srBannerDismissed && (reviewTasks.length > 0 || fsrsQueue.length > 0);
+  const showMistakeAlert = openMistakes.length > 0;
+  const showAlertsTab = todayAlertCount > 0 || showSrAlert || showMistakeAlert;
+  const alertsMeta =
+    todayAlertCount + (showSrAlert ? 1 : 0) + (showMistakeAlert ? 1 : 0);
+  const showPlanTab = studyPlan.length > 0;
+  const hubTabCount = 2 + (showPlanTab ? 1 : 0) + (showAlertsTab ? 1 : 0);
+
+  const startRecommendedSession = () => {
+    setTab('today');
+    setSessionMode(recommendedSession);
+    onStartSession?.(recommendedSession);
+  };
 
   return (
-    <HeroGlow flush>
     <div
       {...warmSandScopeProps(warmSandPage)}
       data-testid="tasks-page"
+      data-bleed="full"
       data-border-diet="cta-only"
       data-tasks-layout={layoutMode}
       data-type-rhythm="tasks"
-      className={cn('min-w-0 w-full', isMinimal && 'tasks-quiet')}
+      className={cn('min-w-0 w-full max-w-none', isMinimal && 'tasks-quiet')}
     >
-    <Page className="max-w-none ux-fade-up !pt-0" gap="sm">
+    <Page className="max-w-none ux-fade-up !pt-0" gap="sm" data-soft-sep="stack" data-type-rhythm="tasks" data-bleed="full">
       <PageHeader
+        eyebrow={t('tasks', lang)}
         title={c.pageTitle}
-        subtitle={subtitle}
+        subtitle={c.pageSubtitle}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ux-page-header-actions--pair">
+            <PrimaryCTA
+              type="button"
+              data-testid="tasks-create-plan"
+              size="sm"
+              disabled={!canStartRecommended}
+              onClick={startRecommendedSession}
+              className="tasks-create-plan-cta whitespace-nowrap"
+            >
+              <Play className="h-3.5 w-3.5 shrink-0" aria-hidden />
+              {c.createPlanCta}
+            </PrimaryCTA>
+            {onUpsertTask && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  setEditingTask(null);
+                  setFormOpen(true);
+                }}
+                data-testid="tasks-add-task"
+              >
+                {c.addTaskCta}
+              </Button>
+            )}
             <div
               className="tasks-layout-toggle inline-flex items-center rounded-lg border-0 bg-surface-secondary/55 p-0.5"
               role="group"
@@ -291,11 +378,11 @@ export function Tasks({
                 data-testid="tasks-layout-list"
                 aria-pressed={layoutMode === 'list'}
                 title={t('tasksViewList', lang)}
-                onClick={() => setLayoutMode('list')}
+                onClick={() => setTasksLayout('list')}
                 className={cn(
-                  'inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors',
+                  'inline-flex min-h-9 min-w-9 items-center justify-center rounded-md transition-colors',
                   layoutMode === 'list'
-                    ? 'bg-surface-hover text-text-primary'
+                    ? 'bg-surface-primary text-text-primary'
                     : 'text-text-tertiary hover:text-text-secondary',
                 )}
               >
@@ -306,76 +393,27 @@ export function Tasks({
                 data-testid="tasks-layout-board"
                 aria-pressed={layoutMode === 'board'}
                 title={t('tasksViewBoard', lang)}
-                onClick={() => setLayoutMode('board')}
+                onClick={() => setTasksLayout('board')}
                 className={cn(
-                  'inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors',
+                  'inline-flex min-h-9 min-w-9 items-center justify-center rounded-md transition-colors',
                   layoutMode === 'board'
-                    ? 'bg-surface-hover text-text-primary'
+                    ? 'bg-surface-primary text-text-primary'
                     : 'text-text-tertiary hover:text-text-secondary',
                 )}
               >
                 <LayoutGrid className="w-3.5 h-3.5" aria-hidden />
               </button>
             </div>
-            {streak > 0 && (
-              <div className="flex items-center gap-2 type-meta text-text-secondary">
-                <Flame className="w-4 h-4 text-accent-amber" aria-hidden />
-                <span className="font-medium">{c.streakDays(streak)}</span>
-              </div>
-            )}
           </div>
         }
       />
 
-      {!entryHintDismissed && (
-        /* OPT-K145 — flush with page title (no inset padding / wash nest) */
-        <div
-          className="flex items-start gap-2 border-0 px-0 py-1"
-          data-testid="tasks-entry-hint"
-        >
-          <p className="flex-1 type-caption text-text-secondary leading-snug">{c.entryHint}</p>
-          <button
-            type="button"
-            onClick={dismissEntryHint}
-            className="shrink-0 rounded-md p-1 text-text-tertiary hover:bg-surface-hover hover:text-text-primary"
-            aria-label={t('tasksEntryHintDismiss', lang)}
-            title={t('tasksEntryHintDismiss', lang)}
-          >
-            <XCircle className="h-3.5 w-3.5" aria-hidden />
-          </button>
-        </div>
-      )}
-
-      {focusCourseId && focusCourseName && (
-        <div className="flex flex-wrap items-center gap-2">
-          {courseScoped && <span className="type-caption text-text-secondary">{c.courseScopeLabel(focusCourseName)}</span>}
-          <button
-            type="button"
-            onClick={() => setShowAllCourses((v) => !v)}
-            className="type-caption font-medium text-text-secondary hover:text-text-primary underline-offset-2 hover:underline"
-          >
-            {courseScoped ? c.showAllCourses : c.courseScopeLabel(focusCourseName)}
-          </button>
-        </div>
-      )}
-
-      {/* Daily progress — OPT-K145 flush type column (no inset wash padding) */}
-      <BlueprintSurface hint className="border-0 shadow-none px-0 py-2" data-testid="tasks-daily-goal">
-        <div className="flex items-center justify-between gap-3 mb-2">
-          <div className="min-w-0 flex-1">
-            <p className="type-meta font-semibold text-text-primary">{c.tasksComplete(doneCount, totalCount)}</p>
-            <p className="type-caption text-text-tertiary">{c.totalMinutes(totalMin)} · {c.minRemaining(remainingMin)}</p>
-          </div>
-          <div className="text-right shrink-0">
-            <p className="ux-kpi-value-sm">{progressPct}%</p>
-            <p className="type-caption font-medium text-text-tertiary">{c.dailyGoal}</p>
-          </div>
-        </div>
-        <div className="ux-progress-track h-1.5" role="progressbar" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100} aria-label={c.dailyGoal}>
-          <div className="ux-progress-fill" style={{ width: `${progressPct}%` }} />
-        </div>
-      </BlueprintSurface>
-
+      <div
+        className="tasks-work-surface w-full max-w-none space-y-2"
+        data-testid="tasks-work-surface"
+        data-bleed="full"
+        data-soft-card="off"
+      >
       {sessionActive && activeSessionType && (
         <div
           className="ux-card ux-chip-info border-0 bg-brand-600/5 p-3 space-y-1.5"
@@ -388,7 +426,7 @@ export function Tasks({
           </p>
           {activeTask && (
             <p className="type-body text-text-primary truncate">
-              <span className="type-micro uppercase tracking-wide text-text-secondary mr-2"><AllCapsLabel>{c.sessionRunningNow}</AllCapsLabel></span>
+              <span className="type-micro text-text-secondary mr-2">{c.sessionRunningNow}</span>
               {activeTask.title}
             </p>
           )}
@@ -399,86 +437,357 @@ export function Tasks({
         </div>
       )}
 
-      {/* Session launchers — quieter under Minimal (OPT-R15); Wave I-T01 order kept */}
-      <div id="tasks-session-launchers" data-testid="tasks-session-launchers">
-        <CollapsibleChromeSection title={t('chromeSessions', lang)} data-testid="tasks-sessions-chrome">
-          <div className="space-y-2 pb-1">
-            {/* OPT-K144 — title+hint only (no eyebrow); session cards text-first */}
-            <SectionHeader
-              title={c.sessionSectionTitle}
-              subtitle={c.sessionSectionSubtitle}
-            />
-            {/* Merged Create Plan + recommended start — one primary path; cards remain alternate modes */}
-            <PrimaryCTA
+      <div
+        className="dashboard-hub-chrome-tabs w-full"
+        data-testid="tasks-hub-chrome-tabs"
+        data-hub-tab-count={hubTabCount}
+        style={{ ['--hub-chrome-cols' as string]: String(hubTabCount) }}
+      >
+        <div className="dashboard-hub-chrome-tablist" role="tablist" aria-label={c.hubChromeAria}>
+          <button
+            type="button"
+            role="tab"
+            id="tasks-today-chrome-tab"
+            aria-selected={hubChromeTab === 'today'}
+            aria-controls="tasks-today-chrome-panel"
+            data-testid="tasks-progress-chrome"
+            className={cn('dashboard-hub-chrome-tab', hubChromeTab === 'today' && 'is-active')}
+            onClick={() => setHubChromeTab((v) => (v === 'today' ? null : 'today'))}
+          >
+            <span className="truncate">{c.progressChrome}</span>
+            <HubChromeChevron open={hubChromeTab === 'today'} />
+          </button>
+          <button
+            type="button"
+            role="tab"
+            id="tasks-sessions-chrome-tab"
+            aria-selected={hubChromeTab === 'sessions'}
+            aria-controls="tasks-sessions-chrome-panel"
+            data-testid="tasks-sessions-chrome"
+            className={cn('dashboard-hub-chrome-tab', hubChromeTab === 'sessions' && 'is-active')}
+            onClick={() => setHubChromeTab((v) => (v === 'sessions' ? null : 'sessions'))}
+          >
+            <span className="truncate">{t('chromeSessions', lang)}</span>
+            <HubChromeChevron open={hubChromeTab === 'sessions'} />
+          </button>
+          {showPlanTab && (
+            <button
               type="button"
-              data-testid="tasks-create-plan"
-              size="sm"
-              disabled={!canStartRecommended}
-              onClick={() => {
-                setTab('today');
-                setSessionMode(recommendedSession);
-                onStartSession?.(recommendedSession);
-              }}
-              className="tasks-create-plan-cta w-full font-semibold"
+              role="tab"
+              id="tasks-plan-chrome-tab"
+              aria-selected={hubChromeTab === 'plan'}
+              aria-controls="tasks-plan-chrome-panel"
+              data-testid="tasks-plan-chrome"
+              className={cn('dashboard-hub-chrome-tab', hubChromeTab === 'plan' && 'is-active')}
+              onClick={() => setHubChromeTab((v) => (v === 'plan' ? null : 'plan'))}
             >
-              <Play className="h-3.5 w-3.5 shrink-0" aria-hidden />
-              {c.createPlanCta}
-            </PrimaryCTA>
-            <p className="type-caption text-text-muted text-center sm:text-left -mt-0.5">{c.createPlanHint}</p>
-            <div
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 items-stretch"
-              data-testid="tasks-session-card-grid"
+              <span className="inline-flex min-w-0 items-center gap-1.5 truncate">
+                <span className="truncate">{c.studyPlanTitle}</span>
+                <span className="ux-chrome-meta-badge shrink-0" data-testid="tasks-plan-chrome-meta">
+                  {studyPlan.length}
+                </span>
+              </span>
+              <HubChromeChevron open={hubChromeTab === 'plan'} />
+            </button>
+          )}
+          {showAlertsTab && (
+            <button
+              type="button"
+              role="tab"
+              id="tasks-alerts-chrome-tab"
+              aria-selected={hubChromeTab === 'alerts'}
+              aria-controls="tasks-alerts-chrome-panel"
+              data-testid="tasks-alerts-chrome"
+              className={cn('dashboard-hub-chrome-tab', hubChromeTab === 'alerts' && 'is-active')}
+              onClick={() => setHubChromeTab((v) => (v === 'alerts' ? null : 'alerts'))}
             >
-              {orderedSessionTypes.map((s) => {
-                const sessionTasks = filterTasksForSession(visibleTasks, s.type);
-                const isRecommended = recommendedSession === s.type;
+              <span className="inline-flex min-w-0 items-center gap-1.5 truncate">
+                <span className="truncate">{t('chromeAlerts', lang)}</span>
+                <span className="ux-chrome-meta-badge shrink-0" data-testid="tasks-alerts-chrome-meta">
+                  {alertsMeta}
+                </span>
+              </span>
+              <HubChromeChevron open={hubChromeTab === 'alerts'} />
+            </button>
+          )}
+        </div>
+
+        {hubChromeTab === 'today' && (
+          <div
+            role="tabpanel"
+            id="tasks-today-chrome-panel"
+            aria-labelledby="tasks-today-chrome-tab"
+            data-testid="tasks-progress-chrome-body"
+            className="dashboard-hub-chrome-panel"
+          >
+            <div className="dashboard-today-glance px-0.5 pb-1" data-testid="tasks-daily-goal">
+              <div className="dashboard-today-glance-grid" role="list">
+                <div className="dashboard-today-stat" role="listitem">
+                  <div className="dashboard-today-stat-top">
+                    <span className="dashboard-today-stat-value ux-kpi-value-sm">{progressPct}%</span>
+                  </div>
+                  <p className="dashboard-today-stat-label">{c.tasksComplete(doneCount, totalCount)}</p>
+                  <div className="usage-bar mt-1.5" role="progressbar" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100} aria-label={c.dailyGoal}>
+                    <div className="usage-bar-fill" style={{ width: `${progressPct}%` }} />
+                  </div>
+                </div>
+                <div className="dashboard-today-stat" role="listitem">
+                  <div className="dashboard-today-stat-top">
+                    <span className="dashboard-today-stat-value">{remainingMin}</span>
+                  </div>
+                  <p className="dashboard-today-stat-label">{c.minRemaining(remainingMin)}</p>
+                </div>
+                {typeof studyTimeToday === 'number' && typeof dailyGoalMinutes === 'number' && (
+                  <div className="dashboard-today-stat" role="listitem">
+                    <div className="dashboard-today-stat-top">
+                      <span className="dashboard-today-stat-value">{studyTimeToday}/{dailyGoalMinutes}m</span>
+                    </div>
+                    <p className="dashboard-today-stat-label">{c.dailyGoal}</p>
+                    <div
+                      className="usage-bar mt-1.5"
+                      role="progressbar"
+                      aria-valuenow={Math.min(100, Math.round((studyTimeToday / Math.max(1, dailyGoalMinutes)) * 100))}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label={c.dailyGoal}
+                    >
+                      <div
+                        className="usage-bar-fill"
+                        style={{ width: `${Math.min(100, Math.round((studyTimeToday / Math.max(1, dailyGoalMinutes)) * 100))}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+                {streak > 0 && (
+                  <div className="dashboard-today-stat" role="listitem">
+                    <div className="dashboard-today-stat-top">
+                      <span className="dashboard-today-stat-value">{streak}</span>
+                    </div>
+                    <p className="dashboard-today-stat-label">{c.streakDays(streak)}</p>
+                  </div>
+                )}
+                {daysToExam !== null && (
+                  <div className="dashboard-today-stat" role="listitem">
+                    <div className="dashboard-today-stat-top">
+                      <span className="dashboard-today-stat-value">{daysToExam}</span>
+                    </div>
+                    <p className="dashboard-today-stat-label">{daysToExam === 0 ? c.examToday : c.examInDays(daysToExam)}</p>
+                  </div>
+                )}
+              </div>
+              {focusCourseId && focusCourseName && (
+                <div className="mt-2 flex flex-wrap items-center gap-2" data-testid="tasks-find-chrome" data-soft-card="off">
+                  {courseScoped && <span className="type-caption text-text-secondary">{c.courseScopeLabel(focusCourseName)}</span>}
+                  <button
+                    type="button"
+                    onClick={() => setShowAllCourses((v) => !v)}
+                    className="inline-flex min-h-9 items-center type-caption font-medium text-text-secondary hover:text-text-primary underline-offset-2 hover:underline"
+                  >
+                    {courseScoped ? c.showAllCourses : c.courseScopeLabel(focusCourseName)}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {hubChromeTab === 'sessions' && (
+          <div
+            role="tabpanel"
+            id="tasks-sessions-chrome-panel"
+            aria-labelledby="tasks-sessions-chrome-tab"
+            data-testid="tasks-session-launchers"
+            className="dashboard-hub-chrome-panel"
+          >
+            <div className="space-y-2 px-0.5 pb-1">
+              {!entryHintDismissed && (
+                <div
+                  className="flex items-start gap-2 border-0 px-1 py-1"
+                  data-testid="tasks-help-chrome"
+                >
+                  <p className="flex-1 type-caption text-text-secondary leading-snug" data-testid="tasks-entry-hint">{c.entryHint}</p>
+                  <button
+                    type="button"
+                    onClick={dismissEntryHint}
+                    className="inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-md p-1 text-text-tertiary hover:bg-surface-hover hover:text-text-primary"
+                    aria-label={t('tasksEntryHintDismiss', lang)}
+                    title={t('tasksEntryHintDismiss', lang)}
+                  >
+                    <XCircle className="h-3.5 w-3.5" aria-hidden />
+                  </button>
+                </div>
+              )}
+              <SectionHeader
+                title={c.sessionSectionTitle}
+                subtitle={c.sessionSectionSubtitle}
+              />
+              <div
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 items-stretch"
+                data-testid="tasks-session-card-grid"
+              >
+                {orderedSessionTypes.map((s) => {
+                  const sessionTasks = filterTasksForSession(visibleTasks, s.type);
+                  const isRecommended = recommendedSession === s.type;
+                  return (
+                    <SessionLauncherCard
+                      key={s.type}
+                      testId={`session-launcher-${s.type}`}
+                      label={s.label}
+                      desc={s.desc}
+                      durationTag={c.sessionDurationTag(s.minutes)}
+                      taskHint={sessionTasks.length > 0 ? c.sessionTaskCount(s.minutes, sessionTasks.length) : undefined}
+                      active={sessionMode === s.type}
+                      recommended={isRecommended}
+                      recommendedLabel={t('sessionRecommendedBadge', lang)}
+                      disabled={sessionTasks.length === 0}
+                      onClick={() => {
+                        if (isRecommended) setTab('today');
+                        setSessionMode(s.type);
+                        onStartSession?.(s.type);
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showPlanTab && hubChromeTab === 'plan' && (
+          <div
+            role="tabpanel"
+            id="tasks-plan-chrome-panel"
+            aria-labelledby="tasks-plan-chrome-tab"
+            className="dashboard-hub-chrome-panel"
+          >
+            <div className="flex flex-wrap gap-2 px-0.5 pb-1" data-testid="tasks-study-plan-blocks" data-soft-card="off">
+              {studyPlan.map((block) => {
+                const launch = resolveStudyPlanLaunch(block, visibleTasks);
                 return (
-                  <SessionLauncherCard
-                    key={s.type}
-                    testId={`session-launcher-${s.type}`}
-                    label={s.label}
-                    desc={s.desc}
-                    durationTag={c.sessionDurationTag(s.minutes)}
-                    taskHint={sessionTasks.length > 0 ? c.sessionTaskCount(s.minutes, sessionTasks.length) : undefined}
-                    active={sessionMode === s.type}
-                    recommended={isRecommended}
-                    recommendedLabel={t('sessionRecommendedBadge', lang)}
-                    disabled={sessionTasks.length === 0}
-                    onClick={() => {
-                      if (isRecommended) setTab('today');
-                      setSessionMode(s.type);
-                      onStartSession?.(s.type);
-                    }}
-                  />
+                <button
+                  key={block.label}
+                  type="button"
+                  aria-pressed={tab === launch.tab}
+                  title={c.studyPlanLaunchHint}
+                  data-testid={`tasks-study-plan-${launch.kind}`}
+                  className={cn(
+                    'platform-pill min-h-9 px-3 py-1.5 rounded-md type-caption font-medium border-0 text-text-secondary hover:text-text-primary hover:bg-surface-hover',
+                    tab === launch.tab ? 'platform-pill-active bg-surface-secondary text-text-primary' : 'bg-surface-secondary/40',
+                  )}
+                  onClick={() => {
+                    setTab(launch.tab);
+                    setSessionMode(launch.session);
+                    onStartSession?.(launch.session, launch.taskIds);
+                  }}
+                >
+                  {block.label}
+                  <span className="ml-1 tabular-nums text-text-tertiary">· {block.minutes}′</span>
+                </button>
                 );
               })}
             </div>
           </div>
-        </CollapsibleChromeSection>
-      </div>
+        )}
 
-      {studyPlan.length > 0 && (
-        <div className="flex flex-wrap gap-2" data-testid="tasks-study-plan-blocks">
-          <span className="type-caption font-semibold text-text-secondary self-center">{c.studyPlanTitle}</span>
-          {studyPlan.map((block) => (
-            <button
-              key={block.label}
-              type="button"
-              className="rounded-lg border-0 bg-surface-secondary/55 px-2.5 py-1.5 type-caption font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover"
-              onClick={() => {
-                const label = block.label.toLowerCase();
-                if (label.includes('mistake') || label.includes('λάθ')) setTab('mistakes');
-                else if (label.includes('review') || label.includes('επαναλ')) setTab('reviews');
-                else if (label.includes('weak') || label.includes('αδύναμ')) setTab('weak');
-                else setTab('today');
-              }}
-            >
-              {block.label}
-              <span className="ml-1 tabular-nums text-text-tertiary">· {block.minutes}′</span>
-            </button>
-          ))}
-        </div>
-      )}
+        {showAlertsTab && hubChromeTab === 'alerts' && (
+          <div
+            role="tabpanel"
+            id="tasks-alerts-chrome-panel"
+            aria-labelledby="tasks-alerts-chrome-tab"
+            className="dashboard-hub-chrome-panel"
+          >
+            <div className="space-y-2 px-0.5 pb-1">
+              {daysToExam !== null && daysToExam <= 14 && (
+                <UxCallout
+                  variant={daysToExam <= 3 ? 'danger' : 'warn'}
+                  title={c.dangerZoneTitle}
+                  icon={<AlertTriangle className="h-3.5 w-3.5" />}
+                  testId="tasks-danger-zone"
+                  className="mb-1 py-1.5 px-3 tasks-danger-zone border-0 shadow-none"
+                >
+                  <p className="type-caption leading-snug text-text-secondary">{c.dangerZoneBody(daysToExam)}</p>
+                </UxCallout>
+              )}
+              {showInsightStrip && (
+                <div
+                  className={cn(
+                    'gap-2 mb-2',
+                    almostKnownPreview.length > 0 && antiPassiveAlert
+                      ? 'grid grid-cols-1 sm:grid-cols-2'
+                      : 'flex flex-col',
+                  )}
+                  data-testid="tasks-insight-strip"
+                >
+                  {almostKnownPreview.length > 0 && (
+                    <div className="tasks-insight-card ux-banner-warn border-0 bg-accent-amber/5 p-3 space-y-1.5">
+                      <p className="ux-banner-warn-accent type-caption font-semibold tracking-wide">
+                        {c.almostThereTitle}
+                      </p>
+                      <p className="type-caption text-text-tertiary leading-snug">{c.almostThereHint}</p>
+                      <ul className="space-y-1">
+                        {almostKnownPreview.map((item) => (
+                          <li key={item.concept} className="flex items-center justify-between gap-2 type-caption">
+                            <span className="truncate font-medium text-text-primary">{item.concept}</span>
+                            <span className="ux-banner-warn-accent tabular-nums font-semibold shrink-0 type-caption">{Math.round(item.mastery)}%</span>
+                          </li>
+                        ))}
+                      </ul>
+                      {onFocusWeakArea && almostKnownPreview[0] && (
+                        <button
+                          type="button"
+                          onClick={() => onFocusWeakArea(almostKnownPreview[0].concept)}
+                          className="platform-link inline-flex min-h-9 items-center gap-1 type-caption font-semibold"
+                        >
+                          {c.almostThereCta} <ArrowRight className="w-3 h-3" aria-hidden />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {antiPassiveAlert && (
+                    <div className="tasks-insight-card border-0 bg-brand-600/5 p-3 space-y-1.5">
+                      <p className="type-caption font-semibold tracking-wide text-text-secondary">
+                        {c.recallReminderTitle}
+                      </p>
+                      <p className="type-caption text-text-secondary leading-snug">{c.recallReminderBody}</p>
+                      <button
+                        type="button"
+                        onClick={() => (onStartQuiz ? onStartQuiz() : onStartSession?.('10min'))}
+                        className="platform-link inline-flex min-h-9 items-center gap-1 type-caption font-semibold"
+                      >
+                        {c.recallReminderCta} <ArrowRight className="w-3 h-3" aria-hidden />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+              {showSrAlert && (
+                <div
+                  className="ux-card ux-chip-info border-0 bg-brand-600/5 type-body flex items-start gap-2 p-3"
+                  data-testid="tasks-sr-banner"
+                >
+                  <Calendar className="w-4 h-4 shrink-0 mt-0.5" aria-hidden />
+                  <p className="flex-1 leading-snug">{c.spacedReviewBanner}</p>
+                  <button
+                    type="button"
+                    onClick={dismissSrBanner}
+                    className="inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-md p-1 text-text-tertiary hover:bg-surface-hover hover:text-text-primary"
+                    aria-label={t('tasksSrBannerDismiss', lang)}
+                    title={t('tasksSrBannerDismiss', lang)}
+                  >
+                    <XCircle className="h-4 w-4" aria-hidden />
+                  </button>
+                </div>
+              )}
+              {showMistakeAlert && (
+                <div className="tasks-mistake-banner ux-card border-0 bg-accent-amber/[0.06] type-body text-text-secondary flex items-start gap-2 p-3">
+                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-accent-amber" aria-hidden />
+                  <p className="leading-snug">{c.mistakeBanner}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* OPT-K144 — no trailing Target: tabs are self-explanatory; scroll affordance was opaque */}
       <DescriptiveStickyTabBar
@@ -493,71 +802,6 @@ export function Tasks({
       {/* Today's Plan */}
       {tab === 'today' && (
         <div className="space-y-2" id="tasks-panel-today" data-testid="tasks-panel-today" role="tabpanel" aria-labelledby="tasks-tab-today">
-          {daysToExam !== null && daysToExam <= 14 && (
-            <UxCallout
-              variant={daysToExam <= 3 ? 'danger' : 'warn'}
-              title={c.dangerZoneTitle}
-              icon={<AlertTriangle className="h-3.5 w-3.5" />}
-              testId="tasks-danger-zone"
-              className="mb-1 py-1.5 px-0 tasks-danger-zone border-0 shadow-none"
-            >
-              <p className="type-caption leading-snug text-text-secondary">{c.dangerZoneBody(daysToExam)}</p>
-            </UxCallout>
-          )}
-          {showInsightStrip && (
-            /* Wave P-3 L04 — only use 2-col grid when both insight cards are
-               present; a single card previously left a large empty right column. */
-            <div
-              className={cn(
-                'gap-2 mb-2',
-                almostKnownPreview.length > 0 && antiPassiveAlert
-                  ? 'grid grid-cols-1 sm:grid-cols-2'
-                  : 'flex flex-col',
-              )}
-              data-testid="tasks-insight-strip"
-            >
-              {almostKnownPreview.length > 0 && (
-                <div className="tasks-insight-card ux-banner-warn rounded-xl border-0 bg-accent-amber/5 p-3 space-y-1.5">
-                  <p className="ux-banner-warn-accent type-caption font-semibold tracking-wide">
-                    {c.almostThereTitle}
-                  </p>
-                  <p className="type-caption text-text-tertiary leading-snug">{c.almostThereHint}</p>
-                  <ul className="space-y-1">
-                    {almostKnownPreview.map((item) => (
-                      <li key={item.concept} className="flex items-center justify-between gap-2 type-caption">
-                        <span className="truncate font-medium text-text-primary">{item.concept}</span>
-                        <span className="ux-banner-warn-accent tabular-nums font-semibold shrink-0 type-caption">{Math.round(item.mastery)}%</span>
-                      </li>
-                    ))}
-                  </ul>
-                  {onFocusWeakArea && almostKnownPreview[0] && (
-                    <button
-                      type="button"
-                      onClick={() => onFocusWeakArea(almostKnownPreview[0].concept)}
-                      className="inline-flex items-center gap-1 min-h-8 type-caption font-semibold text-text-secondary hover:text-text-primary"
-                    >
-                      {c.almostThereCta} <ArrowRight className="w-3 h-3" aria-hidden />
-                    </button>
-                  )}
-                </div>
-              )}
-              {antiPassiveAlert && (
-                <div className="tasks-insight-card rounded-xl border-0 bg-brand-600/5 p-3 space-y-1.5">
-                  <p className="type-caption font-semibold tracking-wide text-text-secondary">
-                    {c.recallReminderTitle}
-                  </p>
-                  <p className="type-caption text-text-secondary leading-snug">{c.recallReminderBody}</p>
-                  <button
-                    type="button"
-                    onClick={() => (onStartQuiz ? onStartQuiz() : onStartSession?.('10min'))}
-                    className="inline-flex items-center gap-1 min-h-8 type-caption font-semibold text-text-secondary hover:text-text-primary"
-                  >
-                    {c.recallReminderCta} <ArrowRight className="w-3 h-3" aria-hidden />
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
           {todayTasks.length > 0 && layoutMode === 'board' && (
             <TasksKanbanStatusStrip
               tasks={visibleTasks}
@@ -612,10 +856,10 @@ export function Tasks({
                     {layoutMode === 'board' && (
                       <span className={cn('tasks-kanban-status-dot shrink-0', `tasks-kanban-status-${kanbanStatus}`)} aria-hidden />
                     )}
-                    <button type="button" onClick={(e) => { e.stopPropagation(); onComplete(task.id); }} className="shrink-0 rounded-md p-0.5 hover:bg-surface-hover" data-testid={`task-complete-${task.id}`} aria-label={c.completeTaskAria(task.title)}>
+                    <button type="button" onClick={(e) => { e.stopPropagation(); onComplete(task.id); }} className="inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-md hover:bg-surface-hover" data-testid={`task-complete-${task.id}`} aria-label={c.completeTaskAria(task.title)}>
                       <Circle className="w-5 h-5 text-text-muted hover:text-text-primary" />
                     </button>
-                    <div className="w-8 h-8 rounded-lg bg-brand-600/15 flex items-center justify-center shrink-0">
+                    <div className="tasks-row-icon w-8 h-8 bg-brand-600/15 flex items-center justify-center shrink-0">
                       <TaskActionIcon task={task} size="sm" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -623,16 +867,16 @@ export function Tasks({
                       <div className="flex items-center gap-2 mt-0.5 type-caption text-text-tertiary flex-wrap">
                         <span>{task.courseName}</span>
                         <span>·</span>
-                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{task.estimatedMinutes} min</span>
+                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" aria-hidden />{task.estimatedMinutes} min</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       {isRunningNow && (
                         <span
                           data-testid={`task-running-badge-${task.id}`}
-                          className="type-caption font-bold uppercase tracking-wide px-2 py-0.5 rounded-md bg-[var(--color-warm-ink)] text-white"
+                          className="type-caption font-semibold px-2 py-0.5 rounded-md bg-surface-secondary text-text-secondary"
                         >
-                          <AllCapsLabel>{c.sessionRunningBadge}</AllCapsLabel>
+                          {c.sessionRunningBadge}
                         </span>
                       )}
                       {(task.priority === 'critical' || task.priority === 'high') && (
@@ -640,18 +884,19 @@ export function Tasks({
                            white spectrum/warm cards (replaces translucent rose). */
                         <span
                           data-testid={`task-priority-badge-${task.id}`}
-                          className="ux-chip-solid-danger type-caption font-bold uppercase tracking-[0.06em] px-2 py-0.5 rounded-md"
+                          className="ux-chip-soft-danger type-caption font-medium px-2 py-0.5 rounded-md"
                         >
-                          <AllCapsLabel>{c.highPriority}</AllCapsLabel>
+                          {c.highPriority}
                         </span>
                       )}
-                      <button
+                      <SecondaryCTA
                         type="button"
+                        size="sm"
                         onClick={(e) => { e.stopPropagation(); onStartTask?.(task.id); }}
-                        className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-lg bg-surface-secondary text-text-secondary type-meta font-semibold hover:bg-brand-600/20 hover:text-text-primary"
+                        className="tasks-row-start-cta min-h-9"
                       >
                         <Play className="w-3.5 h-3.5" /> {startButtonLabel(task, lang)}
-                      </button>
+                      </SecondaryCTA>
                     </div>
                   </div>
                   <AnimatePresence>
@@ -662,22 +907,61 @@ export function Tasks({
                         animate="animate"
                         exit="exit"
                         transition={emphasizedTransition}
-                        className="overflow-hidden border-t border-transparent"
+                        className="overflow-hidden"
                       >
                         {/* L-T02: high-priority / flashcard expand chrome */}
                         <div
                           className={cn(
                             'px-4 pb-3.5 pt-2.5 ml-11 space-y-2',
-                            (task.priority === 'high' || task.priority === 'critical') && 'bg-accent-rose/[0.04]',
+                            (task.priority === 'high' || task.priority === 'critical') && 'bg-accent-rose/5',
                           )}
                           data-testid={`task-expand-${task.id}`}
                         >
                           {(task.priority === 'high' || task.priority === 'critical') && (
-                            <p className="type-micro font-bold uppercase tracking-[0.08em] text-accent-rose">
-                              <AllCapsLabel>{c.highPriority}</AllCapsLabel>
+                            <p className="type-micro font-medium text-text-secondary">
+                              {c.highPriority}
                             </p>
                           )}
                           <p className="type-body text-text-secondary leading-relaxed">{task.description}</p>
+                          <div className="flex flex-wrap gap-2 pt-1">
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => downloadTaskIcs(task)}
+                              data-testid={`task-export-ics-${task.id}`}
+                              aria-label={c.taskExportIcsAria(task.title)}
+                            >
+                              <Calendar className="w-3.5 h-3.5" />
+                              {c.taskExportIcs}
+                            </Button>
+                          </div>
+                          {isManualTask(task) && (onUpsertTask || onDeleteTask) && (
+                            <div className="flex flex-wrap gap-2 pt-1">
+                              {onUpsertTask && (
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={() => {
+                                    setEditingTask(task);
+                                    setFormOpen(true);
+                                  }}
+                                  data-testid={`task-edit-${task.id}`}
+                                >
+                                  {c.taskEdit}
+                                </Button>
+                              )}
+                              {onDeleteTask && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setDeletingTask(task)}
+                                  data-testid={`task-delete-${task.id}`}
+                                >
+                                  {c.taskDelete}
+                                </Button>
+                              )}
+                            </div>
+                          )}
                           {task.isSpacedRepetition && task.category === 'review' && onReviewRating && (
                             <div className="space-y-2 pt-0.5">
                               <p className="type-caption text-text-muted">{c.fsrsReviewHint}</p>
@@ -687,7 +971,7 @@ export function Tasks({
                                     key={rating}
                                     type="button"
                                     onClick={() => onReviewRating(task.id, rating)}
-                                    className={cn('tasks-fsrs-rating min-h-8 px-2.5 py-1.5 rounded-lg type-caption font-medium', color)}
+                                    className={cn('tasks-fsrs-rating min-h-9 px-2.5 py-1.5 rounded-md type-caption font-medium', color)}
                                   >
                                     {label}
                                   </button>
@@ -749,17 +1033,25 @@ export function Tasks({
                       </div>
                     </div>
                   </div>
-                  <div className="ux-progress-track mb-3 h-1.5">
-                    <div className="h-full rounded-full bg-accent-rose/80" style={{ width: `${area.mastery}%` }} />
+                  <div className="dashboard-progress-track mb-3">
+                    <div
+                      className="dashboard-progress-fill dashboard-progress-fill--weak"
+                      style={{ width: `${Math.max(area.mastery, 3)}%` }}
+                    />
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <button type="button" onClick={() => onFocusWeakArea?.(area.concept)} className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl bg-surface-secondary text-text-secondary type-meta font-semibold hover:bg-brand-600/20 hover:text-text-primary">
+                    <SecondaryCTA
+                      type="button"
+                      size="sm"
+                      onClick={() => onFocusWeakArea?.(area.concept)}
+                      className="tasks-row-start-cta min-h-9"
+                    >
                       <Brain className="w-3.5 h-3.5" /> {c.studyNow}
-                    </button>
+                    </SecondaryCTA>
                     {onOpenAgent && (
-                      <button type="button" onClick={() => onOpenAgent(area.concept)} className="flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl border-0 bg-surface-secondary/55 type-meta font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover">
+                      <Button type="button" variant="secondary" size="sm" onClick={() => onOpenAgent(area.concept)} className="tasks-row-secondary">
                         <HelpCircle className="w-3.5 h-3.5" /> {c.askAi}
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -772,24 +1064,6 @@ export function Tasks({
       {/* Due Reviews */}
       {tab === 'reviews' && (
         <div className="space-y-3" id="tasks-panel-reviews" data-testid="tasks-panel-reviews" role="tabpanel" aria-labelledby="tasks-tab-reviews">
-          {!srBannerDismissed && (reviewTasks.length > 0 || fsrsQueue.length > 0) && (
-            <div
-              className="ux-card ux-chip-info border-0 bg-brand-600/5 type-body flex items-start gap-2 p-3"
-              data-testid="tasks-sr-banner"
-            >
-              <Calendar className="w-4 h-4 shrink-0 mt-0.5" aria-hidden />
-              <p className="flex-1 leading-snug">{c.spacedReviewBanner}</p>
-              <button
-                type="button"
-                onClick={dismissSrBanner}
-                className="shrink-0 rounded-md p-1 text-text-tertiary hover:bg-surface-hover hover:text-text-primary"
-                aria-label={t('tasksSrBannerDismiss', lang)}
-                title={t('tasksSrBannerDismiss', lang)}
-              >
-                <XCircle className="h-4 w-4" aria-hidden />
-              </button>
-            </div>
-          )}
           {(reviewTasks.length > 0 ? reviewTasks : []).map((task) => {
             const spacingMatch = spacingReviews.find((s) =>
               task.title.toLowerCase().includes(s.concept.toLowerCase())
@@ -807,13 +1081,14 @@ export function Tasks({
                   {c.intervalLabel(`${intervalDays}d`)}
                 </span>
               )}
-              <button
+              <SecondaryCTA
                 type="button"
+                size="sm"
                 onClick={() => onStartTask?.(task.id)}
-                className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl bg-surface-secondary text-text-secondary type-meta font-semibold shrink-0 hover:bg-brand-600/20 hover:text-text-primary"
+                className="tasks-row-start-cta min-h-9 shrink-0"
               >
                 <Play className="w-3.5 h-3.5" /> {c.startReview}
-              </button>
+              </SecondaryCTA>
             </div>
             );
           })}
@@ -821,7 +1096,7 @@ export function Tasks({
             items={fsrsQueue}
             onSelect={onFocusWeakArea}
             lang={lang}
-            defaultOpen={fsrsQueue.length > 0}
+            defaultOpen={false}
             variant="card"
           />
           {reviewTasks.length === 0 && fsrsQueue.length === 0 && (
@@ -838,12 +1113,6 @@ export function Tasks({
       {/* Retry Mistakes */}
       {tab === 'mistakes' && (
         <div className="space-y-4" id="tasks-panel-mistakes" data-testid="tasks-panel-mistakes" role="tabpanel" aria-labelledby="tasks-tab-mistakes">
-          {openMistakes.length > 0 && (
-          <div className="tasks-mistake-banner ux-card border-0 bg-accent-amber/[0.06] type-body text-text-secondary flex items-start gap-2 p-3">
-            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-accent-amber" aria-hidden />
-            <p className="leading-snug">{c.mistakeBanner}</p>
-          </div>
-          )}
           {openMistakes.length === 0 ? (
             <PlatformEmptyState
               title={c.emptyTitle}
@@ -864,33 +1133,34 @@ export function Tasks({
                     <XCircle className="w-4 h-4 text-accent-rose shrink-0" />
                   </div>
                   {mistake.wrongAnswer && (
-                    <div className="p-3 rounded-xl border-0 bg-accent-rose/5">
+                    <div className="tasks-mistake-well p-3 border-0 bg-accent-rose/5">
                       <p className="type-caption font-medium text-accent-rose mb-1">{c.yourMistake}</p>
                       <p className="type-caption text-text-secondary">{mistake.wrongAnswer || mistake.questionSummary}</p>
                     </div>
                   )}
                   {mistake.correctAnswer && (
-                    <div className="p-3 rounded-xl border-0 bg-accent-emerald/5">
+                    <div className="tasks-mistake-well p-3 border-0 bg-accent-emerald/5">
                       <p className="type-caption font-medium text-accent-emerald mb-1">{c.correctUnderstanding}</p>
                       <p className="type-caption text-text-secondary">{mistake.correctAnswer}</p>
                     </div>
                   )}
                   <div className="flex flex-wrap gap-2">
-                    <button
+                    <SecondaryCTA
                       type="button"
+                      size="sm"
                       onClick={() => onFocusWeakArea?.(mistake.concept)}
-                      className="tasks-row-start-cta flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl bg-surface-secondary text-text-secondary type-meta font-semibold hover:bg-brand-600/20 hover:text-text-primary"
+                      className="tasks-row-start-cta min-h-9"
                     >
                       <RefreshCw className="w-3.5 h-3.5" /> {c.similarPractice}
-                    </button>
+                    </SecondaryCTA>
                     {onOpenAgent && (
-                      <button type="button" onClick={() => onOpenAgent(mistake.concept)} className="flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl border-0 bg-surface-secondary/55 type-meta font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover">
+                      <Button type="button" variant="secondary" size="sm" onClick={() => onOpenAgent(mistake.concept)} className="tasks-row-secondary">
                         <Brain className="w-3.5 h-3.5" /> {c.deepExplanation}
-                      </button>
+                      </Button>
                     )}
-                    <button type="button" onClick={() => onResolveMistake?.(mistake.id)} className="flex items-center gap-1.5 px-3.5 min-h-9 rounded-xl border-0 bg-surface-secondary/55 type-meta font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover">
+                    <Button type="button" variant="secondary" size="sm" onClick={() => onResolveMistake?.(mistake.id)} className="tasks-row-secondary">
                       <CheckCircle2 className="w-3.5 h-3.5" /> {c.markResolved}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               );
@@ -898,8 +1168,42 @@ export function Tasks({
           )}
         </div>
       )}
+      </div>
     </Page>
+    {onUpsertTask && (
+      <TaskFormDialog
+        open={formOpen}
+        lang={lang}
+        courses={courses}
+        defaultCourseId={defaultCourseId ?? focusCourseId}
+        editing={editingTask}
+        onClose={() => {
+          setFormOpen(false);
+          setEditingTask(null);
+        }}
+        onSave={(task) => {
+          onUpsertTask(task);
+          setTab('today');
+          setExpandedTask(task.id);
+        }}
+      />
+    )}
+    {onDeleteTask && (
+      <ConfirmDialog
+        open={Boolean(deletingTask)}
+        onClose={() => setDeletingTask(null)}
+        onConfirm={() => {
+          if (deletingTask) onDeleteTask(deletingTask.id);
+          setDeletingTask(null);
+        }}
+        title={c.taskDeleteTitle}
+        description={c.taskDeleteBody}
+        confirmLabel={c.taskDeleteConfirm}
+        cancelLabel={c.taskCancel}
+        destructive
+        data-testid="task-delete-confirm"
+      />
+    )}
     </div>
-    </HeroGlow>
   );
 }

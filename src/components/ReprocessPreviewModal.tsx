@@ -346,11 +346,13 @@ export function ReprocessPreviewModal({
 
                   disabled={applying}
 
-                  className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover hover:text-text-primary disabled:opacity-50"
+                  aria-label={tr('close')}
+
+                  className="rounded-lg p-1.5 text-text-muted hover:bg-surface-hover hover:text-text-primary disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
 
                 >
 
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4" aria-hidden />
 
                 </button>
 

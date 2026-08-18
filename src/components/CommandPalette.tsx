@@ -229,10 +229,10 @@ export function CommandPalette({
       className={cn('fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] p-4', densePalette && 'command-palette-dense')}
       data-testid="command-palette"
     >
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="ux-elev-popover relative w-full max-w-lg rounded-2xl border border-border-subtle bg-surface-secondary overflow-hidden">
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} aria-hidden="true" />
+      <div role="dialog" aria-modal="true" aria-label="Command palette" className="ux-elev-popover relative w-full max-w-lg rounded-2xl border border-border-subtle bg-surface-secondary overflow-hidden">
         <div className="command-palette-search flex items-center gap-2 px-4 py-3 border-b border-border-subtle">
-          <Search className="w-4 h-4 text-text-muted" />
+          <Search className="w-4 h-4 text-text-muted" aria-hidden />
           <input
             autoFocus
             value={query}

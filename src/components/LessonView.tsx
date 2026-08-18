@@ -8,11 +8,13 @@ import { cn } from '../utils/cn';
 import { ConfidenceSelector } from './visuals/ConfidenceSelector';
 import { GroundedLessonContent } from './grounded/GroundedLessonContent';
 import { buildLessonSteps } from '../lib/lessonContent';
+import { passThreshold } from '../lib/settingsEffects';
 import { isMcQuiz } from '../lib/lessonTypes';
 import { getLessonProgress, saveLessonProgress } from '../lib/lessonProgress';
 import { useI18n } from '../lib/i18n';
-import { AllCapsLabel } from './ui/AllCapsLabel';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
+import { Button } from './ui/Button';
+import { PrimaryCTA, SecondaryCTA } from './ui/primitives';
 import { useWorkspaceNoteBundle } from '../lib/useWorkspaceNoteBundle';
 import { generateLessonPanels, canGenerateGroundedLesson } from '../lib/lessonGenerator';
 import type { WorkspacePanel } from '../lib/workspaceLessonPanels';
@@ -147,7 +149,10 @@ export function LessonView({
 
   const canAdvance = () => {
     if (!noteBundle.hasSource) return false;
-    if (step.key === 'retrieval' && !quizPassed) return false;
+    if (step.key === 'retrieval' && !quizPassed) {
+      if (settings && overallMastery >= passThreshold(settings)) return true;
+      return false;
+    }
     return true;
   };
 
@@ -177,12 +182,15 @@ export function LessonView({
       role="dialog"
       aria-modal="true"
       aria-label={lessonTitle}
+      data-testid="lesson-page"
+      data-bleed="full"
+      data-border-diet="cta-only"
     >
       <a href="#lesson-main" className="skip-to-content">
         {t('lessonViewSkipToContent')}
       </a>
 
-      <header className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3 border-b border-border-subtle bg-surface-secondary/40">
+      <header className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-surface-secondary/40">
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <button
             type="button"
@@ -190,30 +198,30 @@ export function LessonView({
             aria-label={t('lessonViewCloseLesson')}
             className="p-2 -ml-1 rounded-md hover:bg-surface-hover shrink-0 min-h-9 min-w-9 inline-flex items-center justify-center"
           >
-            <X className="w-5 h-5 text-text-secondary" />
+            <X className="w-5 h-5 text-text-secondary" aria-hidden />
           </button>
           <div className="min-w-0">
-            <p className="ws-eyebrow text-text-muted truncate">
-              <AllCapsLabel>{lessonCourse}</AllCapsLabel>
+            <p className="type-micro font-semibold text-text-secondary truncate">
+              {lessonCourse}
               {noteBundle.hasSource && (
-                <span className="ml-1.5 text-accent-emerald normal-case tracking-normal">
+                <span className="ml-1.5 font-medium text-text-tertiary">
                   · {t('lessonViewFromYourNotes')}
                 </span>
               )}
             </p>
-            <h1 className="ws-title text-base sm:text-lg leading-tight truncate">{lessonTitle}</h1>
+            <h1 className="type-title leading-tight truncate">{lessonTitle}</h1>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <button
+          <SecondaryCTA
             type="button"
+            size="sm"
             onClick={onOpenAgent}
             aria-label={t('agentBtn')}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md type-caption font-medium border border-border-subtle hover:border-brand-500/40 hover:bg-surface-hover transition-colors min-h-9"
           >
-            <Sparkles className="w-3.5 h-3.5 text-text-secondary" />
-            <span className="hidden xs:inline">{t('agentBtn')}</span>
-          </button>
+            <Sparkles className="w-3.5 h-3.5 text-text-secondary" aria-hidden />
+            <span className="hidden xs:inline">{t('askAgentShort')}</span>
+          </SecondaryCTA>
           <span
             className="ws-num type-caption text-accent-amber font-medium px-2 py-1 rounded border border-accent-amber/20 bg-accent-amber/5"
             aria-label={`${xpReward} XP`}
@@ -236,7 +244,7 @@ export function LessonView({
 
       <nav
         aria-label={t('lessonViewStepsAria')}
-        className="flex items-center gap-1 px-4 sm:px-6 py-2 overflow-x-auto scrollbar-none border-b border-border-subtle/60 bg-surface-secondary/20"
+        className="flex items-center gap-1 px-4 sm:px-6 py-2 overflow-x-auto scrollbar-none bg-surface-secondary/20"
       >
         {dynamicSteps.map((s, i) => {
           const completed = i < currentStep;
@@ -321,23 +329,19 @@ export function LessonView({
         </div>
       </main>
 
-      <footer className="border-t border-border-subtle bg-surface-secondary/30">
+      <footer className="bg-surface-secondary/30">
         <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={goPrev}
             disabled={currentStep === 0}
             aria-label={t('previous')}
-            className={cn(
-              'inline-flex items-center gap-1 px-3 py-2 rounded-md type-meta font-medium transition-colors min-h-10',
-              currentStep === 0
-                ? 'text-text-muted cursor-not-allowed'
-                : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover',
-            )}
           >
             <ChevronRight className="w-4 h-4 rotate-180" aria-hidden="true" />
             <span className="hidden xs:inline">{t('previous')}</span>
-          </button>
+          </Button>
           <div className="text-center min-w-0">
             <p className="ws-num type-caption text-text-secondary">
               {currentStep + 1} <span className="text-text-muted">/ {dynamicSteps.length}</span>
@@ -348,32 +352,27 @@ export function LessonView({
               </p>
             )}
           </div>
-          <button
+          <PrimaryCTA
             type="button"
+            size="sm"
             onClick={goNext}
             disabled={!canAdvance()}
             aria-label={isLast ? t('finish') : t('next')}
-            className={cn(
-              'inline-flex items-center gap-1 px-3 py-2 rounded-md type-meta font-medium transition-colors min-h-10',
-              canAdvance()
-                ? 'text-text-primary bg-surface-secondary border border-brand-500/30 hover:bg-brand-600/25'
-                : 'text-text-muted cursor-not-allowed border border-border-subtle/40',
-            )}
           >
             <span>{isLast ? t('finish') : t('next')}</span>
             <ChevronRight className="w-4 h-4" aria-hidden="true" />
-          </button>
+          </PrimaryCTA>
         </div>
 
         {isLast && quizPassed && onStartNextTask && (
           <div className="px-4 sm:px-6 pb-4">
-            <button
+            <PrimaryCTA
               type="button"
               onClick={onStartNextTask}
-              className="w-full py-2.5 rounded-md type-meta font-medium border border-brand-500/30 text-text-primary hover:bg-brand-600/10 transition-colors min-h-11"
+              className="w-full"
             >
               {t('lessonViewNextTask')}
-            </button>
+            </PrimaryCTA>
           </div>
         )}
       </footer>

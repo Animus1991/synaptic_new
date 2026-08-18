@@ -108,13 +108,13 @@ export function DashboardLivePreview({
     return (
       <div
         /* OPT-K110 — wash + left accent only; no Y-axis outline cage */
-        className="dashboard-live-preview w-full max-w-none border-0 bg-surface-secondary/45 py-2.5 px-1 sm:px-1.5"
+        className="dashboard-live-preview dashboard-study-band w-full max-w-none border-0 py-1.5 px-2.5"
         data-tour="dashboard-resume"
         data-testid="dashboard-live-preview"
         data-bleed="full"
       >
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="min-w-0 flex-1">
+        <div className="flex w-full flex-wrap items-center justify-start gap-3 sm:gap-4">
+          <div className="min-w-0 max-w-xl">
             <p className="type-micro font-semibold text-text-secondary">
               {t('dashboardLivePreviewEyebrow')}
             </p>
@@ -153,15 +153,15 @@ export function DashboardLivePreview({
           <p className="mt-1 type-body text-text-secondary">{t('dashboardResumeSubtitle')}</p>
         </div>
         {onOpenWorkspace && (
-          <button
-            type="button"
+          <PrimaryCTA
             onClick={onOpenWorkspace}
             data-testid="dashboard-resume-workspace"
+            size="sm"
             {...workspaceEntryPrefetchHandlers()}
-            className="dashboard-continue-hero flex shrink-0 items-center gap-1.5 rounded-lg bg-brand-700 px-3.5 py-1.5 type-caption font-semibold text-white transition-all hover:bg-brand-800"
+            className="dashboard-continue-hero"
           >
-            {t('dashboardResumeContinue')} <ArrowRight className="h-3 w-3" />
-          </button>
+            {t('dashboardResumeContinue')} <ArrowRight className="h-3 w-3" aria-hidden />
+          </PrimaryCTA>
         )}
       </div>
 

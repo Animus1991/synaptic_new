@@ -1,12 +1,14 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, type DragEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { emphasizedTransition, expandHeight } from '../lib/motion';
 import {
   Search, Upload, BookOpen, FileText, ChevronRight, ChevronDown,
   Clock, BarChart3, Sparkles, Grid3X3, List, Loader2, AlertCircle,
   File, Image, Code, Presentation, Table2, Trash2, RefreshCw, ExternalLink, X, MessageSquare,
+  Pencil, Folder,
 } from '@/lib/lucide-shim';
-import type { Course, UploadedFile, UserSettings, Task, GlossaryEntry } from '../types';
+import type { Course, LibraryFolder, UploadedFile, UserSettings, Task, GlossaryEntry } from '../types';
+import { groupFilesByFolder } from '../lib/libraryOrganize';
 import { cn } from '../utils/cn';
 import { prefetchWorkspaceEntry, workspaceEntryPrefetchHandlers } from '../features/workspace';
 import { buildMaterialOutlinePreview } from '../features/upload';
@@ -31,11 +33,11 @@ import {
 } from '../features/library';
 import { selectCourseTaskMetrics } from '../lib/coursePageSelectors';
 import { CourseIcon } from './ui/CourseIcon';
-import { AllCapsLabel } from './ui/AllCapsLabel';
 import { UiIcon } from './ui/UiIcon';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { PostUploadBanner } from './ui/PostUploadBanner';
 import { Page, PageHeader, PrimaryCTA } from './ui/primitives';
+import { Button } from './ui/Button';
 import { useWarmSandPageScope, warmSandScopeProps } from '../lib/useDocumentTheme';
 import { DescriptiveStickyTabBar, InfoStack, MiniAlert } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
@@ -44,6 +46,8 @@ import { t } from '../lib/i18n';
 import { RagIndexProgressBanner } from './RagIndexProgressBanner';
 import { CrossLibrarySynthesisPanel } from './CrossLibrarySynthesisPanel';
 import { NotebookLmImportPanel } from './NotebookLmImportPanel';
+import { LibraryNameDialog } from './LibraryNameDialog';
+import { LibraryMoveFileDialog } from './LibraryMoveFileDialog';
 import { LibrarySyncConflictPanel } from './LibrarySyncConflictPanel';
 import { showCrossLibrarySynthesis } from '../lib/platformFocus';
 import type { NotebookLmImportResult } from '../lib/notebooklmImport';
@@ -72,15 +76,22 @@ function courseStatusKind(course: Course): CourseStatusKind {
 }
 
 /** Open upload modal — omit for new course; pass extend + course id to add material. */
-export type LibraryUploadIntent = { mode: 'new' | 'extend'; targetCourseId?: string };
+export type LibraryUploadIntent = { mode: 'new' | 'extend'; targetCourseId?: string; files?: File[] };
 
 interface LibraryProps {
   courses: Course[];
   uploadedFiles: UploadedFile[];
   onSelectCourse: (course: Course) => void;
   onRemoveCourse?: (courseId: string) => boolean;
+  onRenameCourse?: (courseId: string, title: string) => boolean;
   onUpload: (intent?: LibraryUploadIntent) => void;
   onRemoveFile?: (fileId: string) => void;
+  onRenameFile?: (fileId: string, name: string) => boolean;
+  onMoveFile?: (fileId: string, courseId: string | null, folderId?: string | null) => boolean;
+  libraryFolders?: LibraryFolder[];
+  onCreateFolder?: (name: string) => boolean;
+  onRenameFolder?: (folderId: string, name: string) => boolean;
+  onDeleteFolder?: (folderId: string) => boolean;
   onReprocessCourse?: (courseId: string) => void;
   reprocessingMaterial?: boolean;
   userSettings?: UserSettings;
@@ -95,6 +106,8 @@ interface LibraryProps {
   onOpenConcept?: (concept: string) => void;
   /** OPT-AI-C — Ask Agent about an analyzed library source (pins file). */
   onAskSource?: (file: UploadedFile, course?: Course) => void;
+  /** Same signed-in pull as Settings — refreshes library from the account server. */
+  onPullLibrary?: () => Promise<unknown>;
   /** OPT-L5 — signed-in pull conflict (remote already applied). */
   syncConflicts?: LibrarySyncConflictItem[];
   onKeepRemoteLibrary?: () => void;
@@ -120,8 +133,15 @@ export function Library({
   uploadedFiles,
   onSelectCourse,
   onRemoveCourse,
+  onRenameCourse,
   onUpload,
   onRemoveFile,
+  onRenameFile,
+  onMoveFile,
+  libraryFolders = [],
+  onCreateFolder,
+  onRenameFolder,
+  onDeleteFolder,
   onReprocessCourse,
   reprocessingMaterial = false,
   userSettings,
@@ -135,6 +155,7 @@ export function Library({
   onOpenNotebookShell,
   onOpenConcept,
   onAskSource,
+  onPullLibrary,
   syncConflicts = [],
   onKeepRemoteLibrary,
   onRestoreLocalLibrary,
@@ -155,6 +176,9 @@ export function Library({
   const [sortBy, setSortBy] = useState<LibrarySortBy>(initialPrefs.sortBy);
   /** Skip first paint so theme-default viewMode does not clobber unset prefs (OPT-L5). */
   const prefsReadyRef = useRef(false);
+  const [dropActive, setDropActive] = useState(false);
+  const [pullingLibrary, setPullingLibrary] = useState(false);
+  const [pullStatus, setPullStatus] = useState<'ok' | 'fail' | null>(null);
   const [entryHintDismissed, setEntryHintDismissed] = useState(() => {
     if (typeof window === 'undefined') return false;
     try {
@@ -163,6 +187,25 @@ export function Library({
       return false;
     }
   });
+  const canPullLibrary = Boolean(
+    onPullLibrary && userSettings && canAutoSyncLibrary(userSettings),
+  );
+  const [folderDialog, setFolderDialog] = useState<'create' | { rename: string } | null>(null);
+  const [deletingFolderId, setDeletingFolderId] = useState<string | null>(null);
+
+  const handlePullLibrary = async () => {
+    if (!onPullLibrary || pullingLibrary) return;
+    setPullingLibrary(true);
+    setPullStatus(null);
+    try {
+      await onPullLibrary();
+      setPullStatus('ok');
+    } catch {
+      setPullStatus('fail');
+    } finally {
+      setPullingLibrary(false);
+    }
+  };
 
   useEffect(() => {
     if (!prefsReadyRef.current) {
@@ -171,6 +214,40 @@ export function Library({
     }
     saveLibraryViewPrefs({ filter, viewMode, sortBy });
   }, [filter, viewMode, sortBy]);
+
+  const acceptDroppedFiles = (fileList: FileList | File[] | null | undefined) => {
+    const files = fileList ? Array.from(fileList) : [];
+    if (files.length === 0) {
+      onUpload();
+      return;
+    }
+    onUpload({ mode: 'new', files });
+  };
+
+  const dropZoneHandlers = {
+    onDragEnter: (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDropActive(true);
+    },
+    onDragOver: (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDropActive(true);
+    },
+    onDragLeave: (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+      setDropActive(false);
+    },
+    onDrop: (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDropActive(false);
+      acceptDroppedFiles(e.dataTransfer.files);
+    },
+  };
 
   const dismissEntryHint = () => {
     try {
@@ -226,6 +303,11 @@ export function Library({
     });
   }, [courses, search, uploadedFiles]);
 
+  const fileGroups = useMemo(
+    () => groupFilesByFolder(filteredFiles, libraryFolders),
+    [filteredFiles, libraryFolders],
+  );
+
   const topicIdToTitle = useMemo(() => buildTopicIdTitleMap(courses), [courses]);
 
   const topicToCourse = useMemo(() => {
@@ -267,13 +349,13 @@ export function Library({
     () => [
       {
         id: 'courses' as const,
-        label: t('libCoursesStat', userLanguage).replace('{count}', String(courses.length)),
+        label: t('libCoursesTab', userLanguage),
         summary: t('libCoursesStatReady', userLanguage),
         count: courses.length,
       },
       {
         id: 'files' as const,
-        label: t('libFilesStat', userLanguage).replace('{count}', String(uploadedFiles.length)),
+        label: t('libFilesTab', userLanguage),
         summary: t('libFilesStatSources', userLanguage),
         count: uploadedFiles.length,
       },
@@ -308,22 +390,71 @@ export function Library({
       /* OPT-K122/K149 — Library clarity: CTA-only + Tasks-parity washes/type */
       data-border-diet="cta-only"
     >
-    <Page gap="sm">
+    <Page gap="sm" data-soft-sep="stack" data-type-rhythm="library">
       <PageHeader
         eyebrow={t('library', userLanguage)}
         title={t('libraryPageTitle', userLanguage)}
         subtitle={t('librarySubtitle', userLanguage)}
         actions={
-          <PrimaryCTA
-            onClick={() => onUpload()}
-            data-testid="library-upload"
-            data-tour="library-upload"
-            size="sm"
-            className="library-upload-cta whitespace-nowrap"
-          >
-            <Upload className="w-3.5 h-3.5" aria-hidden="true" />
-            {t('libUpload', userLanguage)}
-          </PrimaryCTA>
+          <>
+            <PrimaryCTA
+              onClick={() => onUpload()}
+              data-testid="library-upload"
+              data-tour="library-upload"
+              size="sm"
+              className="library-upload-cta whitespace-nowrap"
+            >
+              <Upload className="w-3.5 h-3.5" aria-hidden="true" />
+              {t('libUpload', userLanguage)}
+            </PrimaryCTA>
+            {canPullLibrary && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => void handlePullLibrary()}
+                disabled={pullingLibrary}
+                aria-busy={pullingLibrary}
+                data-testid="library-pull-from-server"
+                className="whitespace-nowrap"
+              >
+                {pullingLibrary ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
+                ) : (
+                  <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
+                )}
+                {pullingLibrary
+                  ? t('libPulling', userLanguage)
+                  : t('libPullFromServer', userLanguage)}
+              </Button>
+            )}
+            {tab === 'courses' && (
+              <div
+                role="group"
+                aria-label={t('libViewGroup', userLanguage)}
+                data-testid="library-view-toggle"
+                className="inline-flex items-center rounded-lg border-0 bg-surface-secondary/55 p-0.5 gap-0.5"
+              >
+                <button
+                  type="button"
+                  onClick={() => setViewMode('grid')}
+                  aria-label={t('libGridView', userLanguage)}
+                  aria-pressed={viewMode === 'grid'}
+                  className={cn('inline-flex min-h-9 min-w-9 items-center justify-center rounded-md border-0', viewMode === 'grid' ? 'bg-surface-primary text-text-primary' : 'text-text-tertiary hover:text-text-secondary')}
+                >
+                  <Grid3X3 className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('list')}
+                  aria-label={t('libListView', userLanguage)}
+                  aria-pressed={viewMode === 'list'}
+                  className={cn('inline-flex min-h-9 min-w-9 items-center justify-center rounded-md border-0', viewMode === 'list' ? 'bg-surface-primary text-text-primary' : 'text-text-tertiary hover:text-text-secondary')}
+                >
+                  <List className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </>
         }
       />
 
@@ -331,6 +462,7 @@ export function Library({
         className="library-work-surface w-full max-w-none space-y-2"
         data-testid="library-work-surface"
         data-bleed="full"
+        data-soft-card="off"
       >
       <RagIndexProgressBanner
         settings={userSettings}
@@ -355,6 +487,24 @@ export function Library({
             data-testid="library-sync-signed-in-hint"
           >
             {t('librarySyncSignedInHint', userLanguage)}
+          </p>
+        )}
+        {pullStatus === 'ok' && (
+          <p
+            className="type-caption text-text-secondary px-0.5"
+            role="status"
+            data-testid="library-pull-status"
+          >
+            {t('libPullStatusOk', userLanguage)}
+          </p>
+        )}
+        {pullStatus === 'fail' && (
+          <p
+            className="type-caption text-text-secondary px-0.5"
+            role="status"
+            data-testid="library-pull-status"
+          >
+            {t('libPullStatusFail', userLanguage)}
           </p>
         )}
         {syncConflicts.length > 0 && onKeepRemoteLibrary && onRestoreLocalLibrary && (
@@ -387,6 +537,7 @@ export function Library({
             title={t('chromeLibraryExtras', userLanguage)}
             data-testid="library-extras-chrome"
             alwaysCollapse
+            defaultOpen={Boolean(userSettings && shouldShowDemo(userSettings))}
           >
             <div className="space-y-3 px-1 pb-2">
               {onImportNotebookLm && (
@@ -394,6 +545,11 @@ export function Library({
                   lang={userLanguage}
                   onImport={onImportNotebookLm}
                   onAddToFsrs={onAddNotebookLmToFsrs}
+                  onOpenCourse={(courseId) => {
+                    const course = courses.find((item) => item.id === courseId);
+                    if (course) onSelectCourse(course);
+                  }}
+                  demoSample={Boolean(userSettings && shouldShowDemo(userSettings))}
                 />
               )}
 
@@ -418,7 +574,7 @@ export function Library({
                   <button
                     type="button"
                     onClick={dismissEntryHint}
-                    className="shrink-0 text-text-muted hover:text-text-secondary p-0.5"
+                    className="inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-md text-text-muted hover:text-text-secondary"
                     aria-label={t('close', userLanguage)}
                   >
                     <X className="w-3.5 h-3.5" />
@@ -445,7 +601,13 @@ export function Library({
           onClick={() => onUpload()}
           data-testid="library-drop-zone-compact"
           data-bleed="full"
-          className="ux-library-drop-zone ux-library-drop-zone--compact ux-prompt-bar-surface flex w-full flex-row items-center justify-center gap-2 px-3 py-2 text-text-secondary hover:text-text-primary transition-colors"
+          data-soft-card="off"
+          data-drop-active={dropActive ? 'true' : undefined}
+          className={cn(
+            'ux-library-drop-zone ux-library-drop-zone--compact ux-prompt-bar-surface flex w-full flex-row items-center justify-center gap-2 px-3 py-2 text-text-secondary hover:text-text-primary transition-colors',
+            dropActive && 'ring-2 ring-brand-500/40 text-text-primary',
+          )}
+          {...dropZoneHandlers}
         >
           <Upload className="h-4 w-4 text-text-secondary shrink-0" aria-hidden />
           <span className="type-caption font-medium">{t('libDropZoneCompactTitle', userLanguage)}</span>
@@ -453,7 +615,7 @@ export function Library({
       )}
 
       {/* Search stays visible; filters/sort nest as Find courses chrome. */}
-      <div className="relative w-full">
+      <div className="relative w-full" data-soft-card="off">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" aria-hidden="true" />
         <input
           type="search"
@@ -461,14 +623,14 @@ export function Library({
           aria-label={t('libSearchAria', userLanguage)}
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full pl-10 pr-10 py-2.5 rounded-lg border-0 bg-surface-secondary/70 type-meta text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-500/40 transition-colors"
+          className="w-full min-h-11 pl-10 pr-10 py-2.5 rounded-md border-0 bg-surface-secondary/70 type-meta text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-500/40 transition-colors"
         />
         {search && (
           <button
             type="button"
             onClick={() => setSearch('')}
             aria-label={t('libClearSearch', userLanguage)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-text-tertiary hover:text-text-primary hover:bg-surface-hover transition-colors"
+            className="library-search-clear absolute right-2 top-1/2 -translate-y-1/2 inline-flex min-h-9 min-w-9 items-center justify-center rounded-md text-text-tertiary hover:text-text-primary hover:bg-surface-hover transition-colors"
           >
             <X className="w-3.5 h-3.5" aria-hidden />
           </button>
@@ -491,11 +653,10 @@ export function Library({
                   aria-pressed={active}
                   data-testid={`library-filter-${f}`}
                   className={cn(
-                    'platform-pill px-3 py-1.5 rounded-md type-caption transition-colors border-0 text-text-primary',
+                    'platform-pill min-h-9 px-3 py-1.5 rounded-md type-caption transition-colors border-0 text-text-primary font-mono',
                     active ? 'platform-pill-active bg-surface-secondary' : 'bg-surface-secondary/40',
                     f === 'attention' && active ? 'bg-surface-secondary text-text-secondary' : '',
                   )}
-                  style={{ fontFamily: 'var(--font-mono)' }}
                 >
                   {filterLabels[f]}
                 </button>
@@ -506,33 +667,13 @@ export function Library({
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
               aria-label={t('libSortLabel', userLanguage)}
               data-testid="library-sort"
-              className="h-8 rounded-md border-0 bg-surface-secondary/70 px-2 type-caption text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+              className="h-9 min-w-[9.5rem] rounded-md border-0 bg-surface-secondary/70 px-2 type-caption text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500/40"
             >
               <option value="recent">{t('libSortRecent', userLanguage)}</option>
               <option value="progress">{t('libSortProgress', userLanguage)}</option>
               <option value="quality">{t('libSortQuality', userLanguage)}</option>
               <option value="title">{t('libSortTitle', userLanguage)}</option>
             </select>
-            <div className="hidden sm:flex items-center rounded-md overflow-hidden border-0 bg-surface-secondary/55 p-0.5 gap-0.5">
-              <button
-                type="button"
-                onClick={() => setViewMode('grid')}
-                aria-label={t('libGridView', userLanguage)}
-                aria-pressed={viewMode === 'grid'}
-                className={cn('p-2 rounded-md border-0', viewMode === 'grid' ? 'bg-surface-primary text-text-primary' : 'text-text-tertiary hover:text-text-secondary')}
-              >
-                <Grid3X3 className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('list')}
-                aria-label={t('libListView', userLanguage)}
-                aria-pressed={viewMode === 'list'}
-                className={cn('p-2 rounded-md border-0', viewMode === 'list' ? 'bg-surface-primary text-text-primary' : 'text-text-tertiary hover:text-text-secondary')}
-              >
-                <List className="w-4 h-4" />
-              </button>
-            </div>
           </div>
         </CollapsibleChromeSection>
       )}
@@ -553,7 +694,12 @@ export function Library({
                 onClick={() => onUpload()}
                 data-testid="library-drop-zone"
                 data-bleed="full"
-                className="ux-library-drop-zone ux-prompt-bar-surface mb-2 flex w-full max-w-none flex-col items-center gap-1.5 px-4 py-8 text-center text-text-secondary hover:text-text-primary transition-colors"
+                data-drop-active={dropActive ? 'true' : undefined}
+                className={cn(
+                  'ux-library-drop-zone ux-prompt-bar-surface mb-2 flex w-full max-w-none flex-col items-center gap-1.5 px-4 py-8 text-center text-text-secondary hover:text-text-primary transition-colors',
+                  dropActive && 'ring-2 ring-brand-500/40 text-text-primary',
+                )}
+                {...dropZoneHandlers}
               >
                 <Upload className="h-5 w-5 text-text-secondary" aria-hidden />
                 <span className="type-meta font-medium">
@@ -597,6 +743,7 @@ export function Library({
                         userLanguage={userLanguage}
                         onClick={() => onSelectCourse(course)}
                         onRemoveCourse={onRemoveCourse}
+                        onRenameCourse={onRenameCourse}
                         onOpenNotebookShell={onOpenNotebookShell}
                         onUpload={() => onUpload({ mode: 'extend', targetCourseId: course.id })}
                         onOpenTopic={onOpenConcept}
@@ -612,7 +759,10 @@ export function Library({
                         userLanguage={userLanguage}
                         onClick={() => onSelectCourse(course)}
                         onRemoveCourse={onRemoveCourse}
+                        onRenameCourse={onRenameCourse}
                         onOpenNotebookShell={onOpenNotebookShell}
+                        onUpload={() => onUpload({ mode: 'extend', targetCourseId: course.id })}
+                        onOpenTopic={onOpenConcept}
                       />
                     )
                   ))}
@@ -655,6 +805,8 @@ export function Library({
                     title={t('libraryTopicsChrome', userLanguage)}
                     data-testid="library-topics-chrome"
                     alwaysCollapse
+                    defaultOpen
+                    meta={libraryInfo.topics.length || undefined}
                   >
                     <div
                       className="library-info-stacks grid grid-cols-1 gap-2 px-1 pb-2 lg:grid-cols-2 lg:gap-2.5"
@@ -709,7 +861,21 @@ export function Library({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={emphasizedTransition}
+            className="space-y-3"
           >
+            {onCreateFolder && (
+              <div className="flex justify-end">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setFolderDialog('create')}
+                  data-testid="library-new-folder"
+                >
+                  <Folder className="w-3.5 h-3.5" />
+                  {t('libNewFolder', userLanguage)}
+                </Button>
+              </div>
+            )}
             {filteredFiles.length === 0 ? (
               <PlatformEmptyState
                 title={search.trim() ? t('libNoMatchingFilesTitle', userLanguage) : t('libraryEmptyFilesTitle', userLanguage)}
@@ -722,23 +888,65 @@ export function Library({
                 onSecondaryAction={search.trim() ? () => setSearch('') : () => setTab('courses')}
               />
             ) : (
-              <div className={cn('space-y-2', isMinimal && 'library-files-dense')}>
-                {filteredFiles.map((file, i) => (
-                  <FileItem
-                    key={file.id}
-                    file={file}
-                    index={i}
-                    course={courses.find((c) => c.id === file.courseId)}
-                    uploadedFiles={uploadedFiles}
-                    tasks={tasks}
-                    glossaryEntries={glossaryEntries}
-                    userSettings={userSettings}
-                    userLanguage={userLanguage}
-                    onRemoveFile={onRemoveFile}
-                    onReprocessCourse={onReprocessCourse}
-                    reprocessingMaterial={reprocessingMaterial}
-                    onAskSource={onAskSource}
-                  />
+              <div className={cn('space-y-3', isMinimal && 'library-files-dense')}>
+                {fileGroups.map((group) => (
+                  (group.files.length > 0 || group.folder) ? (
+                    <section
+                      key={group.folder?.id ?? 'unfiled'}
+                      className="space-y-2"
+                      data-testid={group.folder ? `library-folder-${group.folder.id}` : 'library-folder-unfiled'}
+                    >
+                      <div className="flex items-center gap-2">
+                        <p className="type-caption font-semibold text-text-secondary flex-1">
+                          {group.folder ? group.folder.name : t('libUnfiled', userLanguage)}
+                        </p>
+                        {group.folder && onRenameFolder && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setFolderDialog({ rename: group.folder!.id })}
+                            data-testid={`library-folder-rename-${group.folder.id}`}
+                          >
+                            {t('libRenameFileTooltip', userLanguage)}
+                          </Button>
+                        )}
+                        {group.folder && onDeleteFolder && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeletingFolderId(group.folder!.id)}
+                            data-testid={`library-folder-delete-${group.folder.id}`}
+                          >
+                            {t('libDeleteFolderTitle', userLanguage)}
+                          </Button>
+                        )}
+                      </div>
+                      {group.files.map((file, i) => (
+                        <FileItem
+                          key={file.id}
+                          file={file}
+                          index={i}
+                          course={courses.find((c) => c.id === file.courseId)}
+                          folderName={group.folder?.name}
+                          uploadedFiles={uploadedFiles}
+                          tasks={tasks}
+                          glossaryEntries={glossaryEntries}
+                          userSettings={userSettings}
+                          userLanguage={userLanguage}
+                          onRemoveFile={onRemoveFile}
+                          onRenameFile={onRenameFile}
+                          onMoveFile={onMoveFile}
+                          moveCourses={courses
+                            .filter((item) => !isDemoCourse(item.id) && item.status !== 'generating')
+                            .map((item) => ({ id: item.id, title: item.title }))}
+                          moveFolders={libraryFolders.map((folder) => ({ id: folder.id, name: folder.name }))}
+                          onReprocessCourse={onReprocessCourse}
+                          reprocessingMaterial={reprocessingMaterial}
+                          onAskSource={onAskSource}
+                        />
+                      ))}
+                    </section>
+                  ) : null
                 ))}
               </div>
             )}
@@ -746,6 +954,45 @@ export function Library({
         )}
       </AnimatePresence>
       </div>
+      <LibraryNameDialog
+        open={folderDialog === 'create'}
+        lang={userLanguage}
+        title={t('libNewFolder', userLanguage)}
+        initialValue=""
+        testId="library-folder-create-dialog"
+        onClose={() => setFolderDialog(null)}
+        onSave={(name) => onCreateFolder?.(name) ?? false}
+      />
+      <LibraryNameDialog
+        open={typeof folderDialog === 'object' && folderDialog !== null}
+        lang={userLanguage}
+        title={t('libRenameFolderTitle', userLanguage)}
+        initialValue={
+          typeof folderDialog === 'object' && folderDialog
+            ? libraryFolders.find((folder) => folder.id === folderDialog.rename)?.name ?? ''
+            : ''
+        }
+        testId="library-folder-rename-dialog"
+        onClose={() => setFolderDialog(null)}
+        onSave={(name) => {
+          if (typeof folderDialog !== 'object' || !folderDialog) return false;
+          return onRenameFolder?.(folderDialog.rename, name) ?? false;
+        }}
+      />
+      <ConfirmDialog
+        open={Boolean(deletingFolderId)}
+        title={t('libDeleteFolderTitle', userLanguage)}
+        description={t('libDeleteFolderBody', userLanguage)}
+        confirmLabel={t('libDeleteFolderTitle', userLanguage)}
+        cancelLabel={t('cancel', userLanguage)}
+        destructive
+        data-testid="library-folder-delete-dialog"
+        onClose={() => setDeletingFolderId(null)}
+        onConfirm={() => {
+          if (deletingFolderId) onDeleteFolder?.(deletingFolderId);
+          setDeletingFolderId(null);
+        }}
+      />
     </Page>
     </div>
   );
@@ -766,6 +1013,7 @@ function CourseCard({
   index,
   onClick,
   onRemoveCourse,
+  onRenameCourse,
   onOpenNotebookShell,
   onUpload,
   onOpenTopic,
@@ -778,6 +1026,7 @@ function CourseCard({
   index: number;
   onClick: () => void;
   onRemoveCourse?: (courseId: string) => boolean;
+  onRenameCourse?: (courseId: string, title: string) => boolean;
   onOpenNotebookShell?: (courseId: string) => void;
   onUpload?: () => void;
   /** OPT-L1 — topic chip → study workspace for that topic. */
@@ -788,6 +1037,7 @@ function CourseCard({
   userLanguage?: 'en' | 'el';
 }) {
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const [renameOpen, setRenameOpen] = useState(false);
   const canDelete = Boolean(onRemoveCourse) && !isDemoCourse(course.id);
   const deleteCopy = useMemo(() => {
     const stats = courseDeleteStats(course.id, uploadedFiles, tasks, glossaryEntries);
@@ -800,6 +1050,7 @@ function CourseCard({
 
   const progress = (course.completedLessons / Math.max(course.totalLessons, 1)) * 100;
   const isGenerating = course.status === 'generating';
+  const canRename = Boolean(onRenameCourse) && !isDemoCourse(course.id) && !isGenerating;
   const needsReview = course.status === 'needs_review';
   const quality = course.sourceQuality;
   const showMaterialGap = Boolean(quality?.needsMoreMaterial);
@@ -836,17 +1087,17 @@ function CourseCard({
           {showMaterialGap && (
             <span
               data-testid={`library-corner-gap-${course.id}`}
-              className="rounded-md border-0 bg-surface-secondary px-1.5 py-0.5 type-micro font-bold uppercase tracking-wide text-text-secondary"
+              className="rounded-md border-0 bg-surface-secondary px-1.5 py-0.5 type-micro font-medium text-text-secondary"
             >
-              <AllCapsLabel>{t('libCornerMaterialGap', userLanguage)}</AllCapsLabel>
+              {t('libCornerMaterialGap', userLanguage)}
             </span>
           )}
           {showMisconception && (
             <span
               data-testid={`library-corner-misconception-${course.id}`}
-              className="rounded-md border-0 bg-surface-secondary/80 px-1.5 py-0.5 type-micro font-bold uppercase tracking-wide text-text-secondary"
+              className="rounded-md border-0 bg-surface-secondary/80 px-1.5 py-0.5 type-micro font-medium text-text-secondary"
             >
-              <AllCapsLabel>{t('libCornerMisconception', userLanguage)}</AllCapsLabel>
+              {t('libCornerMisconception', userLanguage)}
             </span>
           )}
         </div>
@@ -855,12 +1106,23 @@ function CourseCard({
       <div className="flex items-start justify-between mb-2.5">
         <CourseIcon icon={course.icon} size="lg" colorClassName="text-text-secondary" />
         <div className="flex items-center gap-1">
+          {canRename && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setRenameOpen(true); }}
+              data-testid="library-course-rename"
+              className="pointer-events-auto inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border-0 p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-surface-secondary hover:text-text-secondary hover:opacity-100"
+              aria-label={t('libRenameCourseAria', userLanguage)}
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+          )}
           {canDelete && !isGenerating && (
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); setRemoveDialogOpen(true); }}
               data-testid="library-course-delete"
-              className="pointer-events-auto rounded-lg border-0 p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-surface-secondary hover:text-text-secondary hover:opacity-100"
+              className="pointer-events-auto inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border-0 p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-surface-secondary hover:text-text-secondary hover:opacity-100"
               aria-label={t('libDeleteCourseAria', userLanguage)}
             >
               <X className="w-4 h-4" />
@@ -953,30 +1215,33 @@ function CourseCard({
 
       {!isGenerating && (
         <div className="mt-2.5 flex items-center gap-2">
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size="sm"
             onClick={(e) => {
               e.stopPropagation();
               onClick();
             }}
             data-testid={`library-open-course-${course.id}`}
-            className="flex-1 inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border-0 bg-brand-700 text-white px-2 py-1.5 type-caption font-semibold hover:bg-brand-600 transition-colors ux-solid-brand-cta"
+            className="flex-1 ux-solid-brand-cta"
           >
             {t('libOpenCourse', userLanguage)}
-          </button>
+          </Button>
           {onOpenNotebookShell && (
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               onClick={(e) => {
                 e.stopPropagation();
                 onOpenNotebookShell(course.id);
               }}
               data-testid={`library-notebook-shell-${course.id}`}
-              className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border-0 bg-surface-secondary px-2.5 py-1.5 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
             >
               <BookOpen className="w-3.5 h-3.5" />
               {t('libNotebookShellShort', userLanguage)}
-            </button>
+            </Button>
           )}
         </div>
       )}
@@ -1004,7 +1269,7 @@ function CourseCard({
                   onUpload();
                 }}
                 data-testid={`library-add-file-${course.id}`}
-                className="rounded-md border-0 bg-surface-secondary/70 px-1.5 py-0.5 type-micro font-medium text-text-secondary hover:bg-surface-hover"
+                className="min-h-9 rounded-md border-0 bg-surface-secondary/70 px-1.5 py-0.5 type-micro font-medium text-text-secondary hover:bg-surface-hover"
               >
                 {t('libAddFileChip', userLanguage)}
               </button>
@@ -1041,6 +1306,17 @@ function CourseCard({
           <span>{course.exerciseCount} {t('libExercises', userLanguage)}</span>
         </div>
       )}
+      {canRename && (
+        <LibraryNameDialog
+          open={renameOpen}
+          lang={userLanguage}
+          title={t('libRenameCourseTitle', userLanguage)}
+          initialValue={course.title}
+          testId="library-course-rename-dialog"
+          onClose={() => setRenameOpen(false)}
+          onSave={(title) => onRenameCourse?.(course.id, title) !== false}
+        />
+      )}
       {canDelete && (
         <ConfirmDialog
           open={removeDialogOpen}
@@ -1066,7 +1342,10 @@ function CourseListItem({
   index,
   onClick,
   onRemoveCourse,
+  onRenameCourse,
   onOpenNotebookShell,
+  onUpload,
+  onOpenTopic,
   uploadedFiles,
   tasks = [],
   glossaryEntries = [],
@@ -1076,13 +1355,17 @@ function CourseListItem({
   index: number;
   onClick: () => void;
   onRemoveCourse?: (courseId: string) => boolean;
+  onRenameCourse?: (courseId: string, title: string) => boolean;
   onOpenNotebookShell?: (courseId: string) => void;
+  onUpload?: () => void;
+  onOpenTopic?: (topicTitle: string) => void;
   uploadedFiles: UploadedFile[];
   tasks?: Task[];
   glossaryEntries?: GlossaryEntry[];
   userLanguage?: 'en' | 'el';
 }) {
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const [renameOpen, setRenameOpen] = useState(false);
   const canDelete = Boolean(onRemoveCourse) && !isDemoCourse(course.id);
   const deleteCopy = useMemo(() => {
     const stats = courseDeleteStats(course.id, uploadedFiles, tasks, glossaryEntries);
@@ -1097,6 +1380,8 @@ function CourseListItem({
   const quality = course.sourceQuality;
   const { pendingTasks, dueReviews, isStalePipeline: isOldPipeline } = selectCourseTaskMetrics(course, tasks);
   const isGenerating = course.status === 'generating';
+  const canRename = Boolean(onRenameCourse) && !isDemoCourse(course.id) && !isGenerating;
+  const topicChips = (course.topics ?? []).filter((topic) => !isDebugUiTopicLabel(topic.title));
   const openCourse = () => {
     if (isGenerating) return;
     prefetchWorkspaceEntry();
@@ -1113,10 +1398,11 @@ function CourseListItem({
       data-testid="library-course-card"
       className={cn(
         /* OPT-K122 — list row wash (no outline / hover border) */
-        'flex items-center gap-2 p-3 border-0 transition-colors group hover:bg-surface-secondary/40',
+        'flex flex-col gap-2 p-3 border-0 transition-colors group hover:bg-surface-secondary/40',
         isGenerating ? 'opacity-90' : '',
       )}
     >
+      <div className="flex items-center gap-2 min-w-0">
       <button
         type="button"
         onClick={openCourse}
@@ -1170,17 +1456,32 @@ function CourseListItem({
           </div>
           <span className="type-meta font-medium w-12 text-right text-text-primary">{course.mastery}%</span>
         </div>
+        <span className="sm:hidden type-caption tabular-nums text-text-secondary shrink-0">{course.mastery}%</span>
         <ChevronRight className="w-4 h-4 shrink-0 text-text-secondary" />
       </button>
       {onOpenNotebookShell && (
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="sm"
           onClick={() => onOpenNotebookShell(course.id)}
           data-testid={`library-notebook-shell-list-${course.id}`}
-          className="hidden sm:inline-flex items-center gap-1 rounded-lg border-0 bg-surface-secondary px-2 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+          aria-label={t('libNotebookShellShort', userLanguage)}
+          className="min-w-9 px-2"
         >
-          <BookOpen className="w-3 h-3" />
-          {t('libNotebookShellShort', userLanguage)}
+          <BookOpen className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">{t('libNotebookShellShort', userLanguage)}</span>
+        </Button>
+      )}
+      {canRename && (
+        <button
+          type="button"
+          onClick={() => setRenameOpen(true)}
+          data-testid="library-course-rename"
+          className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border-0 p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-surface-secondary hover:text-text-secondary hover:opacity-100"
+          aria-label={t('libRenameCourseAria', userLanguage)}
+        >
+          <Pencil className="w-4 h-4" />
         </button>
       )}
       {canDelete && (
@@ -1188,11 +1489,54 @@ function CourseListItem({
           type="button"
           onClick={() => setRemoveDialogOpen(true)}
           data-testid="library-course-delete"
-          className="rounded-lg border-0 p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-surface-secondary hover:text-text-secondary hover:opacity-100"
+          className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border-0 p-1.5 text-text-tertiary opacity-80 transition-all hover:bg-surface-secondary hover:text-text-secondary hover:opacity-100"
           aria-label={t('libDeleteCourseAria', userLanguage)}
         >
           <Trash2 className="w-4 h-4" />
         </button>
+      )}
+      </div>
+      {!isGenerating && topicChips.length > 0 && (
+        <OverflowChipRow
+          testId={`library-topic-chips-list-${course.id}`}
+          className="pl-14 sm:pl-[4.25rem]"
+          maxVisible={2}
+          moreAriaLabel={(n) => t('libChipOverflowMoreAria', userLanguage).replace('{n}', String(n))}
+          lessAriaLabel={t('libChipOverflowLessAria', userLanguage)}
+          chipClassName="!max-w-[10rem] type-micro border-0 bg-surface-secondary/70"
+          items={topicChips.map((topic) => ({
+            key: topic.id,
+            label: topic.title,
+            title: t('libTopicOpenHint', userLanguage),
+            onClick: onOpenTopic ? () => onOpenTopic(topic.title) : undefined,
+          }))}
+          trailing={
+            onUpload ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUpload();
+                }}
+                data-testid={`library-add-file-list-${course.id}`}
+                className="min-h-9 rounded-md border-0 bg-surface-secondary/70 px-1.5 py-0.5 type-micro font-medium text-text-secondary hover:bg-surface-hover"
+              >
+                {t('libAddFileChip', userLanguage)}
+              </button>
+            ) : undefined
+          }
+        />
+      )}
+      {canRename && (
+        <LibraryNameDialog
+          open={renameOpen}
+          lang={userLanguage}
+          title={t('libRenameCourseTitle', userLanguage)}
+          initialValue={course.title}
+          testId="library-course-rename-dialog"
+          onClose={() => setRenameOpen(false)}
+          onSave={(title) => onRenameCourse?.(course.id, title) !== false}
+        />
       )}
       {canDelete && (
         <ConfirmDialog
@@ -1224,6 +1568,11 @@ function FileItem({
   userSettings,
   userLanguage = 'en',
   onRemoveFile,
+  onRenameFile,
+  onMoveFile,
+  moveCourses = [],
+  moveFolders = [],
+  folderName,
   onReprocessCourse,
   reprocessingMaterial = false,
   onAskSource,
@@ -1237,6 +1586,11 @@ function FileItem({
   userSettings?: UserSettings;
   userLanguage?: 'en' | 'el';
   onRemoveFile?: (fileId: string) => void;
+  onRenameFile?: (fileId: string, name: string) => boolean;
+  onMoveFile?: (fileId: string, courseId: string | null, folderId?: string | null) => boolean;
+  moveCourses?: { id: string; title: string }[];
+  moveFolders?: { id: string; name: string }[];
+  folderName?: string;
   onReprocessCourse?: (courseId: string) => void;
   reprocessingMaterial?: boolean;
   onAskSource?: (file: UploadedFile, course?: Course) => void;
@@ -1245,6 +1599,8 @@ function FileItem({
   const pathDense = useMinimalTheme();
   const [expanded, setExpanded] = useState(false);
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const [renameOpen, setRenameOpen] = useState(false);
+  const [moveOpen, setMoveOpen] = useState(false);
   const outlinePreview = useMemo(() => {
     if (!file.extractedText?.trim() || file.status !== 'analyzed') return null;
     return buildMaterialOutlinePreview(file.extractedText, [file.name], userSettings);
@@ -1260,7 +1616,13 @@ function FileItem({
   const canRemove = Boolean(
     file.id
     && onRemoveFile
+    && !file.id.startsWith('demo-file-')
     && (file.status === 'analyzed' || isError || file.status === 'uploading' || file.status === 'processing'),
+  );
+  const canOrganize = Boolean(
+    file.id
+    && !file.id.startsWith('demo-file-')
+    && (file.status === 'analyzed' || isError),
   );
 
   const confirmRemove = () => {
@@ -1326,6 +1688,7 @@ function FileItem({
                 <>
                   {(file.size / 1024).toFixed(1)} KB · {file.type.toUpperCase()}
                   {course && <> · {course.title}</>}
+                  {folderName && <> · {folderName}</>}
                   {outlinePreview && (
                     <> · {outlinePreview.outline.topics.length} {t('libModules', userLanguage)}</>
                   )}
@@ -1339,7 +1702,7 @@ function FileItem({
             <p className="type-micro text-text-muted mt-0.5">{t('libPipelineVersion', userLanguage).replace('{version}', file.pipelineVersion)}</p>
           )}
         </div>
-        <div className="shrink-0 flex items-center gap-2">
+        <div className="library-file-actions shrink-0 flex flex-wrap items-center justify-end gap-1.5">
           {file.status === 'uploading' && (
             <div className="flex items-center gap-2">
               {/* Wave P-2 C08 — file upload progress track uses --viz-bar-track. */}
@@ -1378,7 +1741,7 @@ function FileItem({
                 lang: userLanguage,
               })}
               data-testid={`library-open-nlm-${file.id}`}
-              className="p-1.5 rounded-lg border-0 bg-surface-secondary text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
+              className="inline-flex min-h-9 min-w-9 items-center justify-center p-1.5 rounded-lg border-0 bg-surface-secondary text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
               title={t('libOpenNotebookLmTitle', userLanguage)}
             >
               <ExternalLink className="w-4 h-4" />
@@ -1389,7 +1752,7 @@ function FileItem({
               type="button"
               onClick={() => onAskSource(file, course)}
               data-testid={`library-ask-source-${file.id}`}
-              className="p-1.5 rounded-lg border-0 bg-surface-secondary text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
+              className="inline-flex min-h-9 min-w-9 items-center justify-center p-1.5 rounded-lg border-0 bg-surface-secondary text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
               title={t('libAskSourceTitle', userLanguage)}
               aria-label={t('libAskSourceTitle', userLanguage)}
             >
@@ -1402,11 +1765,35 @@ function FileItem({
               onClick={() => file.courseId && onReprocessCourse?.(file.courseId)}
               disabled={reprocessingMaterial}
               data-testid={`library-reprocess-${file.id}`}
-              className="p-1.5 rounded-lg border-0 bg-surface-secondary text-text-secondary hover:bg-surface-hover hover:text-text-primary disabled:opacity-60 transition-colors"
+              className="inline-flex min-h-9 min-w-9 items-center justify-center p-1.5 rounded-lg border-0 bg-surface-secondary text-text-secondary hover:bg-surface-hover hover:text-text-primary disabled:opacity-60 transition-colors"
               title={t(isError ? 'libRetryTooltip' : 'libReprocessTooltip', userLanguage)}
               aria-label={t(isError ? 'libRetryTooltip' : 'libReprocessTooltip', userLanguage)}
             >
               <RefreshCw className={cn('w-4 h-4', reprocessingMaterial && 'animate-spin')} />
+            </button>
+          )}
+          {canOrganize && onRenameFile && (
+            <button
+              type="button"
+              onClick={() => setRenameOpen(true)}
+              data-testid={`library-rename-${file.id}`}
+              className="inline-flex min-h-9 min-w-9 items-center justify-center p-1.5 rounded-lg border-0 bg-surface-secondary text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
+              title={t('libRenameFileTooltip', userLanguage)}
+              aria-label={t('libRenameFileTooltip', userLanguage)}
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+          )}
+          {canOrganize && onMoveFile && (
+            <button
+              type="button"
+              onClick={() => setMoveOpen(true)}
+              data-testid={`library-move-${file.id}`}
+              className="inline-flex min-h-9 min-w-9 items-center justify-center p-1.5 rounded-lg border-0 bg-surface-secondary text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
+              title={t('libMoveFileTooltip', userLanguage)}
+              aria-label={t('libMoveFileTooltip', userLanguage)}
+            >
+              <Folder className="w-4 h-4" />
             </button>
           )}
           {canRemove && (
@@ -1414,7 +1801,7 @@ function FileItem({
               type="button"
               onClick={confirmRemove}
               data-testid={`library-remove-${file.id}`}
-              className="p-1.5 rounded-lg border-0 bg-surface-secondary text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
+              className="inline-flex min-h-9 min-w-9 items-center justify-center p-1.5 rounded-lg border-0 bg-surface-secondary text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
               title={t('libRemoveFileTooltip', userLanguage)}
             >
               <Trash2 className="w-4 h-4" />
@@ -1424,7 +1811,7 @@ function FileItem({
             <button
               type="button"
               onClick={() => setExpanded((v) => !v)}
-              className="p-1.5 rounded-lg border-0 hover:bg-surface-hover text-text-secondary"
+              className="inline-flex min-h-9 min-w-9 items-center justify-center p-1.5 rounded-lg border-0 hover:bg-surface-hover text-text-secondary"
               aria-expanded={expanded}
               aria-label={expanded ? t('libHideOutline', userLanguage) : t('libShowOutline', userLanguage)}
             >
@@ -1475,6 +1862,30 @@ function FileItem({
       destructive
       data-testid={`library-remove-dialog-${file.id}`}
     />
+    {canOrganize && onRenameFile && (
+      <LibraryNameDialog
+        open={renameOpen}
+        lang={userLanguage}
+        title={t('libRenameFileTitle', userLanguage)}
+        initialValue={file.name}
+        testId={`library-file-rename-dialog-${file.id}`}
+        onClose={() => setRenameOpen(false)}
+        onSave={(name) => onRenameFile(file.id, name) !== false}
+      />
+    )}
+    {canOrganize && onMoveFile && (
+      <LibraryMoveFileDialog
+        open={moveOpen}
+        lang={userLanguage}
+        fileName={file.name}
+        currentCourseId={file.courseId}
+        currentFolderId={file.folderId}
+        courses={moveCourses}
+        folders={moveFolders}
+        onClose={() => setMoveOpen(false)}
+        onMove={(courseId, nextFolderId) => onMoveFile(file.id, courseId, nextFolderId) !== false}
+      />
+    )}
     </>
   );
 }

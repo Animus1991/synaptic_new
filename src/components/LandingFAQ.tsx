@@ -35,10 +35,11 @@ export function LandingFAQ() {
               <button
                 type="button"
                 onClick={() => setOpen(isOpen ? null : i)}
-                className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left type-meta font-medium text-text-primary hover:bg-surface-hover transition-colors"
+                aria-expanded={isOpen}
+                className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left type-meta font-medium text-text-primary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-inset transition-colors"
               >
                 {t(item.q)}
-                {isOpen ? <CaretUp className="w-4 h-4 shrink-0" /> : <CaretDown className="w-4 h-4 shrink-0" />}
+                {isOpen ? <CaretUp className="w-4 h-4 shrink-0" aria-hidden /> : <CaretDown className="w-4 h-4 shrink-0" aria-hidden />}
               </button>
               {isOpen && (
                 <p className="px-4 pb-4 type-body text-text-secondary leading-relaxed">{t(item.a)}</p>

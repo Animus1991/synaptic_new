@@ -255,7 +255,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
               tabIndex={-1}
               role="alert"
               data-testid="onboarding-validation-error"
-              className="mb-4 flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 type-body text-red-200 outline-none focus:ring-2 focus:ring-red-400/50"
+              className="mb-4 flex items-start gap-2 rounded-xl border border-accent-rose/30 bg-accent-rose/10 px-4 py-3 type-body text-accent-rose outline-none focus:ring-2 focus:ring-accent-rose/40"
             >
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden />
               {validationText}
@@ -292,7 +292,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                       return (
                         <div key={feature.title} className="ux-card text-left">
                           <div className="w-9 h-9 rounded-xl bg-brand-600/10 flex items-center justify-center mb-3">
-                            <Icon className="w-4 h-4 text-text-primary0" />
+                            <Icon className="w-4 h-4 text-text-primary" aria-hidden />
                           </div>
                           <p className="type-meta font-medium text-text-primary">{feature.title}</p>
                           <p className="type-caption text-text-tertiary mt-1">{feature.desc}</p>

@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Upload, FileText, Image, Code, Presentation,
   File, CheckCircle2, Sparkles, ArrowRight, Link2,
@@ -22,6 +21,8 @@ import { UiIcon } from './ui/UiIcon';
 import type { UiIconId } from '../lib/uiIconRegistry';
 import { t } from '../lib/i18n';
 import { ModalHeaderStack } from './ui/ModalHeaderStack';
+import { FocusTrapDialog } from './ui/FocusTrapDialog';
+import { Button } from './ui/Button';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import type { I18nKey } from '../lib/i18n';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
@@ -38,6 +39,8 @@ interface UploadModalProps {
   defaultUploadMode?: 'new' | 'extend';
   defaultTargetCourseId?: string;
   userSettings?: UserSettings;
+  /** Files dropped on Library drop-zone before the modal opened. */
+  initialFiles?: File[];
 }
 
 const acceptedFormats = [
@@ -97,6 +100,7 @@ export function UploadModal({
   defaultUploadMode = 'new',
   defaultTargetCourseId,
   userSettings,
+  initialFiles = [],
 }: UploadModalProps) {
   const [dragActive, setDragActive] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
@@ -118,7 +122,6 @@ export function UploadModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadJobId, setUploadJobId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
   const wasOpenRef = useRef(false);
   const previewLang = userSettings?.language === 'el' ? 'el' : 'en';
   /** OPT-R10 — prompt-first create chrome under Minimal. */
@@ -126,7 +129,7 @@ export function UploadModal({
   // OPT-R10 — under Minimal, keep paste/YouTube disclosed (prompt-first create).
   const moreSourcesOpen = createPrompt || Boolean(pastedContent.trim() || youtubeUrl.trim());
 
-  const extendableCourses = courses.filter((c) => !isDemoCourse(c.id));
+  const extendableCourses = courses.filter((c) => !isDemoCourse(c.id) || userSettings?.showDemoContent);
 
   const toggleFocus = (tag: UploadFocusKey) => {
     setFocusTags((prev) => prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]);
@@ -185,26 +188,10 @@ export function UploadModal({
   useEffect(() => {
     if (isOpen && !wasOpenRef.current) {
       resetForm();
+      if (initialFiles.length > 0) setFiles(initialFiles);
     }
     wasOpenRef.current = isOpen;
-  }, [isOpen, resetForm]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        if (isSubmitting) {
-          e.preventDefault();
-          setCloseConfirmOpen(true);
-        } else {
-          onClose();
-        }
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    dialogRef.current?.focus();
-    return () => window.removeEventListener('keydown', onKey);
-  }, [isOpen, isSubmitting, onClose]);
+  }, [isOpen, resetForm, initialFiles]);
 
   const requestClose = () => {
     if (isSubmitting) {
@@ -319,37 +306,25 @@ export function UploadModal({
 
   const activeFlowIndex = step === 'upload' ? 0 : step === 'configure' ? 1 : 2;
 
-  if (!isOpen) return null;
-
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.22, ease: [0.2, 0, 0, 1] }}
-        className="fixed inset-0 z-[130] flex items-center justify-center p-4"
-      >
-        <div className="absolute inset-0 bg-black/70" onClick={requestClose} aria-hidden="true" />
-
-        <motion.div
-          ref={dialogRef}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="upload-modal-title"
-          tabIndex={-1}
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ duration: 0.36, ease: [0.2, 0, 0, 1] }}
-          className={cn(
-            'relative w-full max-w-2xl max-h-[90vh] ux-modal-panel rounded-2xl border border-border-subtle bg-surface-secondary overflow-y-auto',
-            createPrompt && 'create-prompt',
-          )}
-          data-testid="upload-modal"
-        >
+    <FocusTrapDialog
+      open={isOpen}
+      onClose={requestClose}
+      title={t('uploadModalTitle', previewLang)}
+      hideHeader
+      size="lg"
+      zIndex={130}
+      align="bottom-mobile"
+      data-testid="upload-modal"
+      bodyClassName="p-0"
+      panelClassName={cn(
+        'bg-surface-secondary overflow-hidden',
+        createPrompt && 'create-prompt',
+      )}
+    >
           {/* Header */}
-          <div className="flex items-start justify-between gap-3 p-5 border-b border-border-subtle">
+          <div className="relative flex items-start justify-between gap-3 p-5 border-b border-border-subtle">
+            <div className="absolute left-1/2 top-2 h-1 w-10 -translate-x-1/2 rounded-full bg-border-subtle sm:hidden" aria-hidden />
             <ModalHeaderStack
               eyebrow={t('uploadModalEyebrow', previewLang)}
               title={t('uploadModalTitle', previewLang)}
@@ -361,7 +336,7 @@ export function UploadModal({
                 : t('uploadModalStepError', previewLang)
               }
             />
-            <button type="button" onClick={requestClose} disabled={false} aria-label={t('close', previewLang)} className="p-2 rounded-lg hover:bg-surface-hover shrink-0">
+            <button type="button" onClick={requestClose} disabled={false} aria-label={t('close', previewLang)} className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg hover:bg-surface-hover">
               <X className="w-5 h-5 text-text-secondary" />
             </button>
           </div>
@@ -371,12 +346,12 @@ export function UploadModal({
               <p className="type-meta font-semibold">{t('uploadCloseWhileProcessingTitle', previewLang)}</p>
               <p className="type-caption text-text-secondary mt-1">{t('uploadCloseWhileProcessingBody', previewLang)}</p>
               <div className="mt-3 flex gap-2">
-                <button type="button" onClick={() => setCloseConfirmOpen(false)} className="px-3 py-1.5 type-caption rounded-lg border border-border-subtle">
+                <Button type="button" variant="secondary" size="sm" onClick={() => setCloseConfirmOpen(false)}>
                   {t('uploadCancel', previewLang)}
-                </button>
-                <button type="button" onClick={() => { setCloseConfirmOpen(false); onClose(); }} className="px-3 py-1.5 type-caption rounded-lg bg-accent-rose/20 text-accent-rose">
+                </Button>
+                <Button type="button" variant="danger" size="sm" onClick={() => { setCloseConfirmOpen(false); onClose(); }}>
                   {t('uploadCloseConfirm', previewLang)}
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -437,10 +412,14 @@ export function UploadModal({
               <>
                 {/* Drop Zone */}
                 <div
+                  role="button"
+                  tabIndex={0}
+                  aria-label={t('uploadDropZoneAria', previewLang)}
                   onDragOver={e => { e.preventDefault(); setDragActive(true); }}
                   onDragLeave={() => setDragActive(false)}
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInputRef.current?.click(); } }}
                   className={cn(
                     'ux-upload-drop-zone ux-prompt-bar-surface border border-solid rounded-2xl p-8 text-center cursor-pointer transition-colors',
                     dragActive
@@ -461,7 +440,7 @@ export function UploadModal({
                   <Upload className={cn(
                     'w-10 h-10 mx-auto mb-3 transition-colors',
                     dragActive ? 'text-text-secondary' : 'text-text-muted'
-                  )} />
+                  )} aria-hidden />
                   <p className="type-meta font-medium mb-1">
                     {dragActive ? t('uploadDropActive', previewLang) : t('uploadDropIdle', previewLang)}
                   </p>
@@ -688,13 +667,14 @@ export function UploadModal({
                 <AlertCircle className="w-12 h-12 text-accent-rose mx-auto" />
                 <h3 className="text-lg font-semibold">{t('uploadErrorTitle', previewLang)}</h3>
                 <p className="type-body text-text-secondary max-w-md mx-auto">{processingError}</p>
-                <button
+                <Button
                   type="button"
+                  variant="primary"
                   onClick={() => setStep('configure')}
-                  className="px-5 py-2.5 rounded-xl bg-brand-600 text-white type-meta font-medium hover:bg-brand-500"
+                  className="bg-brand-600 text-white hover:bg-brand-500"
                 >
                   {t('uploadBackToSettings', previewLang)}
-                </button>
+                </Button>
               </div>
             )}
 
@@ -730,30 +710,26 @@ export function UploadModal({
           {/* Footer */}
           {step !== 'processing' && step !== 'error' && (
             <div className="p-5 border-t border-border-subtle flex items-center justify-between">
-              <button
+              <Button
+                type="button"
+                variant="ghost"
                 onClick={step === 'configure' ? () => setStep('upload') : requestClose}
-                className="px-4 py-2 type-meta text-text-secondary hover:text-text-primary transition-colors"
               >
                 {step === 'configure' ? t('uploadBack', previewLang) : t('uploadCancel', previewLang)}
-              </button>
-              <button
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
                 data-testid={step === 'upload' ? 'upload-continue' : 'upload-generate'}
                 onClick={step === 'upload' ? goToConfigure : handleProceed}
                 disabled={isSubmitting || (step === 'configure' && uploadMode === 'extend' && !targetCourseId)}
-                className={cn(
-                  'flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium type-meta transition-all',
-                  isSubmitting || (step === 'configure' && uploadMode === 'extend' && !targetCourseId)
-                    ? 'bg-surface-hover text-text-muted cursor-not-allowed'
-                    : 'bg-gradient-to-r from-brand-600 to-brand-500 text-white hover:from-brand-500 hover:to-brand-400'
-                )}
+                className="bg-brand-600 text-white"
               >
                 {step === 'upload' ? t('continue', previewLang) : t('uploadGenerateCourse', previewLang)}
                 <ArrowRight className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
           )}
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+    </FocusTrapDialog>
   );
 }
