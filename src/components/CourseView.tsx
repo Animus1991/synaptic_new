@@ -42,6 +42,7 @@ import { VideoSummarizeButton } from './VideoSummarizeButton';
 import { CourseMediaPanel } from './CourseMediaPanel';
 import { NotebookLmExportPanel } from './NotebookLmExportPanel';
 import { Page, PageHeader, PrimaryCTA, SecondaryCTA, AnimatedCard } from './ui/primitives';
+import { Button } from './ui/Button';
 import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { QualityReportPanel } from './QualityReportPanel';
 import { SectionHeader, TrustBadgeRow, UxCallout, DescriptiveStickyTabBar } from './ui/platformChrome';
@@ -220,16 +221,18 @@ export function CourseView({
       data-testid="course-page"
       data-border-diet="cta-only"
       data-bleed="full"
+      data-soft-sep="stack"
     >
       {/* OPT-K118 — course clarity: wash surfaces, width/type parity with dashboard */}
       <button
         type="button"
         onClick={onBack}
         data-testid="course-back"
-        className="flex items-center gap-1.5 type-meta text-text-secondary hover:text-text-primary mb-1 transition-colors -mt-1"
+        data-soft-card="off"
+        className="inline-flex min-h-9 items-center gap-1.5 type-meta text-text-secondary hover:text-text-primary mb-1 transition-colors -mt-1"
       >
         <ArrowLeft className="w-4 h-4" />
-        Back to library
+        {t('courseBackToLibrary')}
       </button>
 
       <PageHeader
@@ -241,11 +244,11 @@ export function CourseView({
             <span className="mt-2 flex flex-wrap items-center gap-3 type-caption text-text-tertiary">
               <span className="flex items-center gap-1">
                 <BookOpen className="w-3.5 h-3.5" />
-                {course.totalLessons} lessons
+                {t('courseStatLessons').replace('{count}', String(course.totalLessons))}
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5" />
-                {course.estimatedHours}h estimated
+                {t('courseStatHours').replace('{hours}', String(course.estimatedHours))}
               </span>
               <span className="flex items-center gap-1" data-testid="course-stat-mastery">
                 <BarChart3 className="w-3.5 h-3.5" />
@@ -254,7 +257,7 @@ export function CourseView({
               {course.examDate && (
                 <span className="flex items-center gap-1 text-accent-amber">
                   <Calendar className="w-3.5 h-3.5" />
-                  Exam: {new Date(course.examDate).toLocaleDateString()}
+                  {t('courseExamLabel').replace('{date}', new Date(course.examDate).toLocaleDateString(lang === 'el' ? 'el-GR' : 'en-US'))}
                 </span>
               )}
             </span>
@@ -263,31 +266,33 @@ export function CourseView({
         actions={
           <div className="flex flex-wrap gap-2 shrink-0">
             {canDeleteCourse && (
-              <button
+              <Button
                 type="button"
+                variant="danger"
+                size="sm"
                 onClick={() => setRemoveCourseOpen(true)}
                 data-testid="course-delete"
-                className="flex items-center gap-2 px-3 py-2 border-0 bg-accent-rose/10 hover:bg-accent-rose/15 rounded-xl type-meta font-medium text-accent-rose transition-all"
                 aria-label={t('deleteCourseAria')}
               >
                 <Trash2 className="w-4 h-4" />
                 <span className="hidden sm:inline">{t('deleteLabel')}</span>
-              </button>
+              </Button>
             )}
             {needsSourceUpgrade && onUploadMore && (
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="sm"
                 onClick={onUploadMore}
                 data-testid="course-upload-more"
-                className="flex items-center gap-2 px-3 py-2 border-0 bg-accent-amber/10 hover:bg-accent-amber/15 rounded-xl type-meta font-medium text-accent-amber transition-all"
               >
                 <Upload className="w-4 h-4" />
-                Add material
-              </button>
+                {t('coursePathEmptyAction')}
+              </Button>
             )}
             <SecondaryCTA onClick={onOpenAgent} data-testid="course-ask-agent">
               <Sparkles className="w-4 h-4 text-text-secondary" />
-              Ask agent
+              {t('askAgentShort')}
             </SecondaryCTA>
             <AudioStudyGuideButton course={course} lang={lang} settings={userSettings} />
             <StudyGuideExportButton course={course} glossaryEntries={glossaryEntries} lang={lang} />
@@ -297,7 +302,7 @@ export function CourseView({
               {...workspaceEntryPrefetchHandlers()}
             >
               <Play className="w-4 h-4" />
-              Continue
+              {t('continue')}
             </PrimaryCTA>
           </div>
         }
@@ -308,7 +313,9 @@ export function CourseView({
       </UxCallout>
 
       {userSettings && (
-        <TrustBadgeRow sourceMode={userSettings.sourceMode} lang={lang} className="mt-3" />
+        <div data-focus-hide="">
+          <TrustBadgeRow sourceMode={userSettings.sourceMode} lang={lang} className="mt-3" />
+        </div>
       )}
 
       <div
@@ -355,14 +362,16 @@ export function CourseView({
           testId="course-continue-callout"
           className="mt-3"
           action={
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               onClick={() => onStartLesson()}
               data-testid="course-continue-callout-action"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl type-caption font-medium ws-empty-cta-secondary shrink-0"
+              className="ws-empty-cta-secondary shrink-0"
             >
               {t('courseContinueCalloutAction')} <ArrowRight className="w-3 h-3" />
-            </button>
+            </Button>
           }
         >
           {t('courseContinueCalloutBody').replace('{pct}', String(Math.round(progress)))}
@@ -429,80 +438,89 @@ export function CourseView({
                       ? 'bg-accent-cyan/12 text-accent-cyan'
                       : 'bg-accent-amber/12 text-accent-amber',
                 )}>
-                  {quality.needsMoreMaterial ? <AlertTriangle className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
-                  {quality.needsMoreMaterial ? 'Needs More Material' : `${quality.band[0]!.toUpperCase()}${quality.band.slice(1)} Source`}
+                  {quality.needsMoreMaterial ? <AlertTriangle className="w-3 h-3" aria-hidden /> : <Sparkles className="w-3 h-3" aria-hidden />}
+                  {quality.needsMoreMaterial
+                    ? t('courseNeedsMoreMaterial')
+                    : quality.band === 'strong'
+                    ? t('courseBandStrong')
+                    : quality.band === 'moderate'
+                    ? t('courseBandModerate')
+                    : t('courseBandWeak')}
                 </span>
-                <span className="type-caption text-text-muted">Source quality {quality.score}/100</span>
+                <span className="type-caption text-text-muted">{t('courseQualityScoreLabel').replace('{score}', String(quality.score))}</span>
               </div>
-              <h2 className="mt-3 type-meta font-semibold">Generation diagnostics</h2>
+              <h2 className="mt-3 type-meta font-semibold">{t('courseGenerationDiagnostics')}</h2>
               <p className="mt-1 type-body text-text-secondary max-w-3xl">
                 {quality.outlineAdjusted
-                  ? `The course outline was compacted to ${quality.finalTopicCount} modules so the source material stays grounded instead of being over-split.`
-                  : `The current material supports ${quality.finalTopicCount} grounded modules without needing outline compaction.`}
+                  ? t('courseOutlineCompacted').replace('{count}', String(quality.finalTopicCount))
+                  : t('courseOutlineNotCompacted').replace('{count}', String(quality.finalTopicCount))}
               </p>
             </div>
             <div className="grid grid-cols-2 gap-2 type-caption">
               <div className="rounded-lg border-0 bg-surface-secondary/50 px-3 py-2">
-                <p className="text-text-muted">Detected topics</p>
+                <p className="text-text-muted">{t('courseDetectedTopics')}</p>
                 <p className="mt-1 font-semibold tabular-nums">{quality.detectedTopicCount}</p>
               </div>
               <div className="rounded-lg border-0 bg-surface-secondary/50 px-3 py-2">
-                <p className="text-text-muted">Final topics</p>
+                <p className="text-text-muted">{t('courseFinalTopics')}</p>
                 <p className="mt-1 font-semibold tabular-nums">{quality.finalTopicCount}</p>
               </div>
               <div className="rounded-lg border-0 bg-surface-secondary/50 px-3 py-2">
-                <p className="text-text-muted">Sections</p>
+                <p className="text-text-muted">{t('courseSections')}</p>
                 <p className="mt-1 font-semibold tabular-nums">{quality.metrics.sectionCount}</p>
               </div>
               <div className="rounded-lg border-0 bg-surface-secondary/50 px-3 py-2">
-                <p className="text-text-muted">Worked signals</p>
+                <p className="text-text-muted">{t('courseWorkedSignals')}</p>
                 <p className="mt-1 font-semibold tabular-nums">{quality.metrics.workedExampleCount + quality.metrics.formulaCount}</p>
               </div>
             </div>
           </div>
           {quality.warnings.length > 0 && (
             <p className="mt-4 type-body text-text-secondary">
-              <span className="font-semibold text-text-primary">Watch-outs:</span> {quality.warnings.join(' ')}
+              <span className="font-semibold text-text-primary">{t('courseWatchOuts')}</span> {quality.warnings.join(' ')}
             </p>
           )}
           {quality.nextActions.length > 0 && (
             <p className="mt-2 type-body text-text-secondary">
-              <span className="font-semibold text-text-primary">Best next upgrade:</span> {quality.nextActions[0]}
+              <span className="font-semibold text-text-primary">{t('courseBestNextUpgrade')}</span> {quality.nextActions[0]}
             </p>
           )}
           <div className="mt-4 flex flex-wrap gap-2">
             {quality.needsMoreMaterial && onUploadMore && (
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="sm"
                 onClick={onUploadMore}
                 data-testid="course-quality-upload-more"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-0 bg-accent-amber/10 type-caption font-medium text-accent-amber hover:bg-accent-amber/15"
               >
                 <Upload className="w-3.5 h-3.5" />
                 {t('courseQualityActionUpload')}
-              </button>
+              </Button>
             )}
             {onReprocessMaterial && (
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="sm"
                 onClick={openReprocessWizard}
                 disabled={reprocessingMaterial}
                 data-testid="course-quality-reprocess"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-0 bg-surface-secondary type-caption font-medium text-text-secondary hover:bg-surface-hover disabled:opacity-60"
               >
                 <RefreshCw className={cn('w-3.5 h-3.5', reprocessingMaterial && 'animate-spin')} />
                 {t('courseQualityActionReprocess')}
-              </button>
+              </Button>
             )}
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               onClick={() => onStartLesson()}
               data-testid="course-quality-open-workspace"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-0 bg-surface-secondary type-caption font-medium text-text-secondary hover:bg-surface-hover"
             >
               <Play className="w-3.5 h-3.5" />
               {t('courseQualityActionWorkspace')}
-            </button>
+            </Button>
           </div>
         </motion.div>
       )}
@@ -514,8 +532,8 @@ export function CourseView({
       {/* Progress bar — OPT-K118 denser, borderless */}
       <AnimatedCard delay={0.1} className="border-0 shadow-none bg-transparent" padding="sm">
         <div className="flex items-center justify-between mb-2">
-          <span className="type-meta font-semibold text-text-primary">Course Progress</span>
-          <span className="type-caption text-text-secondary tabular-nums">{course.completedLessons}/{course.totalLessons} lessons</span>
+          <span className="type-meta font-semibold text-text-primary">{t('coursePanelProgress')}</span>
+          <span className="type-caption text-text-secondary tabular-nums">{course.completedLessons}/{course.totalLessons} {t('courseLessonsLabel')}</span>
         </div>
         {/* Wave P-2 C08 — Course Progress top-of-page track uses --viz-bar-track. */}
         <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
@@ -525,14 +543,14 @@ export function CourseView({
           />
         </div>
         <div className="flex justify-between mt-1.5 type-caption text-text-tertiary">
-          <span>{Math.round(progress)}% complete</span>
-          <span>~{Math.round(course.estimatedHours * (1 - progress / 100))}h remaining</span>
+          <span>{Math.round(progress)}% {t('coursePctComplete')}</span>
+          <span>~{Math.round(course.estimatedHours * (1 - progress / 100))}h {t('courseHoursRemaining')}</span>
         </div>
         <div className="grid grid-cols-4 gap-2 mt-3 pt-2">
-          <div className="text-center"><p className="ux-kpi-value">{course.conceptCount}</p><p className="type-micro text-text-muted">Concepts</p></div>
-          <div className="text-center"><p className="ux-kpi-value">{course.glossaryCount}</p><p className="type-micro text-text-muted">Glossary</p></div>
-          <div className="text-center"><p className="ux-kpi-value">{course.exerciseCount}</p><p className="type-micro text-text-muted">Exercises</p></div>
-          <div className="text-center"><p className="type-caption font-semibold capitalize">{course.sourceMode}</p><p className="type-micro text-text-muted">Source Mode</p></div>
+          <div className="text-center"><p className="ux-kpi-value">{course.conceptCount}</p><p className="type-micro text-text-muted">{t('courseKpiConcepts')}</p></div>
+          <div className="text-center"><p className="ux-kpi-value">{course.glossaryCount}</p><p className="type-micro text-text-muted">{t('courseKpiGlossary')}</p></div>
+          <div className="text-center"><p className="ux-kpi-value">{course.exerciseCount}</p><p className="type-micro text-text-muted">{t('courseKpiExercises')}</p></div>
+          <div className="text-center"><p className="type-caption font-semibold capitalize">{course.sourceMode}</p><p className="type-micro text-text-muted">{t('courseKpiSourceMode')}</p></div>
         </div>
       </AnimatedCard>
 
@@ -706,8 +724,9 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
             )}
             {hasDetail && (
               <button
+                type="button"
                 onClick={() => setExpanded((v) => !v)}
-                className="flex items-center gap-1 text-text-secondary hover:text-text-primary transition-colors"
+                className="course-topic-details inline-flex min-h-9 items-center gap-1 text-text-secondary hover:text-text-primary transition-colors"
               >
                 <ChevronRight className={cn('w-3 h-3 transition-transform', expanded && 'rotate-90')} />
                 {expanded ? 'Hide' : 'Details'}
@@ -721,7 +740,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
             <>
               <div className="hidden sm:block w-20">
                 <div className="flex justify-between type-caption mb-1">
-                  <span className="text-text-muted">Mastery</span>
+                  <span className="text-text-muted">{t('courseLessonMastery')}</span>
                   <span className="font-medium">{topic.mastery}%</span>
                 </div>
                 {/* Wave P-2 C08 — Topic mastery track uses --viz-bar-track. */}
@@ -736,9 +755,10 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
                 </div>
               </div>
               <button
+                type="button"
                 onClick={onStart}
                 aria-label={`Start lesson: ${topic.title}`}
-                className="p-2 rounded-lg hover:bg-surface-hover transition-colors"
+                className="course-topic-start inline-flex min-h-9 min-w-9 items-center justify-center rounded-xl hover:bg-surface-hover transition-colors"
               >
                 <ChevronRight className="w-5 h-5 text-text-tertiary" />
               </button>
@@ -781,7 +801,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
                       key={i}
                       onClick={() => onGoToSource!({ fileId: span.fileId, charStart: span.charStart, charEnd: span.charEnd })}
                       title="Go to source"
-                      className="group flex items-center gap-1 type-caption px-2 py-0.5 rounded-md bg-surface-secondary border-0 text-text-secondary hover:bg-surface-hover transition-colors"
+                      className="course-topic-chip group flex min-h-9 items-center gap-1 type-caption px-2 py-0.5 rounded-md bg-surface-secondary border-0 text-text-secondary hover:bg-surface-hover transition-colors"
                     >
                       {c}
                       <MapPin className="w-2.5 h-2.5 opacity-60 group-hover:opacity-100" />
@@ -956,16 +976,17 @@ function SourceFiles({
             {t('courseSourceFiles')}
           </h3>
           {onReprocessMaterial && uploadedFiles.length > 0 && (
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               onClick={onReprocessMaterial}
               disabled={reprocessingMaterial}
               data-testid="course-reprocess-sources"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-0 bg-surface-secondary type-caption font-medium text-text-secondary hover:bg-surface-hover disabled:opacity-60"
             >
               <RefreshCw className={cn('w-3.5 h-3.5', reprocessingMaterial && 'animate-spin')} />
               {t('courseReprocessStoredText')}
-            </button>
+            </Button>
           )}
         </div>
         <div className="space-y-2">
@@ -1008,15 +1029,17 @@ function SourceFiles({
                 <VideoSummarizeButton file={file} settings={userSettings} lang={lang} />
               )}
               {file.id && onRemoveFile && (
-                <button
+                <Button
                   type="button"
+                  variant="danger"
+                  size="sm"
                   onClick={() => confirmRemove(file)}
                   data-testid={`remove-source-${file.id}`}
-                  className="p-1.5 rounded-lg border-0 text-accent-rose hover:bg-accent-rose/10 transition-colors"
                   title={t('removeFileTitle')}
+                  className="px-2"
                 >
                   <Trash2 className="w-4 h-4" />
-                </button>
+                </Button>
               )}
             </div>
             );
@@ -1123,8 +1146,8 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
         <p className="mt-1 type-caption text-text-muted">{t('courseMasterySublabel')}</p>
       </div>
       <div className="platform-panel-md">
-        <h4 className="type-meta font-semibold mb-3">Study Time Distribution</h4>
-        <p className="type-caption text-text-tertiary mb-3">Estimated minutes per module, from the generated outline</p>
+        <h4 className="type-meta font-semibold mb-3">{t('courseAnalyticsStudyTime')}</h4>
+        <p className="type-caption text-text-tertiary mb-3">{t('courseAnalyticsStudyTimeHint')}</p>
         <div className="space-y-2">
           {course.topics.slice(0, 6).map(topic => (
             <div key={topic.id} className="flex items-center gap-2">
@@ -1142,9 +1165,9 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
         </div>
       </div>
       <div className="platform-panel-md">
-        <h4 className="type-meta font-semibold mb-3">Retention Predictions</h4>
+        <h4 className="type-meta font-semibold mb-3">{t('courseAnalyticsRetention')}</h4>
         <div className="space-y-2">
-          {course.topics.filter(t => t.mastery > 0).slice(0, 5).map(topic => {
+          {course.topics.filter(topic => topic.mastery > 0).slice(0, 5).map(topic => {
             const retention = Math.max(0, topic.retentionPrediction || topic.mastery);
             return (
               <div key={topic.id} className="flex items-center justify-between">
@@ -1153,7 +1176,7 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
                   'type-caption font-medium',
                   retention >= 70 ? 'text-accent-emerald' : retention >= 50 ? 'text-accent-amber' : 'text-accent-rose'
                 )}>
-                  {Math.round(retention)}% predicted
+                  {Math.round(retention)}% {t('courseAnalyticsRetentionPredicted')}
                 </span>
               </div>
             );
@@ -1161,25 +1184,25 @@ function CourseAnalytics({ course, masteryPercent }: { course: Course; masteryPe
         </div>
       </div>
       <div className="platform-panel-md sm:col-span-2">
-        <h4 className="type-meta font-semibold mb-3">Concept Coverage &amp; Pace</h4>
-        <p className="type-caption text-text-secondary mb-4">Mastered concepts relative to the {totalConcepts} concepts extracted from your material</p>
+        <h4 className="type-meta font-semibold mb-3">{t('courseAnalyticsCoverage')}</h4>
+        <p className="type-caption text-text-secondary mb-4">{t('courseAnalyticsCoverageHint').replace('{count}', String(totalConcepts))}</p>
         {masteredConcepts > 0 ? (
           <div className="flex items-center gap-6 flex-wrap">
             <div>
               <div className="ux-kpi-value text-accent-emerald">{masteredConcepts}<span className="type-meta text-text-muted">/{totalConcepts}</span></div>
-              <p className="type-caption text-text-tertiary mt-1">concepts mastered</p>
+              <p className="type-caption text-text-tertiary mt-1">{t('courseAnalyticsConceptsMastered')}</p>
             </div>
             {velocity > 0 && (
               <div>
                 <div className={cn('ux-kpi-value', velocity >= 1 ? 'text-accent-emerald' : 'text-accent-amber')}>{velocity.toFixed(2)}×</div>
                 <p className="type-caption text-text-tertiary mt-1">
-                  {velocity >= 1.05 ? 'Ahead of the expected pace' : velocity <= 0.95 ? 'Behind the expected pace' : 'On the expected pace'}
+                  {velocity >= 1.05 ? t('courseAnalyticsPaceAhead') : velocity <= 0.95 ? t('courseAnalyticsPaceBehind') : t('courseAnalyticsPaceOn')}
                 </p>
               </div>
             )}
           </div>
         ) : (
-          <p className="type-body text-text-tertiary">Start studying this course to see your concept mastery and pace.</p>
+          <p className="type-body text-text-tertiary">{t('courseAnalyticsStartHint')}</p>
         )}
       </div>
     </div>
