@@ -1113,7 +1113,7 @@ export function Settings({
   );
 }
 
-function SettingsSection({ id, title, icon: _icon, children, delay }: { id: string; title: string; icon?: React.ReactNode; children: React.ReactNode; delay: number }) {
+function SettingsSection({ id, title, icon, children, delay }: { id: string; title: string; icon?: React.ReactNode; children: React.ReactNode; delay: number }) {
   const isMinimal = useMinimalTheme();
   return (
     /* Wave H3 — denser section chrome on every theme (IDE section, not masonry card) */
@@ -1123,7 +1123,8 @@ function SettingsSection({ id, title, icon: _icon, children, delay }: { id: stri
       padding="md"
       className="settings-ide-section scroll-mt-28"
     >
-      <h3 className="settings-ide-section-title type-meta font-medium mb-3 text-text-primary">
+      <h3 className="settings-ide-section-title type-meta font-medium mb-3 text-text-primary flex items-center gap-2">
+        {icon && <span aria-hidden className="shrink-0">{icon}</span>}
         {title}
       </h3>
       <div className="space-y-3">{children}</div>
