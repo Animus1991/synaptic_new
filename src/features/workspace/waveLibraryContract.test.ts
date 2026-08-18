@@ -26,7 +26,8 @@ describe('Wave H4 — Library productization', () => {
     expect(library).toContain('data-testid="library-upload"');
     expect(library).toContain("t('libUpload'");
     const compactIdx = library.indexOf('data-testid="library-drop-zone-compact"');
-    const gridIdx = library.indexOf("viewMode === 'grid'");
+    /* Anchor on the grid container itself — the view toggle now sits in the page header. */
+    const gridIdx = library.indexOf('columns-1 sm:columns-2 lg:columns-3');
     expect(compactIdx).toBeGreaterThan(-1);
     expect(gridIdx).toBeGreaterThan(-1);
     expect(compactIdx).toBeLessThan(gridIdx);

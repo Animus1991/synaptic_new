@@ -1,7 +1,8 @@
 /**
  * Wave CH-3 — Co-reading hub: explanation challenges + peer dimensions.
  * Grounded in source excerpts (notes), not fiction multiverse.
- * Persisted in localStorage only until `COLLAB_REVIEW_MULTI_DEVICE_SYNC` (collabReviewSync).
+ * Cached in localStorage; when multi-device sync is on, the Study Room server
+ * is the shared copy (see collabReviewSync + /v1/study-rooms/:id/coreading).
  */
 
 import {
@@ -218,6 +219,56 @@ export function continuityOverlapScore(excerpt: string, explanation: string): {
   const shared = [...new Set(b.filter((w) => a.has(w)))].slice(0, 12);
   const score = a.size === 0 ? 0 : Math.min(1, shared.length / Math.min(8, a.size));
   return { score, sharedTokens: shared, weak: score < 0.15 && b.length >= 6 };
+}
+
+function maxVotes(a: PeerDimensionVotes, b: PeerDimensionVotes): PeerDimensionVotes {
+  return {
+    clarity: Math.max(a.clarity, b.clarity),
+    sourceGrounding: Math.max(a.sourceGrounding, b.sourceGrounding),
+    completeness: Math.max(a.completeness, b.completeness),
+    examUsefulness: Math.max(a.examUsefulness, b.examUsefulness),
+  };
+}
+
+function mergeExplanation(a: ExplanationEntry, b: ExplanationEntry): ExplanationEntry {
+  return {
+    ...a,
+    ...b,
+    votes: maxVotes(a.votes, b.votes),
+    voterIds: [...new Set([...a.voterIds, ...b.voterIds])],
+    readReceiptIds: [...new Set([...a.readReceiptIds, ...b.readReceiptIds])],
+  };
+}
+
+function mergeChallenge(a: ExplanationChallenge, b: ExplanationChallenge): ExplanationChallenge {
+  const byId = new Map<string, ExplanationEntry>();
+  for (const ex of [...a.explanations, ...b.explanations]) {
+    const prev = byId.get(ex.id);
+    byId.set(ex.id, prev ? mergeExplanation(prev, ex) : ex);
+  }
+  return {
+    ...a,
+    ...b,
+    explanations: [...byId.values()],
+    exemplarId: b.exemplarId ?? a.exemplarId,
+    events: b.events.length >= a.events.length ? b.events : a.events,
+  };
+}
+
+/** Union challenges/explanations/votes so concurrent device writes do not clobber. */
+export function mergeCoReadingHubs(a: CoReadingHubStore, b: CoReadingHubStore): CoReadingHubStore {
+  const roomId = a.roomId || b.roomId;
+  const byId = new Map<string, ExplanationChallenge>();
+  for (const ch of [...a.challenges, ...b.challenges]) {
+    const prev = byId.get(ch.id);
+    byId.set(ch.id, prev ? mergeChallenge(prev, ch) : ch);
+  }
+  return {
+    roomId,
+    challenges: [...byId.values()]
+      .sort((x, y) => y.createdAt.localeCompare(x.createdAt))
+      .slice(0, 40),
+  };
 }
 
 export function setChallengeExemplar(

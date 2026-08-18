@@ -65,6 +65,36 @@ This is **not** a GitHub clone (no Octocat/Primer brand assets).
 - Clicking a Status item temporarily reveals the in-tool strip (flash + scroll).
 - Screenshot acceptance checklist: `docs/PRIMER_MINIMAL_SCREENSHOT_MATRIX.md`.
 
+## Design rationale — the Study Workspace type/radius override (OPT-K142/K155/K156)
+
+`[data-testid="study-workspace"]` in `src/index.css` (~line 6903) redeclares a tighter
+`--type-*`/`--radius-*` band than the rest of the app — **scoped to workspace context, not to
+the Minimal theme**. It applies identically under `dark`, `light`, `blueprint`, `minimal`, every
+theme — this is a density decision, not a theme decision, and the two should not be conflated
+(an earlier cross-project audit misread this override as theme-specific; it isn't).
+
+Concretely, inside the Study Workspace only:
+
+| Token | App default | Workspace override |
+|---|---|---|
+| `--type-micro` | 0.6875rem (11px) | 0.75rem (12px) |
+| `--type-title` | 1.125rem (18px) | 0.875rem (14px) — "titles ≈ body" |
+| `--radius-sm`/`-md` | 0.375rem/0.5rem | 0.5rem (both) |
+| `--radius-lg` | 0.75rem | 0.625rem — "slightly tighter wells" |
+
+**Why** (from the existing inline comment, made discoverable here rather than only in the CSS
+source): the Study Workspace hosts up to 13 tool panels at once in a dense, multi-column layout
+(per the 12-panel audit referenced in `UPGRADE_BACKLOG` Wave E) — a near-flat title/body
+hierarchy and a tighter radius scale reduce visual noise and "hierarchy jump" between adjacent
+panel chrome, at a density the rest of the app (Dashboard, Library, Settings) doesn't need. The
+type floor was deliberately raised from a prior 10px (eye strain) to 12px as part of the same
+change — never below the platform-wide 11px floor either way.
+
+This is the direct Synapse equivalent of Canon's own documented principle that visual variation
+tied to a real, named reason (there: per-theme personality; here: per-context density) is a
+deliberate decision, not drift to "fix" — recorded so a future pass doesn't flatten it back to
+the app-wide scale under the assumption it's an inconsistency.
+
 ## Acceptance
 
 - Switching to Minimal does not hide any tool, strip action, or settings section  

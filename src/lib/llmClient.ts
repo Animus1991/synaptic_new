@@ -4,6 +4,7 @@ import { generateFeynmanCoachFeedback, type CoachFeedback } from './feynmanCoach
 import type { RubricDimension, RubricScores } from './feynmanRubric';
 import { buildConversationalCoachingBlock } from './agentPersonality';
 import type { DailyCheckInRecord } from './dailyLearningCheckIn';
+import { offlineAgentReply } from './offlineAgentReplies';
 
 export type ChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
 
@@ -317,9 +318,15 @@ function buildAgentSystemPrompt(
 ): string {
   const lang = settings?.language === 'el' ? 'Greek' : 'English';
   const tone = settings ? agentTonePrefix(settings) : '';
-  const strictSources = settings?.sourceMode === 'strict' || settings?.sourceMode === 'notes-only';
+  const notesOnly = settings?.sourceMode === 'notes-only';
+  const strictSources = settings?.sourceMode === 'strict' || notesOnly;
+  const sourceRule = notesOnly
+    ? ' — use only these headings/outline lines; do not invent lecture body or outside facts'
+    : strictSources
+      ? ' — do not invent facts beyond it'
+      : '';
   const sourceBlock = context?.sourceExcerpt
-    ? `\nLearner material excerpt (prioritize this${strictSources ? ' — do not invent facts beyond it' : ''}):\n---\n${context.sourceExcerpt}\n---`
+    ? `\nLearner material excerpt (prioritize this${sourceRule}):\n---\n${context.sourceExcerpt}\n---`
     : '';
   const coaching = buildConversationalCoachingBlock({
     settings,
@@ -333,31 +340,6 @@ Keep responses under 250 words unless the user asks for depth.
 ${coaching}
 ${context?.concept ? `Current concept: ${context.concept}.` : ''}
 ${context?.taskTitle ? `Active task: ${context.taskTitle}.` : ''}${sourceBlock}`;
-}
-
-function offlineAgentReply(
-  input: string,
-  mode: AgentMode,
-  lang: 'en' | 'el' = 'en',
-  topicHint?: string,
-): string {
-  // Prefer the real concept/task label over raw composed input — `input` may
-  // be an internal context block (no free-text question) when the agent is
-  // auto-invoked from a workspace step, which must never leak into the reply.
-  const base = (topicHint || input).trim();
-  const topic = base.length > 60 ? `${base.slice(0, 60)}…` : base;
-  const responsesEn: Partial<Record<AgentMode, string>> = {
-    socratic: `You asked about **"${topic}"**.\n\nBefore I explain directly: **what do you already know?** What would you predict if one variable changes?\n\nName your assumptions — I'll guide you through your own reasoning.`,
-    direct: `**Direct explanation** for "${topic}":\n\n1. Identify core variables\n2. Apply the relevant framework\n3. Check boundary conditions\n\nWant a practice question to verify understanding?`,
-    feynman: `**Feynman check** for "${topic}":\n\nExplain it in 2–3 sentences as if teaching a friend. I'll highlight gaps in mechanism, example, and contrast.`,
-  };
-  const responsesEl: Partial<Record<AgentMode, string>> = {
-    socratic: `Ρώτησες για **«${topic}»**.\n\nΠριν εξηγήσω απευθείας: **τι ξέρεις ήδη;** Τι θα προέβλεπες αν άλλαζε μία μεταβλητή;\n\nΠες μου τις παραδοχές σου — θα σε καθοδηγήσω μέσα από τη δική σου σκέψη.`,
-    direct: `**Άμεση εξήγηση** για «${topic}»:\n\n1. Εντόπισε τις βασικές μεταβλητές\n2. Εφάρμοσε το σχετικό πλαίσιο\n3. Έλεγξε τις οριακές συνθήκες\n\nΘες μια ερώτηση εξάσκησης για επιβεβαίωση κατανόησης;`,
-    feynman: `**Έλεγχος Feynman** για «${topic}»:\n\nΕξήγησέ το σε 2–3 προτάσεις σαν να διδάσκεις έναν φίλο. Θα επισημάνω κενά σε μηχανισμό, παράδειγμα και αντιπαραβολή.`,
-  };
-  const responses = lang === 'el' ? responsesEl : responsesEn;
-  return responses[mode] ?? responses.direct!;
 }
 
 export async function streamAgentReply(

@@ -30,10 +30,11 @@ export function WorkspaceKeyboardHelp({ open, onClose, lang, variant = 'workspac
       title={t('keyboardShortcuts', lang)}
       size="md"
       zIndex={70}
+      align="bottom-mobile"
       data-testid="workspace-keyboard-help"
       hideHeader
       bodyClassName="p-0"
-      panelClassName="overflow-hidden rounded-2xl bg-surface-secondary max-w-lg"
+      panelClassName="overflow-hidden !max-w-none sm:!max-w-lg rounded-t-[1.25rem] rounded-b-none sm:rounded-2xl bg-surface-secondary pb-[env(safe-area-inset-bottom)]"
     >
       <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
         <div className="flex items-center gap-2">

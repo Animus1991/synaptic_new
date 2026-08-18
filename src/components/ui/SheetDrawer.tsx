@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useId, useRef } from 'react';
+import { type ReactNode, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from '@/lib/lucide-shim';
@@ -33,7 +33,15 @@ export function SheetDrawer({
 }: SheetDrawerProps) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
-  const isBottom = placement === 'bottom';
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    const apply = () => setNarrow(mq.matches);
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, []);
+  const isBottom = placement === 'bottom' || narrow;
   const overlayInitial = useMotionInitial({ opacity: 0 });
   const panelInitial = useMotionInitial(isBottom ? { y: '100%' } : { x: '100%' });
   const panelTransition = useMotionTransition({ type: 'spring', damping: 28, stiffness: 320 });

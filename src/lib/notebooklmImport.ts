@@ -31,6 +31,9 @@ export type NotebookLmImportResult = {
   quizCards: NotebookLmQuizCard[];
   chatTurns: NotebookLmChatTurn[];
   audioSegments: NotebookLmAudioSegment[];
+  /** Set when import created or attached a course. */
+  courseId?: string;
+  courseTitle?: string;
 };
 
 const NLM_USER_SPEAKER = /^(user|you|human|χρήστης)\s*$/i;

@@ -20,6 +20,8 @@ export type TeacherContent = {
   llmUsageMonth: string;
   requests: string;
   remaining: string;
+  promptTokens: string;
+  completionTokens: string;
   serverCapabilities: string;
   courseRoster: string;
   courseRosterHint: string;
@@ -82,6 +84,12 @@ export type TeacherContent = {
   draftWeakAnnouncementEmpty: string;
   polishAnnouncementAgent: string;
   discussionToggle: string;
+  submissionsToggle: string;
+  submissionsEmpty: string;
+  submissionsLoading: string;
+  submissionLinkLabel: string;
+  submissionFileLabel: string;
+  submissionUpdatedLabel: string;
   discussionHint: string;
   discussionPlaceholder: string;
   discussionPost: string;
@@ -136,6 +144,8 @@ const EN: TeacherContent = {
   llmUsageMonth: 'LLM usage (month)',
   requests: 'Requests',
   remaining: 'Remaining',
+  promptTokens: 'Prompt',
+  completionTokens: 'Completion',
   serverCapabilities: 'Server capabilities',
   courseRoster: 'Course roster',
   courseRosterHint: 'Synced from server library — push from Settings after local uploads.',
@@ -198,6 +208,12 @@ const EN: TeacherContent = {
   draftWeakAnnouncementEmpty: 'No weak topics (<50% mastery) found for this class heatmap.',
   polishAnnouncementAgent: 'Polish with Agent',
   discussionToggle: 'Q&A',
+  submissionsToggle: 'Submissions',
+  submissionsEmpty: 'No submissions yet.',
+  submissionsLoading: 'Loading submissions…',
+  submissionLinkLabel: 'Attached link',
+  submissionFileLabel: 'Download file',
+  submissionUpdatedLabel: 'Updated',
   discussionHint: 'Per-assignment questions and answers',
   discussionPlaceholder: 'Reply to the class…',
   discussionPost: 'Post',
@@ -252,6 +268,8 @@ const EL: TeacherContent = {
   llmUsageMonth: 'Χρήση LLM (μήνας)',
   requests: 'Αιτήματα',
   remaining: 'Υπόλοιπο',
+  promptTokens: 'Είσοδος',
+  completionTokens: 'Έξοδος',
   serverCapabilities: 'Δυνατότητες διακομιστή',
   courseRoster: 'Κατάλογος μαθημάτων',
   courseRosterHint: 'Από βιβλιοθήκη server — συγχρόνισε από Ρυθμίσεις μετά από upload.',
@@ -314,6 +332,12 @@ const EL: TeacherContent = {
   draftWeakAnnouncementEmpty: 'Δεν βρέθηκαν αδύναμα θέματα (<50% mastery) στο heatmap αυτής της τάξης.',
   polishAnnouncementAgent: 'Βελτίωση με Agent',
   discussionToggle: 'Q&A',
+  submissionsToggle: 'Υποβολές',
+  submissionsEmpty: 'Δεν υπάρχουν υποβολές ακόμα.',
+  submissionsLoading: 'Φόρτωση υποβολών…',
+  submissionLinkLabel: 'Συνημμένος σύνδεσμος',
+  submissionFileLabel: 'Λήψη αρχείου',
+  submissionUpdatedLabel: 'Ενημερώθηκε',
   discussionHint: 'Ερωτήσεις και απαντήσεις ανά εργασία',
   discussionPlaceholder: 'Απάντηση στην τάξη…',
   discussionPost: 'Αποστολή',

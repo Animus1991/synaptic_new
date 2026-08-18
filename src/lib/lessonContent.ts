@@ -1,7 +1,7 @@
 import type { Task, UserSettings } from '../types';
 import type { Lang } from './i18n';
 import { getTaskConcept } from './taskFlows';
-import { lessonStepCount } from './settingsEffects';
+import { lessonStepCount, shouldIncludeWorkedExample, shouldPreferManyExamples } from './settingsEffects';
 import { shouldShowDemo } from './demoMode';
 import { demoPracticeAnswer, demoQuizForConcept, demoWorkspaceStepsForConcept } from '../demo/domainContentDemo';
 import {
@@ -29,7 +29,15 @@ function arcKeysForCount(count: number): LessonStepKey[] {
 export function buildLessonSteps(settings?: UserSettings): LessonStepDef[] {
   const lang: Lang = settings?.language ?? 'en';
   const count = settings ? lessonStepCount(settings) : 7;
-  return arcKeysForCount(count).map((key) => ({ key, label: lessonStepLabel(key, lang) }));
+  let keys = arcKeysForCount(count);
+  if (settings && !shouldIncludeWorkedExample(settings)) {
+    keys = keys.filter((key) => key !== 'worked-example');
+  } else if (settings && shouldPreferManyExamples(settings) && !keys.includes('worked-example')) {
+    const coreAt = keys.indexOf('core');
+    const insertAt = coreAt >= 0 ? coreAt + 1 : 1;
+    keys = [...keys.slice(0, insertAt), 'worked-example', ...keys.slice(insertAt)];
+  }
+  return keys.map((key) => ({ key, label: lessonStepLabel(key, lang) }));
 }
 
 export function lessonKeyFromTask(task: Task | null | undefined, fallback = 'default-lesson'): string {

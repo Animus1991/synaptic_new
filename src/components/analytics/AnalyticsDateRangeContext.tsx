@@ -65,7 +65,7 @@ export function AnalyticsDateRangeFilter({ className }: { className?: string }) 
           aria-pressed={range === r}
           onClick={() => setRange(r)}
           className={cn(
-            'rounded-md border-0 px-2.5 py-1 type-caption font-semibold transition-colors',
+            'min-h-9 rounded-md border-0 px-2.5 py-1 type-caption font-semibold transition-colors',
             range === r
               ? 'bg-surface-card text-text-primary'
               : 'text-text-muted hover:text-text-secondary hover:bg-surface-hover/60',

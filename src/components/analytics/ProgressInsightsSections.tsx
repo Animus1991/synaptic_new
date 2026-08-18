@@ -20,21 +20,23 @@ export function ProgressKpiRow({ kpis }: { kpis: ProgressKpi[] }) {
   if (isMinimal) {
     return (
       <HubSection className="progress-kpi-stack" data-testid="progress-kpi-row">
-        {kpis.map((kpi, i) => {
-          const Icon = KPI_ICONS[i] ?? Brain;
-          return (
-            <UtilityRow
-              key={kpi.label}
-              icon={<Icon />}
-              label={kpi.label}
-              value={kpi.value}
-              hint={
-                <span data-tone={kpi.tone ?? 'neutral'}>{kpi.sub}</span>
-              }
-              barPct={parseTrailingPct(kpi.value)}
-            />
-          );
-        })}
+        <div className="progress-kpi-grid grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-5 gap-y-2">
+          {kpis.map((kpi, i) => {
+            const Icon = KPI_ICONS[i] ?? Brain;
+            return (
+              <UtilityRow
+                key={kpi.label}
+                icon={<Icon />}
+                label={kpi.label}
+                value={kpi.value}
+                hint={
+                  <span data-tone={kpi.tone ?? 'neutral'}>{kpi.sub}</span>
+                }
+                barPct={parseTrailingPct(kpi.value)}
+              />
+            );
+          })}
+        </div>
       </HubSection>
     );
   }
@@ -67,7 +69,7 @@ export function ProgressKpiRow({ kpis }: { kpis: ProgressKpi[] }) {
 export function ConfidenceBucketChart({ buckets, title }: { buckets: ConfidenceBucket[]; title: string }) {
   return (
     <div className="ux-card p-3" data-testid="confidence-bucket-chart">
-      <h3 className="type-caption font-semibold uppercase tracking-[0.06em] text-text-secondary mb-3"><AllCapsLabel>{title}</AllCapsLabel></h3>
+      <h3 className="type-caption font-semibold text-text-secondary mb-3"><AllCapsLabel>{title}</AllCapsLabel></h3>
       {/* K-A01: dense horizontal 5-bin calibration (mockup) */}
       <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
         {buckets.map((bucket) => (
@@ -75,7 +77,7 @@ export function ConfidenceBucketChart({ buckets, title }: { buckets: ConfidenceB
             key={bucket.rangeLabel}
             className="min-w-0 rounded-lg border-0 bg-surface-secondary/50 px-1 py-2 text-center"
           >
-            <p className="text-sm font-bold tabular-nums text-text-primary sm:text-base">
+            <p className="type-meta font-bold tabular-nums text-text-primary">
               {bucket.sampleCount === 0 ? '—' : `${bucket.correctPct}%`}
             </p>
             <p className="mt-0.5 type-micro text-text-muted tabular-nums truncate">{bucket.rangeLabel}</p>

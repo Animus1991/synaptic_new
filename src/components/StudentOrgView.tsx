@@ -3,7 +3,17 @@ import { motion } from 'framer-motion';
 import { BookOpen, Building2, RefreshCw, GraduationCap, SlidersHorizontal } from '@/lib/lucide-shim';
 import type { UserSettings } from '../types';
 import { getStudentOrgContent } from '../lib/studentOrgContent';
-import { fetchStudentClasses, fetchStudentOrgs, fetchStudentAnnouncements } from '../lib/orgClient';
+import {
+  fetchStudentClasses,
+  fetchStudentOrgs,
+  fetchStudentAnnouncements,
+  submitStudentAssignment,
+  downloadStudentSubmissionAttachment,
+  saveBlobAsFile,
+  type StudentAssignmentSubmission,
+  type SubmitStudentAssignmentPayload,
+  type SubmissionAttachmentMeta,
+} from '../lib/orgClient';
 import { fetchStudentDashboard, type StudentDashboard } from '../lib/studentDashboardClient';
 import { assignmentStatusLabel, assignmentStatusTone } from '../lib/studentOrgModel';
 import { StudentOrgSummary } from './StudentOrgSummary';
@@ -15,9 +25,17 @@ import type { StudentAssignmentDue } from '../lib/studentOrgCalendar';
 import { formatShortDate } from '../lib/localeFormat';
 import { UxShimmerPanel } from './ui/UxShimmerSkeleton';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
+import { Page, PageHeader, SectionHeading, CardLink, PrimaryCTA } from './ui/primitives';
+import { Button } from './ui/Button';
+import { ConfirmDialog } from './ui/ConfirmDialog';
+import { PlatformEmptyState } from './ui/PlatformEmptyState';
 import { t as i18nT } from '../lib/i18n';
 import { cn } from '../utils/cn';
-import { useMinimalTheme } from '../lib/useMinimalTheme';
+import {
+  CLIENT_MAX_ATTACHMENT_BYTES,
+  CLIENT_MAX_ATTACHMENTS,
+  fileToBase64Payload,
+} from '../lib/submissionAttachmentFiles';
 
 interface Props {
   settings: UserSettings;
@@ -43,7 +61,6 @@ export function StudentOrgView({
   onOpenSettings,
 }: Props) {
   const ui = getStudentOrgContent(lang);
-  const isMinimal = useMinimalTheme();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dashboard, setDashboard] = useState<StudentDashboard | null>(null);
@@ -56,6 +73,7 @@ export function StudentOrgView({
   >([]);
   const [orgFilter, setOrgFilter] = useState<string>('all');
   const [expandedDiscussionKey, setExpandedDiscussionKey] = useState<string | null>(null);
+  const [expandedSubmitKey, setExpandedSubmitKey] = useState<string | null>(null);
   const signedIn = Boolean(settings.authToken?.trim());
 
   const load = useCallback(async () => {
@@ -90,6 +108,62 @@ export function StudentOrgView({
   useEffect(() => {
     void load();
   }, [load]);
+
+  /** Patch local state after a submit so the pill flips without a full refetch. */
+  const applySubmissionResult = useCallback(
+    (classId: string, result: Awaited<ReturnType<typeof submitStudentAssignment>>) => {
+      setClasses((prev) =>
+        prev.map((row) => {
+          if (row.class.id !== classId) return row;
+          const submissions = [
+            result.submission,
+            ...(row.submissions ?? []).filter((s) => s.assignmentId !== result.submission.assignmentId),
+          ];
+          const hasCell = row.gradeCells.some((c) => c.assignmentId === result.cell.assignmentId);
+          const gradeCells = hasCell
+            ? row.gradeCells.map((c) =>
+                c.assignmentId === result.cell.assignmentId
+                  ? { ...c, status: result.cell.status, score: result.cell.score }
+                  : c,
+              )
+            : [
+                ...row.gradeCells,
+                {
+                  assignmentId: result.cell.assignmentId,
+                  status: result.cell.status,
+                  score: result.cell.score,
+                },
+              ];
+          return { ...row, submissions, gradeCells };
+        }),
+      );
+      setDashboard((prev) => {
+        if (!prev) return prev;
+        const upcoming = prev.upcoming.map((row) =>
+          row.classId === classId && row.assignmentId === result.submission.assignmentId
+            ? {
+                ...row,
+                status: 'submitted' as const,
+                score: result.cell.score ?? row.score,
+              }
+            : row,
+        );
+        return { ...prev, upcoming };
+      });
+    },
+    [],
+  );
+
+  const openAssignment = useCallback((classId: string, assignmentId: string) => {
+    const key = `${classId}:${assignmentId}`;
+    setExpandedSubmitKey(key);
+    setExpandedDiscussionKey(null);
+    window.requestAnimationFrame(() => {
+      document
+        .getElementById(`student-assignment-${classId}-${assignmentId}`)
+        ?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+    });
+  }, []);
 
   const filteredClasses = useMemo(() => {
     if (orgFilter === 'all') return classes;
@@ -163,52 +237,51 @@ export function StudentOrgView({
 
   if (!signedIn) {
     return (
-      <div className="max-w-3xl mx-auto p-6 space-y-4" data-testid="student-org-signin">
-        <h1 className="text-lg font-semibold text-text-primary">{ui.title}</h1>
-        <p className="text-text-secondary">{ui.signInRequired}</p>
-        <p className="type-body text-text-muted">{ui.signInHint}</p>
-        {samlEmailHint && (
-          <p className="type-body text-text-secondary border border-brand-500/30 rounded-xl px-3 py-2">
-            SSO: {samlEmailHint}
-          </p>
-        )}
-        {onOpenSettings && (
-          <button type="button" className="platform-btn-primary px-4 py-2 rounded-xl type-meta" onClick={onOpenSettings}>
-            Settings
-          </button>
-        )}
+      <div data-testid="student-org-page" data-type-rhythm="dashboard">
+        <Page gap="sm" className="mx-auto max-w-3xl" data-testid="student-org-signin">
+          <PageHeader title={ui.title} subtitle={ui.signInRequired} icon={GraduationCap} />
+          <p className="type-meta text-text-muted">{ui.signInHint}</p>
+          {samlEmailHint && (
+            <p className="rounded-lg border-0 bg-brand-500/10 px-3 py-2 type-meta text-text-secondary">
+              SSO: {samlEmailHint}
+            </p>
+          )}
+          {onOpenSettings && (
+            <PrimaryCTA size="sm" onClick={onOpenSettings} className="self-start">
+              {i18nT('settings', lang)}
+            </PrimaryCTA>
+          )}
+        </Page>
       </div>
     );
   }
 
   return (
     <div
-      className={cn(
-        'platform-page w-full max-w-none space-y-6',
-        /* OPT-K85 — non-Minimal full column; Minimal keeps side gutters */
-        isMinimal ? 'p-4 md:p-6 enterprise-calm' : 'py-4 md:py-6 shell-edge-balance',
-      )}
-      data-testid="student-org-view"
+      className="enterprise-calm"
+      data-testid="student-org-page"
+      data-type-rhythm="dashboard"
+      /* Same CTA-only border diet every other shell page already runs. */
+      data-border-diet="cta-only"
     >
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-lg font-semibold text-text-primary flex items-center gap-2">
-            <GraduationCap className={cn('w-5 h-5', isMinimal ? 'text-text-secondary' : 'text-text-secondary')} />
-            {ui.title}
-          </h1>
-          <p className="text-text-secondary mt-1">{ui.subtitle}</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => void load()}
-          disabled={loading}
-          data-testid="student-org-refresh"
-          className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border-subtle type-meta hover:bg-surface-hover"
-        >
-          <RefreshCw className={cn('w-4 h-4', loading && 'animate-spin')} />
-          {ui.refresh}
-        </button>
-      </div>
+    <Page gap="sm">
+      <PageHeader
+        title={ui.title}
+        subtitle={ui.subtitle}
+        icon={GraduationCap}
+        actions={
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => void load()}
+            disabled={loading}
+            data-testid="student-org-refresh"
+          >
+            <RefreshCw className={cn('w-4 h-4', loading && 'animate-spin')} />
+            {ui.refresh}
+          </Button>
+        }
+      />
 
       {samlEmailHint && (
         <CollapsibleChromeSection
@@ -231,10 +304,20 @@ export function StudentOrgView({
       {dashboard && <StudentOrgSummary dashboard={dashboard} ui={ui} />}
 
       {dashboard && (
-        <StudentUpcomingPanel upcoming={dashboard.upcoming} ui={ui} lang={lang} />
+        <StudentUpcomingPanel
+          upcoming={dashboard.upcoming}
+          ui={ui}
+          lang={lang}
+          onOpenAssignment={openAssignment}
+        />
       )}
 
-      <StudentOrgCalendarPanel assignments={calendarAssignments} ui={ui} lang={lang} />
+      <StudentOrgCalendarPanel
+        assignments={calendarAssignments}
+        ui={ui}
+        lang={lang}
+        onOpenAssignment={openAssignment}
+      />
 
       <StudentOrgAnnouncementsPanel
         announcements={filteredAnnouncements}
@@ -244,31 +327,32 @@ export function StudentOrgView({
       />
 
       <section className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-medium flex items-center gap-2">
-            <BookOpen className="w-5 h-5" />
-            {ui.myClasses}
-          </h2>
-          {orgs.length > 1 && (
-            <label className="flex items-center gap-2 type-meta text-text-muted">
-              <SlidersHorizontal className="w-4 h-4" />
-              <span className="sr-only">{ui.filterByOrg}</span>
-              <select
-                value={orgFilter}
-                onChange={(e) => setOrgFilter(e.target.value)}
-                data-testid="student-org-filter"
-                className="rounded-lg border border-border-subtle bg-surface-card px-2 py-1 type-body text-text-secondary"
-              >
-                <option value="all">{ui.filterAllOrgs}</option>
-                {orgs.map(({ org }) => (
-                  <option key={org.id} value={org.id}>
-                    {org.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-        </div>
+        <SectionHeading
+          title={ui.myClasses}
+          icon={BookOpen}
+          size="lg"
+          action={
+            orgs.length > 1 ? (
+              <label className="flex items-center gap-2 type-caption text-text-muted">
+                <SlidersHorizontal className="w-4 h-4" />
+                <span className="sr-only">{ui.filterByOrg}</span>
+                <select
+                  value={orgFilter}
+                  onChange={(e) => setOrgFilter(e.target.value)}
+                  data-testid="student-org-filter"
+                  className="student-org-filter min-h-9 rounded-md border-0 bg-surface-secondary/55 px-2 py-1 type-caption text-text-secondary"
+                >
+                  <option value="all">{ui.filterAllOrgs}</option>
+                  {orgs.map(({ org }) => (
+                    <option key={org.id} value={org.id}>
+                      {org.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : undefined
+          }
+        />
         <CollapsibleChromeSection
           title={i18nT('chromeOrgHints', lang)}
           data-testid="student-org-classes-hint-chrome"
@@ -281,7 +365,12 @@ export function StudentOrgView({
             <p className="mt-3 type-body text-text-muted">{ui.loading}</p>
           </div>
         ) : filteredClasses.length === 0 ? (
-          <p className="text-text-muted type-body">{ui.noClasses}</p>
+          <PlatformEmptyState
+            title={ui.myClasses}
+            description={ui.noClasses}
+            icon={null}
+            data-testid="student-org-classes-empty"
+          />
         ) : (
           <div className="grid gap-4">
             {filteredClasses.map((row) => {
@@ -317,26 +406,25 @@ export function StudentOrgView({
                         )}
                       </div>
                       {completionPct != null && (
-                        <div className="flex items-center gap-2 pt-1 max-w-xs">
+                        <div className="flex items-center gap-2 pt-1">
                           {/* Wave P-2 C08 — student completion track uses --viz-bar-track. */}
-                          <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
+                          <div className="dashboard-progress-track flex-1">
                             <div
-                              className="h-full bg-brand-500 rounded-full"
+                              className="dashboard-progress-fill bg-brand-500"
                               style={{ width: `${completionPct}%` }}
                             />
                           </div>
-                          <span className="type-micro text-text-muted">{completionPct}%</span>
+                          <span className="type-micro tabular-nums text-text-muted">{completionPct}%</span>
                         </div>
                       )}
                     </div>
                     {row.class.courseId && onOpenCourse && (
-                      <button
-                        type="button"
-                        className="type-meta text-text-secondary hover:underline shrink-0"
+                      <CardLink
+                        className="student-org-open-course min-h-9"
                         onClick={() => onOpenCourse(row.class.courseId!)}
                       >
                         {ui.openCourse}
-                      </button>
+                      </CardLink>
                     )}
                   </div>
                   {row.assignments.length > 0 && (
@@ -352,16 +440,90 @@ export function StudentOrgView({
                         <tbody>
                           {row.assignments.map((a) => {
                             const cell = row.gradeCells.find((c) => c.assignmentId === a.id);
+                            const submission = (row.submissions ?? []).find(
+                              (s) => s.assignmentId === a.id,
+                            );
                             const up = dashboard?.upcoming.find(
                               (u) => u.assignmentId === a.id && u.classId === row.class.id,
                             );
-                            const status = up?.status ?? (cell?.score != null ? 'graded' : 'pending');
+                            // Local cell state wins: right after a submit the dashboard
+                            // snapshot is stale, but the patched cell already knows.
+                            const cellStatus =
+                              cell?.score != null || cell?.status === 'graded'
+                                ? ('graded' as const)
+                                : cell?.status === 'submitted'
+                                  ? ('submitted' as const)
+                                  : null;
+                            const status = cellStatus ?? up?.status ?? 'pending';
                             const discussionKey = `${row.class.id}:${a.id}`;
                             const discussionOpen = expandedDiscussionKey === discussionKey;
+                            const submitOpen = expandedSubmitKey === discussionKey;
                             return (
                               <Fragment key={a.id}>
-                                <tr className="border-b border-border-subtle/30 last:border-0">
-                                  <td className="p-2 text-text-secondary">{a.title}</td>
+                                <tr
+                                  className="border-b border-border-subtle/30 last:border-0"
+                                  id={`student-assignment-${row.class.id}-${a.id}`}
+                                >
+                                  <td className="p-2 text-text-secondary">
+                                    {a.title}
+                                    {a.description && (
+                                      <span
+                                        className="mt-0.5 block type-micro text-text-muted"
+                                        data-testid={`student-assignment-description-${a.id}`}
+                                      >
+                                        {a.description}
+                                      </span>
+                                    )}
+                                    {submission && (
+                                      <span className="mt-0.5 block type-micro text-text-muted">
+                                        {ui.submittedAtLabel}{' '}
+                                        {formatShortDate(submission.updatedAt, lang)}
+                                      </span>
+                                    )}
+                                    {submission?.body && (
+                                      <span
+                                        className="mt-0.5 block type-micro text-text-secondary line-clamp-2"
+                                        data-testid={`student-assignment-submitted-body-${a.id}`}
+                                      >
+                                        {ui.submittedWorkLabel}: {submission.body}
+                                      </span>
+                                    )}
+                                    {submission?.linkUrl && (
+                                      <a
+                                        href={submission.linkUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mt-0.5 block type-micro platform-link"
+                                        data-testid={`student-assignment-submitted-link-${a.id}`}
+                                      >
+                                        {ui.submitLinkLabel}
+                                      </a>
+                                    )}
+                                    {(submission?.attachments ?? []).length > 0 && (
+                                      <ul className="mt-0.5 space-y-0.5" data-testid={`student-assignment-submitted-files-${a.id}`}>
+                                        {(submission?.attachments ?? []).map((file) => (
+                                          <li key={file.id}>
+                                            <button
+                                              type="button"
+                                              className="type-micro platform-link"
+                                              data-testid={`student-assignment-submitted-file-${file.id}`}
+                                              onClick={() => {
+                                                void downloadStudentSubmissionAttachment(
+                                                  settings.authToken!,
+                                                  settings,
+                                                  row.class.id,
+                                                  a.id,
+                                                  file.id,
+                                                ).then(({ blob, filename }) => saveBlobAsFile(blob, filename));
+                                              }}
+                                            >
+                                              {ui.submittedFilesLabel}: {file.name}
+                                            </button>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    )}
+                                  </td>
                                   <td className="p-2 text-text-muted whitespace-nowrap">
                                     {a.dueAt ? formatShortDate(a.dueAt, lang) : '—'}
                                   </td>
@@ -369,13 +531,27 @@ export function StudentOrgView({
                                     <span className="inline-flex items-center gap-2 justify-end flex-wrap">
                                       <button
                                         type="button"
-                                        onClick={() =>
+                                        onClick={() => {
+                                          setExpandedSubmitKey((prev) =>
+                                            prev === discussionKey ? null : discussionKey,
+                                          );
+                                          setExpandedDiscussionKey(null);
+                                        }}
+                                        data-testid={`student-submit-toggle-${a.id}`}
+                                        className="student-org-discussion-toggle platform-link inline-flex min-h-9 items-center type-micro"
+                                      >
+                                        {submission ? ui.resubmitToggle : ui.submitToggle}
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
                                           setExpandedDiscussionKey((prev) =>
                                             prev === discussionKey ? null : discussionKey,
-                                          )
-                                        }
+                                          );
+                                          setExpandedSubmitKey(null);
+                                        }}
                                         data-testid={`student-discussion-toggle-${a.id}`}
-                                        className="type-micro text-text-secondary hover:underline"
+                                        className="student-org-discussion-toggle platform-link inline-flex min-h-9 items-center type-micro"
                                       >
                                         {ui.discussionToggle}
                                       </button>
@@ -393,6 +569,28 @@ export function StudentOrgView({
                                     </span>
                                   </td>
                                 </tr>
+                                {submitOpen && (
+                                  <tr>
+                                    <td colSpan={3} className="px-2 pb-3">
+                                      <AssignmentSubmitForm
+                                        ui={ui}
+                                        existing={submission}
+                                        graded={cell?.status === 'graded' || cell?.score != null}
+                                        onSubmit={async (payload) => {
+                                          const result = await submitStudentAssignment(
+                                            settings.authToken!,
+                                            settings,
+                                            row.class.id,
+                                            a.id,
+                                            payload,
+                                          );
+                                          applySubmissionResult(row.class.id, result);
+                                          setExpandedSubmitKey(null);
+                                        }}
+                                      />
+                                    </td>
+                                  </tr>
+                                )}
                                 {discussionOpen && (
                                   <tr>
                                     <td colSpan={3} className="px-2 pb-3">
@@ -426,17 +624,19 @@ export function StudentOrgView({
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-medium flex items-center gap-2">
-          <Building2 className="w-5 h-5" />
-          {ui.myOrgs}
-        </h2>
+        <SectionHeading title={ui.myOrgs} icon={Building2} size="lg" />
         {orgs.length === 0 ? (
-          <p className="text-text-muted type-body">{ui.noOrgs}</p>
+          <PlatformEmptyState
+            title={ui.myOrgs}
+            description={ui.noOrgs}
+            icon={null}
+            data-testid="student-org-orgs-empty"
+          />
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-border-subtle">
+          <div className="overflow-x-auto rounded-lg border border-border-subtle/60">
             <table className="w-full type-body" data-testid="student-org-table">
               <thead>
-                <tr className="border-b border-border-subtle text-text-muted text-left">
+                <tr className="border-b border-border-subtle/50 text-left type-micro text-text-muted">
                   <th className="p-3">{ui.colOrg}</th>
                   <th className="p-3">{ui.colRole}</th>
                 </tr>
@@ -453,6 +653,185 @@ export function StudentOrgView({
           </div>
         )}
       </section>
+    </Page>
+    </div>
+  );
+}
+
+/** Inline submit/resubmit form — expands under an assignment row like the Q&A thread. */
+function AssignmentSubmitForm({
+  ui,
+  existing,
+  graded,
+  onSubmit,
+}: {
+  ui: ReturnType<typeof getStudentOrgContent>;
+  existing?: StudentAssignmentSubmission;
+  graded?: boolean;
+  onSubmit: (payload: SubmitStudentAssignmentPayload) => Promise<void>;
+}) {
+  const [body, setBody] = useState(existing?.body ?? '');
+  const [linkUrl, setLinkUrl] = useState(existing?.linkUrl ?? '');
+  const [keptFiles, setKeptFiles] = useState<SubmissionAttachmentMeta[]>(existing?.attachments ?? []);
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const send = async () => {
+    const text = body.trim();
+    const link = linkUrl.trim();
+    setBusy(true);
+    setError(null);
+    try {
+      const attachments = await Promise.all(newFiles.map((file) => fileToBase64Payload(file)));
+      const payload: SubmitStudentAssignmentPayload = {
+        body: text,
+        linkUrl: link || undefined,
+      };
+      const filesChanged =
+        attachments.length > 0 || keptFiles.length !== (existing?.attachments?.length ?? 0);
+      if (filesChanged) {
+        payload.keepAttachmentIds = keptFiles.map((f) => f.id);
+        payload.attachments = attachments;
+      }
+      await onSubmit(payload);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+      setConfirmOpen(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    const text = body.trim();
+    const link = linkUrl.trim();
+    if (!text && !link && newFiles.length === 0 && keptFiles.length === 0) {
+      setError(ui.submitEmptyError);
+      return;
+    }
+    if (existing) {
+      setConfirmOpen(true);
+      return;
+    }
+    await send();
+  };
+
+  const handleFiles = (list: FileList | null) => {
+    const incoming = list ? Array.from(list) : [];
+    if (incoming.some((f) => f.size > CLIENT_MAX_ATTACHMENT_BYTES)) {
+      setError(ui.submitFileTooLarge);
+      return;
+    }
+    const next = [...newFiles, ...incoming];
+    if (keptFiles.length + next.length > CLIENT_MAX_ATTACHMENTS) {
+      setError(ui.submitFilesTooMany);
+      return;
+    }
+    setError(null);
+    setNewFiles(next);
+  };
+
+  return (
+    <div
+      className="rounded-lg border border-border-subtle/40 bg-surface-card/60 p-3 space-y-2"
+      data-testid="assignment-submit-form"
+    >
+      <p className="type-micro text-text-muted">{ui.submitHint}</p>
+      <textarea
+        value={body}
+        onChange={(e) => setBody(e.target.value)}
+        placeholder={ui.submitBodyPlaceholder}
+        rows={4}
+        data-testid="assignment-submit-body"
+        className="w-full px-2 py-1.5 rounded-lg border border-border-subtle bg-surface-card type-body resize-y"
+      />
+      <input
+        type="url"
+        value={linkUrl}
+        onChange={(e) => setLinkUrl(e.target.value)}
+        placeholder={ui.submitLinkPlaceholder}
+        data-testid="assignment-submit-link"
+        className="w-full px-2 py-1.5 rounded-lg border border-border-subtle bg-surface-card type-body"
+      />
+      <div className="space-y-1.5">
+        <label className="type-micro text-text-secondary" htmlFor="assignment-submit-files">
+          {ui.submitFilesLabel}
+        </label>
+        <p className="type-micro text-text-muted">{ui.submitFilesHint}</p>
+        <input
+          id="assignment-submit-files"
+          type="file"
+          multiple
+          data-testid="assignment-submit-files"
+          onChange={(e) => {
+            handleFiles(e.target.files);
+            e.target.value = '';
+          }}
+          className="block w-full type-caption text-text-secondary"
+        />
+        {(keptFiles.length > 0 || newFiles.length > 0) && (
+          <ul className="space-y-1" data-testid="assignment-submit-file-list">
+            {keptFiles.map((file) => (
+              <li key={file.id} className="flex items-center justify-between gap-2 type-caption text-text-secondary">
+                <span>{file.name}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  type="button"
+                  data-testid={`assignment-submit-remove-kept-${file.id}`}
+                  onClick={() => setKeptFiles((prev) => prev.filter((f) => f.id !== file.id))}
+                >
+                  {ui.submitRemoveFile}
+                </Button>
+              </li>
+            ))}
+            {newFiles.map((file, index) => (
+              <li key={`${file.name}-${index}`} className="flex items-center justify-between gap-2 type-caption text-text-secondary">
+                <span>{file.name}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  type="button"
+                  data-testid={`assignment-submit-remove-new-${index}`}
+                  onClick={() => setNewFiles((prev) => prev.filter((_, i) => i !== index))}
+                >
+                  {ui.submitRemoveFile}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      {error && (
+        <p className="type-micro text-accent-rose" role="alert">
+          {error}
+        </p>
+      )}
+      <div className="flex justify-end">
+        <Button
+          variant="primary"
+          size="sm"
+          disabled={busy}
+          onClick={() => void handleSubmit()}
+          data-testid="assignment-submit-cta"
+        >
+          {busy ? ui.submitSending : ui.submitCta}
+        </Button>
+      </div>
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={() => void send()}
+        title={ui.resubmitConfirmTitle}
+        description={ui.resubmitConfirmBody}
+        confirmLabel={ui.resubmitConfirmCta}
+        cancelLabel={ui.resubmitConfirmCancel}
+        destructive={Boolean(graded)}
+        confirming={busy}
+        data-testid="assignment-resubmit-confirm"
+      />
     </div>
   );
 }

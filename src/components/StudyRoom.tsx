@@ -13,6 +13,7 @@ import {
   type StudyRoomSnapshot,
 } from '../lib/studyRoomClient';
 import { Page, PageHeader, Card, SectionHeading, PrimaryCTA, SecondaryCTA } from './ui/primitives';
+import { ServerOfflineNotice } from './ui/ServerOfflineNotice';
 
 type Props = {
   userSettings?: UserSettings;
@@ -176,7 +177,7 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
 
       {/* OPT-K127 — balanced 3/2 columns; OPT-K161 — denser text-first explainer */}
       <div className="grid gap-3 lg:grid-cols-5 lg:items-start" data-testid="study-room-hub-grid">
-        <div className="space-y-3 lg:col-span-3">
+        <div className="space-y-3 lg:col-span-3" data-soft-sep="stack">
           <Card tone="brand" padding="md" className="study-room-panel">
             {/* OPT-K164 — same heading step as Features/How (no lg jump vs body ladder) */}
             <SectionHeading title={t('studyRoomHubWhatTitle')} />
@@ -192,6 +193,7 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
               <span className={`h-1.5 w-1.5 rounded-full ${isLocal ? 'bg-accent-amber' : 'bg-accent-teal'}`} />
               {isLocal ? t('studyRoomHubServerLocal') : t('studyRoomHubServerOnline')}
             </span>
+            {isLocal && <ServerOfflineNotice probe={false} className="mt-2" />}
           </Card>
 
           <Card padding="md" className="study-room-panel">
@@ -228,10 +230,11 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
         </div>
 
         <div className="lg:col-span-2">
-          <div className="lg:sticky lg:top-4 space-y-3">
+          <div className="lg:sticky lg:top-4 space-y-3" data-soft-sep="stack">
             {error && (
               <div
                 className="rounded-lg border-0 bg-accent-rose/10 px-3 py-2 type-caption text-accent-rose"
+                data-soft-card="off"
                 role="alert"
               >
                 {error}
@@ -261,7 +264,7 @@ export function StudyRoom({ userSettings, onOpenWorkspace }: Props) {
                     <button
                       type="button"
                       onClick={() => void copyInvite()}
-                      className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border-0 bg-surface-secondary/55 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                      className="study-room-copy-invite grid h-8 w-8 shrink-0 place-items-center rounded-lg border-0 bg-surface-secondary/55 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
                       title={t('studyRoomCopy')}
                       aria-label={t('studyRoomCopy')}
                     >

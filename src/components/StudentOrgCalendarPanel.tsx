@@ -16,6 +16,7 @@ type Props = {
   assignments: StudentAssignmentDue[];
   ui: StudentOrgContent;
   lang: 'en' | 'el';
+  onOpenAssignment?: (classId: string, assignmentId: string) => void;
 };
 
 const statusToneClass: Record<ReturnType<typeof assignmentStatusTone>, string> = {
@@ -26,7 +27,7 @@ const statusToneClass: Record<ReturnType<typeof assignmentStatusTone>, string> =
 };
 
 /* OPT-K101 — residual markup debt: decorative brand type -> ink */
-export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
+export function StudentOrgCalendarPanel({ assignments, ui, lang, onOpenAssignment }: Props) {
   const { t } = useI18n();
   const [open, setOpen] = useState(true);
   const [filter, setFilter] = useState<StudentCalendarFilter>('all');
@@ -134,6 +135,19 @@ export function StudentOrgCalendarPanel({ assignments, ui, lang }: Props) {
                           {assignmentStatusLabel(entry.status, lang)}
                         </span>
                       )}
+                      {entry.kind === 'assignment' &&
+                        entry.classId &&
+                        entry.assignmentId &&
+                        onOpenAssignment && (
+                          <button
+                            type="button"
+                            onClick={() => onOpenAssignment(entry.classId!, entry.assignmentId!)}
+                            data-testid={`student-calendar-open-${entry.assignmentId}`}
+                            className="platform-link inline-flex min-h-9 items-center type-micro"
+                          >
+                            {ui.openAssignment}
+                          </button>
+                        )}
                       {entry.linkUrl && entry.linkLabel && (
                         <a
                           href={entry.linkUrl}

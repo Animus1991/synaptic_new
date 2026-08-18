@@ -299,6 +299,7 @@ function OverviewTab({
   const store = useAppStore();
   const [drillTile, setDrillTile] = useState<SubjectMasteryTile | null>(null);
   const [visualLabOpen, setVisualLabOpen] = useState(() => loadVisualLabOpen(false));
+  const [flowOpen, setFlowOpen] = useState<boolean | null>(null);
   const rangedActivities = useMemo(
     () => filterActivitiesByRange(activities, range),
     [activities, range],
@@ -329,6 +330,8 @@ function OverviewTab({
   const waterfallModel = buildMasteryWaterfall(rangedActivities, learnerModel, lang);
   const treemapModel = buildConceptTreemap(courses, learnerModel);
   const timelineModel = buildLearningTimeline(rangedActivities, lang);
+  const flowDefaultOpen = sankeyModel.hasData || waterfallModel.hasData || treemapModel.hasData || timelineModel.hasData;
+  const flowIsOpen = flowOpen ?? flowDefaultOpen;
   return (
     <div className="hub-section-stack analytics-hub-stack" data-soft-sep="stack">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
@@ -643,7 +646,8 @@ function OverviewTab({
       <details
         className="ux-disclosure"
         data-testid="analytics-flow-disclosure"
-        defaultOpen={sankeyModel.hasData || waterfallModel.hasData || treemapModel.hasData || timelineModel.hasData}
+        open={flowIsOpen}
+        onToggle={(e) => setFlowOpen((e.target as HTMLDetailsElement).open)}
       >
         <summary className="ux-disclosure-summary">{t('analyticsFlowDisclosure')}</summary>
         <div className="ux-disclosure-body space-y-4">

@@ -27,6 +27,11 @@ export type ShellNavGroup = {
   entries: NavRegistryEntry[];
 };
 
+/** Group labels are only useful when a section has two or more items. */
+export function shouldShowShellNavGroupLabel(group: ShellNavGroup): boolean {
+  return group.entries.length >= 2;
+}
+
 /** Preserve registry order within each group; omit empty groups. */
 export function groupShellNavEntries(entries: NavRegistryEntry[]): ShellNavGroup[] {
   const buckets = new Map<ShellNavGroupId, NavRegistryEntry[]>(

@@ -30,6 +30,7 @@ describe('simulatorCoursePresets (TOOL-SM-02)', () => {
   it('detects economics wording', () => {
     expect(looksLikeEconomicsCourse('Supply and demand')).toBe(true);
     expect(looksLikeEconomicsCourse('Photosynthesis')).toBe(false);
+    expect(looksLikeEconomicsCourse('Η ελαστικότητα ζήτησης είναι 50%')).toBe(true);
   });
 
   it('builds parametric presets from cues', () => {
@@ -54,6 +55,16 @@ describe('simulatorCoursePresets (TOOL-SM-02)', () => {
       economicsMode: false,
       numericCues: cues,
       concept: 'Cell division',
+    });
+    expect(pack.mode).toBe('parametric');
+  });
+
+  it('does not treat biology notes as economics just because cues exist', () => {
+    const pack = resolveCourseSimulatorPresets({
+      economicsMode: false,
+      numericCues: cues,
+      courseTitle: 'Photosynthesis',
+      concept: 'Light reactions',
     });
     expect(pack.mode).toBe('parametric');
   });

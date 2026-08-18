@@ -28,6 +28,8 @@ type Props = {
   onScenarioSelect?: (scenarioId: SimulatorScenarioId) => void;
   onStartTimedPractice?: (presetId: ExamPracticePresetId) => void;
   onSendToWhiteboard?: (payload: import('../../lib/workspaceScratchpadBridge').ScratchpadExport) => void;
+  glossary?: import('../../types').GlossaryEntry[];
+  notes?: string;
   artifactStale?: boolean;
   onAcknowledgeStale?: () => void;
   scopeKey?: string;
@@ -48,6 +50,8 @@ export function SimulatorPanel({
   onScenarioSelect,
   onStartTimedPractice,
   onSendToWhiteboard,
+  glossary = [],
+  notes = '',
   artifactStale = false,
   onAcknowledgeStale,
   scopeKey = '',
@@ -100,7 +104,12 @@ export function SimulatorPanel({
       <div className="flex h-full flex-col overflow-hidden" data-testid="simulator-panel"
       data-clarity-pass="k159">
         {tabBar}
-        <ExamPrepPanel />
+        <ExamPrepPanel
+          courseTitle={courseTitle}
+          concept={concept}
+          glossary={glossary}
+          notes={notes}
+        />
       </div>
     );
   }

@@ -22,6 +22,7 @@ import {
 import {
   continuityOverlapScore,
   createExplanationChallenge,
+  mergeCoReadingHubs,
   submitExplanation,
 } from './coReadingHub';
 import {
@@ -190,5 +191,80 @@ describe('coReadingHub + peer review CH-3/4', () => {
     });
     expect(badge.aiLabel).toBe('human');
     expect(badge.label).toMatch(/verified/i);
+  });
+
+  it('merges concurrent device hubs without dropping votes or challenges', () => {
+    const emptyVotes = { clarity: 0, sourceGrounding: 0, completeness: 0, examUsefulness: 0 };
+    const a = {
+      roomId: 'r1',
+      challenges: [{
+        id: 'xc-a',
+        roomId: 'r1',
+        sourceExcerpt: 'Elasticity measures demand response.',
+        sourceRef: 'ch-1',
+        explanations: [{
+          id: 'ex-1',
+          authorId: 'u1',
+          authorName: 'Ada',
+          text: 'Demand sensitivity to price.',
+          aiAssisted: false,
+          votes: { ...emptyVotes, clarity: 2 },
+          voterIds: ['u2'],
+          createdAt: '2026-08-15T10:00:00.000Z',
+          contentHash: 'h1',
+          readReceiptIds: ['u2'],
+        }],
+        exemplarId: null,
+        createdById: 's1',
+        createdByName: 'Sam',
+        createdAt: '2026-08-15T09:00:00.000Z',
+        events: [],
+      }],
+    };
+    const b = {
+      roomId: 'r1',
+      challenges: [{
+        id: 'xc-a',
+        roomId: 'r1',
+        sourceExcerpt: 'Elasticity measures demand response.',
+        sourceRef: 'ch-1',
+        explanations: [{
+          id: 'ex-1',
+          authorId: 'u1',
+          authorName: 'Ada',
+          text: 'Demand sensitivity to price.',
+          aiAssisted: false,
+          votes: { ...emptyVotes, completeness: 1 },
+          voterIds: ['u3'],
+          createdAt: '2026-08-15T10:00:00.000Z',
+          contentHash: 'h1',
+          readReceiptIds: ['u3'],
+        }],
+        exemplarId: 'ex-1',
+        createdById: 's1',
+        createdByName: 'Sam',
+        createdAt: '2026-08-15T09:00:00.000Z',
+        events: [],
+      }, {
+        id: 'xc-b',
+        roomId: 'r1',
+        sourceExcerpt: 'A second excerpt for another challenge.',
+        sourceRef: '',
+        explanations: [],
+        exemplarId: null,
+        createdById: 's2',
+        createdByName: 'Bea',
+        createdAt: '2026-08-15T11:00:00.000Z',
+        events: [],
+      }],
+    };
+    const merged = mergeCoReadingHubs(a, b);
+    expect(merged.challenges).toHaveLength(2);
+    const shared = merged.challenges.find((ch) => ch.id === 'xc-a')!;
+    expect(shared.exemplarId).toBe('ex-1');
+    expect(shared.explanations[0]!.votes.clarity).toBe(2);
+    expect(shared.explanations[0]!.votes.completeness).toBe(1);
+    expect(shared.explanations[0]!.voterIds).toEqual(expect.arrayContaining(['u2', 'u3']));
+    expect(shared.explanations[0]!.readReceiptIds).toEqual(expect.arrayContaining(['u2', 'u3']));
   });
 });

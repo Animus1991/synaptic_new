@@ -1351,11 +1351,9 @@ export function buildFeynmanGapTerms(glossary: GlossaryEntry[], concept: string)
 }
 
 /**
- * Determine whether the current material supports the parametric sandbox.
- * The current UI is a transitional supply/demand explorer; it is enabled only
- * when the notes contain explicit formulas or quantitative comparisons so it
- * is not domain-specific. A generic parameter explorer is planned for Phase 4
- * (see EXHAUSTIVE_PRODUCT_SCALE_BLUEPRINT.md §5).
+ * Determine whether the current material supports a parametric sandbox.
+ * Supply/demand economics mode is chosen separately via looksLikeEconomicsCourse
+ * in the simulator session model (Phase 4).
  */
 export function notesSupportSandbox(text: string, concept: string, formulas: ExtractedFormula[]): boolean {
   if (formulas.length > 0) return true;

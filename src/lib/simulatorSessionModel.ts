@@ -6,11 +6,7 @@
 import type { Lang } from './i18n';
 import type { NumericCue } from './numericCues';
 import { extractNumericCues } from './numericCues';
-import {
-  extractFormulas,
-  notesSupportSandbox,
-  sandboxInsightFromNotes,
-} from './noteContentExtractors';
+import { sandboxInsightFromNotes } from './noteContentExtractors';
 import { isGenericStudyConcept } from './workspaceContentFallback';
 import { loadLastSimulatorScenario } from './workspacePersistence';
 import {
@@ -19,6 +15,7 @@ import {
   type ExamPracticePresetId,
   type SimulatorScenarioId,
 } from './examPracticePresets';
+import { looksLikeEconomicsCourse } from './simulatorCoursePresets';
 
 export type { NumericCue };
 
@@ -54,8 +51,19 @@ export function buildSimulatorSessionContent(opts: {
   scopeKey?: string;
   conceptMastery?: number;
   daysToExam?: number | null;
+  courseTitle?: string;
 }): SimulatorSessionContent {
-  const { text, concept, lang, sectionLabel, hasSource, scopeKey, conceptMastery = 50, daysToExam = null } = opts;
+  const {
+    text,
+    concept,
+    lang,
+    sectionLabel,
+    hasSource,
+    scopeKey,
+    conceptMastery = 50,
+    daysToExam = null,
+    courseTitle = '',
+  } = opts;
 
   const lastSimulatorScenario = scopeKey
     ? (loadLastSimulatorScenario(scopeKey) as SimulatorScenarioId | null)
@@ -76,9 +84,8 @@ export function buildSimulatorSessionContent(opts: {
     };
   }
 
-  const formulas = extractFormulas(text, concept);
   const numericCues = extractNumericCues(text, concept);
-  const economicsMode = notesSupportSandbox(text, concept, formulas);
+  const economicsMode = looksLikeEconomicsCourse(`${courseTitle} ${concept} ${text.slice(0, 1200)}`);
   const sandboxInsight = sandboxInsightFromNotes(text, concept, lang);
   const hasActionableContent = numericCues.length > 0 || economicsMode;
   const generic = isGenericStudyConcept(concept);

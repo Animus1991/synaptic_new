@@ -123,6 +123,30 @@ export async function downloadAuditLogExport(
   return res.blob();
 }
 
+export type SubmissionAttachmentMeta = {
+  id: string;
+  name: string;
+  mime: string;
+  size: number;
+};
+
+export type StudentAssignmentSubmission = {
+  id: string;
+  assignmentId: string;
+  body: string;
+  linkUrl?: string;
+  attachments?: SubmissionAttachmentMeta[];
+  submittedAt: string;
+  updatedAt: string;
+};
+
+export type SubmitStudentAssignmentPayload = {
+  body: string;
+  linkUrl?: string;
+  attachments?: { name: string; mime: string; contentBase64: string }[];
+  keepAttachmentIds?: string[];
+};
+
 export async function fetchStudentClasses(token: string, settings: UserSettings) {
   const res = await fetch(`${proxyBase(settings)}/v1/student/classes`, {
     headers: authHeaders(token),
@@ -133,8 +157,100 @@ export async function fetchStudentClasses(token: string, settings: UserSettings)
     classes: {
       class: { id: string; name: string; courseId?: string; orgId?: string };
       enrollment: { id: string; displayName?: string; mastery?: number };
-      assignments: { id: string; title: string; dueAt?: string }[];
+      assignments: { id: string; title: string; description?: string; dueAt?: string }[];
       gradeCells: { assignmentId: string; score?: number; status: string }[];
+      submissions: StudentAssignmentSubmission[];
+    }[];
+  };
+}
+
+/** Create or replace (resubmit) the signed-in student's work for an assignment. */
+export async function submitStudentAssignment(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  assignmentId: string,
+  payload: SubmitStudentAssignmentPayload,
+) {
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/student/classes/${classId}/assignments/${assignmentId}/submission`,
+    {
+      method: 'PUT',
+      headers: authHeaders(token),
+      body: JSON.stringify(payload),
+    },
+  );
+  if (!res.ok) throw new Error(await res.text());
+  return (await res.json()) as {
+    submission: StudentAssignmentSubmission;
+    cell: { assignmentId: string; enrollmentId: string; status: string; score?: number };
+  };
+}
+
+async function downloadAttachmentBlob(url: string, token: string) {
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error(await res.text());
+  const blob = await res.blob();
+  const disposition = res.headers.get('content-disposition') ?? '';
+  const match = disposition.match(/filename="([^"]+)"/);
+  return { blob, filename: match?.[1] ?? 'attachment' };
+}
+
+export function saveBlobAsFile(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export async function downloadStudentSubmissionAttachment(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  assignmentId: string,
+  attachmentId: string,
+) {
+  return downloadAttachmentBlob(
+    `${proxyBase(settings)}/v1/student/classes/${classId}/assignments/${assignmentId}/submission/attachments/${attachmentId}`,
+    token,
+  );
+}
+
+export async function downloadTeacherSubmissionAttachment(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  assignmentId: string,
+  enrollmentId: string,
+  attachmentId: string,
+) {
+  return downloadAttachmentBlob(
+    `${proxyBase(settings)}/v1/teacher/classes/${classId}/assignments/${assignmentId}/submissions/${enrollmentId}/attachments/${attachmentId}`,
+    token,
+  );
+}
+
+/** Teacher: roster-joined submissions for one assignment. */
+export async function fetchTeacherAssignmentSubmissions(
+  token: string,
+  settings: UserSettings,
+  classId: string,
+  assignmentId: string,
+) {
+  const res = await fetch(
+    `${proxyBase(settings)}/v1/teacher/classes/${classId}/assignments/${assignmentId}/submissions`,
+    { headers: authHeaders(token) },
+  );
+  if (!res.ok) throw new Error(await res.text());
+  return (await res.json()) as {
+    classId: string;
+    assignmentId: string;
+    submissions: {
+      submission: StudentAssignmentSubmission & { enrollmentId: string; accountId: string };
+      student: { enrollmentId: string; email: string; displayName?: string } | null;
+      cell: { status: string; score?: number } | null;
     }[];
   };
 }

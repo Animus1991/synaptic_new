@@ -233,14 +233,13 @@ describe('Wave H2 — Dashboard productization', () => {
     expect(clarity).toMatch(/whisper 1px panel rules/);
   });
 
-  it('OPT-K135 — App-wide hidden scrollbars keep scroll', () => {
+  it('OPT-K135 — scroll stays enabled (K170 supersedes full hide)', () => {
     const clarity = read('styles/cursor-clarity.css');
     expect(clarity).toMatch(/OPT-K135/);
-    expect(clarity).toMatch(/App-wide HIDDEN scrollbars/);
     const indexCss = read('index.css');
-    expect(indexCss).toMatch(/OPT-K135/);
-    expect(indexCss).toMatch(/FINAL kill-switch/);
-    expect(indexCss).toMatch(/scrollbar-width:\s*none\s*!important/);
+    expect(indexCss).toMatch(/OPT-K170/);
+    expect(indexCss).toMatch(/discreet right-edge page scrollbar/);
+    expect(indexCss).not.toMatch(/FINAL kill-switch/);
   });
 
   it('OPT-K132 — Note Analysis border diet + equal summary columns', () => {
@@ -380,7 +379,7 @@ describe('Wave H2 — Dashboard productization', () => {
 
   it('OPT-K146 — Tasks quieter titles + text-first empty', () => {
     const tasks = read('components/Tasks.tsx');
-    expect(tasks).toMatch(/OPT-K146|OPT-K140–K146|OPT-K140–K147/);
+    expect(tasks).toMatch(/OPT-K146|OPT-K140–K146|OPT-K140–K147|OPT-K140–K151/);
     expect(tasks).toMatch(/icon=\{null\}/);
     const clarity = read('styles/cursor-clarity.css');
     expect(clarity).toMatch(/OPT-K146/);
@@ -442,7 +441,7 @@ describe('Wave H2 — Dashboard productization', () => {
     expect(warn).toMatch(/OPT-K153/);
     expect(warn).not.toMatch(/AlertTriangle/);
     const quiz = read('components/workspace/QuizPanel.tsx');
-    expect(quiz).toContain('data-clarity-pass="k153"');
+    expect(quiz).toMatch(/data-clarity-pass="k(153|159)"/); /* K159 supersedes K153 */
     const dash = read('components/workspace/DashboardPanel.tsx');
     expect(dash).toContain('data-clarity-pass="k153"');
     const clarity = read('styles/cursor-clarity.css');
@@ -487,9 +486,9 @@ describe('Wave H2 — Dashboard productization', () => {
 
   it('OPT-K157 — Whiteboard wash + text-first coach residual', () => {
     const board = read('components/workspace/StudyWhiteboard.tsx');
-    expect(board).toContain('data-clarity-pass="k157"');
+    expect(board).toMatch(/data-clarity-pass="k(157|162)"/); /* K162 supersedes K157 */
     const coach = read('components/workspace/WhiteboardDiagramCoach.tsx');
-    expect(coach).toContain('data-clarity-pass="k157"');
+    expect(coach).toMatch(/data-clarity-pass="k(157|162)"/);
     expect(coach).not.toMatch(/Sparkles/);
     const clarity = read('styles/cursor-clarity.css');
     expect(clarity).toMatch(/OPT-K157/);
@@ -512,7 +511,7 @@ describe('Wave H2 — Dashboard productization', () => {
     const quiz = read('components/workspace/QuizPanel.tsx');
     expect(quiz).toContain('data-clarity-pass="k159"');
     const map = read('components/workspace/DraggableConceptMap.tsx');
-    expect(map).toContain('data-clarity-pass="k159"');
+    expect(map).toMatch(/data-clarity-pass="k(159|162)"/); /* K162 supersedes K159 */
     expect(map).not.toMatch(/cm-node-shadow/);
     const sim = read('components/workspace/SimulatorPanel.tsx');
     expect(sim).toContain('data-clarity-pass="k159"');

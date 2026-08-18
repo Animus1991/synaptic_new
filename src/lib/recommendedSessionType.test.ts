@@ -24,6 +24,23 @@ describe('getRecommendedSessionType', () => {
     })).toBe('review');
   });
 
+  it('honors settings pacing when check-in and exam pressure are quiet', () => {
+    expect(getRecommendedSessionType({
+      daysToExam: 30,
+      reviewDueCount: 0,
+      weakCount: 0,
+      openTaskCount: 6,
+      pacing: 'fast',
+    })).toBe('10min');
+    expect(getRecommendedSessionType({
+      daysToExam: 30,
+      reviewDueCount: 0,
+      weakCount: 0,
+      openTaskCount: 6,
+      pacing: 'slow',
+    })).toBe('50min');
+  });
+
   it('defaults to focused 25min', () => {
     expect(getRecommendedSessionType({
       daysToExam: null,

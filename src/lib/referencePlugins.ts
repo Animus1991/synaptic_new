@@ -46,4 +46,35 @@ export const REFERENCE_PLUGINS: SynapsePlugin[] = [
       },
     },
   },
+  {
+    id: 'synapse.course-stamp',
+    name: 'Course generate stamp',
+    version: '1.0.0',
+    description: 'Records that add-ons ran after a course was generated from notes',
+    hooks: {
+      'course:afterGenerate': (payload) => {
+        const body = payload as {
+          course?: {
+            pipelineMeta?: {
+              version: string;
+              generatedAt: string;
+              outlineSource: string;
+              pluginsApplied?: string[];
+            };
+          };
+        };
+        if (!body.course?.pipelineMeta) return payload;
+        return {
+          ...body,
+          course: {
+            ...body.course,
+            pipelineMeta: {
+              ...body.course.pipelineMeta,
+              pluginsApplied: [...new Set([...(body.course.pipelineMeta.pluginsApplied ?? []), 'synapse.course-stamp'])],
+            },
+          },
+        };
+      },
+    },
+  },
 ];

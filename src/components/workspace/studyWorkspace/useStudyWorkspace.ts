@@ -99,6 +99,7 @@ import {
   resolveWorkspaceStepForConcept,
 } from '../../../lib/workspaceWeakAreas';
 import { buildQuizSessionContent } from '../../../lib/quizSessionModel';
+import { quizQuestionCount } from '../../../lib/settingsEffects';
 import type { QuizSessionItem } from '../../../lib/quizSession';
 import {
   buildQuizMistakeFlashcard,
@@ -160,7 +161,8 @@ import { withDemoCourseGraphs } from '../../../demo/demoConceptGraph';
 import { buildFeynmanSessionContent } from '../../../lib/feynmanSessionModel';
 import { buildCompareSessionContent } from '../../../lib/compareSessionModel';
 import { buildDebateSessionContent } from '../../../lib/debateSessionModel';
-import { buildLeitnerSessionContent } from '../../../lib/leitnerSessionModel';
+import { buildLeitnerSessionContent, mergeLeitnerCards } from '../../../lib/leitnerSessionModel';
+import { useLlmStudyOverlay } from '../../../lib/useLlmStudyOverlay';
 import { buildSimulatorSessionContent } from '../../../lib/simulatorSessionModel';
 import { buildWhiteboardSessionContent } from '../../../lib/whiteboardSessionModel';
 import { buildTimerSessionContent } from '../../../lib/timerSessionModel';
@@ -1120,10 +1122,18 @@ export function useStudyWorkspace({
     [uploadedFiles, effectiveCourseId],
   );
 
+  const llmStudy = useLlmStudyOverlay({
+    notes: noteBundle.annotationText || noteBundle.sourceFullText || '',
+    concept: quizConcept || deferredConcept,
+    lang,
+    settings: userSettings,
+    enabled: Boolean(noteBundle.hasSource && (quizIntelActive || leitnerIntelActive)),
+  });
+
   const leitnerSession = useMemo(
     () => {
       if (!leitnerIntelActive) return EMPTY_LEITNER_SESSION;
-      return buildLeitnerSessionContent({
+      const extracted = buildLeitnerSessionContent({
         text: noteBundle.sourceFullText,
         concept: deferredConcept,
         glossary: scopedGlossary,
@@ -1134,10 +1144,16 @@ export function useStudyWorkspace({
         customCards: customLeitnerCards,
         sourceFiles: courseSourceFiles,
       });
+      if (llmStudy.cards.length === 0) return extracted;
+      return {
+        ...extracted,
+        cards: mergeLeitnerCards(llmStudy.cards, extracted.cards),
+        weakExtraction: false,
+      };
     },
     [
       leitnerIntelActive, noteBundle.sourceFullText, noteBundle.hasSource, deferredConcept, scopedGlossary,
-      lang, STEPS, deferredStep, learnerModel?.spacingIntervals, customLeitnerCards, courseSourceFiles,
+      lang, STEPS, deferredStep, learnerModel?.spacingIntervals, customLeitnerCards, courseSourceFiles, llmStudy.cards,
     ],
   );
 
@@ -1695,7 +1711,7 @@ export function useStudyWorkspace({
       if (!quizIntelActive) {
         return EMPTY_QUIZ_SESSION;
       }
-      return buildQuizSessionContent({
+      const extracted = buildQuizSessionContent({
         text: noteBundle.annotationText,
         concept: quizConcept,
         glossary: scopedGlossary,
@@ -1704,13 +1720,25 @@ export function useStudyWorkspace({
         mastery: conceptMastery,
         sectionLabel: STEPS[currentStep]?.title,
         hasSource: noteBundle.hasSource,
-        count: 3,
+        count: userSettings ? quizQuestionCount(userSettings) : 3,
         sourceFiles: courseSourceFiles,
       });
+      if (llmStudy.quizzes.length === 0) return extracted;
+      const llmItems = llmStudy.quizzes.map((quiz, i) => ({
+        id: `llm-q-${i}`,
+        quiz,
+        provenance: 'generated' as const,
+      }));
+      return {
+        ...extracted,
+        items: [...llmItems, ...extracted.items].slice(0, 6),
+        weakExtraction: false,
+      };
     },
     [
       quizIntelActive, noteBundle.hasSource, noteBundle.annotationText, quizConcept, scopedGlossary,
-      lang, quizIrtState.ability, conceptMastery, STEPS, currentStep, courseSourceFiles,
+      lang, quizIrtState.ability, conceptMastery, STEPS, currentStep, courseSourceFiles, llmStudy.quizzes,
+      userSettings,
     ],
   );
 
@@ -2092,9 +2120,10 @@ export function useStudyWorkspace({
         scopeKey: progressKey,
         conceptMastery: workspaceCorrelation.conceptMastery,
         daysToExam: workspaceDaysToExam,
+        courseTitle: noteBundle.courseTitle,
       });
     },
-    [simulatorIntelActive, quizConcept, noteBundle.sourceFullText, noteBundle.hasSource, lang, STEPS, currentStep, progressKey, workspaceCorrelation.conceptMastery, workspaceDaysToExam],
+    [simulatorIntelActive, quizConcept, noteBundle.sourceFullText, noteBundle.hasSource, noteBundle.courseTitle, lang, STEPS, currentStep, progressKey, workspaceCorrelation.conceptMastery, workspaceDaysToExam],
   );
 
   const whiteboardSession = useMemo(

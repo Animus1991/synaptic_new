@@ -53,6 +53,28 @@ export type StudentOrgContent = {
   discussionReply: string;
   discussionAskPlaceholder: string;
   discussionReplyPlaceholder: string;
+  submitToggle: string;
+  resubmitToggle: string;
+  submitHint: string;
+  submitBodyPlaceholder: string;
+  submitLinkPlaceholder: string;
+  submitCta: string;
+  submitSending: string;
+  submittedAtLabel: string;
+  submitEmptyError: string;
+  submitLinkLabel: string;
+  submittedWorkLabel: string;
+  submitFilesLabel: string;
+  submitFilesHint: string;
+  submitFileTooLarge: string;
+  submitFilesTooMany: string;
+  submitRemoveFile: string;
+  submittedFilesLabel: string;
+  resubmitConfirmTitle: string;
+  resubmitConfirmBody: string;
+  resubmitConfirmCta: string;
+  resubmitConfirmCancel: string;
+  openAssignment: string;
 };
 
 const EN: StudentOrgContent = {
@@ -108,6 +130,29 @@ const EN: StudentOrgContent = {
   discussionReply: 'Reply',
   discussionAskPlaceholder: 'Ask a question…',
   discussionReplyPlaceholder: 'Write a reply…',
+  submitToggle: 'Submit',
+  resubmitToggle: 'Resubmit',
+  submitHint: 'Your teacher sees the text, link, and files, and the assignment is marked as submitted.',
+  submitBodyPlaceholder: 'Write or paste your work…',
+  submitLinkPlaceholder: 'Optional link (Google Docs, GitHub, …)',
+  submitCta: 'Submit work',
+  submitSending: 'Submitting…',
+  submittedAtLabel: 'Submitted',
+  submitEmptyError: 'Add some text, a link, or a file before submitting.',
+  submitLinkLabel: 'Attached link',
+  submittedWorkLabel: 'Your submission',
+  submitFilesLabel: 'Attach files',
+  submitFilesHint: 'PDF, Word, images, or zip — up to 5 files, 4 MB each.',
+  submitFileTooLarge: 'Each file must be under 4 MB.',
+  submitFilesTooMany: 'You can attach up to 5 files.',
+  submitRemoveFile: 'Remove',
+  submittedFilesLabel: 'Attached files',
+  resubmitConfirmTitle: 'Replace this submission?',
+  resubmitConfirmBody:
+    'This overwrites the work your teacher already has. If it was graded, they will see a new version to regrade.',
+  resubmitConfirmCta: 'Replace submission',
+  resubmitConfirmCancel: 'Keep current',
+  openAssignment: 'Open assignment',
 };
 
 const EL: StudentOrgContent = {
@@ -163,6 +208,29 @@ const EL: StudentOrgContent = {
   discussionReply: 'Απάντηση',
   discussionAskPlaceholder: 'Κάνε μια ερώτηση…',
   discussionReplyPlaceholder: 'Γράψε απάντηση…',
+  submitToggle: 'Υποβολή',
+  resubmitToggle: 'Επανυποβολή',
+  submitHint: 'Ο εκπαιδευτής βλέπει το κείμενο, τον σύνδεσμο και τα αρχεία, και η εργασία σημειώνεται ως υποβληθείσα.',
+  submitBodyPlaceholder: 'Γράψε ή επικόλλησε την εργασία σου…',
+  submitLinkPlaceholder: 'Προαιρετικός σύνδεσμος (Google Docs, GitHub, …)',
+  submitCta: 'Υποβολή εργασίας',
+  submitSending: 'Υποβολή…',
+  submittedAtLabel: 'Υποβλήθηκε',
+  submitEmptyError: 'Πρόσθεσε κείμενο, σύνδεσμο ή αρχείο πριν την υποβολή.',
+  submitLinkLabel: 'Συνημμένος σύνδεσμος',
+  submittedWorkLabel: 'Η υποβολή σου',
+  submitFilesLabel: 'Επισύναψη αρχείων',
+  submitFilesHint: 'PDF, Word, εικόνες ή zip — έως 5 αρχεία, 4 MB το καθένα.',
+  submitFileTooLarge: 'Κάθε αρχείο πρέπει να είναι κάτω από 4 MB.',
+  submitFilesTooMany: 'Μπορείς να επισυνάψεις έως 5 αρχεία.',
+  submitRemoveFile: 'Αφαίρεση',
+  submittedFilesLabel: 'Συνημμένα αρχεία',
+  resubmitConfirmTitle: 'Αντικατάσταση αυτής της υποβολής;',
+  resubmitConfirmBody:
+    'Αυτό αντικαθιστά την εργασία που ήδη βλέπει ο εκπαιδευτής. Αν έχει βαθμολογηθεί, θα δει νέα έκδοση για επαναβαθμολόγηση.',
+  resubmitConfirmCta: 'Αντικατάσταση',
+  resubmitConfirmCancel: 'Διατήρηση',
+  openAssignment: 'Άνοιγμα εργασίας',
 };
 
 export function getStudentOrgContent(lang: Lang): StudentOrgContent {

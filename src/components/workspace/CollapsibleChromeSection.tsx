@@ -23,6 +23,11 @@ type Props = {
    */
   meta?: string | number;
   className?: string;
+  /**
+   * Keep this chrome visible during Focus study (rare — default is hide).
+   * Dialogs are exempt via CSS even without this flag.
+   */
+  keepInFocus?: boolean;
   'data-testid'?: string;
 };
 
@@ -33,14 +38,20 @@ export function CollapsibleChromeSection({
   alwaysCollapse = false,
   meta,
   className,
+  keepInFocus = false,
   'data-testid': testId = 'collapsible-chrome-section',
 }: Props) {
   const minimal = useMinimalTheme();
   const [open, setOpen] = useState(defaultOpen);
   const metaLabel = meta === undefined || meta === '' || meta === 0 ? null : String(meta);
+  const focusChrome = keepInFocus ? 'keep' : 'secondary';
 
   if (!alwaysCollapse && !minimal) {
-    return <>{children}</>;
+    return (
+      <div className={cn('contents', className)} data-testid={testId} data-focus-chrome={focusChrome}>
+        {children}
+      </div>
+    );
   }
 
   return (
@@ -52,6 +63,7 @@ export function CollapsibleChromeSection({
       )}
       data-testid={testId}
       data-minimal-chrome="true"
+      data-focus-chrome={focusChrome}
       data-chrome-meta={metaLabel ?? undefined}
     >
       <button

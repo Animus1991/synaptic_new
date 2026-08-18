@@ -11,6 +11,8 @@ import { useAppStore } from '../../store/useStore';
 import { cn } from '../../utils/cn';
 import { buildInsightsAskPrompt } from '../../features/analytics/analyticsAskPrompt';
 import { pathFocusFromWeakArea } from '../../lib/pathFocus';
+import { generateAnalyticsInsightsWithLlm } from '../../lib/llmStudyContent';
+import { isLlmAvailable } from '../../lib/llmClient';
 
 export type AnalyticsInsightAction = {
   id: string;
@@ -22,7 +24,7 @@ export type AnalyticsInsightAction = {
 export type AnalyticsInsightsPayload = {
   observations: string[];
   actions: AnalyticsInsightAction[];
-  source: 'api' | 'local';
+  source: 'api' | 'local' | 'llm';
 };
 
 type Props = {
@@ -78,7 +80,7 @@ export function AIInsightsPanel({
   className,
 }: Props) {
   const { range } = useAnalyticsDateRange();
-  const { lang } = useI18n();
+  const { lang, t } = useI18n();
   const store = useAppStore();
   const openStudyWorkspaceForConcept = store.openStudyWorkspaceForConcept;
   const openAgentFromWorkspace = store.openAgentFromWorkspace;
@@ -96,13 +98,24 @@ export function AIInsightsPanel({
   }, [local]);
 
   useEffect(() => {
-    const base = configuredProxyBase(userSettings);
-    const token = authToken || userSettings?.authToken;
-    if (!base || !token) return;
     let cancelled = false;
     setBusy(true);
     void (async () => {
       try {
+        if (isLlmAvailable(userSettings) && local.observations.length > 0) {
+          const rewritten = await generateAnalyticsInsightsWithLlm({
+            observations: local.observations,
+            lang,
+            settings: userSettings,
+          });
+          if (!cancelled && rewritten?.length) {
+            setPayload({ ...local, observations: rewritten, source: 'llm' });
+            return;
+          }
+        }
+        const base = configuredProxyBase(userSettings);
+        const token = authToken || userSettings?.authToken;
+        if (!base || !token) return;
         const res = await fetch(
           `${base.replace(/\/$/, '')}/v1/analytics/insights?range=${encodeURIComponent(range)}`,
           { headers: { Authorization: `Bearer ${token}` } },
@@ -126,7 +139,7 @@ export function AIInsightsPanel({
       }
     })();
     return () => { cancelled = true; };
-  }, [range, authToken, userSettings]);
+  }, [range, authToken, userSettings, local, lang]);
 
   return (
     <div className={cn('space-y-3', className)} data-testid="ai-insights-panel" aria-busy={busy || undefined}>
@@ -150,17 +163,19 @@ export function AIInsightsPanel({
                 });
               }}
             >
-              {lang === 'el' ? 'εώτα Agent' : 'Ask Agent'}
+              {lang === 'el' ? 'Ρώτα Agent' : 'Ask Agent'}
             </button>
             <span className="type-micro text-text-muted">
-              {payload.source === 'api'
-                ? (lang === 'el' ? 'API' : 'API')
-                : (lang === 'el' ? 'τοπικά' : 'local')}
+              {payload.source === 'llm'
+                ? (lang === 'el' ? 'μοντέλο' : 'model')
+                : payload.source === 'api'
+                  ? (lang === 'el' ? 'API' : 'API')
+                  : (lang === 'el' ? 'κανόνες' : 'rules')}
             </span>
           </div>
         )}
       >
-        {lang === 'el' ? 'AI Insights' : 'AI Insights'}
+        {payload.source === 'llm' ? t('analyticsInsightsModel') : t('analyticsInsightsHeuristic')}
       </SectionLabel>
 
       <div className="rounded-xl border-0 bg-surface-secondary/50 p-3 space-y-2">

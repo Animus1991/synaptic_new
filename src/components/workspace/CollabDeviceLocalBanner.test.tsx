@@ -6,9 +6,10 @@ import { isCollabReviewMultiDeviceSyncEnabled } from '../../lib/collabReviewSync
 
 afterEach(() => cleanup());
 
-describe('CollabDeviceLocalBanner (P1 — not live multi-device)', () => {
-  it('keeps multi-device review sync disabled until server sync ships', () => {
-    expect(isCollabReviewMultiDeviceSyncEnabled()).toBe(false);
+describe('CollabDeviceLocalBanner (P1 — co-reading sync on, proposals local)', () => {
+  it('enables multi-device sync for co-reading only', () => {
+    expect(isCollabReviewMultiDeviceSyncEnabled('coreading')).toBe(true);
+    expect(isCollabReviewMultiDeviceSyncEnabled('proposals')).toBe(false);
   });
 
   it('labels proposals as this-device-only (EN)', () => {
@@ -18,9 +19,8 @@ describe('CollabDeviceLocalBanner (P1 — not live multi-device)', () => {
     expect(screen.getByText(/Not live across devices/i)).toBeTruthy();
   });
 
-  it('labels co-reading as this-device-only (EL)', () => {
+  it('hides the co-reading device-local banner once room sync is on', () => {
     render(<CollabDeviceLocalBanner lang="el" surface="coreading" />);
-    expect(screen.getByTestId('collab-device-local-banner-coreading')).toBeTruthy();
-    expect(screen.getByText('Μόνο αυτή η συσκευή')).toBeTruthy();
+    expect(screen.queryByTestId('collab-device-local-banner-coreading')).toBeNull();
   });
 });

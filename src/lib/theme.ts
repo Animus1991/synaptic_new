@@ -6,6 +6,7 @@ import {
   resolveChromeDensity,
   type ChromeDensity,
 } from './chromeDensity';
+import { applyA11yBoost, loadA11yBoost } from './a11yBoost';
 
 const THEME_KEY = 'theme-preference';
 const SESSION_KEY = 'session-v2';
@@ -82,6 +83,8 @@ export function applyThemeDom(
 ): ResolvedTheme {
   const resolved = resolveTheme(preference);
   document.documentElement.setAttribute('data-theme', resolved);
+  /* OPT-K168 — calm chrome CSS (primer/cursor) applies on every theme */
+  document.documentElement.setAttribute('data-calm-layout', 'true');
   document.documentElement.style.colorScheme = themeColorScheme(resolved);
 
   const meta = document.querySelector('meta[name="theme-color"]');
@@ -166,6 +169,7 @@ export function initThemeEarly(): void {
   const pref = resolveInitialThemePreference();
   const resolved = resolveTheme(pref);
   document.documentElement.setAttribute('data-theme', resolved);
+  document.documentElement.setAttribute('data-calm-layout', 'true');
   document.documentElement.style.colorScheme = themeColorScheme(resolved);
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) {
@@ -173,6 +177,10 @@ export function initThemeEarly(): void {
   }
   // Density from dedicated key; session language may refine later via React.
   applyChromeDensity(loadChromeDensity());
+  // X3 (Canon cross-pollination) — contrast boost is orthogonal to theme/density, restored from
+  // its own key so it survives a theme switch without needing re-application there.
+  applyA11yBoost(loadA11yBoost());
 }
 
 export { applyChromeDensity, resolveChromeDensity, loadChromeDensity };
+export { applyA11yBoost, loadA11yBoost };

@@ -43,6 +43,12 @@ import {
   removeGradebookCellsForEnrollmentAsync,
   upsertGradebookCellAsync,
 } from '../store/gradebookStore';
+import { getStudentSubmissionAsync, listAssignmentSubmissionsAsync } from '../store/submissionStore';
+import {
+  attachmentDownloadHeaders,
+  findAttachment,
+  toPublicAttachments,
+} from '../lib/submissionAttachments';
 import { notifyAnnotationStream, registerAnnotationStream } from './annotationStream';
 import { registerConceptMapCursorStream } from './conceptMapStream';
 
@@ -523,6 +529,78 @@ teacherRouter.delete(
       return;
     }
     res.status(204).send();
+  },
+);
+
+/** GET /v1/teacher/classes/:classId/assignments/:assignmentId/submissions — roster-joined student work. */
+teacherRouter.get(
+  '/teacher/classes/:classId/assignments/:assignmentId/submissions',
+  async (req, res) => {
+    const account = req.account!;
+    const owned = await requireTeacherClass(req.params.classId, account.id);
+    if (!owned.ok) {
+      res.status(owned.status).json({ error: owned.error });
+      return;
+    }
+    const assignments = await listClassAssignmentsAsync(owned.class.id);
+    if (!assignments.some((a) => a.id === req.params.assignmentId)) {
+      res.status(404).json({ error: 'assignment not found' });
+      return;
+    }
+    const [roster, submissions, gradebook] = await Promise.all([
+      listClassRosterAsync(owned.class.id),
+      listAssignmentSubmissionsAsync(owned.class.id, req.params.assignmentId),
+      getGradebookAsync(owned.class.id),
+    ]);
+    const rows = submissions.map((submission) => {
+      const enrollment = roster.find((r) => r.id === submission.enrollmentId);
+      const cell = gradebook.cells.find(
+        (c) =>
+          c.enrollmentId === submission.enrollmentId &&
+          c.assignmentId === req.params.assignmentId,
+      );
+      return {
+        submission: {
+          ...submission,
+          attachments: toPublicAttachments(submission.attachments),
+        },
+        student: enrollment
+          ? { enrollmentId: enrollment.id, email: enrollment.studentEmail, displayName: enrollment.displayName }
+          : null,
+        cell: cell ?? null,
+      };
+    });
+    res.json({
+      classId: owned.class.id,
+      assignmentId: req.params.assignmentId,
+      submissions: rows,
+    });
+  },
+);
+
+/** GET /v1/teacher/classes/:classId/assignments/:assignmentId/submissions/:enrollmentId/attachments/:attachmentId */
+teacherRouter.get(
+  '/teacher/classes/:classId/assignments/:assignmentId/submissions/:enrollmentId/attachments/:attachmentId',
+  async (req, res) => {
+    const account = req.account!;
+    const owned = await requireTeacherClass(req.params.classId, account.id);
+    if (!owned.ok) {
+      res.status(owned.status).json({ error: owned.error });
+      return;
+    }
+    const submission = await getStudentSubmissionAsync(
+      owned.class.id,
+      req.params.assignmentId,
+      req.params.enrollmentId,
+    );
+    const file = findAttachment(submission?.attachments, req.params.attachmentId);
+    if (!file) {
+      res.status(404).json({ error: 'attachment not found' });
+      return;
+    }
+    const buf = Buffer.from(file.contentBase64, 'base64');
+    res.set(attachmentDownloadHeaders(file));
+    res.send(buf);
   },
 );
 

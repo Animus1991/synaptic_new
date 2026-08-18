@@ -15,16 +15,13 @@ type Props = {
 
 /* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function SubjectMasteryGrid({ tiles, onSelect, className }: Props) {
-  const { lang } = useI18n();
-  const title = lang === 'el' ? 'Mastery ανά μάθημα' : 'Subject mastery';
-  const empty = lang === 'el' ? 'Δεν υπάρχουν έτοιμα μαθήματα ακόμα.' : 'No ready courses yet.';
-  const pending = lang === 'el' ? 'εκκρεμείς έννοιες' : 'pending concepts';
+  const { t } = useI18n();
 
   return (
     <div className={cn('space-y-2', className)} data-testid="subject-mastery-grid">
-      <SectionLabel>{title}</SectionLabel>
+      <SectionLabel>{t('analyticsSubjectMasteryTitle')}</SectionLabel>
       {tiles.length === 0 ? (
-        <p className="type-caption text-text-tertiary">{empty}</p>
+        <p className="type-caption text-text-tertiary">{t('analyticsSubjectMasteryEmpty')}</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
           {tiles.map((tile) => {
@@ -42,14 +39,14 @@ export function SubjectMasteryGrid({ tiles, onSelect, className }: Props) {
                 data-testid={`subject-mastery-tile-${tile.courseId}`}
                 onClick={() => onSelect(tile)}
                 /* OPT-K128 — wash subject tiles (no outline / hover border) */
-                className="rounded-xl border-0 bg-surface-secondary/50 p-3 text-left hover:bg-surface-hover transition-colors min-h-[4.75rem]"
+                className="rounded-xl border-0 bg-surface-secondary/50 p-3 text-left hover:bg-surface-hover transition-colors min-h-[4.25rem]"
               >
                 <div className="flex items-start gap-2">
                   <CourseIcon icon={tile.icon} size="sm" colorClassName="text-text-secondary shrink-0" />
                   <div className="min-w-0 flex-1">
                     <p className="type-caption font-semibold text-text-primary truncate">{tile.title}</p>
                     <p className="type-micro text-text-tertiary mt-0.5">
-                      {tile.pendingConcepts} {pending}
+                      {t('analyticsSubjectMasteryPending').replace('{count}', String(tile.pendingConcepts))}
                     </p>
                   </div>
                   <span className={cn('inline-flex items-center gap-0.5 type-micro font-semibold', trendTone)}>
@@ -60,6 +57,7 @@ export function SubjectMasteryGrid({ tiles, onSelect, className }: Props) {
                 <CompactProgressBar
                   pct={tile.mastery}
                   color={resolveCourseColor(tile.color)}
+                  size="md"
                   className="mt-2"
                   aria-label={`${tile.title} ${tile.mastery}%`}
                 />

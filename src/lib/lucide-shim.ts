@@ -46,6 +46,7 @@ export {
   Eye,
   EyeSlash as EyeOff,
   File,
+  FolderSimple as Folder,
   FileMagnifyingGlass as FileSearch,
   FileText,
   Flag,

@@ -123,8 +123,8 @@ export function FocusTrapDialog({
       {open && (
         <div
           className={cn(
-            'fixed inset-0 flex justify-center p-4 print:hidden',
-            align === 'bottom-mobile' ? 'items-end sm:items-center' : 'items-center',
+            'fixed inset-0 flex justify-center print:hidden',
+            align === 'bottom-mobile' ? 'items-end sm:items-center p-0 sm:p-4' : 'items-center p-4',
           )}
           style={{ zIndex }}
           role="presentation"
@@ -154,7 +154,10 @@ export function FocusTrapDialog({
             transition={panelTransition}
             className={cn(
               'relative z-10 w-full outline-none flex flex-col max-h-[90vh]',
-              'rounded-panel border border-border-subtle bg-surface-card shadow-2xl ux-modal-panel',
+              'border border-border-subtle bg-surface-card shadow-2xl ux-modal-panel',
+              align === 'bottom-mobile'
+                ? 'rounded-t-[1.25rem] rounded-b-none sm:rounded-panel max-h-[88vh] sm:max-h-[90vh]'
+                : 'rounded-panel',
               maxW,
               panelClassName,
             )}

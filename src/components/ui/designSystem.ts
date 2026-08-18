@@ -14,6 +14,7 @@ export {
   platformBento,
   type PlatformTabItem,
 } from './primitives';
+export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from './Button';
 export { PlatformEmptyState, PlatformEmptyState as EmptyState } from './PlatformEmptyState';
 export { StatusChip, type StatusChipVariant } from './StatusChip';
 export { ConfirmDialog, type ConfirmDialogProps } from './ConfirmDialog';

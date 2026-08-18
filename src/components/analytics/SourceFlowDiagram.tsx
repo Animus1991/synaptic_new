@@ -5,15 +5,13 @@ type Props = {
   links: SankeyLink[];
   hasData: boolean;
   ariaLabel: string;
+  stageLabels?: [string, string, string, string];
 };
 
 /** Equal-width process stages — Synapse editorial rail (thin ink, wash labels). */
-const STAGES = [
-  { key: 'source', label: 'Source' },
-  { key: 'parse', label: 'Parse' },
-  { key: 'study', label: 'Study' },
-  { key: 'master', label: 'Mastery' },
-] as const;
+const STAGE_KEYS = ['source', 'parse', 'study', 'master'] as const;
+
+const DEFAULT_STAGE_LABELS: [string, string, string, string] = ['Source', 'Parse', 'Study', 'Mastery'];
 
 const VIEW_W = 400;
 const VIEW_H = 72;
@@ -42,12 +40,17 @@ function stagePipeWeights(links: SankeyLink[]): [number, number, number] {
 function stageCenters(): number[] {
   const pad = 36;
   const span = VIEW_W - pad * 2;
-  const step = span / (STAGES.length - 1);
-  return STAGES.map((_, i) => pad + step * i);
+  const step = span / (STAGE_KEYS.length - 1);
+  return STAGE_KEYS.map((_, i) => pad + step * i);
 }
 
 /** Source → mastery process rail — thin connectors + type labels (no Apple squircles). */
-export function SourceFlowDiagram({ links, hasData, ariaLabel }: Props) {
+export function SourceFlowDiagram({
+  links,
+  hasData,
+  ariaLabel,
+  stageLabels = DEFAULT_STAGE_LABELS,
+}: Props) {
   const [w1, w2, w3] = useMemo(() => stagePipeWeights(links), [links]);
   const maxW = Math.max(w1, w2, w3, 1);
   const xs = stageCenters();
@@ -90,10 +93,10 @@ export function SourceFlowDiagram({ links, hasData, ariaLabel }: Props) {
         );
       })}
 
-      {STAGES.map((stage, i) => {
+      {STAGE_KEYS.map((key, i) => {
         const cx = xs[i]!;
         return (
-          <g key={stage.key} className="source-flow-node">
+          <g key={key} className="source-flow-node">
             <circle cx={cx} cy={Y} r={5} className="source-flow-node-dot" />
             <text
               x={cx}
@@ -109,7 +112,7 @@ export function SourceFlowDiagram({ links, hasData, ariaLabel }: Props) {
               textAnchor="middle"
               className="source-flow-node-label"
             >
-              {stage.label}
+              {stageLabels[i]}
             </text>
           </g>
         );

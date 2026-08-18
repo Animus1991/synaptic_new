@@ -4,7 +4,8 @@
  * Resolution order (highest wins):
  * 1. localStorage override `synapse:notebooklm-parity` = "1" | "0"
  * 2. VITE_SHOW_NOTEBOOKLM_PARITY = "true" | "false" (explicit)
- * 3. unset → DEV default ON, production default OFF
+ * 3. unset → ON everywhere (Phase 0: the Agent is a headline feature and must
+ *    not be invisible to production users; deployments can still opt out via env)
  *
  * Surfaces gated: standalone Agent nav, Cross-library synthesis panel.
  */
@@ -33,13 +34,13 @@ function readLocalOverride(): boolean | null {
   }
 }
 
-/** Effective flag after env + local override + DEV/PROD default. */
+/** Effective flag after env + local override; unset defaults ON everywhere. */
 export function resolveNotebookLmParity(): boolean {
   const override = readLocalOverride();
   if (override !== null) return override;
   const env = readEnvTriState();
   if (env !== null) return env;
-  return Boolean(import.meta.env.DEV);
+  return true;
 }
 
 export function getNotebookLmParityOverride(): boolean | null {
@@ -60,7 +61,7 @@ export function setNotebookLmParityOverride(value: boolean | null): void {
 
 export function notebookLmParityStrategyLabel(lang: 'en' | 'el'): string {
   if (lang === 'el') {
-    return 'Εμφάνιση επιφανειών NotebookLM-parity (Agent nav, σύνθεση βιβλιοθήκης). Προεπιλογή: ON στο DEV, OFF σε production· το env και το override έχουν προτεραιότητα.';
+    return 'Εμφάνιση επιφανειών NotebookLM-parity (Agent nav, σύνθεση βιβλιοθήκης). Προεπιλογή: ON παντού· το env και το override έχουν προτεραιότητα.';
   }
-  return 'Show NotebookLM-parity surfaces (Agent nav, library synthesis). Default: ON in DEV, OFF in production; env and local override win.';
+  return 'Show NotebookLM-parity surfaces (Agent nav, library synthesis). Default: ON everywhere; env and local override win.';
 }

@@ -26,9 +26,10 @@ export function mapAllCapsLabelChildren(children: ReactNode): ReactNode {
 }
 
 /**
- * Wrap text that is styled with `uppercase` / `text-transform: uppercase`.
- * CSS alone keeps Greek tonos; this strips them for correct all-caps Greek.
+ * OPT-K167 — sentence-case chrome. Remaining call sites stay valid but no longer
+ * force shouting ALL-CAPS (Greek diacritic strip is unused when CSS is sentence-case).
+ * Keep `mapAllCapsLabelChildren` for any surface that still opts into uppercase CSS.
  */
 export function AllCapsLabel({ children }: { children: ReactNode }) {
-  return <>{mapAllCapsLabelChildren(children)}</>;
+  return <>{children}</>;
 }

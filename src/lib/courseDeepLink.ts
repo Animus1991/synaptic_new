@@ -5,6 +5,12 @@ export type CourseDeepLinkParams = {
   tab: CourseTabId | null;
 };
 
+export function parseNoteAnalysisDeepLink(search: URLSearchParams | string): { courseId: string | null } | null {
+  const params = typeof search === 'string' ? new URLSearchParams(search) : search;
+  if (params.get('view') !== 'note-analysis') return null;
+  return { courseId: params.get('course') ?? params.get('courseId') };
+}
+
 export function parseCourseDeepLink(search: URLSearchParams | string): CourseDeepLinkParams | null {
   const params = typeof search === 'string' ? new URLSearchParams(search) : search;
   if (params.get('view') !== 'course') return null;

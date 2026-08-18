@@ -7,9 +7,8 @@ import { t, type Lang } from '../../lib/i18n';
 import { getAgentContent } from '../../features/agent';
 import { BLUEPRINT_MOTION, useBlueprintTheme } from '../../lib/useBlueprintTheme';
 import { OverflowChipRow } from './OverflowChipRow';
-import { AllCapsLabel } from './AllCapsLabel';
-
-/* OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
+/* OPT-K167 — sentence-case section chrome (no ALL-CAPS wrappers).
+ * OPT-K100 — markup debt: Agent/Reader/tools decorative brand type -> ink */
 export { BlueprintSurface } from './BlueprintSurface';
 
 /** In-page section chrome — Option-B eyebrow / title / subtitle (distinct from PageHeader). */
@@ -30,9 +29,7 @@ export function SectionHeader({
   const body = (
     <div className={cn('ux-section-header space-y-1', className)}>
       {eyebrow ? (
-        <p className="ux-section-eyebrow">
-          <AllCapsLabel>{eyebrow}</AllCapsLabel>
-        </p>
+        <p className="ux-section-eyebrow">{eyebrow}</p>
       ) : null}
       {/* OPT-K120 — title stays dominant; subtitle one step below (meta, not body) */}
       <h2 className="font-semibold tracking-tight text-text-primary">{title}</h2>
@@ -170,10 +167,10 @@ export function SessionLauncherCard({
     >
       {recommended && recommendedLabel ? (
         <span
-          className="absolute -top-1.5 right-2 rounded-md border-0 bg-brand-600/20 px-1.5 py-0.5 type-caption font-semibold uppercase tracking-wide text-text-primary"
+          className="absolute -top-1.5 right-2 rounded-md border-0 bg-brand-600/20 px-1.5 py-0.5 type-caption font-semibold text-text-primary"
           data-testid="session-recommended-badge"
         >
-          <AllCapsLabel>{recommendedLabel}</AllCapsLabel>
+          {recommendedLabel}
         </span>
       ) : null}
       {Icon ? (
@@ -183,8 +180,8 @@ export function SessionLauncherCard({
       ) : null}
       <span className="min-w-0 flex-1 text-left">
         <span className="block type-meta font-semibold text-text-primary">{label}</span>
-        <span className="mt-0.5 block type-caption uppercase tracking-[0.04em] text-text-tertiary">
-          <AllCapsLabel>{durationTag}</AllCapsLabel>
+        <span className="mt-0.5 block type-caption text-text-tertiary">
+          {durationTag}
         </span>
         <span className="mt-1 block type-caption leading-snug text-text-secondary">{desc}</span>
         {taskHint ? (
@@ -367,7 +364,7 @@ export function InfoStack({
       )}
       {secondary.length > 0 && (
         <div className="info-stack-secondary">
-          <p className="info-stack-secondary-eyebrow"><AllCapsLabel>{secondaryLabel}</AllCapsLabel></p>
+          <p className="info-stack-secondary-eyebrow">{secondaryLabel}</p>
           <OverflowChipRow
             testId="info-stack-pills"
             className="info-stack-pills"

@@ -23,6 +23,8 @@ export type StudentCalendarEntry = {
   score?: number;
   linkUrl?: string;
   linkLabel?: string;
+  classId?: string;
+  assignmentId?: string;
 };
 
 export type ExamCalendarLabels = {
@@ -49,11 +51,13 @@ export function mergeStudentOrgCalendar(
     .map((row) => ({
       id: `asn-${row.classId}-${row.assignmentId}`,
       date: dateKey(row.dueAt),
-      kind: 'assignment',
+      kind: 'assignment' as const,
       title: row.title,
       subtitle: row.className,
       status: row.status,
       score: row.score,
+      classId: row.classId,
+      assignmentId: row.assignmentId,
     }));
 
   const examRows: StudentCalendarEntry[] = filterExamCalendar([...examEntries], 'all', now).map(

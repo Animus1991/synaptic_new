@@ -27,13 +27,13 @@ import {
   extractWorkedExamples,
   findMatchingTopic,
   gatherAnalyzedText,
-  notesSupportSandbox,
   relevantExcerpt,
   sandboxInsightFromNotes,
   topRelevantChunks,
 } from './noteContentExtractors';
 import type { NumericCue } from './numericCues';
 import { extractNumericCues } from './numericCues';
+import { looksLikeEconomicsCourse } from './simulatorCoursePresets';
 import { analyzeDocumentStructure, type DocumentStructureReport } from './documentStructureReport';
 import { detectDocumentSections } from './textSegmentation';
 
@@ -508,7 +508,7 @@ export function buildWorkspaceNoteBundleFromGathered(
     feynmanPlaceholder: t('feynmanExplainPlaceholder', lang).replace('{concept}', concept),
     workspaceSteps: workspaceSteps ?? fallbackWorkspaceSteps(concept, lang),
     quiz,
-    economicsSandbox: notesSupportSandbox(workingText, concept, formulas),
+    economicsSandbox: looksLikeEconomicsCourse(`${course?.title ?? ''} ${concept} ${workingText.slice(0, 1200)}`),
     numericCues: extractNumericCues(workingText, concept),
     sandboxInsight: sandboxInsightFromNotes(workingText, concept, lang),
     matchingTopic,

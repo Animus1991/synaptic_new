@@ -471,6 +471,176 @@ describe('server integration sweep', () => {
     expect(afterDelete.body.posts).toHaveLength(1);
   });
 
+  it('student submits work, gradebook flips to submitted, teacher lists and grades it', async () => {
+    const teacher = await request(app)
+      .post('/auth/register')
+      .send({ email: 'sub-teacher@example.com', password: 'password123' })
+      .expect(201);
+    const teacherToken = teacher.body.token as string;
+
+    const student = await request(app)
+      .post('/auth/register')
+      .send({ email: 'sub-student@example.com', password: 'password123' })
+      .expect(201);
+    const studentToken = student.body.token as string;
+
+    const created = await request(app)
+      .post('/v1/teacher/classes')
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .send({ name: 'Submissions 101' })
+      .expect(201);
+    const classId = created.body.id as string;
+
+    await request(app)
+      .post(`/v1/teacher/classes/${classId}/roster`)
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .send({ email: 'sub-student@example.com' })
+      .expect(201);
+
+    const assignment = await request(app)
+      .post(`/v1/teacher/classes/${classId}/assignments`)
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .send({ title: 'Essay 1' })
+      .expect(201);
+    const assignmentId = assignment.body.id as string;
+
+    // No submission yet.
+    const before = await request(app)
+      .get(`/v1/student/classes/${classId}/assignments/${assignmentId}/submission`)
+      .set('Authorization', `Bearer ${studentToken}`)
+      .expect(200);
+    expect(before.body.submission).toBeNull();
+
+    // Empty payload rejected.
+    await request(app)
+      .put(`/v1/student/classes/${classId}/assignments/${assignmentId}/submission`)
+      .set('Authorization', `Bearer ${studentToken}`)
+      .send({ body: '   ' })
+      .expect(400);
+
+    // Bad link rejected.
+    await request(app)
+      .put(`/v1/student/classes/${classId}/assignments/${assignmentId}/submission`)
+      .set('Authorization', `Bearer ${studentToken}`)
+      .send({ body: 'see link', linkUrl: 'javascript:alert(1)' })
+      .expect(400);
+
+    // First submission → 201 + gradebook cell submitted.
+    const first = await request(app)
+      .put(`/v1/student/classes/${classId}/assignments/${assignmentId}/submission`)
+      .set('Authorization', `Bearer ${studentToken}`)
+      .send({ body: 'My essay draft', linkUrl: 'https://docs.example.com/essay' })
+      .expect(201);
+    expect(first.body.submission.body).toBe('My essay draft');
+    expect(first.body.cell.status).toBe('submitted');
+
+    // Submission surfaces in the student classes payload.
+    const classes = await request(app)
+      .get('/v1/student/classes')
+      .set('Authorization', `Bearer ${studentToken}`)
+      .expect(200);
+    const row = classes.body.classes.find((c: { class: { id: string } }) => c.class.id === classId);
+    expect(row.submissions).toHaveLength(1);
+    expect(row.gradeCells[0].status).toBe('submitted');
+
+    // Resubmission → 200, same id, updated body.
+    const second = await request(app)
+      .put(`/v1/student/classes/${classId}/assignments/${assignmentId}/submission`)
+      .set('Authorization', `Bearer ${studentToken}`)
+      .send({ body: 'My essay, final version' })
+      .expect(200);
+    expect(second.body.submission.id).toBe(first.body.submission.id);
+    expect(second.body.submission.body).toBe('My essay, final version');
+
+    // File-only resubmit keeps text and stores the attachment without leaking bytes in lists.
+    const pdfB64 = Buffer.from('%PDF-1.4 test').toString('base64');
+    const withFile = await request(app)
+      .put(`/v1/student/classes/${classId}/assignments/${assignmentId}/submission`)
+      .set('Authorization', `Bearer ${studentToken}`)
+      .send({
+        body: 'My essay, final version',
+        keepAttachmentIds: [],
+        attachments: [{ name: 'essay.pdf', mime: 'application/pdf', contentBase64: pdfB64 }],
+      })
+      .expect(200);
+    expect(withFile.body.submission.attachments).toHaveLength(1);
+    expect(withFile.body.submission.attachments[0].name).toBe('essay.pdf');
+    expect(withFile.body.submission.attachments[0].contentBase64).toBeUndefined();
+
+    const attachmentId = withFile.body.submission.attachments[0].id as string;
+    const studentDl = await request(app)
+      .get(
+        `/v1/student/classes/${classId}/assignments/${assignmentId}/submission/attachments/${attachmentId}`,
+      )
+      .set('Authorization', `Bearer ${studentToken}`)
+      .expect(200);
+    expect(studentDl.headers['content-type']).toMatch(/pdf/);
+    expect(Buffer.isBuffer(studentDl.body) || studentDl.body.length > 0).toBeTruthy();
+
+    // Teacher sees the submission joined with the roster.
+    const teacherList = await request(app)
+      .get(`/v1/teacher/classes/${classId}/assignments/${assignmentId}/submissions`)
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .expect(200);
+    expect(teacherList.body.submissions).toHaveLength(1);
+    expect(teacherList.body.submissions[0].student.email).toBe('sub-student@example.com');
+    expect(teacherList.body.submissions[0].submission.body).toBe('My essay, final version');
+    expect(teacherList.body.submissions[0].submission.attachments).toHaveLength(1);
+    expect(teacherList.body.submissions[0].submission.attachments[0].contentBase64).toBeUndefined();
+
+    const teacherDl = await request(app)
+      .get(
+        `/v1/teacher/classes/${classId}/assignments/${assignmentId}/submissions/${teacherList.body.submissions[0].student.enrollmentId}/attachments/${attachmentId}`,
+      )
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .expect(200);
+    expect(teacherDl.headers['content-disposition']).toMatch(/essay\.pdf/);
+
+    // Teacher grades → student sees graded status + score.
+    const enrollmentId = teacherList.body.submissions[0].student.enrollmentId as string;
+    await request(app)
+      .patch(`/v1/teacher/classes/${classId}/gradebook`)
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .send({ enrollmentId, assignmentId, status: 'graded', score: 88 })
+      .expect(200);
+    const graded = await request(app)
+      .get('/v1/student/classes')
+      .set('Authorization', `Bearer ${studentToken}`)
+      .expect(200);
+    const gradedRow = graded.body.classes.find(
+      (c: { class: { id: string } }) => c.class.id === classId,
+    );
+    expect(gradedRow.gradeCells[0].status).toBe('graded');
+    expect(gradedRow.gradeCells[0].score).toBe(88);
+
+    // Resubmission after grading flips back to submitted but keeps the score.
+    await request(app)
+      .put(`/v1/student/classes/${classId}/assignments/${assignmentId}/submission`)
+      .set('Authorization', `Bearer ${studentToken}`)
+      .send({ body: 'Revised after feedback' })
+      .expect(200);
+    const regraded = await request(app)
+      .get('/v1/student/classes')
+      .set('Authorization', `Bearer ${studentToken}`)
+      .expect(200);
+    const regradedRow = regraded.body.classes.find(
+      (c: { class: { id: string } }) => c.class.id === classId,
+    );
+    expect(regradedRow.gradeCells[0].status).toBe('submitted');
+    expect(regradedRow.gradeCells[0].score).toBe(88);
+
+    // A non-enrolled account cannot submit.
+    const outsider = await request(app)
+      .post('/auth/register')
+      .send({ email: 'sub-outsider@example.com', password: 'password123' })
+      .expect(201);
+    await request(app)
+      .put(`/v1/student/classes/${classId}/assignments/${assignmentId}/submission`)
+      .set('Authorization', `Bearer ${outsider.body.token as string}`)
+      .send({ body: 'not enrolled' })
+      .expect(404);
+  });
+
   it('assignment discussion supports threaded replies on root posts', async () => {
     const teacher = await request(app)
       .post('/auth/register')

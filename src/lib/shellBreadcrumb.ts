@@ -25,6 +25,9 @@ export function buildShellBreadcrumb(input: {
       lesson: input.lessonLabel ?? input.t('breadcrumbNoteAnalysis'),
     };
   }
+  if (input.currentView === 'exam-prep') {
+    return { viewLabel: input.t('examPrepPageTitle') };
+  }
   if (input.taskCourse && input.taskTitle) {
     return { course: input.taskCourse, lesson: input.taskTitle };
   }

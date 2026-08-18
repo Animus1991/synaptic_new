@@ -1,5 +1,6 @@
 /* OPT-K* ? Cursor-like clarity under Minimal (principles only, not brand clone).
-   Zero feature removal. Blueprint / Spectrum / light / dark untouched. */
+   Zero feature removal. Wave I1 ports *neutral* chrome (nav pill, type roles, width)
+   to spectrum / light; brand-specific washes stay Minimal-only. */
 
 /* ?? OPT-K1 ? Neutral shell active pill (no brand accent bar) ????????????? */
 
@@ -88,6 +89,78 @@
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell #platform-sidebar-nav .ux-quick-icon svg {
   color: var(--color-text-secondary) !important;
+}
+
+/*
+ * Wave I1 — spectrum / light get the same *neutral* shell chrome as Minimal
+ * (where-am-I pill, quiet icons, type roles, full remaining width).
+ * Minimal selectors above stay pinned for OPT-K contracts.
+ */
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-sidebar-nav {
+  background: var(--color-surface-primary);
+}
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-sidebar-nav .platform-nav-item {
+  border-radius: var(--radius-md);
+  font-weight: 500;
+}
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-sidebar-nav .platform-nav-active {
+  background: var(--color-text-primary);
+  border-color: transparent;
+  border-left: none;
+  color: var(--color-surface-primary);
+  box-shadow: none;
+  font-weight: 600;
+}
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-sidebar-nav .platform-nav-item.platform-nav-active :is(svg, .relative) {
+  color: inherit;
+}
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-sidebar-nav .platform-nav-item.platform-nav-active .ws-chip-danger {
+  background: color-mix(in srgb, var(--color-surface-primary) 18%, transparent);
+  color: var(--color-surface-primary);
+  border-color: color-mix(in srgb, var(--color-surface-primary) 35%, transparent);
+}
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-sidebar-nav .platform-nav-item.platform-nav-active::before {
+  display: none !important;
+}
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #dashboard-hero-greeting h1 {
+  font-size: var(--ux-type-hero);
+  line-height: 1.25;
+  letter-spacing: var(--ux-tracking-hero);
+  font-weight: 600;
+}
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell .ux-page-subtitle {
+  font-size: var(--type-meta);
+  line-height: 1.45;
+}
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell [role="dialog"] :is(h2, [data-testid$="-title"]) {
+  font-size: var(--type-title);
+  line-height: 1.3;
+  font-weight: 600;
+}
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-sidebar-nav .platform-brand-icon {
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  box-shadow: none;
+}
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-sidebar-nav .ux-quick-icon {
+  background: var(--color-surface-secondary) !important;
+  border: 1px solid var(--color-border-subtle);
+}
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-sidebar-nav .ux-quick-icon svg {
+  color: var(--color-text-secondary) !important;
+}
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-main {
+  width: 100%;
+  min-width: 0;
+}
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-main .platform-page {
+  width: 100%;
+  max-width: none;
+}
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-main .platform-empty-state,
+:is([data-theme="spectrum"], [data-theme="light"]) .app-shell #platform-main [data-testid="dashboard-empty"] {
+  max-width: none;
 }
 
 /* ?? OPT-K2 ? Full remaining width; no overlay under sidebar ?????????????? */
@@ -745,7 +818,15 @@
   width: 100%;
 }
 
-/* OPT-K29 / K92 ? pair rows stay 1-col; 2/3 density comes from masonry columns */
+/* OPT-K29 / K92 — pair rows stay 1-col in stacked; 2/3 density comes from masonry */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm[data-dashboard-layout="stacked"] .hub-section-stack > .dashboard-pair-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 1.15rem;
+  align-items: start;
+  width: 100%;
+}
+
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm .hub-section-stack > .dashboard-pair-row {
   display: grid;
   grid-template-columns: 1fr;
@@ -771,6 +852,27 @@
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm[data-dashboard-layout="stacked"] .dashboard-readiness-row {
   flex-direction: column !important;
+}
+
+/* Exam Readiness: signals sit beside the ring (full width) from sm+ even when stacked */
+@media (min-width: 640px) {
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm[data-dashboard-layout="stacked"] .dashboard-readiness-row {
+    flex-direction: row !important;
+    align-items: center;
+  }
+  :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm[data-dashboard-layout="stacked"] .dashboard-readiness-row .proximity-track {
+    flex: 1 1 0;
+    max-width: none;
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* Exam Readiness: signal rows fill the full track width (match Active Courses bars) */
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="dashboard-readiness-section"] .dashboard-readiness-row .proximity-track,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell [data-testid="dashboard-readiness-section"] .dashboard-readiness-row .utility-row {
+  max-width: none;
+  width: 100%;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell .dashboard-calm[data-dashboard-layout="stacked"] .dashboard-multi-col {
@@ -809,6 +911,22 @@
     margin: 0 !important;
     background: transparent !important;
   }
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .progress-kpi-stack,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .progress-kpi-grid,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet [data-testid="analytics-behavior-metrics"],
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet [data-testid="analytics-research-metrics"] {
+  max-width: none;
+  width: 100%;
+}
+
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .progress-kpi-stack .utility-row,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .progress-kpi-grid .utility-row,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet [data-testid="analytics-behavior-metrics"] .utility-row,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet [data-testid="analytics-research-metrics"] .utility-row {
+  max-width: none !important;
+  width: 100%;
 }
 
 :is([data-theme="minimal"], [data-theme="minimal-dark"]) .analytics-quiet .progress-kpi-stack .utility-row-hint {
@@ -1816,6 +1934,39 @@
   padding-bottom: calc(0.5rem * 0.9215) !important;
 }
 
+/*
+ * Focus study — study pages only (`data-focus-study` is unset on Settings / Teacher / My institution).
+ * Secondary chrome stays in the source (collapsible sections, hub tabs, extras). Exit Focus to restore.
+ */
+.app-shell[data-focus-study="true"] .platform-blueprint-orbs {
+  display: none;
+}
+.app-shell[data-focus-study="true"] [data-focus-chrome="secondary"],
+.app-shell[data-focus-study="true"] [data-focus-hide] {
+  display: none !important;
+}
+.app-shell[data-focus-study="true"] [role="dialog"] [data-focus-chrome="secondary"],
+.app-shell[data-focus-study="true"] [role="alertdialog"] [data-focus-chrome="secondary"] {
+  display: revert !important;
+}
+.app-shell[data-focus-study="true"] .ux-page-header .ux-page-subtitle,
+.app-shell[data-focus-study="true"] .ux-page-header .ws-eyebrow,
+.app-shell[data-focus-study="true"] #dashboard-hero-greeting .ux-page-subtitle,
+.app-shell[data-focus-study="true"] #dashboard-hero-greeting .ws-eyebrow {
+  display: none;
+}
+.app-shell[data-focus-study="true"] [data-testid="dashboard-hub-chrome-tabs"],
+.app-shell[data-focus-study="true"] [data-testid="dashboard-layout-toggle"],
+.app-shell[data-focus-study="true"] [data-testid="dashboard-masonry"],
+.app-shell[data-focus-study="true"] [data-testid="course-entry-hint"],
+.app-shell[data-focus-study="true"] [data-testid="course-page-stats"],
+.app-shell[data-focus-study="true"] [data-testid="analytics-flow-disclosure"],
+.app-shell[data-focus-study="true"] [data-testid="analytics-visual-lab-disclosure"],
+.app-shell[data-focus-study="true"] [data-testid="analytics-visual-lab-footer"],
+.app-shell[data-focus-study="true"] [data-testid="analytics-visual-lab"] {
+  display: none !important;
+}
+
 .app-shell #dashboard-hero-greeting {
   gap: calc(0.25rem * 0.9215);
 }
@@ -1841,10 +1992,12 @@
 }
 
 /* OPT-K110 — frameless hub tabs (wash + ink, no segmented outline cage) */
+/* OPT-K171 — tabs hug labels (flex). --hub-chrome-cols still counts slots in JSX. */
 .dashboard-hub-chrome-tablist {
-  display: grid;
-  grid-template-columns: repeat(var(--hub-chrome-cols, 2), minmax(0, 1fr));
-  gap: 0.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.2rem;
   width: 100%;
   border: none;
   border-radius: 0;
@@ -1855,11 +2008,12 @@
 .dashboard-hub-chrome-tab {
   display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
+  justify-content: flex-start;
+  gap: 0.35rem;
   min-height: 2.25rem;
+  width: auto;
   min-width: 0;
-  padding: 0.45rem 0.75rem;
+  padding: 0.4rem 0.65rem;
   border: none;
   border-radius: var(--radius-md);
   background: transparent;
@@ -5235,4 +5389,14 @@ body::-webkit-scrollbar-corner,
     0 1px 2px rgba(100, 75, 50, 0.05),
     0 1px 4px rgba(0, 0, 0, 0.03) !important;
   border: 1px solid var(--color-border-subtle) !important;
+}
+
+/*
+ * OPT-K167 — Canon-informed global chrome: sentence-case labels, quieter nav groups.
+ */
+.shell-nav-group-label,
+.ux-section-eyebrow,
+.ws-eyebrow {
+  text-transform: none !important;
+  letter-spacing: 0.01em !important;
 }

@@ -9,11 +9,9 @@ import {
   useBlueprintTheme,
 } from '../../lib/useBlueprintTheme';
 import { MINIMAL_MOTION, useMinimalTheme } from '../../lib/useMinimalTheme';
-import { AllCapsLabel } from './AllCapsLabel';
-
 /**
  * Shared page-level layout primitives for Synapse top-level views.
- * Warm Sand bento surfaces + shared display headings (Lora — light typography SoT).
+ * OPT-K167 — sentence-case chrome, sans page titles, theme-aware CTA focus.
  */
 
 /** Outer page wrapper: full remaining width beside the sidebar (no artificial max-width). */
@@ -31,6 +29,7 @@ export function Page({
   const gapClass = gap === 'sm' ? 'space-y-3' : gap === 'lg' ? 'space-y-6' : 'space-y-4';
   return (
     <div
+      data-type-rhythm="dashboard"
       className={cn(
         'platform-page w-full min-w-0 max-w-none pb-24 lg:pb-6',
         /* OPT-K85 — non-Minimal: scrollbar-sized L/R pad; Minimal keeps calm gutters */
@@ -40,8 +39,6 @@ export function Page({
         className,
       )}
       {...rest}
-      /* OPT-K121 — Dashboard type rhythm on every Page surface */
-      data-type-rhythm="dashboard"
     >
       {children}
     </div>
@@ -78,8 +75,8 @@ export function PageHeader({
     )}>
       <div className="min-w-0">
         {eyebrow && (
-          <p className={cn('ws-eyebrow mb-1 text-text-secondary', isMinimal && 'type-caption uppercase tracking-[0.08em] text-text-muted')}>
-            <AllCapsLabel>{eyebrow}</AllCapsLabel>
+          <p className="ws-eyebrow mb-1 type-micro font-semibold text-text-secondary">
+            {eyebrow}
           </p>
         )}
         <div className="flex items-center gap-2">
@@ -90,10 +87,7 @@ export function PageHeader({
             </span>
           )}
           <h1
-            className={cn(
-              'truncate tracking-tight text-text-primary text-[length:var(--ux-type-hero)] leading-tight',
-              isMinimal ? 'font-semibold' : 'ws-serif font-medium',
-            )}
+            className="truncate tracking-tight text-text-primary text-[length:var(--ux-type-hero)] leading-tight font-semibold"
           >
             {title}
           </h1>
@@ -130,7 +124,9 @@ export function PageHeader({
       ? { ...BLUEPRINT_MOTION, transition: { ...BLUEPRINT_MOTION.transition, delay: 0 } }
       : { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 } };
   return (
-    <motion.div {...motionProps}>
+    // The soft-card stack rule excludes .ux-page-header, but this animation wrapper would
+    // otherwise absorb the card while the header bleeds past it via its negative margins.
+    <motion.div data-soft-card="off" {...motionProps}>
       {content}
     </motion.div>
   );
@@ -249,7 +245,7 @@ export function SectionHeading({
         className={cn(
           /* OPT-K121 — panel titles match Dashboard (meta / panel-title), not ad-hoc text-lg */
           'flex items-center gap-2 font-semibold text-text-primary',
-          size === 'lg' ? 'dashboard-panel-title ws-serif font-medium' : 'type-meta',
+          size === 'lg' ? 'dashboard-panel-title font-medium' : 'type-meta',
         )}
       >
         {Icon && (
@@ -311,7 +307,7 @@ export function StatTile({
     <BlueprintSurface className={cn('p-2.5 ux-stat-tile', className)}>
       <div className="flex items-center gap-1.5">
         {icon}
-        <span className="ws-eyebrow text-text-secondary truncate"><AllCapsLabel>{label}</AllCapsLabel></span>
+        <span className="ws-eyebrow type-micro font-semibold text-text-secondary truncate">{label}</span>
       </div>
       <p className="ux-kpi-value-sm mt-1">{value}</p>
       {hint && <p className="type-caption mt-0.5 text-text-muted">{hint}</p>}
@@ -432,8 +428,9 @@ export const PrimaryCTA = forwardRef<
       ref={ref}
       type="button"
       className={cn(
-        'ux-primary-cta inline-flex items-center justify-center gap-2 rounded-xl font-semibold text-white transition-all duration-300',
-        'bg-brand-600 hover:bg-brand-700 disabled:opacity-60 disabled:pointer-events-none',
+        'ux-primary-cta synapse-tap-target inline-flex items-center justify-center gap-2 rounded-xl font-semibold text-white transition-all duration-300',
+        'bg-[var(--color-accent-fill,var(--color-brand-600))] hover:bg-brand-700 disabled:opacity-60 disabled:pointer-events-none',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus-ring,var(--color-brand-400))] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-surface-primary)]',
         size === 'sm' ? 'px-4 py-2 type-caption min-h-[var(--btn-height-sm,2rem)]' : 'px-5 type-meta min-h-[var(--btn-height)]',
         className,
       )}
@@ -454,11 +451,11 @@ export const SecondaryCTA = forwardRef<
       ref={ref}
       type="button"
       className={cn(
-        'ux-secondary-cta inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-300 platform-pill',
+        'ux-secondary-cta synapse-tap-target inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-300 platform-pill',
         /* OPT-K116 — wash CTA (no outline cage); focus ring remains for a11y */
         'border-0 bg-surface-secondary/70 text-text-secondary hover:bg-surface-hover hover:text-text-primary',
         'disabled:opacity-60 disabled:pointer-events-none',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus-ring,var(--color-brand-400))] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-surface-primary)]',
         size === 'sm' ? 'px-3 py-2 type-caption min-h-[var(--btn-height-sm,2rem)]' : 'px-4 type-meta min-h-[var(--btn-height)]',
         className,
       )}

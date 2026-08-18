@@ -17,6 +17,7 @@ function pluginHookLabels(plugin: SynapsePlugin, t: (key: I18nKey) => string): s
   return hooks.map((hook) => {
     if (hook === 'leitner:beforeExport') return t('pluginHookLeitnerExport');
     if (hook === 'agent:beforeReply') return t('pluginHookAgentReply');
+    if (hook === 'course:afterGenerate') return t('pluginHookCourseGenerate');
     return hook;
   });
 }

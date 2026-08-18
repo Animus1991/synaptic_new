@@ -22,13 +22,13 @@ export const GLOBAL_QUICK_ACTIONS: GlobalQuickAction[] = [
   {
     id: 'upload',
     labelKey: 'quickActionUpload',
-    showInQuickAccess: true,
+    showInQuickAccess: false,
     showInPalette: true,
   },
   {
     id: 'workspace',
     labelKey: 'quickActionWorkspace',
-    showInQuickAccess: true,
+    showInQuickAccess: false,
     showInPalette: true,
     requiresCourses: true,
   },

@@ -20,7 +20,7 @@ export type ShellUxContent = {
 };
 
 const EN: ShellUxContent = {
-  quickAccessTitle: 'Quick Access',
+  quickAccessTitle: 'Quick access',
   navGroupStudy: 'Study',
   navGroupInsights: 'Insights',
   navGroupOrganization: 'Organization',

@@ -57,11 +57,11 @@ describe('Wave WB — Whiteboard productization', () => {
   });
 
   it('OPT-K157 — wash toolbar + text-first coach (no decorative icons)', () => {
-    expect(board).toContain('data-clarity-pass="k157"');
+    expect(board).toMatch(/data-clarity-pass="k(157|162)"/); /* K162 supersedes K157 */
     expect(board).not.toMatch(/w-px bg-border-subtle/);
-    expect(coach).toContain('data-clarity-pass="k157"');
+    expect(coach).toMatch(/data-clarity-pass="k(157|162)"/);
     expect(coach).not.toMatch(/Sparkles|PenLine|LayoutTemplate/);
-    expect(panel).toContain('data-clarity-pass="k157"');
+    expect(panel).toMatch(/data-clarity-pass="k(157|162)"/);
   });
 });
 

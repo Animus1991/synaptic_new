@@ -1,9 +1,14 @@
 /**
- * Propose / co-reading review layers are still device-local (localStorage).
- * Flip this when server sync ships so UI can drop the "this device only" chrome.
+ * Co-reading challenges/votes sync via /v1/study-rooms/:id/coreading.
+ * Note proposals stay device-local until their own server path ships.
  */
-export const COLLAB_REVIEW_MULTI_DEVICE_SYNC = false;
+export const COLLAB_REVIEW_MULTI_DEVICE_SYNC = true;
 
-export function isCollabReviewMultiDeviceSyncEnabled(): boolean {
+export type CollabReviewSurface = 'proposals' | 'coreading';
+
+export function isCollabReviewMultiDeviceSyncEnabled(
+  surface: CollabReviewSurface = 'coreading',
+): boolean {
+  if (surface === 'proposals') return false;
   return COLLAB_REVIEW_MULTI_DEVICE_SYNC;
 }

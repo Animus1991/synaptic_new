@@ -16,6 +16,7 @@ export type DashboardPageStats = {
   conceptsMastered: number;
   totalConcepts: number;
   studyMinutesToday: number;
+  dailyGoalMinutes: number;
   pendingTaskCount: number;
   criticalTaskCount: number;
   unresolvedMisconceptionCount: number;
@@ -54,6 +55,7 @@ export function selectDashboardPageStats(
   stats: DashboardStats,
   tasks: Task[],
   learnerModel: LearnerModel,
+  dailyGoalMinutes = 30,
 ): DashboardPageStats {
   const buckets = selectDashboardTaskBuckets(tasks);
   return {
@@ -63,6 +65,7 @@ export function selectDashboardPageStats(
     conceptsMastered: stats.conceptsMastered,
     totalConcepts: stats.totalConcepts,
     studyMinutesToday: stats.studyTimeToday,
+    dailyGoalMinutes,
     pendingTaskCount: buckets.pendingTasks.length,
     criticalTaskCount: buckets.criticalTasks.length,
     unresolvedMisconceptionCount: selectUnresolvedMisconceptions(learnerModel).length,
@@ -74,13 +77,14 @@ export function selectDashboardPageViewModel(opts: {
   courses: Course[];
   tasks: Task[];
   learnerModel: LearnerModel;
+  dailyGoalMinutes?: number;
 }): DashboardPageViewModel {
-  const { stats, courses, tasks, learnerModel } = opts;
+  const { stats, courses, tasks, learnerModel, dailyGoalMinutes } = opts;
   return {
     isEmpty: courses.length === 0,
     activeCourses: selectActiveCourses(courses),
     taskBuckets: selectDashboardTaskBuckets(tasks),
-    stats: selectDashboardPageStats(stats, tasks, learnerModel),
+    stats: selectDashboardPageStats(stats, tasks, learnerModel, dailyGoalMinutes),
     masteryTrendLast7: stats.masteryTrend.slice(-7),
     unresolvedMisconceptions: selectUnresolvedMisconceptions(learnerModel),
   };

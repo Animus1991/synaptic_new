@@ -10,10 +10,17 @@ templates.
 ```bash
 cd synapse-learning
 npm install
-npm run dev
+npm run dev        # frontend only (auth/sync/study rooms fall back to local mode)
+npm run dev:full   # frontend + Synapse server (:8787) + collab (:8788) — recommended
 ```
 
 Open [http://localhost:5173](http://localhost:5173).
+
+`dev:full` is the intended day-to-day command: without the server the app still
+runs, but sign-in, cloud sync, cross-device study rooms, server OCR, and the
+managed LLM proxy silently degrade to local fallbacks. First time only:
+`cd server && cp .env.example .env && npm install` (set `OPENAI_API_KEY` for
+real Agent replies).
 
 > Run commands from the **`synapse-learning`** folder (not the parent
 > workspace root).
@@ -22,7 +29,9 @@ Open [http://localhost:5173](http://localhost:5173).
 
 | Command | Purpose |
 | ------- | ------- |
-| `npm run dev` | Vite dev server |
+| `npm run dev` | Vite dev server (frontend only) |
+| `npm run dev:full` | Vite + Synapse server (API :8787, collab :8788) |
+| `npm run dev:server` | Synapse server only (`server/`) |
 | `npm run typecheck` | Client `tsc --noEmit` |
 | `npm run typecheck:all` | Client + server typecheck |
 | `npm test` | Vitest unit tests |

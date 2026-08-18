@@ -66,4 +66,27 @@ describe('simulatorSessionModel', () => {
     expect(filterNumericCues(cues, '100')).toHaveLength(1);
     expect(filterNumericCues(cues, '')).toEqual(cues);
   });
+
+  it('does not force economics sliders on quantitative non-econ notes', () => {
+    const session = buildSimulatorSessionContent({
+      concept: 'Mitosis',
+      courseTitle: 'Biology',
+      text: 'Mitosis lasts 60 minutes. Calculate the range of values for this parameter.',
+      lang: 'en',
+      hasSource: true,
+    });
+    expect(session.economicsMode).toBe(false);
+    expect(session.hasActionableContent).toBe(true);
+    expect(session.numericCues.length).toBeGreaterThan(0);
+  });
+
+  it('keeps economics mode for elasticity / supply notes', () => {
+    const session = buildSimulatorSessionContent({
+      concept: 'Introduction',
+      text: GREEK_ECON_PASSAGE,
+      lang: 'en',
+      hasSource: true,
+    });
+    expect(session.economicsMode).toBe(true);
+  });
 });

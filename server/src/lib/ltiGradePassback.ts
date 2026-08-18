@@ -72,6 +72,19 @@ export function buildLtiAgsScore(score: number, ltiUserId: string, comment?: str
   };
 }
 
+/** AGS notice that the learner submitted — no grade yet (PendingManual). */
+export function buildLtiAgsSubmissionNotice(ltiUserId: string, comment?: string): LtiAgsScore {
+  return {
+    userId: ltiUserId.trim(),
+    scoreGiven: 0,
+    scoreMaximum: 100,
+    comment: comment?.trim() || 'Submitted in Synapse',
+    activityProgress: 'Submitted',
+    gradingProgress: 'PendingManual',
+    timestamp: new Date().toISOString(),
+  };
+}
+
 export async function registerLtiLineItem(
   classId: string,
   assignmentId: string,
@@ -189,17 +202,15 @@ async function postAgsScore(lineItemUrl: string, payload: LtiAgsScore): Promise<
   }
 }
 
-export async function submitLtiGradePassback(opts: {
+async function enqueueAgsPassback(opts: {
   classId: string;
   assignmentId: string;
   enrollmentId: string;
   ltiUserId: string;
-  score: number;
+  payload: LtiAgsScore;
   lineItemUrl?: string;
-  comment?: string;
 }): Promise<LtiPassbackRecord> {
   const lineItemUrl = opts.lineItemUrl?.trim() || (await getLtiLineItemUrl(opts.classId, opts.assignmentId));
-  const payload = buildLtiAgsScore(opts.score, opts.ltiUserId, opts.comment);
   const now = new Date().toISOString();
   const record: LtiPassbackRecord = {
     id: `lti_pb_${randomUUID().replace(/-/g, '').slice(0, 12)}`,
@@ -208,7 +219,7 @@ export async function submitLtiGradePassback(opts: {
     enrollmentId: opts.enrollmentId,
     ltiUserId: opts.ltiUserId,
     lineItemUrl,
-    payload,
+    payload: opts.payload,
     status: 'stub_queued',
     attemptCount: 1,
     createdAt: now,
@@ -229,11 +240,10 @@ export async function submitLtiGradePassback(opts: {
     return record;
   }
 
-  const result = await postAgsScore(lineItemUrl, payload);
+  const result = await postAgsScore(lineItemUrl, opts.payload);
   record.platformStatus = result.status;
   record.platformBody = result.body;
   if (!result.status && !result.body) {
-    // No bearer effectively (postAgsScore returned early) — treat as stub.
     record.status = 'stub_queued';
   } else {
     record.status = result.ok ? 'submitted' : 'failed';
@@ -242,6 +252,44 @@ export async function submitLtiGradePassback(opts: {
   passbackLog.unshift(record);
   await persistPassbackRecord(record);
   return record;
+}
+
+export async function submitLtiGradePassback(opts: {
+  classId: string;
+  assignmentId: string;
+  enrollmentId: string;
+  ltiUserId: string;
+  score: number;
+  lineItemUrl?: string;
+  comment?: string;
+}): Promise<LtiPassbackRecord> {
+  return enqueueAgsPassback({
+    classId: opts.classId,
+    assignmentId: opts.assignmentId,
+    enrollmentId: opts.enrollmentId,
+    ltiUserId: opts.ltiUserId,
+    lineItemUrl: opts.lineItemUrl,
+    payload: buildLtiAgsScore(opts.score, opts.ltiUserId, opts.comment),
+  });
+}
+
+/** Notify the LMS that the learner submitted (AGS Submitted / PendingManual). */
+export async function submitLtiSubmissionPassback(opts: {
+  classId: string;
+  assignmentId: string;
+  enrollmentId: string;
+  ltiUserId: string;
+  lineItemUrl?: string;
+  comment?: string;
+}): Promise<LtiPassbackRecord> {
+  return enqueueAgsPassback({
+    classId: opts.classId,
+    assignmentId: opts.assignmentId,
+    enrollmentId: opts.enrollmentId,
+    ltiUserId: opts.ltiUserId,
+    lineItemUrl: opts.lineItemUrl,
+    payload: buildLtiAgsSubmissionNotice(opts.ltiUserId, opts.comment),
+  });
 }
 
 function rowToPassback(row: {

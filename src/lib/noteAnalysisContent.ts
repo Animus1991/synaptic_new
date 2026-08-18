@@ -46,25 +46,25 @@ export type NoteAnalysisContent = {
 };
 
 const STAGE_EN: Record<NoteAnalysisStageId, string> = {
-  1: 'File Processing',
-  2: 'Content Diagnosis',
-  2.5: 'Algorithm Transparency',
-  3: 'Knowledge Graph',
-  4: 'Course Architecture',
-  5: 'Quality Assurance',
+  1: 'File processing',
+  2: 'Content diagnosis',
+  2.5: 'How ranking works',
+  3: 'Knowledge graph',
+  4: 'Course outline',
+  5: 'Quality check',
 };
 
 const STAGE_EL: Record<NoteAnalysisStageId, string> = {
   1: 'Επεξεργασία αρχείων',
   2: 'Διάγνωση περιεχομένου',
-  2.5: 'Διαφάνεια αλγορίθμων',
+  2.5: 'Πώς γίνεται η κατάταξη',
   3: 'Γράφημα γνώσης',
-  4: 'Αρχιτεκτονική μαθήματος',
-  5: 'Διασφάλιση ποιότητας',
+  4: 'Outline μαθήματος',
+  5: 'Έλεγχος ποιότητας',
 };
 
 const EN: NoteAnalysisContent = {
-  pageTitle: 'Note Analysis',
+  pageTitle: 'Note analysis',
   subtitle: (course, score) => score != null
     ? `${course} · Source quality ${score}%`
     : course,
@@ -98,7 +98,7 @@ const EN: NoteAnalysisContent = {
   generateCourse: 'Continue to course',
   materialProcessingReadiness: 'Material processing readiness',
   readinessInsufficient: 'Insufficient data',
-  exploreDetails: 'Explore pipeline details',
+  exploreDetails: 'More detail',
   summarySourceHealth: 'Source health',
   summaryStructure: 'Extracted structure',
   summaryNextStep: 'Recommended next step',
@@ -142,9 +142,9 @@ const EL: NoteAnalysisContent = {
   qualityAssurance: 'Μετρικές ποιότητας',
   noIssues: 'Δεν εντοπίστηκαν κρίσιμα θέματα — δες την περίληψη και διάλεξε επόμενο βήμα.',
   generateCourse: 'Συνέχεια στο μάθημα',
-  materialProcessingReadiness: 'Material processing readiness',
+  materialProcessingReadiness: 'Ετοιμότητα επεξεργασίας υλικού',
   readinessInsufficient: 'Ανεπαρκή δεδομένα',
-  exploreDetails: 'Λεπτομέρειες pipeline',
+  exploreDetails: 'Περισσότερες λεπτομέρειες',
   summarySourceHealth: 'Υγεία πηγής',
   summaryStructure: 'Εξαγόμενη δομή',
   summaryNextStep: 'Προτεινόμενο επόμενο βήμα',

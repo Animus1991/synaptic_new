@@ -205,7 +205,7 @@ export function buildStudyPlanBlocks(
     isSpacedRepetition?: boolean;
   }[],
   lang: Lang,
-): { label: string; minutes: number; items: string[] }[] {
+): { kind: 'mistakes' | 'reviews' | 'weak'; label: string; minutes: number; items: string[] }[] {
   type PlanTask = (typeof tasks)[number];
   const pending = tasks.filter((t) => t.status === 'pending');
   // Each task appears in at most one block (no repeat between mistakes/reviews/weak).
@@ -218,9 +218,10 @@ export function buildStudyPlanBlocks(
   const mistakes = take((t) => t.category === 'fix', 2);
   const reviews = take((t) => Boolean(t.isSpacedRepetition), 3);
   const weak = take((t) => t.category === 'learn' || t.priority === 'high', 2);
-  const blocks: { label: string; minutes: number; items: string[] }[] = [];
+  const blocks: { kind: 'mistakes' | 'reviews' | 'weak'; label: string; minutes: number; items: string[] }[] = [];
   if (mistakes.length) {
     blocks.push({
+      kind: 'mistakes' as const,
       label: studyPlanBlockLabel('mistakes', lang),
       minutes: mistakes.reduce((s, t) => s + t.estimatedMinutes, 0),
       items: mistakes.map((t) => t.title),
@@ -228,6 +229,7 @@ export function buildStudyPlanBlocks(
   }
   if (reviews.length) {
     blocks.push({
+      kind: 'reviews' as const,
       label: studyPlanBlockLabel('reviews', lang),
       minutes: reviews.reduce((s, t) => s + t.estimatedMinutes, 0),
       items: reviews.map((t) => t.title),
@@ -235,6 +237,7 @@ export function buildStudyPlanBlocks(
   }
   if (weak.length) {
     blocks.push({
+      kind: 'weak' as const,
       label: studyPlanBlockLabel('weak', lang),
       minutes: weak.reduce((s, t) => s + t.estimatedMinutes, 0),
       items: weak.map((t) => t.title),

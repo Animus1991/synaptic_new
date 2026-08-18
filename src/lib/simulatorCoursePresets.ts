@@ -33,7 +33,7 @@ function clamp(n: number, min: number, max: number): number {
 export function looksLikeEconomicsCourse(text: string): boolean {
   const hay = text.toLowerCase();
   return /\b(econom|supply|demand|market|elasticity|price|gdp|inflation|trade|tariff)\b/i.test(hay)
-    || /\b(οικονομ|προσφορ|ζήτηση|αγορά|ελαστικότ|τιμή|πληθωρισμ)\b/i.test(hay);
+    || /οικονομ|προσφορ|ζήτηση|αγορά|ελαστικότ|τιμή|πληθωρισμ/i.test(hay);
 }
 
 /**
@@ -90,7 +90,11 @@ export function resolveCourseSimulatorPresets(opts: {
   concept?: string;
 }): CourseSimulatorPresets {
   const { economicsMode, numericCues, courseTitle = '', concept = '' } = opts;
-  if (economicsMode || looksLikeEconomicsCourse(`${courseTitle} ${concept}`)) {
+  const econContext = economicsMode || looksLikeEconomicsCourse(`${courseTitle} ${concept}`);
+  if (numericCues.length > 0 && !econContext) {
+    return { mode: 'parametric', scenarios: buildParametricCoursePresets(numericCues) };
+  }
+  if (econContext) {
     return { mode: 'economics', scenarios: SIMULATOR_SCENARIO_PRESETS };
   }
   if (numericCues.length > 0) {

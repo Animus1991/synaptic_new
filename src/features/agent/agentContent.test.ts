@@ -27,6 +27,7 @@ describe('agentContent', () => {
     expect(en.badgeAiInference).toBe('Tutor reasoning');
     expect(en.llmConnected).not.toMatch(/LLM/i);
     expect(en.sourceModeFooter('strict')).toBe('My notes only');
+    expect(en.sourceModeFooter('notes-only')).toBe('Outline only');
     expect(en.badgeSourceGrounded).not.toMatch(/📖|🧠|✓|🛡|📎/);
   });
 });

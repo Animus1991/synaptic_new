@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { AlertTriangle, X } from '@/lib/lucide-shim';
 import { useI18n } from '../../lib/i18n';
-import { PrimaryCTA, SecondaryCTA } from './primitives';
+import { Button } from './Button';
 import { ModalHeaderStack } from './ModalHeaderStack';
 import { FocusTrapDialog } from './FocusTrapDialog';
 
@@ -46,9 +46,10 @@ export function ConfirmDialog({
       data-testid={testId}
       aria-describedby={description ? `${testId}-desc` : undefined}
       bodyClassName="p-0"
-      panelClassName="max-w-md"
+      panelClassName="!max-w-none sm:!max-w-md pb-[env(safe-area-inset-bottom)]"
     >
       <div className="flex items-start gap-3 p-5 sm:p-6 pb-3 relative">
+        <div className="absolute left-1/2 top-2 h-1 w-10 -translate-x-1/2 rounded-full bg-border-subtle sm:hidden" aria-hidden />
         {destructive && (
           <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-accent-rose/25 bg-accent-rose/10">
             <AlertTriangle className="h-4 w-4 text-accent-rose" aria-hidden />
@@ -74,22 +75,23 @@ export function ConfirmDialog({
         </button>
       </div>
       <div className="flex flex-col-reverse gap-2 border-t border-border-subtle p-5 sm:p-6 sm:flex-row sm:justify-end">
-        <SecondaryCTA
+        <Button
           ref={cancelRef}
+          variant="secondary"
           onClick={onClose}
           disabled={confirming}
           data-testid={`${testId}-cancel`}
         >
           {cancelLabel}
-        </SecondaryCTA>
-        <PrimaryCTA
+        </Button>
+        <Button
+          variant={destructive ? 'danger' : 'primary'}
           onClick={onConfirm}
           disabled={confirming}
           data-testid={`${testId}-confirm`}
-          className={destructive ? 'bg-accent-rose hover:bg-accent-rose/90' : undefined}
         >
           {confirmLabel}
-        </PrimaryCTA>
+        </Button>
       </div>
     </FocusTrapDialog>
   );

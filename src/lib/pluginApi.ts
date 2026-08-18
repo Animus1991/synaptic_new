@@ -40,7 +40,25 @@ export async function runPluginHook(
   return current;
 }
 
-/** Built-in demo plugin for dev/testing — registers on import in dev only. */
+export async function applyAgentBeforeReplyPlugins(text: string, studyMode: boolean): Promise<string> {
+  const out = await runPluginHook('agent:beforeReply', { text, studyMode });
+  if (out && typeof out === 'object' && 'text' in out) {
+    const next = (out as { text?: unknown }).text;
+    if (typeof next === 'string') return next;
+  }
+  return text;
+}
+
+export async function applyCourseAfterGeneratePlugins<T extends { id: string }>(course: T): Promise<T> {
+  const out = await runPluginHook('course:afterGenerate', { course });
+  if (out && typeof out === 'object' && 'course' in out) {
+    const next = (out as { course?: T }).course;
+    if (next && typeof next === 'object' && typeof next.id === 'string') return next;
+  }
+  return course;
+}
+
+/** Kept for tests; production catalog no longer registers a no-op demo plugin. */
 export function registerBuiltinDemoPlugin(): void {
   registerSynapsePlugin({
     id: 'synapse.demo',

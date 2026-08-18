@@ -10,11 +10,11 @@ import { buildNoteAnalysisSnapshot, type NoteAnalysisStageId } from '../lib/note
 import { getNoteAnalysisContent, NOTE_ANALYSIS_STAGES } from '../lib/noteAnalysisContent';
 import type { NoteAnalysisAction } from '../lib/noteAnalysisDiagnostics';
 import { ConceptGraph } from './visuals/ConceptGraph';
-import { Page, PageHeader } from './ui/primitives';
+import { Page, PageHeader, PrimaryCTA, SecondaryCTA } from './ui/primitives';
+import { Button } from './ui/Button';
 import { workspaceEntryPrefetchHandlers } from '../features/workspace';
 import { LiveEngineTransparencyPanel } from './analysis/LiveEngineTransparencyPanel';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
-import { AllCapsLabel } from './ui/AllCapsLabel';
 
 const STAGE_ICONS: Record<NoteAnalysisStageId, typeof FileText> = {
   1: FileText,
@@ -80,38 +80,30 @@ export function NoteAnalysisView({
       /* OPT-K132 — Note Analysis clarity: CTA-only border diet (wash cards, equal columns) */
       data-border-diet="cta-only"
     >
-    <Page className="max-w-none" gap="sm">
+    <Page className="max-w-none" gap="sm" data-bleed="full">
       <PageHeader
         title={c.pageTitle}
         subtitle={c.subtitle(snapshot.courseTitle, snapshot.sourceQualityScore)}
         icon={FlaskConical}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={onBack}
-              className="flex items-center gap-1.5 rounded-lg border-0 bg-surface-secondary/55 px-3 py-2 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
-            >
+            <Button type="button" variant="secondary" size="sm" onClick={onBack}>
               <ArrowLeft className="w-4 h-4" />
               {c.backToLibrary}
-            </button>
-            <button
+            </Button>
+            <PrimaryCTA
               type="button"
+              size="sm"
               onClick={onOpenWorkspace}
-              className="flex items-center gap-1.5 rounded-lg ws-fab type-caption font-semibold"
               {...workspaceEntryPrefetchHandlers()}
             >
               <Play className="w-4 h-4" />
               {c.openWorkspace}
-            </button>
-            <button
-              type="button"
-              onClick={onOpenCourse}
-              className="flex items-center gap-1.5 rounded-lg border-0 bg-surface-secondary px-3 py-2 type-caption font-semibold text-text-primary hover:bg-surface-hover"
-            >
+            </PrimaryCTA>
+            <SecondaryCTA type="button" size="sm" onClick={onOpenCourse}>
               {c.generateCourse}
               <ArrowRight className="w-4 h-4" />
-            </button>
+            </SecondaryCTA>
           </div>
         }
       />
@@ -119,7 +111,7 @@ export function NoteAnalysisView({
       {/* OPT-K132 — equal-height summary trio */}
       <div className="grid gap-3 lg:grid-cols-3 lg:items-stretch mb-4" data-testid="note-analysis-summary">
         <div className="ux-card border-0 bg-surface-secondary/45 flex flex-col min-h-[11rem]">
-          <p className="type-micro font-semibold text-text-muted mb-2"><AllCapsLabel>{c.summarySourceHealth}</AllCapsLabel></p>
+          <p className="type-micro font-semibold text-text-muted mb-2">{c.summarySourceHealth}</p>
           <p className="type-meta font-semibold text-text-primary">{snapshot.summary.sourceHealth}</p>
           <p className="type-caption text-text-secondary mt-2">{snapshot.summary.sourceHealthDetail}</p>
           <div className="mt-auto pt-3 border-t border-transparent">
@@ -131,7 +123,7 @@ export function NoteAnalysisView({
           </div>
         </div>
         <div className="ux-card border-0 bg-surface-secondary/45 flex flex-col min-h-[11rem]">
-          <p className="type-micro font-semibold text-text-muted mb-2"><AllCapsLabel>{c.summaryStructure}</AllCapsLabel></p>
+          <p className="type-micro font-semibold text-text-muted mb-2">{c.summaryStructure}</p>
           <p className="type-meta font-semibold text-text-primary">{snapshot.summary.structure}</p>
           <p className="type-caption text-text-secondary mt-2">{snapshot.summary.structureDetail}</p>
           <div className="mt-auto pt-3 grid grid-cols-2 gap-2">
@@ -146,16 +138,18 @@ export function NoteAnalysisView({
           </div>
         </div>
         <div className="ux-card border-0 bg-surface-secondary/45 flex flex-col min-h-[11rem]">
-          <p className="type-micro font-semibold text-text-muted mb-2"><AllCapsLabel>{c.summaryNextStep}</AllCapsLabel></p>
+          <p className="type-micro font-semibold text-text-muted mb-2">{c.summaryNextStep}</p>
           <p className="type-caption text-text-secondary flex-1">{snapshot.summary.nextStep}</p>
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size="sm"
             data-testid="note-analysis-next-action"
             onClick={() => runIssueAction(snapshot.summary.nextStepAction)}
-            className="mt-3 self-start rounded-lg bg-brand-600 px-4 py-2 type-caption font-semibold text-white hover:bg-brand-500"
+            className="mt-3 self-start"
           >
             {actionLabel(snapshot.summary.nextStepAction)}
-          </button>
+          </Button>
         </div>
       </div>
 

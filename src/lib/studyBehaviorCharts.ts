@@ -22,7 +22,8 @@ export function buildStudyBehaviorModel(
   effectiveness: EffectivenessPoint[];
 } {
   const inRange = filterActivitiesByRange(activities, range);
-  const days = range === '7d' ? 7 : range === '30d' ? 14 : 14;
+  const days = range === '7d' ? 7 : range === '30d' ? 14 : 12;
+  const stepDays = range === 'semester' ? 14 : 1;
   const now = new Date();
   const dayBars: DayBar[] = [];
   const labels = lang === 'el' ? DAY_LABELS_EL : DAY_LABELS_EN;
@@ -30,12 +31,18 @@ export function buildStudyBehaviorModel(
   for (let i = days - 1; i >= 0; i--) {
     const d = new Date(now);
     d.setHours(12, 0, 0, 0);
-    d.setDate(d.getDate() - i);
+    d.setDate(d.getDate() - i * stepDays);
     const key = dayKey(d);
-    const count = inRange.filter((a) => a.timestamp.slice(0, 10) === key).length;
+    const windowStart = new Date(d);
+    windowStart.setDate(windowStart.getDate() - (stepDays - 1));
+    const startKey = dayKey(windowStart);
+    const count = inRange.filter((a) => {
+      const day = a.timestamp.slice(0, 10);
+      return day >= startKey && day <= key;
+    }).length;
     dayBars.push({
       key,
-      label: days <= 7 ? labels[d.getDay()]! : key.slice(5),
+      label: range === '7d' ? labels[d.getDay()]! : key.slice(5),
       count,
     });
   }
@@ -60,7 +67,14 @@ export function buildStudyBehaviorModel(
   ].filter((s) => s.value > 0);
 
   const effectiveness: EffectivenessPoint[] = dayBars.map((d) => {
-    const dayActs = inRange.filter((a) => a.timestamp.slice(0, 10) === d.key);
+    const end = d.key;
+    const startDate = new Date(`${end}T12:00:00`);
+    startDate.setDate(startDate.getDate() - (stepDays - 1));
+    const start = dayKey(startDate);
+    const dayActs = inRange.filter((a) => {
+      const day = a.timestamp.slice(0, 10);
+      return day >= start && day <= end;
+    });
     const passed = dayActs.filter((a) => a.type === 'quiz_passed' || a.type === 'review_done').length;
     const failed = dayActs.filter((a) => a.type === 'quiz_failed').length;
     const denom = passed + failed;

@@ -38,9 +38,11 @@ export type ExamPacingState = {
 };
 
 export type StudyPlanBlock = {
+  kind?: 'mistakes' | 'reviews' | 'weak';
   label: string;
   minutes: number;
   items: string[];
+  taskIds?: string[];
 };
 
 export type WorkspaceActionOpts = Parameters<typeof recommendNextAction>[0];
@@ -250,23 +252,29 @@ export function buildAdaptiveStudyPlanBlocks(
   const blocks: StudyPlanBlock[] = [];
   if (mistakes.length) {
     blocks.push({
+      kind: 'mistakes',
       label: studyPlanBlockLabel('mistakes', lang),
       minutes: mistakes.reduce((s, t) => s + t.estimatedMinutes, 0),
       items: mistakes.map((t) => t.title),
+      taskIds: mistakes.map((t) => t.id),
     });
   }
   if (reviews.length) {
     blocks.push({
+      kind: 'reviews',
       label: studyPlanBlockLabel('reviews', lang),
       minutes: reviews.reduce((s, t) => s + t.estimatedMinutes, 0),
       items: reviews.map((t) => t.title),
+      taskIds: reviews.map((t) => t.id),
     });
   }
   if (weak.length) {
     blocks.push({
+      kind: 'weak',
       label: studyPlanBlockLabel('weak', lang),
       minutes: weak.reduce((s, t) => s + t.estimatedMinutes, 0),
       items: weak.map((t) => t.title),
+      taskIds: weak.map((t) => t.id),
     });
   }
   return blocks;

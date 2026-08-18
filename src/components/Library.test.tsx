@@ -3,7 +3,7 @@ import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Library } from './Library';
 import { mockCourses } from '../demo/mockData';
-import type { UploadedFile } from '../types';
+import type { UploadedFile, UserSettings } from '../types';
 
 afterEach(() => cleanup());
 
@@ -94,5 +94,61 @@ describe('Library P0', () => {
     fireEvent.keyDown(open, { key: 'Enter' });
     fireEvent.click(open);
     expect(onSelectCourse).toHaveBeenCalledWith(expect.objectContaining({ id: 'c1' }));
+  });
+});
+
+const signedInSettings = {
+  llmProxyUrl: 'http://localhost:8787/v1',
+  authToken: 'tok',
+  language: 'en',
+} as UserSettings;
+
+describe('Library pull from server', () => {
+  it('hides the pull control without a signed-in callback', () => {
+    renderLibrary();
+    expect(screen.queryByTestId('library-pull-from-server')).toBeNull();
+  });
+
+  it('hides the pull control when signed out even if a callback is passed', () => {
+    renderLibrary({ onPullLibrary: vi.fn() });
+    expect(screen.queryByTestId('library-pull-from-server')).toBeNull();
+  });
+
+  it('pulls the library from the same server path as Settings', async () => {
+    const onPullLibrary = vi.fn().mockResolvedValue(undefined);
+    renderLibrary({ onPullLibrary, userSettings: signedInSettings });
+
+    fireEvent.click(screen.getByTestId('library-pull-from-server'));
+    await waitFor(() => {
+      expect(onPullLibrary).toHaveBeenCalledTimes(1);
+    });
+    expect(screen.getByTestId('library-pull-status').textContent).toMatch(/updated from server/i);
+  });
+
+  it('surfaces a failure when the pull rejects', async () => {
+    const onPullLibrary = vi.fn().mockRejectedValue(new Error('offline'));
+    renderLibrary({ onPullLibrary, userSettings: signedInSettings });
+
+    fireEvent.click(screen.getByTestId('library-pull-from-server'));
+    await waitFor(() => {
+      expect(screen.getByTestId('library-pull-status').textContent).toMatch(/could not refresh/i);
+    });
+  });
+});
+
+describe('Library folders', () => {
+  it('creates a folder from the files tab', async () => {
+    const onCreateFolder = vi.fn().mockReturnValue(true);
+    renderLibrary({
+      onCreateFolder,
+      libraryFolders: [],
+    });
+    fireEvent.click(screen.getByTestId('library-tab-files'));
+    fireEvent.click(await screen.findByTestId('library-new-folder'));
+    fireEvent.change(screen.getByTestId('library-rename-input'), {
+      target: { value: 'Lectures' },
+    });
+    fireEvent.click(screen.getByTestId('library-rename-save'));
+    expect(onCreateFolder).toHaveBeenCalledWith('Lectures');
   });
 });

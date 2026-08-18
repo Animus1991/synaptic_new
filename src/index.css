@@ -182,8 +182,8 @@
   --tracking-hero-app: -0.015em;
   --tracking-section: -0.015em;
   --tracking-title: -0.01em;
-  --tracking-eyebrow: 0.34em;
-  --tracking-eyebrow-tight: 0.32em;
+  --tracking-eyebrow: 0.02em;
+  --tracking-eyebrow-tight: 0.01em;
   --leading-micro: 1rem;
   --leading-caption: 1rem;
   --leading-body-sm: 1.25rem;
@@ -211,6 +211,10 @@
   --color-state-warning: var(--color-accent-amber);
   --color-state-success: var(--color-accent-emerald);
   --color-state-info: var(--color-accent-cyan);
+  /* OPT-K167 — Canon-informed accent slots: text vs fill vs on-fill */
+  --color-accent-text: var(--color-brand-700, var(--color-brand-600));
+  --color-accent-fill: var(--color-brand-600);
+  --color-on-accent: #ffffff;
 }
 
 /* Light theme — Warm Sand aligned to Replit canvas cream (#FDFBF7 family) */
@@ -1094,6 +1098,7 @@
     transform: translateY(-2px);
   }
 }
+
 [data-theme="blueprint"] .ux-secondary-cta {
   border-radius: 1rem;
   border-color: color-mix(in srgb, #ffffff 10%, transparent);
@@ -2711,7 +2716,7 @@
 
 /* Wave R3 / OPT-K140 — Tasks Kanban: wash columns (no outline cages) */
 .tasks-kanban-column {
-  border-radius: 0.75rem;
+  border-radius: var(--tasks-card-radius, var(--radius-lg));
   border: none;
   background: color-mix(in srgb, var(--color-surface-secondary) 55%, transparent);
   padding: 0.5rem 0.75rem;
@@ -2719,8 +2724,8 @@
 .tasks-kanban-column-label {
   font-size: 0.6875rem;
   font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--color-text-secondary);
 }
 .tasks-kanban-column-count {
@@ -4258,6 +4263,30 @@ input[type="range"]::-webkit-slider-thumb {
   border-bottom-color: transparent;
 }
 
+/* X3 (Canon cross-pollination, docs/INDEX.md) — independent contrast-boost toggle, orthogonal to
+   theme choice: works layered on top of any of the 6 themes (unlike a dedicated "high contrast"
+   theme, which would force a specific palette). Existing per-theme WCAG contracts already
+   guarantee an AA floor (see themeContrastContract.test.ts); this raises secondary/tertiary ink
+   and borders to the theme's own already-verified strongest tokens for users who want more than
+   the floor, rather than introducing new, unverified colors. Applied via documentElement
+   [data-a11y-boost], mirrored on the [data-density] pattern in lib/chromeDensity.ts. */
+[data-a11y-boost="true"] {
+  --color-text-secondary: var(--color-text-primary);
+  --color-text-tertiary: var(--color-text-primary);
+  --color-text-muted: var(--color-text-primary);
+  --color-border-subtle: var(--color-border-strong);
+  --color-border-default: var(--color-border-strong);
+  letter-spacing: 0.01em;
+}
+[data-a11y-boost="true"] button,
+[data-a11y-boost="true"] input,
+[data-a11y-boost="true"] select,
+[data-a11y-boost="true"] textarea,
+[data-a11y-boost="true"] [role="button"] {
+  border-width: 2px;
+  font-weight: 600;
+}
+
 /* Wave N-T07 — opt-in focus ring for custom controls (menu items, listboxes,
    floating popovers) that need the same ring even without native `:focus-visible`. */
 .ux-focus-ring:focus-visible {
@@ -4862,8 +4891,8 @@ input[type="range"]::-webkit-slider-thumb {
 .ux-section-eyebrow {
   font-size: var(--type-micro);
   font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--color-text-tertiary);
 }
 
@@ -5008,7 +5037,7 @@ input[type="range"]::-webkit-slider-thumb {
   height: 2.25rem;
   width: 2.25rem;
   shrink: 0;
-  border-radius: 0.75rem;
+  border-radius: var(--tasks-well-radius, var(--radius-md));
   border: none;
   background: color-mix(in srgb, var(--color-surface-secondary) 85%, transparent);
   color: var(--color-text-secondary);
@@ -6039,10 +6068,7 @@ body { letter-spacing: -0.005em; }
   border-radius: inherit;
 }
 
-/* ─── Scrollbar hover — OPT-K135: keep chrome hidden ─── */
-::-webkit-scrollbar-thumb:hover {
-  background: transparent !important;
-}
+/* ─── Scrollbar hover — OPT-K170 paints the discreet thumb at EOF ─── */
 
 /* ─── Stat Tile hover micro-interaction ──────────────────────── */
 .ux-stat-tile {
@@ -7482,44 +7508,9 @@ body { letter-spacing: -0.005em; }
 }
 
 /*
- * OPT-K135 — FINAL kill-switch (must stay last in this file).
- * Fully hide scrollbar chrome app-wide. Overflow/scroll behavior unchanged.
+ * OPT-K135 kill-switch retired — OPT-K170 (end of file) paints a discreet
+ * right-edge page scrollbar. Chip rows still use .hide-scrollbar / .scrollbar-none.
  */
-html,
-body,
-* {
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-}
-
-html::-webkit-scrollbar,
-body::-webkit-scrollbar,
-*::-webkit-scrollbar {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
-  max-width: 0 !important;
-  max-height: 0 !important;
-  background: transparent !important;
-  appearance: none !important;
-  -webkit-appearance: none !important;
-}
-
-::-webkit-scrollbar-thumb,
-::-webkit-scrollbar-track,
-::-webkit-scrollbar-button,
-::-webkit-scrollbar-corner,
-*::-webkit-scrollbar-thumb,
-*::-webkit-scrollbar-track,
-*::-webkit-scrollbar-button,
-*::-webkit-scrollbar-corner {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
 /*
  * OPT-K160 — Feynman / Flashcards residual clarity (cascade beater).
  */
@@ -7680,4 +7671,1062 @@ body::-webkit-scrollbar,
   padding-left: 0 !important;
   padding-right: 0 !important;
   border-radius: 0 !important;
+}
+
+/*
+ * OPT-K169 — hero and body share one content column (shell chrome stays full-bleed).
+ */
+[data-testid="dashboard-page"] .dashboard-page-column {
+  box-sizing: border-box;
+}
+[data-testid="dashboard-page"] [data-testid="dashboard-action-hub"] {
+  padding-inline: 0;
+}
+
+/*
+ * OPT-K167 — Canon-informed global chrome calm (cascade beaters).
+ * Sentence-case eyebrows; coarse-pointer tap floor; sans page titles.
+ */
+@media (pointer: coarse) {
+  .synapse-tap-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+.ux-section-eyebrow,
+.ws-eyebrow,
+.shell-nav-group-label,
+.info-stack-secondary-eyebrow,
+.dashboard-live-preview-eyebrow,
+.agent-mode-group-label {
+  text-transform: none !important;
+  letter-spacing: 0.01em !important;
+}
+
+.ux-page-header h1,
+[data-testid="dashboard-action-hub"] h1 {
+  font-family: var(--font-sans) !important;
+}
+
+/*
+ * OPT-K170 — discreet right-edge page scrollbar (must stay last).
+ * Thin, token-tinted thumb; transparent track; no arrows.
+ * Selectors beat leftover K135 `[data-theme] *` / `.app-shell *` hides.
+ * Horizontal chip/ribbon chrome stays hidden.
+ */
+:root {
+  --page-scrollbar-size: 4px;
+  --page-scrollbar-thumb: color-mix(in srgb, var(--color-text-muted) 32%, transparent);
+  --page-scrollbar-thumb-hover: color-mix(in srgb, var(--color-text-secondary) 48%, transparent);
+}
+
+html,
+html[data-theme],
+body,
+.app-shell,
+#platform-main,
+[data-testid="platform-main"],
+[data-theme] .overflow-y-auto,
+[data-theme] .overflow-y-scroll,
+[data-theme] .overflow-auto,
+[data-theme] .app-shell :is(.overflow-y-auto, .overflow-y-scroll, .overflow-auto) {
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--page-scrollbar-thumb) transparent !important;
+  -ms-overflow-style: auto !important;
+}
+
+html::-webkit-scrollbar,
+html[data-theme]::-webkit-scrollbar,
+body::-webkit-scrollbar,
+[data-theme] body::-webkit-scrollbar,
+[data-theme]::-webkit-scrollbar {
+  display: block !important;
+  width: var(--page-scrollbar-size) !important;
+  height: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  background: transparent !important;
+  appearance: auto !important;
+  -webkit-appearance: auto !important;
+}
+
+[data-theme] .app-shell::-webkit-scrollbar,
+[data-theme] #platform-main::-webkit-scrollbar,
+[data-theme] [data-testid="platform-main"]::-webkit-scrollbar,
+[data-theme] .overflow-y-auto::-webkit-scrollbar,
+[data-theme] .overflow-y-scroll::-webkit-scrollbar,
+[data-theme] .overflow-auto::-webkit-scrollbar,
+[data-theme] .app-shell :is(.overflow-y-auto, .overflow-y-scroll, .overflow-auto)::-webkit-scrollbar,
+:is([data-theme="minimal"], [data-theme="minimal-dark"]) .app-shell :is(.overflow-y-auto, .overflow-y-scroll, .overflow-auto)::-webkit-scrollbar {
+  display: block !important;
+  width: var(--page-scrollbar-size) !important;
+  height: var(--page-scrollbar-size) !important;
+  max-width: none !important;
+  max-height: none !important;
+  background: transparent !important;
+  appearance: auto !important;
+  -webkit-appearance: auto !important;
+}
+
+html::-webkit-scrollbar-track,
+html[data-theme]::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+[data-theme] body::-webkit-scrollbar-track,
+[data-theme]::-webkit-scrollbar-track,
+[data-theme] .overflow-y-auto::-webkit-scrollbar-track,
+[data-theme] .overflow-y-scroll::-webkit-scrollbar-track,
+[data-theme] .overflow-auto::-webkit-scrollbar-track,
+[data-theme] .app-shell :is(.overflow-y-auto, .overflow-y-scroll, .overflow-auto)::-webkit-scrollbar-track {
+  display: block !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+html::-webkit-scrollbar-thumb,
+html[data-theme]::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+[data-theme] body::-webkit-scrollbar-thumb,
+[data-theme]::-webkit-scrollbar-thumb,
+[data-theme] .overflow-y-auto::-webkit-scrollbar-thumb,
+[data-theme] .overflow-y-scroll::-webkit-scrollbar-thumb,
+[data-theme] .overflow-auto::-webkit-scrollbar-thumb,
+[data-theme] .app-shell :is(.overflow-y-auto, .overflow-y-scroll, .overflow-auto)::-webkit-scrollbar-thumb {
+  display: block !important;
+  width: var(--page-scrollbar-size) !important;
+  background: var(--page-scrollbar-thumb) !important;
+  border: none !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+html[data-theme]::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+[data-theme] body::-webkit-scrollbar-thumb:hover,
+[data-theme]::-webkit-scrollbar-thumb:hover,
+[data-theme] .overflow-y-auto::-webkit-scrollbar-thumb:hover,
+[data-theme] .overflow-y-scroll::-webkit-scrollbar-thumb:hover,
+[data-theme] .overflow-auto::-webkit-scrollbar-thumb:hover,
+[data-theme] .app-shell :is(.overflow-y-auto, .overflow-y-scroll, .overflow-auto)::-webkit-scrollbar-thumb:hover {
+  background: var(--page-scrollbar-thumb-hover) !important;
+}
+
+html::-webkit-scrollbar-button,
+html[data-theme]::-webkit-scrollbar-button,
+body::-webkit-scrollbar-button,
+[data-theme]::-webkit-scrollbar-button,
+[data-theme] .overflow-y-auto::-webkit-scrollbar-button,
+[data-theme] .overflow-y-scroll::-webkit-scrollbar-button,
+[data-theme] .overflow-auto::-webkit-scrollbar-button,
+html::-webkit-scrollbar-corner,
+body::-webkit-scrollbar-corner,
+[data-theme]::-webkit-scrollbar-corner {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+.hide-scrollbar,
+.scrollbar-none,
+.ws-ribbon,
+.descriptive-sticky-tabs,
+[data-theme] .hide-scrollbar,
+[data-theme] .scrollbar-none,
+[data-theme] .ws-ribbon,
+[data-theme] .descriptive-sticky-tabs,
+[data-theme] .app-shell :is(.hide-scrollbar, .scrollbar-none, .ws-ribbon) {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.hide-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar,
+.ws-ribbon::-webkit-scrollbar,
+.descriptive-sticky-tabs::-webkit-scrollbar,
+[data-theme] .hide-scrollbar::-webkit-scrollbar,
+[data-theme] .scrollbar-none::-webkit-scrollbar,
+[data-theme] .ws-ribbon::-webkit-scrollbar,
+[data-theme] .descriptive-sticky-tabs::-webkit-scrollbar,
+[data-theme] .app-shell :is(.hide-scrollbar, .scrollbar-none, .ws-ribbon)::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/*
+ * OPT-K171 — Dashboard structure on every theme (warm-sand / light included).
+ * Markup already uses UtilityRow / proximity / HubSection; those layout
+ * rules were Minimal-gated. Restore the skeleton here without Primer washes.
+ */
+[data-testid="dashboard-page"] {
+  --content-measure: 28rem;
+  --content-measure-wide: 32rem;
+  --dashboard-progress-h: 0.375rem;
+}
+
+[data-testid="dashboard-page"][data-theme="warm-sand"] {
+  --dash-card-bg: color-mix(in srgb, var(--color-surface-card) 92%, var(--color-surface-secondary));
+  --dash-card-border: color-mix(in srgb, var(--color-border-subtle) 75%, transparent);
+}
+
+[data-testid="dashboard-page"] .utility-row {
+  padding: 0.32rem 0;
+}
+
+[data-testid="dashboard-page"] .utility-row-main,
+[data-testid="dashboard-page"] .proximity-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 0.3rem 0.75rem;
+}
+
+[data-testid="dashboard-page"] .proximity-row,
+[data-testid="dashboard-page"] .proximity-track,
+[data-testid="dashboard-page"] .utility-row {
+  max-width: var(--content-measure);
+  width: 100%;
+}
+
+[data-testid="dashboard-page"] .proximity-track-wide,
+[data-testid="dashboard-page"] .concept-mastery-bars {
+  max-width: var(--content-measure-wide);
+  width: 100%;
+}
+
+[data-testid="dashboard-page"] [data-testid="dashboard-readiness-section"] .proximity-track {
+  max-width: none;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+[data-testid="dashboard-page"] .utility-row-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  color: var(--color-text-primary);
+  font-size: var(--type-meta);
+  font-weight: 500;
+}
+
+[data-testid="dashboard-page"] .utility-row-value {
+  flex-shrink: 0;
+  font-size: var(--type-meta);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+[data-testid="dashboard-page"] .utility-row-hint {
+  margin-top: 0.1rem;
+  font-size: var(--type-caption);
+  color: var(--color-text-tertiary);
+  line-height: 1.3;
+}
+
+[data-testid="dashboard-page"] .usage-bar {
+  height: var(--dashboard-progress-h);
+  width: 100%;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--viz-bar-track, var(--color-border-subtle));
+}
+
+[data-testid="dashboard-page"] .usage-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--color-text-secondary) 48%, var(--color-border-subtle));
+}
+
+[data-testid="dashboard-page"] [data-testid="dashboard-masonry"] .hub-section {
+  border: none;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+[data-testid="dashboard-page"] .hub-section-title,
+[data-testid="dashboard-page"] .dashboard-panel-title,
+[data-testid="dashboard-page"] .ux-section-label-title {
+  margin: 0 0 0.5rem;
+  font-size: var(--type-meta) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  text-transform: none !important;
+  color: var(--color-text-primary) !important;
+}
+
+[data-testid="dashboard-page"] [data-testid="dashboard-masonry"] > .dashboard-pair-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+[data-testid="dashboard-page"] .coverage-topic-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+[data-testid="dashboard-page"] .dashboard-progress-track {
+  position: relative;
+  width: 100%;
+  height: var(--dashboard-progress-h);
+  border-radius: 9999px;
+  overflow: hidden;
+  background-color: var(--viz-bar-track, var(--color-border-subtle));
+}
+
+[data-testid="dashboard-page"] .dashboard-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+}
+
+[data-testid="dashboard-page"] .ux-callout {
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.75rem 1.15rem;
+}
+
+[data-testid="dashboard-page"] [data-testid="dashboard-next-action"],
+[data-testid="dashboard-page"] [data-testid="dashboard-exam-countdown"] {
+  background: color-mix(in srgb, var(--color-surface-secondary) 55%, transparent);
+  border-radius: var(--radius-panel, 0.75rem);
+  padding: 0.85rem 1rem;
+}
+
+[data-testid="dashboard-page"] .dashboard-exam-cta {
+  width: auto !important;
+  align-self: flex-start;
+}
+
+[data-testid="dashboard-page"] [data-testid="dashboard-upcoming-exam"] {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+/*
+ * OPT-K172 — Spatial architecture: CSS grid (not multi-column), clustered
+ * actions, compact empty wells, quieter cream cards.
+ */
+[data-testid="dashboard-page"] {
+  --dash-card-radius: 0.625rem;
+  --dash-card-pad-block: 0.75rem;
+  --dash-card-pad-inline: 0.9rem;
+}
+
+[data-testid="dashboard-page"] .ux-callout > .flex-1 {
+  flex: 0 1 auto !important;
+  max-width: 36rem;
+}
+
+[data-testid="dashboard-page"] .dashboard-study-band {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: var(--dash-card-radius);
+  background: color-mix(in srgb, var(--color-surface-secondary) 42%, transparent);
+}
+
+[data-testid="dashboard-page"] .dashboard-hub-chrome-tab {
+  font-size: var(--type-meta);
+  min-height: 2.5rem;
+}
+
+[data-testid="dashboard-page"] .dashboard-panel-empty {
+  padding-block: 0.25rem !important;
+  text-align: left !important;
+}
+
+[data-testid="dashboard-page"] [data-testid="syllabus-coverage-widget-compact"] {
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+@media (min-width: 1280px) {
+  :is(
+    [data-theme="minimal"],
+    [data-theme="minimal-dark"],
+    [data-theme="light"],
+    [data-theme="warm-sand"],
+    [data-theme="spectrum"],
+    [data-theme="dark"],
+    [data-theme="blueprint"]
+  )
+    .app-shell
+    .dashboard-calm
+    [data-testid="dashboard-masonry"].hub-section-stack.hub-section-stack--columns[data-dashboard-columns="2"],
+  :is(
+    [data-theme="minimal"],
+    [data-theme="minimal-dark"],
+    [data-theme="light"],
+    [data-theme="warm-sand"],
+    [data-theme="spectrum"],
+    [data-theme="dark"],
+    [data-theme="blueprint"]
+  )
+    .app-shell
+    .dashboard-calm
+    [data-testid="dashboard-masonry"].hub-section-stack.hub-section-stack--columns[data-dashboard-columns="3"] {
+    display: grid !important;
+    grid-template-columns: repeat(var(--dash-cols, 2), minmax(0, 1fr));
+    gap: 0.5rem 0.75rem !important;
+    column-gap: 0.75rem !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+
+  [data-testid="dashboard-page"] [data-testid="dashboard-masonry"][data-dashboard-columns="2"] {
+    --dash-cols: 2;
+  }
+
+  [data-testid="dashboard-page"] [data-testid="dashboard-masonry"][data-dashboard-columns="3"] {
+    --dash-cols: 3;
+  }
+
+  :is(
+    [data-theme="minimal"],
+    [data-theme="minimal-dark"],
+    [data-theme="light"],
+    [data-theme="warm-sand"],
+    [data-theme="spectrum"],
+    [data-theme="dark"],
+    [data-theme="blueprint"]
+  )
+    .app-shell
+    .dashboard-calm
+    [data-testid="dashboard-masonry"][data-dashboard-columns="2"]
+    > * + *,
+  :is(
+    [data-theme="minimal"],
+    [data-theme="minimal-dark"],
+    [data-theme="light"],
+    [data-theme="warm-sand"],
+    [data-theme="spectrum"],
+    [data-theme="dark"],
+    [data-theme="blueprint"]
+  )
+    .app-shell
+    .dashboard-calm
+    [data-testid="dashboard-masonry"][data-dashboard-columns="3"]
+    > * + * {
+    margin-top: 0 !important;
+  }
+
+  :is(
+    [data-theme="minimal"],
+    [data-theme="minimal-dark"],
+    [data-theme="light"],
+    [data-theme="warm-sand"],
+    [data-theme="spectrum"],
+    [data-theme="dark"],
+    [data-theme="blueprint"]
+  )
+    .app-shell
+    .dashboard-calm
+    [data-testid="dashboard-masonry"][data-dashboard-columns="2"]
+    > .dashboard-pair-row,
+  :is(
+    [data-theme="minimal"],
+    [data-theme="minimal-dark"],
+    [data-theme="light"],
+    [data-theme="warm-sand"],
+    [data-theme="spectrum"],
+    [data-theme="dark"],
+    [data-theme="blueprint"]
+  )
+    .app-shell
+    .dashboard-calm
+    [data-testid="dashboard-masonry"][data-dashboard-columns="3"]
+    > .dashboard-pair-row {
+    grid-column: 1 / -1;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 0.75rem;
+  }
+}
+
+/*
+ * OPT-K173 — Dashboard density: keep grouping, cut leftover air.
+ * Beats K167 1rem sibling margins and 2.5rem column gutters.
+ */
+[data-testid="dashboard-page"] .dashboard-page-column {
+  padding-top: 0;
+}
+
+[data-testid="dashboard-page"] [data-testid="dashboard-hero-panel"] {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+[data-testid="dashboard-page"] [data-testid="dashboard-action-hub"] {
+  padding-top: 0;
+}
+
+[data-testid="dashboard-page"] .dashboard-breath-stack {
+  margin-top: 0.5rem !important;
+  gap: 0.5rem;
+}
+
+[data-testid="dashboard-page"] .hub-section-stack > * + *,
+[data-testid="dashboard-page"] [data-testid="dashboard-masonry"] > * + * {
+  margin-top: 0.5rem !important;
+}
+
+[data-testid="dashboard-page"] .hub-section-title,
+[data-testid="dashboard-page"] .dashboard-panel-title,
+[data-testid="dashboard-page"] .ux-section-label-title {
+  margin-bottom: 0.35rem !important;
+}
+
+[data-testid="dashboard-page"] [data-testid="dashboard-next-action"],
+[data-testid="dashboard-page"] [data-testid="dashboard-exam-countdown"] {
+  padding: 0.55rem 0.75rem;
+}
+
+[data-testid="dashboard-page"] .dashboard-hub-chrome-tab {
+  min-height: 2.25rem;
+  padding-block: 0.3rem;
+}
+@media (pointer: coarse) {
+  [data-testid="dashboard-page"] .dashboard-hub-chrome-tab {
+    min-height: 2.75rem;
+  }
+}
+
+[data-testid="dashboard-page"] .dashboard-hub-chrome-panel {
+  margin-top: 0.35rem;
+  padding-top: 0.25rem;
+}
+
+[data-testid="dashboard-page"] {
+  --dash-card-pad-block: 0.6rem;
+  --dash-card-pad-inline: 0.75rem;
+}
+
+@media (min-width: 1280px) {
+  [data-testid="dashboard-page"] [data-testid="dashboard-masonry"][data-dashboard-columns="2"],
+  [data-testid="dashboard-page"] [data-testid="dashboard-masonry"][data-dashboard-columns="3"] {
+    column-gap: 0.75rem !important;
+    row-gap: 0.5rem !important;
+    gap: 0.5rem 0.75rem !important;
+  }
+
+  [data-testid="dashboard-page"] [data-testid="dashboard-masonry"][data-dashboard-columns="2"] > * + *,
+  [data-testid="dashboard-page"] [data-testid="dashboard-masonry"][data-dashboard-columns="3"] > * + * {
+    margin-top: 0 !important;
+  }
+}
+
+/*
+ * OPT-K176 — Dense independent column flow, restoring the compact composition.
+ * Each column packs by content height; unlike row-based grid, a tall widget
+ * cannot create a blank well underneath the shorter widget beside it.
+ */
+@media (min-width: 1280px) {
+  :is(
+    [data-theme="minimal"],
+    [data-theme="minimal-dark"],
+    [data-theme="light"],
+    [data-theme="warm-sand"],
+    [data-theme="spectrum"],
+    [data-theme="dark"],
+    [data-theme="blueprint"]
+  )
+    .app-shell
+    .dashboard-calm
+    [data-testid="dashboard-masonry"].hub-section-stack.hub-section-stack--columns[data-dashboard-columns="2"] {
+    display: block !important;
+    column-count: 2 !important;
+    column-gap: 0.75rem !important;
+  }
+
+  :is(
+    [data-theme="minimal"],
+    [data-theme="minimal-dark"],
+    [data-theme="light"],
+    [data-theme="warm-sand"],
+    [data-theme="spectrum"],
+    [data-theme="dark"],
+    [data-theme="blueprint"]
+  )
+    .app-shell
+    .dashboard-calm
+    [data-testid="dashboard-masonry"].hub-section-stack.hub-section-stack--columns[data-dashboard-columns="3"] {
+    display: block !important;
+    column-count: 3 !important;
+    column-gap: 0.75rem !important;
+  }
+
+  :is(
+    [data-theme="minimal"],
+    [data-theme="minimal-dark"],
+    [data-theme="light"],
+    [data-theme="warm-sand"],
+    [data-theme="spectrum"],
+    [data-theme="dark"],
+    [data-theme="blueprint"]
+  )
+    .app-shell
+    .dashboard-calm
+    [data-testid="dashboard-masonry"].hub-section-stack.hub-section-stack--columns
+    > * {
+    display: inline-block !important;
+    width: 100%;
+    height: auto !important;
+    margin: 0 0 0.5rem !important;
+    break-inside: avoid;
+    vertical-align: top;
+  }
+
+  :is(
+    [data-theme="minimal"],
+    [data-theme="minimal-dark"],
+    [data-theme="light"],
+    [data-theme="warm-sand"],
+    [data-theme="spectrum"],
+    [data-theme="dark"],
+    [data-theme="blueprint"]
+  )
+    .app-shell
+    .dashboard-calm
+    [data-testid="dashboard-masonry"].hub-section-stack.hub-section-stack--columns
+    > .dashboard-pair-row {
+    display: grid !important;
+    grid-column: auto !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    align-items: start !important;
+    gap: 0.5rem !important;
+  }
+}
+
+/*
+ * Stacked (1-col): every masonry child and pair panel spans the single column.
+ * Dual/triple keep side-by-side pairs; stacked must not inherit that 1fr 1fr.
+ */
+[data-testid="dashboard-page"][data-dashboard-layout="stacked"] [data-testid="dashboard-masonry"] > .dashboard-pair-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  width: 100%;
+  max-width: none;
+}
+
+[data-testid="dashboard-page"][data-dashboard-layout="stacked"] [data-testid="dashboard-masonry"] > *,
+[data-testid="dashboard-page"][data-dashboard-layout="stacked"] [data-testid="dashboard-masonry"] > .dashboard-pair-row > * {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+[data-testid="dashboard-page"][data-dashboard-layout="stacked"] .dashboard-course-grid,
+[data-testid="dashboard-page"][data-dashboard-layout="stacked"] .dashboard-course-grid > * {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/*
+ * OPT-K177 — Place the next action between greeting and density controls;
+ * paired panels remain full-column.
+ */
+[data-testid="dashboard-page"] [data-testid="dashboard-pair-weak-almost"] > *,
+[data-testid="dashboard-page"] [data-testid="dashboard-almost-there"] {
+  width: 100% !important;
+  max-width: none !important;
+  justify-self: stretch;
+}
+
+[data-testid="dashboard-page"] .dashboard-hero-heading-row {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+[data-testid="dashboard-page"] .dashboard-hero-heading-aside {
+  width: 100%;
+  min-width: 0;
+}
+
+[data-testid="dashboard-page"] .dashboard-hero-heading-aside .ux-callout {
+  width: 100%;
+  padding: 0.4rem 0.65rem !important;
+  align-items: center;
+  background: color-mix(in srgb, var(--color-surface-secondary) 55%, transparent);
+}
+
+[data-testid="dashboard-page"] .dashboard-hero-heading-aside .ux-callout > .flex-1 {
+  flex: 1 1 auto !important;
+  max-width: none;
+}
+
+[data-testid="dashboard-page"] .dashboard-hero-heading-aside .ux-callout-title {
+  margin-bottom: 0.1rem;
+}
+
+[data-testid="dashboard-page"] .dashboard-hero-heading-aside .type-body {
+  line-height: 1.25;
+}
+
+@media (min-width: 900px) {
+  [data-testid="dashboard-page"] .dashboard-hero-heading-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(24rem, 32rem) auto;
+    align-items: start;
+    gap: 0.75rem;
+  }
+
+  [data-testid="dashboard-page"] .dashboard-hero-heading-aside {
+    grid-column: 2;
+  }
+
+  [data-testid="dashboard-page"] .dashboard-hero-heading-actions {
+    grid-column: 3;
+    justify-self: end;
+  }
+}
+
+/* Library — viewport tap floors + topic/file density (micro, no redesign) */
+@media (pointer: coarse) {
+  [data-testid="library-page"] .info-stack-item--interactive,
+  [data-testid="library-page"] .info-stack-pill--interactive,
+  [data-testid="library-page"] .overflow-chip {
+    min-height: 2.75rem;
+    padding-block: 0.55rem;
+  }
+  [data-testid="library-page"] .library-file-actions > button,
+  [data-testid="library-page"] [data-testid="library-find-chrome"] button,
+  [data-testid="library-page"] .library-search-clear {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+}
+@media (max-width: 639px) {
+  [data-testid="library-page"] .library-info-stacks {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  [data-testid="library-page"] .info-stack-items {
+    grid-template-columns: 1fr !important;
+  }
+  [data-testid="library-page"] .library-file-row > .flex.items-center {
+    align-items: flex-start;
+  }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  [data-testid="library-page"] .library-info-stacks {
+    grid-template-columns: 1fr;
+  }
+  [data-testid="library-page"] .info-stack-items {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Phase 2 — Library token lock: one radius per role + slightly stronger muted ink */
+[data-testid="library-page"] {
+  --color-text-tertiary: color-mix(in srgb, var(--color-text-secondary) 88%, var(--color-text-primary));
+  --color-text-muted: color-mix(in srgb, var(--color-text-secondary) 72%, var(--color-text-primary));
+}
+[data-testid="library-page"] .overflow-chip,
+[data-testid="library-page"] .overflow-chip-more,
+[data-testid="library-page"] .platform-pill,
+[data-testid="library-page"] .info-stack-item,
+[data-testid="library-page"] .info-stack-pill,
+[data-testid="library-page"] .platform-meta-chip {
+  border-radius: var(--radius-md);
+}
+[data-testid="library-page"] .library-file-row,
+[data-testid="library-page"] [data-testid="library-course-card"] {
+  border-radius: var(--radius-lg);
+}
+[data-testid="library-page"] .library-upload-cta,
+[data-testid="library-page"] .ux-solid-brand-cta {
+  border-radius: var(--radius-xl);
+}
+
+/* Exam Readiness signals → full-width bars like Active Courses (beats --content-measure caps on .utility-row). Last in cascade + !important, no competing !important rules. */
+[data-testid="dashboard-readiness-section"] .dashboard-readiness-row .proximity-track {
+  flex: 1 1 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+[data-testid="dashboard-readiness-section"] .dashboard-readiness-row .utility-row,
+[data-testid="dashboard-readiness-section"] .dashboard-readiness-row .usage-bar {
+  max-width: none !important;
+  width: 100% !important;
+}
+/* Breathing room between the ring and the signal bars on sm+ */
+@media (min-width: 640px) {
+  [data-testid="dashboard-readiness-section"] .dashboard-readiness-row {
+    column-gap: 2rem !important;
+  }
+}
+
+/* Phase 3 — Dashboard / Tasks token lock (same micro-rules as Library) */
+[data-testid="dashboard-page"],
+[data-testid="dashboard-empty"],
+[data-testid="tasks-page"],
+[data-testid="exam-prep-page"] {
+  --color-text-tertiary: color-mix(in srgb, var(--color-text-secondary) 88%, var(--color-text-primary));
+  --color-text-muted: color-mix(in srgb, var(--color-text-secondary) 72%, var(--color-text-primary));
+}
+[data-testid="dashboard-page"] .platform-pill,
+[data-testid="dashboard-page"] .overflow-chip,
+[data-testid="tasks-page"] .platform-pill,
+[data-testid="tasks-page"] .ux-chip-soft-danger {
+  border-radius: var(--radius-md);
+}
+[data-testid="dashboard-page"] .hub-section,
+[data-testid="dashboard-page"] .ux-card {
+  border-radius: var(--radius-lg);
+}
+/* Tasks radius map — lockstep with Dashboard OPT-K172 (cards 10px, nested wells md).
+ * !important matches Dashboard OPT-K167 so later diet/tab resets cannot square the washes. */
+[data-testid="tasks-page"] {
+  --tasks-card-radius: 0.625rem;
+  --tasks-well-radius: var(--radius-md);
+  --radius-control: 0.625rem;
+}
+[data-testid="tasks-page"] :is(
+  .ux-card,
+  .tasks-insight-card,
+  .tasks-mistake-banner,
+  .ux-session-card,
+  .tasks-kanban-column,
+  .tasks-kanban-card,
+  .tasks-empty-state,
+  .ux-callout,
+  .descriptive-sticky-tab,
+  .tasks-layout-toggle,
+  .dashboard-today-stat,
+  [data-testid="tasks-session-status"],
+  [data-testid="tasks-sr-banner"],
+  [data-testid="tasks-danger-zone"]
+) {
+  border-radius: var(--tasks-card-radius) !important;
+}
+[data-testid="tasks-page"] :is(
+  .ux-callout,
+  .tasks-insight-card,
+  .tasks-mistake-banner,
+  [data-testid="tasks-sr-banner"],
+  [data-testid="tasks-danger-zone"]
+) {
+  padding-inline: 0.85rem !important;
+}
+[data-testid="tasks-page"] .tasks-mistake-well,
+[data-testid="tasks-page"] .ux-session-card-icon,
+[data-testid="tasks-page"] .tasks-row-icon {
+  border-radius: var(--tasks-well-radius) !important;
+}
+[data-testid="dashboard-page"] .dashboard-continue-hero,
+[data-testid="tasks-page"] .tasks-row-start-cta,
+[data-testid="tasks-page"] .tasks-create-plan-cta {
+  border-radius: var(--radius-xl);
+}
+@media (pointer: coarse) {
+  [data-testid="dashboard-page"] .dashboard-continue-hero,
+  [data-testid="dashboard-page"] [data-testid="dashboard-layout-toggle"] button,
+  [data-testid="tasks-page"] .tasks-row-start-cta,
+  [data-testid="tasks-page"] .tasks-row-secondary,
+  [data-testid="tasks-page"] .tasks-fsrs-rating,
+  [data-testid="tasks-page"] .platform-pill,
+  [data-testid="tasks-page"] [data-testid="tasks-layout-toggle"] button {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+}
+@media (max-width: 639px) {
+  [data-testid="tasks-page"] .tasks-row-start-cta {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}
+
+/* Phase 4 — Settings / Study: muted lift + chip tap + sheet-friendly radius */
+[data-testid="settings-page"],
+[data-testid="study-room-page"] {
+  --color-text-tertiary: color-mix(in srgb, var(--color-text-secondary) 88%, var(--color-text-primary));
+  --color-text-muted: color-mix(in srgb, var(--color-text-secondary) 72%, var(--color-text-primary));
+}
+[data-testid="settings-page"] .settings-pref-chip,
+[data-testid="settings-page"] .settings-ide-nav-item {
+  min-height: 2.25rem;
+  border-radius: var(--radius-md);
+}
+@media (pointer: coarse) {
+  [data-testid="settings-page"] .settings-pref-chip,
+  [data-testid="settings-page"] .settings-ide-nav-item,
+  [data-testid="theme-selector-options"] button {
+    min-height: 2.75rem;
+  }
+}
+
+/* Phase 5 — Analytics / Course / Exam prep / Teacher: same muted lift + role radius + coarse tap */
+[data-testid="analytics-page"],
+[data-testid="course-page"],
+[data-testid="exam-prep-page"],
+[data-testid="teacher-dashboard"],
+[data-testid="note-analysis-page"],
+[data-testid="lesson-page"] {
+  --color-text-tertiary: color-mix(in srgb, var(--color-text-secondary) 88%, var(--color-text-primary));
+  --color-text-muted: color-mix(in srgb, var(--color-text-secondary) 72%, var(--color-text-primary));
+}
+[data-testid="analytics-page"] [data-testid="analytics-date-range-filter"] button,
+[data-testid="course-page"] .course-topic-chip {
+  border-radius: var(--radius-md);
+}
+[data-testid="analytics-page"] .ux-card,
+[data-testid="analytics-page"] .platform-panel-lg,
+[data-testid="course-page"] .ux-stat-card,
+[data-testid="course-page"] .course-topic-card {
+  border-radius: var(--radius-lg);
+}
+[data-testid="analytics-page"] [data-testid="analytics-flow-banner"],
+[data-testid="analytics-page"] .analytics-visual-lab-footer,
+[data-testid="course-page"] .course-topic-start,
+[data-testid="course-page"] [data-testid="course-continue-callout-action"],
+[data-testid="course-page"] [data-testid="course-open-workspace"] {
+  border-radius: var(--radius-xl);
+}
+@media (pointer: coarse) {
+  [data-testid="analytics-page"] [data-testid="analytics-date-range-filter"] button,
+  [data-testid="analytics-page"] [data-testid="analytics-flow-banner"],
+  [data-testid="analytics-page"] .analytics-visual-lab-footer button,
+  [data-testid="course-page"] [data-testid="course-back"],
+  [data-testid="course-page"] .course-topic-details,
+  [data-testid="course-page"] .course-topic-start,
+  [data-testid="course-page"] .course-topic-chip,
+  [data-testid="exam-prep-page"] [data-testid="exam-prep-start"],
+  [data-testid="exam-prep-page"] [data-testid="exam-prep-open-tasks"] {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+}
+
+/* Concept Mastery / Weak Areas / Almost There / Upcoming Exam — full-width tracks
+   (same --content-measure unlock as Exam Readiness). Last in cascade. */
+[data-testid="dashboard-page"] .concept-mastery-bars,
+[data-testid="dashboard-page"] .concept-mastery-bars .proximity-track,
+[data-testid="dashboard-page"] .concept-mastery-bars .proximity-row,
+[data-testid="dashboard-page"] [data-testid="dashboard-concept-mastery"] .proximity-track,
+[data-testid="dashboard-page"] [data-testid="dashboard-concept-mastery"] .proximity-row,
+[data-testid="dashboard-page"] [data-testid="dashboard-weak-areas"] .proximity-track,
+[data-testid="dashboard-page"] [data-testid="dashboard-weak-areas"] .proximity-row,
+[data-testid="dashboard-page"] [data-testid="dashboard-pair-weak-almost"] .proximity-track,
+[data-testid="dashboard-page"] [data-testid="dashboard-pair-weak-almost"] .proximity-row,
+[data-testid="dashboard-page"] [data-testid="dashboard-pair-weak-almost"] .utility-row,
+[data-testid="dashboard-page"] [data-testid="dashboard-almost-there"] .proximity-track,
+[data-testid="dashboard-page"] [data-testid="dashboard-almost-there"] .proximity-row,
+[data-testid="dashboard-page"] [data-testid="dashboard-almost-there"] .utility-row,
+[data-testid="dashboard-page"] [data-testid="dashboard-upcoming-exam"] .proximity-track,
+[data-testid="dashboard-page"] [data-testid="dashboard-upcoming-exam"] .proximity-row,
+[data-testid="dashboard-page"] [data-testid="dashboard-upcoming-exam-panel"] .proximity-track,
+[data-testid="dashboard-page"] [data-testid="dashboard-upcoming-exam-panel"] .proximity-row {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+/* Upload modal — same muted lift as Library / Dashboard (not page-scoped) */
+[data-testid="upload-modal"] {
+  --color-text-tertiary: color-mix(in srgb, var(--color-text-secondary) 88%, var(--color-text-primary));
+  --color-text-muted: color-mix(in srgb, var(--color-text-secondary) 72%, var(--color-text-primary));
+}
+
+/* Tasks — Dashboard progress-track tokens (weak-area bars) */
+[data-testid="tasks-page"] {
+  --dashboard-progress-h: 0.375rem;
+}
+[data-testid="tasks-page"] .dashboard-progress-track {
+  position: relative;
+  width: 100%;
+  height: var(--dashboard-progress-h);
+  border-radius: 9999px;
+  overflow: hidden;
+  background-color: var(--viz-bar-track, var(--color-border-subtle));
+}
+[data-testid="tasks-page"] .dashboard-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+}
+
+/* Inline resolve link keeps desktop density; touch gets the shared tap floor. */
+@media (pointer: coarse) {
+  [data-testid="dashboard-page"] .dashboard-misconception-resolve {
+    min-height: 2.75rem;
+  }
+}
+
+/* Phase 6 — Agent / My institution token lock: the last two shell pages that were
+   missing the Library muted-ink lift, the role radius scale and the coarse tap floor. */
+[data-testid="agent-page"],
+[data-testid="student-org-page"] {
+  --color-text-tertiary: color-mix(in srgb, var(--color-text-secondary) 88%, var(--color-text-primary));
+  --color-text-muted: color-mix(in srgb, var(--color-text-secondary) 72%, var(--color-text-primary));
+}
+[data-testid="agent-page"] .agent-mode-group,
+[data-testid="agent-page"] .platform-pill,
+[data-testid="student-org-page"] .platform-pill,
+[data-testid="student-org-page"] .student-org-filter {
+  border-radius: var(--radius-md);
+}
+[data-testid="agent-page"] .ux-card,
+[data-testid="student-org-page"] .ux-card,
+[data-testid="student-org-page"] [data-testid="student-class-card"],
+[data-testid="student-org-page"] .platform-empty-state {
+  border-radius: var(--radius-lg);
+}
+[data-testid="agent-page"] .agent-complete-task,
+[data-testid="student-org-page"] [data-testid="student-org-refresh"] {
+  border-radius: var(--radius-xl);
+}
+@media (pointer: coarse) {
+  [data-testid="agent-page"] .agent-mode-group-toggle,
+  [data-testid="agent-page"] .agent-complete-task,
+  [data-testid="student-org-page"] [data-testid="student-org-refresh"],
+  [data-testid="student-org-page"] .student-org-filter,
+  [data-testid="student-org-page"] .student-org-open-course,
+  [data-testid="student-org-page"] .student-org-discussion-toggle,
+  [data-testid="study-room-page"] .study-room-copy-invite,
+  [data-testid="study-room-page"] [data-testid="study-room-hub-open-workspace"],
+  [data-testid="study-room-page"] [data-testid="study-room-hub-create"],
+  [data-testid="study-room-page"] [data-testid="study-room-hub-join"] {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+}
+
+/* My institution joins the CTA-only border diet the other pages already run: class cards
+   become wash surfaces like Library course cards. Tables keep their hairlines — they need
+   the structure, and Library has no table equivalent to copy. */
+[data-testid="student-org-page"][data-border-diet="cta-only"] :is(
+  [data-testid="student-class-card"],
+  .platform-empty-state,
+  .platform-pill
+) {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* My institution reuses the Dashboard weak-area bar tokens (same as Tasks). */
+[data-testid="student-org-page"] {
+  --dashboard-progress-h: 0.375rem;
+}
+[data-testid="student-org-page"] .dashboard-progress-track {
+  position: relative;
+  width: 100%;
+  height: var(--dashboard-progress-h);
+  border-radius: 9999px;
+  overflow: hidden;
+  background-color: var(--viz-bar-track, var(--color-border-subtle));
+}
+[data-testid="student-org-page"] .dashboard-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
 }

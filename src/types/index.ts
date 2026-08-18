@@ -38,6 +38,11 @@ export interface UserSettings {
    * Defaults: comfortable; Greek prefers comfortable when unset.
    */
   chromeDensity?: 'comfortable' | 'compact';
+  /**
+   * X3 (Canon cross-pollination) — independent contrast boost, orthogonal to theme choice.
+   * Raises secondary/tertiary ink and borders to the active theme's own strongest tokens.
+   */
+  a11yContrastBoost?: boolean;
   dailyGoalMinutes: number;
   examDate?: string;
   /** Goals selected during onboarding — drives defaults for pacing and task mix. */
@@ -129,7 +134,15 @@ export interface UploadedFile {
   /** Cover page preview metadata; blob in IndexedDB (`thumbnailRef.storageKey`). */
   thumbnailRef?: SourceThumbnailRef;
   thumbnailStatus?: 'pending' | 'ready' | 'failed' | 'unsupported';
+  /** Optional Library folder grouping (device-local organize). */
+  folderId?: string;
 }
+
+export type LibraryFolder = {
+  id: string;
+  name: string;
+  createdAt: string;
+};
 
 export type SourceThumbnailRef = {
   storageKey: string;
@@ -209,6 +222,8 @@ export interface Course {
     version: string;
     generatedAt: string;
     outlineSource: 'llm' | 'embedding' | 'lexical' | 'fallback' | 'extend';
+    /** First-party add-ons that ran `course:afterGenerate`. */
+    pluginsApplied?: string[];
   };
   /** Aggregated DocumentModel recognition metrics (S8). */
   recognitionSummary?: import('../lib/documentModelSnapshot').RecognitionSummary;
@@ -586,4 +601,4 @@ export interface ConceptNode {
   connections: { to: string; relation: string }[];
 }
 
-export type AppView = 'landing' | 'onboarding' | 'dashboard' | 'library' | 'tasks' | 'agent' | 'course' | 'lesson' | 'settings' | 'analytics' | 'teacher' | 'student-org' | 'note-analysis' | 'study-room';
+export type AppView = 'landing' | 'onboarding' | 'dashboard' | 'library' | 'tasks' | 'agent' | 'course' | 'settings' | 'analytics' | 'teacher' | 'student-org' | 'note-analysis' | 'study-room' | 'exam-prep';

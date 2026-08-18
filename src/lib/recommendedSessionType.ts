@@ -1,3 +1,4 @@
+import type { UserSettings } from '../types';
 import type { SessionType } from './taskFlows';
 import { loadDailyCheckIn } from './dailyLearningCheckIn';
 
@@ -10,6 +11,7 @@ export type RecommendedSessionInput = {
   checkInEnergy?: 'low' | 'ok' | 'high';
   checkInMinutes?: number;
   checkInIntent?: 'learn' | 'review' | 'practice' | 'exam' | 'light';
+  pacing?: UserSettings['pacing'];
 };
 
 /** Pedagogy-light session recommendation for Tasks launcher "ΠΡΟΤΕΙΝΕΤΑΙ" badge. */
@@ -27,6 +29,8 @@ export function getRecommendedSessionType(input: RecommendedSessionInput): Sessi
   const days = input.daysToExam ?? null;
   if (days != null && days <= 7) return 'cram';
   if (input.reviewDueCount >= 3) return 'review';
+  if (input.pacing === 'fast' && input.weakCount < 2) return '10min';
+  if (input.pacing === 'slow') return '50min';
   if (input.weakCount >= 2) return '25min';
   if (input.openTaskCount > 0 && input.openTaskCount <= 2) return '10min';
   return '25min';
@@ -43,6 +47,7 @@ export type RecommendedSessionLearnerSlice = {
   daysToExam?: number | null;
   spacingIntervalCount?: number;
   weakAreaCount?: number;
+  pacing?: UserSettings['pacing'];
 };
 
 /**
@@ -68,5 +73,6 @@ export function recommendSessionFromAppState(
     checkInEnergy: checkIn.answers.energy,
     checkInMinutes: checkIn.answers.availableMinutes,
     checkInIntent: checkIn.answers.sessionIntent,
+    pacing: learner.pacing,
   });
 }

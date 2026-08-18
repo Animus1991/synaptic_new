@@ -112,7 +112,7 @@ export function ThemeSelectorModal({
       align="bottom-mobile"
       data-testid="theme-selector-modal"
       bodyClassName="p-4"
-      panelClassName="max-w-md rounded-[var(--radius-panel)]"
+      panelClassName="!max-w-none sm:!max-w-md rounded-t-[1.25rem] rounded-b-none sm:rounded-[var(--radius-panel)] pb-[env(safe-area-inset-bottom)]"
     >
       <div className="flex items-start justify-between gap-2 mb-3">
         <ModalHeaderStack
@@ -147,7 +147,7 @@ export function ThemeSelectorModal({
               aria-pressed={active}
               data-testid={`theme-selector-option-${opt.value}`}
               className={cn(
-                'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 type-caption font-medium transition-colors',
+                'inline-flex min-h-9 items-center gap-1.5 rounded-md border px-2.5 py-1.5 type-caption font-medium transition-colors',
                 active
                   ? 'ux-theme-chip-active'
                   : 'border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-brand-500/25',

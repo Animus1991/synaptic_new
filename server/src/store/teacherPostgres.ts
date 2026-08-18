@@ -4,6 +4,8 @@ import type { ClassAssignment } from './assignmentStore';
 import type { AssignmentDiscussionPost, DiscussionAuthorRole } from './discussionStore';
 import type { TeacherClass, ClassEnrollment } from './classStore';
 import type { GradebookCell, GradebookCellStatus, GradebookSnapshot } from './gradebookStore';
+import type { AssignmentSubmission, UpsertSubmissionPayload } from './submissionStore';
+import { parseStoredAttachments } from '../lib/submissionAttachments';
 
 const { Pool } = pg;
 
@@ -46,6 +48,18 @@ export interface TeacherRepository {
   ): Promise<GradebookCell>;
   removeGradebookCellsForEnrollment(classId: string, enrollmentId: string): Promise<void>;
   removeGradebookCellsForAssignment(classId: string, assignmentId: string): Promise<void>;
+  getStudentSubmission(
+    classId: string,
+    assignmentId: string,
+    enrollmentId: string,
+  ): Promise<AssignmentSubmission | null>;
+  listEnrollmentSubmissions(classId: string, enrollmentId: string): Promise<AssignmentSubmission[]>;
+  listAssignmentSubmissions(classId: string, assignmentId: string): Promise<AssignmentSubmission[]>;
+  upsertStudentSubmission(
+    classId: string,
+    assignmentId: string,
+    payload: UpsertSubmissionPayload,
+  ): Promise<AssignmentSubmission>;
   listClassAnnouncements(classId: string): Promise<ClassAnnouncement[]>;
   createClassAnnouncement(
     classId: string,
@@ -181,6 +195,35 @@ function rowToGradebookCell(row: {
     updatedAt: row.updated_at.toISOString(),
   };
 }
+
+function rowToSubmission(row: {
+  id: string;
+  class_id: string;
+  assignment_id: string;
+  enrollment_id: string;
+  account_id: string;
+  body: string;
+  link_url: string | null;
+  attachments?: unknown;
+  submitted_at: Date;
+  updated_at: Date;
+}): AssignmentSubmission {
+  return {
+    id: row.id,
+    classId: row.class_id,
+    assignmentId: row.assignment_id,
+    enrollmentId: row.enrollment_id,
+    accountId: row.account_id,
+    body: row.body,
+    linkUrl: row.link_url ?? undefined,
+    attachments: parseStoredAttachments(row.attachments),
+    submittedAt: row.submitted_at.toISOString(),
+    updatedAt: row.updated_at.toISOString(),
+  };
+}
+
+const SUBMISSION_COLUMNS =
+  'id, class_id, assignment_id, enrollment_id, account_id, body, link_url, attachments, submitted_at, updated_at';
 
 export function createPostgresTeacherRepo(databaseUrl: string): TeacherRepository {
   const pool = new Pool({ connectionString: databaseUrl });
@@ -525,6 +568,116 @@ export function createPostgresTeacherRepo(databaseUrl: string): TeacherRepositor
         'DELETE FROM gradebook_cells WHERE class_id = $1 AND assignment_id = $2',
         [classId, assignmentId],
       );
+    },
+
+    async getStudentSubmission(
+      classId: string,
+      assignmentId: string,
+      enrollmentId: string,
+    ): Promise<AssignmentSubmission | null> {
+      const res = await pool.query<{
+        id: string;
+        class_id: string;
+        assignment_id: string;
+        enrollment_id: string;
+        account_id: string;
+        body: string;
+        link_url: string | null;
+        submitted_at: Date;
+        updated_at: Date;
+      }>(
+        `SELECT ${SUBMISSION_COLUMNS}
+         FROM assignment_submissions
+         WHERE class_id = $1 AND assignment_id = $2 AND enrollment_id = $3`,
+        [classId, assignmentId, enrollmentId],
+      );
+      if (res.rowCount === 0) return null;
+      return rowToSubmission(res.rows[0]!);
+    },
+
+    async listEnrollmentSubmissions(
+      classId: string,
+      enrollmentId: string,
+    ): Promise<AssignmentSubmission[]> {
+      const res = await pool.query<{
+        id: string;
+        class_id: string;
+        assignment_id: string;
+        enrollment_id: string;
+        account_id: string;
+        body: string;
+        link_url: string | null;
+        submitted_at: Date;
+        updated_at: Date;
+      }>(
+        `SELECT ${SUBMISSION_COLUMNS}
+         FROM assignment_submissions
+         WHERE class_id = $1 AND enrollment_id = $2
+         ORDER BY updated_at DESC`,
+        [classId, enrollmentId],
+      );
+      return res.rows.map(rowToSubmission);
+    },
+
+    async listAssignmentSubmissions(
+      classId: string,
+      assignmentId: string,
+    ): Promise<AssignmentSubmission[]> {
+      const res = await pool.query<{
+        id: string;
+        class_id: string;
+        assignment_id: string;
+        enrollment_id: string;
+        account_id: string;
+        body: string;
+        link_url: string | null;
+        submitted_at: Date;
+        updated_at: Date;
+      }>(
+        `SELECT ${SUBMISSION_COLUMNS}
+         FROM assignment_submissions
+         WHERE class_id = $1 AND assignment_id = $2
+         ORDER BY updated_at DESC`,
+        [classId, assignmentId],
+      );
+      return res.rows.map(rowToSubmission);
+    },
+
+    async upsertStudentSubmission(
+      classId: string,
+      assignmentId: string,
+      payload: UpsertSubmissionPayload,
+    ): Promise<AssignmentSubmission> {
+      const now = new Date().toISOString();
+      const id = `sub_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      const body = payload.body.trim();
+      const linkUrl = payload.linkUrl?.trim() || null;
+      const attachments = payload.attachments ?? [];
+      const res = await pool.query<{
+        id: string;
+        class_id: string;
+        assignment_id: string;
+        enrollment_id: string;
+        account_id: string;
+        body: string;
+        link_url: string | null;
+        attachments: unknown;
+        submitted_at: Date;
+        updated_at: Date;
+      }>(
+        `INSERT INTO assignment_submissions
+           (id, class_id, assignment_id, enrollment_id, account_id, body, link_url, attachments, submitted_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, $9::timestamptz, $10::timestamptz)
+         ON CONFLICT (class_id, assignment_id, enrollment_id)
+         DO UPDATE SET
+           body = EXCLUDED.body,
+           link_url = EXCLUDED.link_url,
+           attachments = EXCLUDED.attachments,
+           updated_at = EXCLUDED.updated_at
+         RETURNING ${SUBMISSION_COLUMNS}`,
+        [id, classId, assignmentId, payload.enrollmentId, payload.accountId, body, linkUrl, JSON.stringify(attachments), now, now],
+      );
+      return rowToSubmission(res.rows[0]!);
     },
 
     async listClassAnnouncements(classId: string): Promise<ClassAnnouncement[]> {

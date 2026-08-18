@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback, useRef, Suspense, type ReactNode } from 'react';
 import { AnimatePresence, MotionConfig } from 'framer-motion';
-import { useAppStore } from './store/useStore';
+import { AppStoreProvider, useAppStore } from './store/useStore';
 import { applyTheme, watchSystemTheme, resolveChromeDensity } from './lib/theme';
 import { I18nContext, t as translate, type I18nKey } from './lib/i18n';
 import { getTaskConcept, getWorkspaceTool, getMistakesForTask, getExamDurationSeconds, findPendingTask } from './lib/taskFlows';
@@ -18,7 +18,7 @@ import { WorkspaceKeyboardHelp } from './components/workspace/WorkspaceKeyboardH
 import { isTypingTarget } from './lib/workspaceKeyboardShortcuts';
 import { NavAccessDenied } from './components/NavAccessDenied';
 import { canAccessShellView } from './lib/navCapabilities';
-import { clearCourseDeepLinkParams, parseCourseDeepLink, seedCourseTabFromDeepLink } from './lib/courseDeepLink';
+import { clearCourseDeepLinkParams, parseCourseDeepLink, parseNoteAnalysisDeepLink, seedCourseTabFromDeepLink } from './lib/courseDeepLink';
 import { buildShellBreadcrumb } from './lib/shellBreadcrumb';
 import type { GlobalQuickActionId } from './lib/globalActionRegistry';
 import { persistWorkspaceV2CanaryFromUrl, reportWorkspaceCanaryCohort } from './lib/workspaceFeatureFlags';
@@ -30,6 +30,7 @@ import { PlatformViewTransition } from './components/ui/PlatformViewTransition';
 import { PlatformLazyOverlaySkeleton } from './components/ui/UxShimmerSkeleton';
 import { MistakeRetryView } from './components/MistakeRetryView';
 import { ExamPrepView } from './components/ExamPrepView';
+import { ExamPrepPage } from './components/ExamPrepPage';
 import { PrerequisiteRepairView } from './components/PrerequisiteRepairView';
 import { SessionQueueBar } from './components/SessionQueueBar';
 import { Landing } from './components/Landing';
@@ -102,11 +103,12 @@ function LazyOverlay({
 }
 
 /* OPT-K101 — residual markup debt: decorative brand type -> ink */
-export default function App() {
+function AppRoot() {
   const store = useAppStore();
   const { open: paletteOpen, toggle: togglePalette, close: closePalette } = useCommandPalette();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [uploadIntent, setUploadIntent] = useState<{ mode: 'new' | 'extend'; targetCourseId?: string }>({ mode: 'new' });
+  const [uploadSeedFiles, setUploadSeedFiles] = useState<File[]>([]);
   const [productTourOpen, setProductTourOpen] = useState(false);
   const [takeBreathOpen, setTakeBreathOpen] = useState(false);
   const [shellHelpOpen, setShellHelpOpen] = useState(false);
@@ -282,6 +284,7 @@ export default function App() {
           daysToExam: store.dashboardExtras.daysToExam,
           spacingIntervalCount: store.learnerModel.spacingIntervals?.length ?? 0,
           weakAreaCount: store.learnerModel.weakAreas?.length ?? 0,
+          pacing: store.user.settings.pacing,
         }));
       },
       onOpenWorkspacePractice: store.openStudyWorkspaceForPractice,
@@ -352,19 +355,21 @@ export default function App() {
     store.setActiveTaskId(null);
   };
 
-  const openUploadModal = (intent?: { mode: 'new' | 'extend'; targetCourseId?: string }) => {
+  const openUploadModal = (intent?: { mode: 'new' | 'extend'; targetCourseId?: string; files?: File[] }) => {
     const safe =
       intent
       && (intent.mode === 'new' || intent.mode === 'extend')
-        ? intent
+        ? { mode: intent.mode, targetCourseId: intent.targetCourseId }
         : { mode: 'new' as const };
     setUploadIntent(safe);
+    setUploadSeedFiles(intent?.files?.length ? intent.files : []);
     store.setShowUploadModal(true);
   };
 
   const closeUploadModal = () => {
     store.setShowUploadModal(false);
     setUploadIntent({ mode: 'new' });
+    setUploadSeedFiles([]);
   };
 
   const handleQuickAccess = useCallback((action: GlobalQuickActionId) => {
@@ -372,8 +377,7 @@ export default function App() {
     else if (action === 'upload') openUploadModal();
     else if (action === 'workspace') openWorkspace();
     else {
-      store.openTasksWithFilter('exam');
-      store.setExamPrepOpen(true);
+      store.navigate('exam-prep');
     }
   }, [store, openWorkspace]);
 
@@ -615,6 +619,7 @@ export default function App() {
         daysToExam: store.dashboardExtras.daysToExam,
         spacingIntervalCount: store.learnerModel.spacingIntervals?.length ?? 0,
         weakAreaCount: store.learnerModel.weakAreas?.length ?? 0,
+        pacing: store.user.settings.pacing,
       });
       store.startSession(session);
       store.navigate('tasks');
@@ -755,7 +760,7 @@ export default function App() {
           onClose={closePracticalView}
           onOpenAgent={() => { store.setPracticalLessonView(false); store.navigate('agent'); }}
           onComplete={completeActiveTask}
-          onPracticeAttempt={(concept, correct) => store.recordQuizAttempt(concept, correct, 70, undefined, store.activeTask?.courseId)}
+          onPracticeAttempt={(concept, correct) => store.recordQuizAttempt(concept, correct, 70, undefined, store.activeTask?.courseId, 'practice')}
           taskTitle={store.activeTask?.title}
           courseName={store.activeTask?.courseName}
           quizConcept={taskConcept}
@@ -905,7 +910,7 @@ export default function App() {
           onClose={() => { store.setExamPrepOpen(false); store.setActiveTaskId(null); }}
           onOpenAgent={() => { store.setExamPrepOpen(false); store.navigate('agent'); }}
           onComplete={completeActiveTask}
-          onQuizAttempt={(c, corr, conf) => store.recordQuizAttempt(c, corr, conf, undefined, store.activeTask?.courseId)}
+          onQuizAttempt={(c, corr, conf) => store.recordQuizAttempt(c, corr, conf, undefined, store.activeTask?.courseId, 'exam')}
           taskTitle={store.activeTask?.title}
           courseName={store.activeTask?.courseName}
           quizConcept={taskConcept}
@@ -950,6 +955,7 @@ export default function App() {
         courses={visibleCourses(store.courses, store.user.settings)}
         defaultUploadMode={uploadIntent.mode}
         defaultTargetCourseId={uploadIntent.targetCourseId}
+        initialFiles={uploadSeedFiles}
         userSettings={store.user.settings}
       />
       <AppToastBanner toast={store.appToast} onDismiss={store.dismissAppToast} />
@@ -1015,7 +1021,15 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     const view = params.get('view');
     if (!view || viewDeepLinkFired.current) return;
-    const allowed: AppView[] = ['dashboard', 'library', 'tasks', 'agent', 'study-room', 'analytics', 'teacher', 'student-org', 'settings'];
+    const noteLink = parseNoteAnalysisDeepLink(params);
+    if (noteLink) {
+      viewDeepLinkFired.current = true;
+      if (!hasCourses) store.enableDemoContent();
+      const opened = store.openNoteAnalysis(noteLink.courseId ?? undefined);
+      if (!opened) store.navigate('library');
+      return;
+    }
+    const allowed: AppView[] = ['dashboard', 'library', 'tasks', 'agent', 'study-room', 'analytics', 'teacher', 'student-org', 'settings', 'exam-prep'];
     if (!allowed.includes(view as AppView)) return;
     viewDeepLinkFired.current = true;
     if (!hasCourses) store.enableDemoContent();
@@ -1040,6 +1054,12 @@ export default function App() {
     seedCourseTabFromDeepLink(parsed.courseId, parsed.tab);
     store.openCourseReview(course);
   }, [store.courses, store]);
+
+  useEffect(() => {
+    if (store.currentView !== 'course' || store.selectedCourse) return;
+    if (parseCourseDeepLink(window.location.search)) return;
+    store.navigate('library');
+  }, [store.currentView, store.selectedCourse, store]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -1210,6 +1230,7 @@ export default function App() {
               onOpenWorkspacePractice={store.openStudyWorkspaceForPractice}
               lang={store.user.settings.language}
               theoryVsPractice={store.user.settings.theoryVsPractice}
+              dailyGoalMinutes={store.user.settings.dailyGoalMinutes}
               postUploadCourse={
                 store.postUploadCourseId
                   ? store.courses.find((c) => c.id === store.postUploadCourseId) ?? null
@@ -1231,8 +1252,15 @@ export default function App() {
               uploadedFiles={store.uploadedFiles}
               onSelectCourse={(course) => store.openCourseReview(course)}
               onRemoveCourse={store.removeCourse}
+              onRenameCourse={store.renameCourse}
               onUpload={(intent) => openUploadModal(intent)}
               onRemoveFile={store.removeUploadedFile}
+              onRenameFile={store.renameUploadedFile}
+              onMoveFile={store.moveUploadedFile}
+              libraryFolders={store.libraryFolders}
+              onCreateFolder={store.addLibraryFolder}
+              onRenameFolder={store.renameLibraryFolder}
+              onDeleteFolder={store.removeLibraryFolder}
               onReprocessCourse={store.reprocessCourseMaterial}
               reprocessingMaterial={store.isReprocessing}
               userSettings={store.user.settings}
@@ -1245,6 +1273,7 @@ export default function App() {
               onAddNotebookLmToFsrs={store.importNotebookLmQuizToFsrs}
               onOpenNotebookShell={store.openNotebookShell}
               onOpenConcept={openWorkspaceForConcept}
+              onPullLibrary={store.pullLibraryFromServer}
               onAskSource={(file, course) => {
                 const lang = store.user.settings.language === 'el' ? 'el' : 'en';
                 store.openAgentFromWorkspace({
@@ -1253,6 +1282,7 @@ export default function App() {
                   prompt: buildLibraryAskPrompt({
                     fileName: file.name,
                     courseTitle: course?.title,
+                    conceptHint: file.extractedTopics?.[0],
                   }, lang),
                   context: {
                     courseId: file.courseId,
@@ -1337,6 +1367,38 @@ export default function App() {
               sessionTotal={store.sessionTotal}
               sessionQueueIds={store.sessionQueue}
               activeTaskId={store.activeTaskId}
+              courses={store.courses.map((course) => ({
+                id: course.id,
+                title: course.title,
+                color: course.color,
+                icon: course.icon,
+              }))}
+              defaultCourseId={store.selectedCourse?.id}
+              onUpsertTask={store.upsertManualTask}
+              onDeleteTask={store.deleteManualTask}
+              pacing={store.user.settings.pacing}
+              studyTimeToday={store.dashboardStats.studyTimeToday}
+              dailyGoalMinutes={store.user.settings.dailyGoalMinutes}
+            />
+          )}
+          {store.currentView === 'exam-prep' && (
+            <ExamPrepPage
+              lang={store.user.settings.language}
+              courses={store.courses}
+              tasks={store.tasks}
+              settingsExamDate={store.user.settings.examDate}
+              daysToExam={store.dashboardExtras.daysToExam}
+              onStartTask={store.startTask}
+              onOpenExamTasks={() => store.openTasksWithFilter('exam')}
+              onSelectCourse={(course) => store.openCourseReview(course)}
+              onPracticeTopic={(topic, courseId) => {
+                store.openStudyWorkspaceForPractice({
+                  tool: 'simulator',
+                  concept: topic.title,
+                  courseId,
+                  simulatorTab: 'exam-prep',
+                });
+              }}
             />
           )}
           {store.currentView === 'agent' && !agentSplitActive && (
@@ -1428,5 +1490,13 @@ export default function App() {
       {overlays}
       </MotionConfig>
     </I18nContext.Provider>
+  );
+}
+
+export default function App() {
+  return (
+    <AppStoreProvider>
+      <AppRoot />
+    </AppStoreProvider>
   );
 }

@@ -25,7 +25,7 @@ import type { AnnouncementRow, AssignmentRow, ClassEnrollmentRow, GradebookCellR
 import { listLearningEvents, countLearningEventsByType } from '../lib/learningEvents';
 import type { TeacherDashboardResponse } from '../features/teacher/teacherDashboardTypes';
 import { getTeacherContent } from '../features/teacher/teacherContent';
-import { fetchOrgs, fetchOrgAnalytics, downloadGradebookCsv, linkLtiClassContext, ltiPassbackClassGrades, syncLtiClassRoster, type OrgAnalytics } from '../lib/orgClient';
+import { fetchOrgs, fetchOrgAnalytics, downloadGradebookCsv, fetchTeacherAssignmentSubmissions, downloadTeacherSubmissionAttachment, saveBlobAsFile, linkLtiClassContext, ltiPassbackClassGrades, syncLtiClassRoster, type OrgAnalytics } from '../lib/orgClient';
 import {
   buildCohortDraftPolishPrompt,
   buildCohortWeakConceptsDraft,
@@ -40,6 +40,7 @@ import { AssignmentDiscussionThread } from './AssignmentDiscussionThread';
 import { formatDateTime, formatShortDate, localeTag } from '../lib/localeFormat';
 import { cn } from '../utils/cn';
 import { UxShimmerPanel } from './ui/UxShimmerSkeleton';
+import { Button } from './ui/Button';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { t as i18nT } from '../lib/i18n';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
@@ -91,6 +92,30 @@ export function TeacherDashboard({
   const [announcementTitle, setAnnouncementTitle] = useState('');
   const [announcementBody, setAnnouncementBody] = useState('');
   const [expandedDiscussionId, setExpandedDiscussionId] = useState<string | null>(null);
+  const [expandedSubmissionsId, setExpandedSubmissionsId] = useState<string | null>(null);
+  const [submissionRows, setSubmissionRows] = useState<
+    Awaited<ReturnType<typeof fetchTeacherAssignmentSubmissions>>['submissions'] | null
+  >(null);
+  const [submissionsLoading, setSubmissionsLoading] = useState(false);
+
+  const toggleSubmissions = useCallback(
+    (assignmentId: string) => {
+      if (expandedSubmissionsId === assignmentId) {
+        setExpandedSubmissionsId(null);
+        return;
+      }
+      if (!settings.authToken?.trim() || !selectedClassId) return;
+      setExpandedSubmissionsId(assignmentId);
+      setExpandedDiscussionId(null);
+      setSubmissionRows(null);
+      setSubmissionsLoading(true);
+      void fetchTeacherAssignmentSubmissions(settings.authToken, settings, selectedClassId, assignmentId)
+        .then((json) => setSubmissionRows(json.submissions))
+        .catch(() => setSubmissionRows([]))
+        .finally(() => setSubmissionsLoading(false));
+    },
+    [expandedSubmissionsId, selectedClassId, settings],
+  );
   const [ltiContextInput, setLtiContextInput] = useState('');
   const [ltiRosterOpen, setLtiRosterOpen] = useState(false);
   const [ltiRosterMsg, setLtiRosterMsg] = useState<string | null>(null);
@@ -421,12 +446,14 @@ export function TeacherDashboard({
         isMinimal ? 'p-4 sm:p-6 lg:px-8 enterprise-calm teacher-wells' : 'py-4 sm:py-6 shell-edge-balance',
       )}
       data-testid="teacher-dashboard"
+      data-type-rhythm="dashboard"
+      data-bleed="full"
     >
       {/* OPT-K97 — teacher chrome ink */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           {/* OPT-K7/K8 — text-first title under Minimal (no leading icon tile). */}
-          <h1 className={cn('text-lg font-semibold', !isMinimal && 'flex items-center gap-2')}>
+          <h1 className={cn('type-title font-semibold', !isMinimal && 'flex items-center gap-2')}>
             {!isMinimal && <Users className="w-5 h-5 text-text-secondary" />}
             {ui.title}
           </h1>
@@ -540,15 +567,16 @@ export function TeacherDashboard({
               data-testid="teacher-class-name"
               className="flex-1 min-w-[140px] px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary type-body"
             />
-            <button
+            <Button
               type="button"
+              variant="primary"
+              size="sm"
               onClick={() => void handleCreateClass()}
               disabled={classBusy || !classNameInput.trim()}
               data-testid="teacher-create-class"
-              className="px-3 py-2 rounded-xl bg-brand-600 text-white type-meta font-medium disabled:opacity-50"
             >
               {ui.createClass}
-            </button>
+            </Button>
           </div>
 
           {classes.length === 0 ? (
@@ -681,15 +709,16 @@ export function TeacherDashboard({
                       >
                         {ui.ltiRosterLink}
                       </button>
-                      <button
+                      <Button
                         type="button"
+                        variant="primary"
+                        size="sm"
                         onClick={() => void handleSyncLtiRoster()}
                         disabled={classBusy || !ltiContextInput.trim()}
                         data-testid="teacher-lti-roster-sync"
-                        className="px-3 py-2 rounded-xl bg-brand-600 text-white type-meta font-medium disabled:opacity-50"
                       >
                         {ui.ltiRosterSync}
-                      </button>
+                      </Button>
                     </div>
                     {ltiRosterMsg && (
                       <p className="type-micro text-text-secondary" data-testid="teacher-lti-roster-msg">
@@ -764,15 +793,16 @@ export function TeacherDashboard({
                     data-testid="teacher-announcement-body"
                     className="w-full px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary type-body resize-y min-h-[72px]"
                   />
-                  <button
+                  <Button
                     type="button"
+                    variant="primary"
+                    size="sm"
                     onClick={() => void handleCreateAnnouncement()}
                     disabled={classBusy || !announcementTitle.trim() || !announcementBody.trim()}
                     data-testid="teacher-create-announcement"
-                    className="px-3 py-2 rounded-xl bg-brand-600 text-white type-meta font-medium disabled:opacity-50"
                   >
                     {ui.createAnnouncement}
-                  </button>
+                  </Button>
                 </div>
                 {announcements.length === 0 ? (
                   <p className="type-caption text-text-muted">{ui.noAnnouncements}</p>
@@ -827,15 +857,16 @@ export function TeacherDashboard({
                     data-testid="teacher-assignment-due"
                     className="px-3 py-2 rounded-xl border border-border-subtle bg-surface-primary type-body"
                   />
-                  <button
+                  <Button
                     type="button"
+                    variant="primary"
+                    size="sm"
                     onClick={() => void handleCreateAssignment()}
                     disabled={classBusy || !assignmentTitle.trim()}
                     data-testid="teacher-create-assignment"
-                    className="px-3 py-2 rounded-xl bg-brand-600 text-white type-meta font-medium disabled:opacity-50"
                   >
                     {ui.createAssignment}
-                  </button>
+                  </Button>
                 </div>
                 {assignments.length === 0 ? (
                   <p className="type-caption text-text-muted">{ui.noAssignments}</p>
@@ -861,9 +892,20 @@ export function TeacherDashboard({
                                 {selectedClassId && (
                                   <button
                                     type="button"
-                                    onClick={() =>
-                                      setExpandedDiscussionId((prev) => (prev === row.id ? null : row.id))
-                                    }
+                                    onClick={() => toggleSubmissions(row.id)}
+                                    data-testid={`teacher-submissions-toggle-${row.id}`}
+                                    className="text-text-secondary hover:underline type-micro"
+                                  >
+                                    {ui.submissionsToggle}
+                                  </button>
+                                )}
+                                {selectedClassId && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setExpandedDiscussionId((prev) => (prev === row.id ? null : row.id));
+                                      setExpandedSubmissionsId(null);
+                                    }}
                                     data-testid={`teacher-discussion-toggle-${row.id}`}
                                     className="text-text-secondary hover:underline type-micro"
                                   >
@@ -881,6 +923,82 @@ export function TeacherDashboard({
                                 </button>
                               </td>
                             </tr>
+                            {expandedSubmissionsId === row.id && selectedClassId && (
+                              <tr>
+                                <td colSpan={3} className="pb-3">
+                                  <div
+                                    className="rounded-lg border border-border-subtle/40 bg-surface-card/60 p-3 space-y-2"
+                                    data-testid={`teacher-submissions-panel-${row.id}`}
+                                  >
+                                    {submissionsLoading ? (
+                                      <p className="type-micro text-text-muted">{ui.submissionsLoading}</p>
+                                    ) : !submissionRows || submissionRows.length === 0 ? (
+                                      <p className="type-micro text-text-muted">{ui.submissionsEmpty}</p>
+                                    ) : (
+                                      <ul className="space-y-2">
+                                        {submissionRows.map((entry) => (
+                                          <li
+                                            key={entry.submission.id}
+                                            className="rounded-lg border border-border-subtle/30 bg-surface-card/50 p-2 space-y-1"
+                                          >
+                                            <div className="flex flex-wrap items-center justify-between gap-2">
+                                              <span className="type-micro font-semibold text-text-secondary">
+                                                {entry.student?.displayName || entry.student?.email || entry.submission.enrollmentId}
+                                              </span>
+                                              <span className="type-micro text-text-muted">
+                                                {ui.submissionUpdatedLabel} {formatShortDate(entry.submission.updatedAt, lang)}
+                                                {entry.cell?.score != null ? ` · ${entry.cell.score}%` : ''}
+                                              </span>
+                                            </div>
+                                            {entry.submission.body && (
+                                              <p className="type-caption text-text-secondary whitespace-pre-wrap">
+                                                {entry.submission.body}
+                                              </p>
+                                            )}
+                                            {entry.submission.linkUrl && (
+                                              <a
+                                                href={entry.submission.linkUrl}
+                                                target="_blank"
+                                                rel="noreferrer noopener"
+                                                className="type-micro text-text-secondary underline break-all"
+                                              >
+                                                {ui.submissionLinkLabel}: {entry.submission.linkUrl}
+                                              </a>
+                                            )}
+                                            {(entry.submission.attachments ?? []).length > 0 && (
+                                              <ul className="space-y-0.5" data-testid={`teacher-submission-files-${entry.submission.id}`}>
+                                                {(entry.submission.attachments ?? []).map((file) => (
+                                                  <li key={file.id}>
+                                                    <button
+                                                      type="button"
+                                                      className="type-micro text-text-secondary underline"
+                                                      data-testid={`teacher-submission-file-${file.id}`}
+                                                      onClick={() => {
+                                                        if (!selectedClassId || !settings.authToken) return;
+                                                        void downloadTeacherSubmissionAttachment(
+                                                          settings.authToken,
+                                                          settings,
+                                                          selectedClassId,
+                                                          row.id,
+                                                          entry.submission.enrollmentId,
+                                                          file.id,
+                                                        ).then(({ blob, filename }) => saveBlobAsFile(blob, filename));
+                                                      }}
+                                                    >
+                                                      {ui.submissionFileLabel}: {file.name}
+                                                    </button>
+                                                  </li>
+                                                ))}
+                                              </ul>
+                                            )}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
                             {expandedDiscussionId === row.id && selectedClassId && (
                               <tr>
                                 <td colSpan={3} className="pb-3">
@@ -1047,10 +1165,10 @@ export function TeacherDashboard({
               />
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center type-caption">
-              <div><p className="text-lg font-bold">{data.usage.requests}</p><p className="text-text-muted">{ui.requests}</p></div>
-              <div><p className="text-lg font-bold">{data.usage.promptTokens.toLocaleString(locale)}</p><p className="text-text-muted">Prompt</p></div>
-              <div><p className="text-lg font-bold">{data.usage.completionTokens.toLocaleString(locale)}</p><p className="text-text-muted">Completion</p></div>
-              <div><p className="text-lg font-bold">{data.usage.remainingTokens.toLocaleString(locale)}</p><p className="text-text-muted">{ui.remaining}</p></div>
+              <div><p className="ux-stat-value">{data.usage.requests}</p><p className="text-text-muted">{ui.requests}</p></div>
+              <div><p className="ux-stat-value">{data.usage.promptTokens.toLocaleString(locale)}</p><p className="text-text-muted">{ui.promptTokens}</p></div>
+              <div><p className="ux-stat-value">{data.usage.completionTokens.toLocaleString(locale)}</p><p className="text-text-muted">{ui.completionTokens}</p></div>
+              <div><p className="ux-stat-value">{data.usage.remainingTokens.toLocaleString(locale)}</p><p className="text-text-muted">{ui.remaining}</p></div>
             </div>
           </div>
 

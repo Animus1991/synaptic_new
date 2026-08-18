@@ -2,13 +2,16 @@ import type { UploadedFile, UserSettings } from '../types';
 import { ragQuery, ragSearch, type GlobalRagHit } from './authClient';
 import { retrieveSources, retrieveAndRerank, formatCitation, type Citation, type RetrievalResult, type RetrievedChunk } from './rag';
 import { embedTexts, isLlmAvailable } from './llmClient';
+import { planAllows } from './planGating';
 
 function isServerProxyConfigured(settings?: UserSettings): boolean {
   return !!(settings?.llmProxyUrl?.trim() || settings?.authProxyBase?.trim());
 }
 
 function canUseGlobalRag(settings?: UserSettings): boolean {
-  return isServerProxyConfigured(settings) && !!settings?.authToken?.trim();
+  return isServerProxyConfigured(settings)
+    && !!settings?.authToken?.trim()
+    && planAllows(settings, 'globalRag');
 }
 
 function globalHitToCitation(hit: GlobalRagHit): Citation {

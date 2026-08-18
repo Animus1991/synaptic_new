@@ -5,17 +5,31 @@ import { openNotebookLm } from '../lib/notebooklmBridge';
 import { NOTEBOOKLM_URL } from '../lib/platformFocus';
 import { cn } from '../utils/cn';
 import { downloadAnkiDeck } from '../lib/ankiExport';
+import { Button } from './ui/Button';
 
 type Props = {
   lang: 'en' | 'el';
   onImport: (raw: string) => NotebookLmImportResult | null;
   onAddToFsrs?: (result: NotebookLmImportResult) => { added: number } | null | void;
+  onOpenCourse?: (courseId: string) => void;
   className?: string;
+  /** When true, show a one-click sample so the demo import path is complete. */
+  demoSample?: boolean;
 };
 
+const DEMO_NOTEBOOKLM_SAMPLE = `# Study Guide — Supply & Demand
+
+Market equilibrium is the price where quantity demanded equals quantity supplied.
+
+Q: What happens when price is above equilibrium?
+A: A surplus — quantity supplied exceeds quantity demanded.
+
+Q: What is price elasticity of demand?
+A: The percentage change in quantity demanded divided by the percentage change in price.`;
+
 /* OPT-K101 — residual markup debt: decorative brand type -> ink */
-export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }: Props) {
-  const [open, setOpen] = useState(false);
+export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, onOpenCourse, className, demoSample = false }: Props) {
+  const [open, setOpen] = useState(demoSample);
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
@@ -27,8 +41,8 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
   const title = lang === 'el' ? 'Εισαγωγή από NotebookLM' : 'Import from NotebookLM';
   const hint =
     lang === 'el'
-      ? 'Επικόλλησε σημείωμα, study guide, Studio Quiz, chat ή audio transcript από το NotebookLM — δημιουργεί αρχείο στη βιβλιοθήκη.'
-      : 'Paste a saved note, study guide, Studio Quiz, chat, or audio transcript from NotebookLM — adds a library source for course generation.';
+      ? 'Επικόλλησε σημείωμα, study guide, Studio Quiz, chat ή audio transcript από το NotebookLM — δημιουργεί μάθημα στη βιβλιοθήκη.'
+      : 'Paste a saved note, study guide, Studio Quiz, chat, or audio transcript from NotebookLM — creates a course in your library.';
 
   const handleImport = async (raw: string) => {
     if (!raw.trim()) return;
@@ -153,6 +167,20 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
             >
               {lang === 'el' ? 'Αρχείο .md/.txt' : '.md / .txt file'}
             </button>
+            {demoSample && (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => {
+                  setText(DEMO_NOTEBOOKLM_SAMPLE);
+                  void handleImport(DEMO_NOTEBOOKLM_SAMPLE);
+                }}
+                className="px-3 py-1.5 rounded-lg border border-border-subtle type-caption text-text-secondary hover:bg-surface-hover"
+                data-testid="notebooklm-import-demo-sample"
+              >
+                {lang === 'el' ? 'Δοκίμασε δείγμα' : 'Try sample'}
+              </button>
+            )}
             <input
               ref={fileRef}
               type="file"
@@ -190,6 +218,25 @@ export function NotebookLmImportPanel({ lang, onImport, onAddToFsrs, className }
                   </>
                 )}
               </p>
+              {lastResult.courseTitle && lastResult.courseId && (
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <p className="type-caption text-text-primary" data-testid="notebooklm-import-course">
+                    {lang === 'el' ? 'Μάθημα:' : 'Course:'}{' '}
+                    <span className="font-medium">{lastResult.courseTitle}</span>
+                  </p>
+                  {onOpenCourse && (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => onOpenCourse(lastResult.courseId!)}
+                      data-testid="notebooklm-import-open-course"
+                    >
+                      {lang === 'el' ? 'Άνοιγμα μαθήματος' : 'Open course'}
+                    </Button>
+                  )}
+                </div>
+              )}
               {lastResult.quizCards.length > 0 && (
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                   {onAddToFsrs && (

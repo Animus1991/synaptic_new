@@ -77,4 +77,10 @@ describe('buildStudyBehaviorModel', () => {
     expect(model.sessionTypes.some((s) => s.key === 'quiz')).toBe(true);
     expect(model.effectiveness.length).toBe(7);
   });
+
+  it('uses fortnight buckets for the semester range', () => {
+    const model = buildStudyBehaviorModel([act(0), act(20), act(40)], 'semester', 'en');
+    expect(model.dayBars.length).toBe(12);
+    expect(model.dayBars.reduce((sum, d) => sum + d.count, 0)).toBeGreaterThanOrEqual(3);
+  });
 });

@@ -132,6 +132,10 @@ export type SettingsContent = {
   languageOptions: ToggleOption[];
   labelChromeDensity: string;
   chromeDensityOptions: ToggleOption[];
+  /** X3 (Canon cross-pollination) — independent contrast boost, orthogonal to theme choice. */
+  labelA11yBoost: string;
+  a11yBoostHint: string;
+  a11yBoostOptions: ToggleOption[];
   sectionDataProgress: string;
   labelDemoContent: string;
   demoContentOptions: ToggleOption[];
@@ -388,6 +392,12 @@ const EN: SettingsContent = {
   chromeDensityOptions: [
     { value: 'comfortable', label: 'Comfortable' },
     { value: 'compact', label: 'Compact' },
+  ],
+  labelA11yBoost: 'Contrast boost',
+  a11yBoostHint: 'Raises secondary text and borders to the strongest tone your current theme already uses. Independent of which theme you pick.',
+  a11yBoostOptions: [
+    { value: 'off', label: 'Off' },
+    { value: 'on', label: 'On' },
   ],
   sectionDataProgress: 'Data & Progress',
   labelDemoContent: 'Demo showcase content',
@@ -650,6 +660,12 @@ const EL: SettingsContent = {
   chromeDensityOptions: [
     { value: 'comfortable', label: 'Άνετη' },
     { value: 'compact', label: 'Συμπαγής' },
+  ],
+  labelA11yBoost: 'Ενίσχυση αντίθεσης',
+  a11yBoostHint: 'Ανεβάζει το δευτερεύον κείμενο και τα περιγράμματα στον πιο έντονο τόνο που ήδη χρησιμοποιεί το τρέχον θέμα σου. Ανεξάρτητο από το ποιο θέμα επιλέγεις.',
+  a11yBoostOptions: [
+    { value: 'off', label: 'Ανενεργό' },
+    { value: 'on', label: 'Ενεργό' },
   ],
   sectionDataProgress: 'Δεδομένα & Πρόοδος',
   labelDemoContent: 'Demo showcase content',

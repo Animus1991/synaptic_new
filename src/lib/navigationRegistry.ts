@@ -111,6 +111,14 @@ export function isShellNavView(view: AppView): view is ShellNavView {
   return SHELL_NAV_SET.has(view);
 }
 
+/** Hash-routed views: sidebar pages plus Exam Prep, course, and note analysis. */
+export function isBookmarkableView(view: AppView): boolean {
+  return isShellNavView(view)
+    || view === 'exam-prep'
+    || view === 'course'
+    || view === 'note-analysis';
+}
+
 export function getShellViewLabelKey(view: AppView): I18nKey | null {
   const entry = NAVIGATION_REGISTRY.find((e) => e.view === view);
   return entry?.labelKey ?? null;

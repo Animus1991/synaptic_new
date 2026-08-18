@@ -322,13 +322,14 @@ export function StudyRoomPanel(props: Props) {
                 memberId={memberId}
                 displayName={displayName}
               />
-              {/* Device-local until collab review sync — banner inside panel (P1). */}
+              {/* Co-reading challenges/votes sync via the Study Room server. */}
               {memberId && !room.localOnly ? (
                 <CoReadingHubPanel
                   lang={lang}
                   roomId={room.id}
                   memberId={memberId}
                   displayName={displayName}
+                  userSettings={props.userSettings}
                 />
               ) : null}
               <div className="space-y-2">

@@ -1,5 +1,15 @@
-import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import type { AppView, Course, AgentMessage, AgentMode, UploadedFile, UserSettings, LearnerModel, DashboardStats, MistakeRecord, ActivityItem, GlossaryEntry } from '../types';
+import {
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+  useEffect,
+  createContext,
+  createElement,
+  useContext,
+  type ReactNode,
+} from 'react';
+import type { AppView, Course, Task, AgentMessage, AgentMode, UploadedFile, UserSettings, LearnerModel, DashboardStats, MistakeRecord, ActivityItem, GlossaryEntry, LibraryFolder } from '../types';
 import {
   applyDashboardStatsOnTaskComplete,
   applyLearnerModelOnTaskComplete,
@@ -10,7 +20,7 @@ import { createActivity } from '../lib/activityLog';
 import { countUnreadNotifications, notificationsReadWatermark } from '../lib/notificationState';
 import { SEED_ACTIVITIES } from '../demo/activityDemo';
 import { mockUser, mockCourses, mockTasks, mockLearnerModel, mockDashboardStats, mockAgentMessages } from '../demo/mockData';
-import { loadThemePreference, applyTheme, cycleTheme, resolveInitialThemePreference, hasStoredThemePreference, applyChromeDensity, resolveChromeDensity, DEFAULT_THEME_PREFERENCE } from '../lib/theme';
+import { loadThemePreference, applyTheme, cycleTheme, resolveInitialThemePreference, hasStoredThemePreference, applyChromeDensity, resolveChromeDensity, DEFAULT_THEME_PREFERENCE, applyA11yBoost } from '../lib/theme';
 import { ECON_CONCEPT_IMPORTANCE } from '../data/conceptGraph';
 import {
   betaMean,
@@ -26,6 +36,7 @@ import { ECON_CONCEPT_EDGES } from '../data/conceptGraph';
 import { edgesFromCourses } from '../lib/conceptEdges';
 import { loadJson, saveJson } from '../lib/persistence';
 import { t } from '../lib/i18n';
+import { applyQuizMisconception, type MisconceptionSource } from '../lib/misconceptionWriter';
 import {
   hydrateLibrary,
   loadLibrarySync,
@@ -49,6 +60,7 @@ import {
   prepareNotebookLmFsrsImport,
   type NotebookLmFsrsImportResult,
 } from '../lib/notebooklmFsrsImport';
+import { buildNotebookLmCourseBundle } from '../lib/notebookLmCourse';
 import { notifySuccess, notifyWarning } from '../lib/notificationBus';
 import { prefetchWorkspaceEntry } from '../features/workspace';
 import { fetchYoutubeTranscript } from '../lib/youtubeTranscript';
@@ -97,6 +109,7 @@ import {
 import { recognizeCourse } from '../lib/recognitionWorkerClient';
 import { buildConceptSpans, type SourceHighlight } from '../lib/conceptProvenance';
 import { enrichCourseWithCrossLinks } from '../lib/crossDocumentLink';
+import { applyCourseAfterGeneratePlugins } from '../lib/pluginApi';
 import { applyFsrsToSpacing, quizOutcomeToFsrsRating } from '../lib/adaptiveScheduler';
 import type { TaskCalendarSyncUpdate } from '../lib/taskCalendarSync';
 import type { WorkspaceFocus } from '../features/workspace';
@@ -167,7 +180,7 @@ import {
   type OnboardingRoleId,
 } from '../lib/onboardingProfile';
 import { canAccessShellView, unauthorizedRedirectView } from '../lib/navCapabilities';
-import { isShellNavView } from '../lib/navigationRegistry';
+import { isBookmarkableView, isShellNavView } from '../lib/navigationRegistry';
 import { clearOnboardingDraft, loadOnboardingDraft, resolveInitialAppView } from '../lib/onboardingDraft';
 import { loadPersistedUserProfile, savePersistedUserProfile } from '../lib/userProfilePersist';
 import { buildInitialUser, applyAuthIdentity, levelFromXp } from '../lib/identity';
@@ -175,6 +188,18 @@ import { createEmptyLearnerModel, EMPTY_DASHBOARD_STATS } from '../lib/emptyLear
 import { applyBehaviorInference, inferBehaviorFromActivities } from '../lib/behaviorInference';
 import { readAllLearningEvents } from '../lib/learningEvents';
 import { mergeCourseTasks } from '../lib/taskGenerator';
+import { isManualTask } from '../lib/personalTask';
+import {
+  assignFileToFolder,
+  createLibraryFolder,
+  deleteLibraryFolder,
+  loadLibraryFolders,
+  moveUploadedFileInLibrary,
+  renameCourseInLibrary,
+  renameLibraryFolder,
+  renameUploadedFileInLibrary,
+  saveLibraryFolders,
+} from '../lib/libraryOrganize';
 import { syncLearnerHeatmap, computeStreakFromHeatmap } from '../features/analytics/activityAnalytics';
 import { computeRetentionRate, weeklyMasteryFromActivities } from '../features/analytics/retentionAnalytics';
 import {
@@ -267,7 +292,33 @@ function masteryMapFromSkills(lm: LearnerModel, courses: Course[], showDemo: boo
   return map;
 }
 
-export function useAppStore() {
+export type AppStore = ReturnType<typeof useAppStoreState>;
+
+const AppStoreContext = createContext<AppStore | null>(null);
+
+/** Owns the single store instance. Must wrap every `useAppStore` consumer. */
+export function AppStoreProvider({ children }: { children: ReactNode }) {
+  const store = useAppStoreState();
+  return createElement(AppStoreContext.Provider, { value: store }, children);
+}
+
+export function useAppStore(): AppStore {
+  const store = useContext(AppStoreContext);
+  if (!store) {
+    throw new Error('useAppStore must be used inside <AppStoreProvider>');
+  }
+  return store;
+}
+
+/**
+ * Builds the whole app store. Call this EXACTLY once, from `AppStoreProvider`.
+ *
+ * Calling it from a second component used to mint an independent store with its own
+ * `currentView` and its own URL-hash sync effects, so those copies fought the real one
+ * over `window.location.hash` — mounting Analytics (two call sites) bounced the app
+ * back to whatever view the fresh copies had initialised to.
+ */
+function useAppStoreState() {
   const persisted = useMemo(() => loadPersisted(), []);
   const persistedProfile = useMemo(() => loadPersistedUserProfile(), []);
   const onboardingDraft = useMemo(() => loadOnboardingDraft(), []);
@@ -352,6 +403,7 @@ export function useAppStore() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>(
     () => initialUploadedFiles(library.uploadedFiles, mergedSettings, mockUploadedFiles),
   );
+  const [libraryFolders, setLibraryFolders] = useState<LibraryFolder[]>(() => loadLibraryFolders());
   const [glossaryEntries, setGlossaryEntries] = useState<GlossaryEntry[]>(
     () => initialGlossary(library.glossaryEntries, mergedSettings, mockGlossaryEntries),
   );
@@ -769,6 +821,37 @@ export function useAppStore() {
     window.scrollTo(0, 0);
   }, [user]);
 
+  // X0 (Canon cross-pollination, docs/INDEX.md) — scoped routing pilot: mirror sidebar
+  // views plus exam-prep / note-analysis into the URL hash. Course restore uses
+  // ?view=course&course=id (see parseCourseDeepLink). Deliberately NOT a full router.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const syncFromHash = () => {
+      const raw = window.location.hash.replace(/^#\/?/, '').split('/')[0];
+      if (raw === 'note-analysis') {
+        const opened = openNoteAnalysis();
+        if (!opened) navigate('library');
+        return;
+      }
+      if (raw === 'course') return;
+      if (raw && isBookmarkableView(raw as AppView)) {
+        navigate(raw as AppView);
+      }
+    };
+    syncFromHash(); // cold-boot / deep-link restore — also overrides the persisted last view
+    window.addEventListener('hashchange', syncFromHash);
+    return () => window.removeEventListener('hashchange', syncFromHash);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once; navigate only reads `user` via closure and is safe to call stale-free here since it re-derives access on every call
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !isBookmarkableView(currentView)) return;
+    const nextHash = `#/${currentView}`;
+    if (window.location.hash !== nextHash) {
+      window.location.hash = nextHash;
+    }
+  }, [currentView]);
+
   const openTasksWithFilter = useCallback((filter: TaskFilter) => {
     setTasksFilterPreset(filter);
     setCurrentView('tasks');
@@ -878,7 +961,7 @@ export function useAppStore() {
         const confidence = fsrsRatingToConfidence(rating);
         const skill = ensureSkillNode(lm, concept, task.courseId);
         const updatedSkill = updateSkillMastery(skill, correct, confidence);
-        let nextLm = applySkillUpdate(lm, updatedSkill);
+        let nextLm = applySkillUpdate(lm, updatedSkill, user.settings.masteryThreshold);
 
         const betaIdx = betaMastery.findIndex(
           (b) => b.concept.toLowerCase().includes(concept.toLowerCase().slice(0, 6))
@@ -956,7 +1039,7 @@ export function useAppStore() {
     setLearnerModel((lm) => {
       const skill = ensureSkillNode(lm, concept, resolvedCourseId);
       const updatedSkill = updateSkillMastery(skill, correct, confidence);
-      let nextLm = applySkillUpdate(lm, updatedSkill);
+      let nextLm = applySkillUpdate(lm, updatedSkill, user.settings.masteryThreshold);
 
       const betaIdx = betaMastery.findIndex(
         (b) => b.concept.toLowerCase().includes(concept.toLowerCase().slice(0, 6))
@@ -1039,6 +1122,7 @@ export function useAppStore() {
     confidence: number,
     stepKey?: string,
     courseId?: string,
+    source: MisconceptionSource = 'quiz',
   ) => {
     const attemptKey = stepKey ?? `${concept}:${Date.now()}`;
     const isFirstAttempt = !firstAttemptKeys.has(attemptKey);
@@ -1093,7 +1177,19 @@ export function useAppStore() {
     let nextLm = applySkillUpdate(
       { ...learnerModel, confidenceCalibration: calibration, averageConfidence: avgConf },
       updatedSkill,
+      user.settings.masteryThreshold,
     );
+    if (!correct && isFirstAttempt) {
+      nextLm = {
+        ...nextLm,
+        misconceptions: applyQuizMisconception(nextLm.misconceptions, {
+          concept,
+          confidence,
+          source,
+          lang: user.settings.language === 'el' ? 'el' : 'en',
+        }),
+      };
+    }
 
     const spacingRow = nextLm.spacingIntervals.find((s) => s.concept === updatedSkill.concept);
     const fsrsRating = quizOutcomeToFsrsRating(correct, confidence);
@@ -1237,6 +1333,9 @@ export function useAppStore() {
       } else if (partial.chromeDensity !== undefined || partial.language !== undefined) {
         applyChromeDensity(resolveChromeDensity(nextSettings.chromeDensity, nextSettings.language));
       }
+      if (partial.a11yContrastBoost !== undefined) {
+        applyA11yBoost(partial.a11yContrastBoost);
+      }
       if (partial.teachingStyle || partial.explanationDepth || partial.challengeLevel) {
         setAgentMode(settingsToAgentMode(nextSettings));
       }
@@ -1295,7 +1394,7 @@ export function useAppStore() {
     let nextBeta = betaMastery;
     for (const course of merged.generatedCourses) {
       nextBeta = mergeBetaFromCourse(nextBeta, course);
-      nextLm = mergeSkillNodesFromCourse(nextLm, course);
+      nextLm = mergeSkillNodesFromCourse(nextLm, course, user.settings.masteryThreshold);
     }
     const nextLmMetrics = recomputeLearnerMetrics(nextLm, nextBeta, firstAttemptKeys, openMistakes);
     setBetaMastery(nextBeta);
@@ -1612,7 +1711,7 @@ export function useAppStore() {
     const fileNames = payload.files.map((f) => f.name);
     const extendTarget =
       payload.uploadMode === 'extend' && payload.targetCourseId
-        ? courses.find((c) => c.id === payload.targetCourseId && !MOCK_COURSE_IDS.has(c.id))
+        ? courses.find((c) => c.id === payload.targetCourseId && (!MOCK_COURSE_IDS.has(c.id) || user.settings.showDemoContent))
         : undefined;
 
     const workerPayload = {
@@ -1721,6 +1820,7 @@ export function useAppStore() {
       courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
       uploadedFiles,
     );
+    course = await applyCourseAfterGeneratePlugins(course);
 
     const nextFiles = [...uploadedFiles, ...withRecognition];
 
@@ -1731,7 +1831,7 @@ export function useAppStore() {
     const nextCourses = initialCourses(generatedOnly, user.settings, mockCourses);
     const nextTasks = mergeCourseTasks(stripDemoFromTasks(tasks), course, user.settings.language);
     const nextBeta = mergeBetaFromCourse(betaMastery, course);
-    const nextLm = mergeSkillNodesFromCourse(learnerModel, course);
+    const nextLm = mergeSkillNodesFromCourse(learnerModel, course, user.settings.masteryThreshold);
     const nextLmMetrics = recomputeLearnerMetrics(nextLm, nextBeta, firstAttemptKeys, openMistakes);
 
     const uploadSnapshot = captureUploadSnapshot({
@@ -1901,29 +2001,65 @@ export function useAppStore() {
       );
       return null;
     }
-    const file = buildNotebookLmUploadedFile(parsed, { courseId: opts?.courseId });
+    const generatedCount = courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)).length;
+    const { file, course } = buildNotebookLmCourseBundle(parsed, generatedCount, opts);
     const nextFiles = [...uploadedFiles, file];
+    let nextCourses = courses;
+    let nextTasks = tasks;
+    let nextBeta = betaMastery;
+    let nextLm = learnerModel;
+
+    if (course) {
+      const generatedOnly = [
+        ...courses.filter((c) => !MOCK_COURSE_IDS.has(c.id) && c.id !== course.id),
+        course,
+      ];
+      nextCourses = initialCourses(generatedOnly, user.settings, mockCourses);
+      nextTasks = mergeCourseTasks(stripDemoFromTasks(tasks), course, user.settings.language);
+      nextBeta = mergeBetaFromCourse(betaMastery, course);
+      nextLm = recomputeLearnerMetrics(
+        mergeSkillNodesFromCourse(learnerModel, course, user.settings.masteryThreshold),
+        nextBeta,
+        firstAttemptKeys,
+        openMistakes,
+      );
+      setCourses(nextCourses);
+      setTasks(nextTasks);
+      setBetaMastery(nextBeta);
+      setLearnerModel(nextLm);
+      const nextActs = logActivity(createActivity('upload', `Created course: ${course.title}`));
+      persist(nextLm, dashboardStats, nextTasks, user.xp, nextBeta, firstAttemptKeys, openMistakes, nextActs, user.settings);
+      markPostUploadCourse(course.id);
+    }
+
     setUploadedFiles(nextFiles);
-    persistLibrary(nextFiles, glossaryEntries, courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)));
+    persistLibrary(nextFiles, glossaryEntries, nextCourses.filter((c) => !MOCK_COURSE_IDS.has(c.id)));
     const lang = user.settings.language === 'el' ? 'el' : 'en';
+    const committed: NotebookLmImportResult = {
+      ...parsed,
+      courseId: course?.id ?? opts?.courseId ?? file.courseId,
+      courseTitle: course?.title,
+    };
     notifySuccess(
       lang === 'el' ? 'Εισαγωγή NotebookLM' : 'NotebookLM import',
-      parsed.kind === 'chat'
-        ? (lang === 'el'
-          ? `${parsed.title} · ${parsed.chatTurns.length} γύροι chat`
-          : `${parsed.title} · ${parsed.chatTurns.length} chat turns`)
-        : parsed.kind === 'audio-transcript'
+      course
+        ? (lang === 'el' ? `Δημιουργήθηκε μάθημα: ${course.title}` : `Created course: ${course.title}`)
+        : parsed.kind === 'chat'
           ? (lang === 'el'
-            ? `${parsed.title} · ${parsed.audioSegments.length} κεφάλαια`
-            : `${parsed.title} · ${parsed.audioSegments.length} chapters`)
-          : parsed.quizCards.length > 0
+            ? `${parsed.title} · ${parsed.chatTurns.length} γύροι chat`
+            : `${parsed.title} · ${parsed.chatTurns.length} chat turns`)
+          : parsed.kind === 'audio-transcript'
             ? (lang === 'el'
-              ? `${parsed.title} · ${parsed.quizCards.length} κάρτες quiz`
-              : `${parsed.title} · ${parsed.quizCards.length} quiz cards`)
-            : parsed.title,
+              ? `${parsed.title} · ${parsed.audioSegments.length} κεφάλαια`
+              : `${parsed.title} · ${parsed.audioSegments.length} chapters`)
+            : parsed.quizCards.length > 0
+              ? (lang === 'el'
+                ? `${parsed.title} · ${parsed.quizCards.length} κάρτες quiz`
+                : `${parsed.title} · ${parsed.quizCards.length} quiz cards`)
+              : parsed.title,
     );
-    return parsed;
-  }, [uploadedFiles, glossaryEntries, courses, persistLibrary, user.settings.language]);
+    return committed;
+  }, [uploadedFiles, glossaryEntries, courses, persistLibrary, user.settings, tasks, betaMastery, learnerModel, dashboardStats, user.xp, firstAttemptKeys, openMistakes, persist, logActivity, markPostUploadCourse, recomputeLearnerMetrics]);
 
   const importNotebookLmAudioForCourse = useCallback((raw: string, courseId: string): boolean => {
     const parsed = buildNotebookLmAudioImportResult(raw);
@@ -2012,6 +2148,7 @@ export function useAppStore() {
     const lang = user.settings.language === 'el' ? 'el' : 'en';
     const courseId =
       opts?.courseId ??
+      result.courseId ??
       selectedCourse?.id ??
       courses.find((c) => !MOCK_COURSE_IDS.has(c.id))?.id;
 
@@ -2205,6 +2342,131 @@ export function useAppStore() {
     navigate, showAppToast,
   ]);
 
+  const renameCourse = useCallback((courseId: string, title: string) => {
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    const result = renameCourseInLibrary(courses, tasks, courseId, title);
+    if (!result.renamed) {
+      if (result.reason === 'demo') showAppToast(t('toastLibraryDemoLocked', lang));
+      else if (result.reason === 'empty') showAppToast(t('libRenameRequired', lang));
+      return false;
+    }
+    setCourses(result.courses);
+    setTasks(result.tasks);
+    if (selectedCourse?.id === courseId) {
+      setSelectedCourse(result.courses.find((course) => course.id === courseId) ?? null);
+    }
+    persistLibrary(
+      uploadedFiles,
+      glossaryEntries,
+      result.courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
+    );
+    persist(learnerModel, dashboardStats, result.tasks, user.xp, betaMastery, firstAttemptKeys, openMistakes, activities, user.settings);
+    showAppToast(t('toastCourseRenamed', lang));
+    return true;
+  }, [courses, tasks, selectedCourse, uploadedFiles, glossaryEntries, learnerModel, dashboardStats, user, betaMastery, firstAttemptKeys, openMistakes, activities, persistLibrary, persist, showAppToast]);
+
+  const renameUploadedFile = useCallback((fileId: string, name: string) => {
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    const result = renameUploadedFileInLibrary(uploadedFiles, courses, fileId, name);
+    if (!result.renamed) {
+      if (result.reason === 'demo') showAppToast(t('toastLibraryDemoLocked', lang));
+      else if (result.reason === 'empty') showAppToast(t('libRenameRequired', lang));
+      return false;
+    }
+    setUploadedFiles(result.files);
+    setCourses(result.courses);
+    if (selectedCourse) {
+      const updated = result.courses.find((course) => course.id === selectedCourse.id);
+      if (updated) setSelectedCourse(updated);
+    }
+    persistLibrary(
+      result.files,
+      glossaryEntries,
+      result.courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
+    );
+    showAppToast(t('toastFileRenamed', lang));
+    return true;
+  }, [uploadedFiles, courses, selectedCourse, glossaryEntries, persistLibrary, showAppToast, user.settings.language]);
+
+  const moveUploadedFile = useCallback((
+    fileId: string,
+    targetCourseId: string | null,
+    folderId?: string | null,
+  ) => {
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    const result = moveUploadedFileInLibrary(uploadedFiles, courses, fileId, targetCourseId);
+    if (!result.moved && result.reason !== 'unchanged') {
+      if (result.reason === 'demo' || result.reason === 'demo-target') {
+        showAppToast(t('toastLibraryDemoLocked', lang));
+      }
+      return false;
+    }
+    let nextFiles = result.moved ? result.files : uploadedFiles;
+    let nextCourses = result.moved ? result.courses : courses;
+    if (folderId !== undefined) {
+      const assigned = assignFileToFolder(nextFiles, fileId, folderId, libraryFolders);
+      if (!assigned.assigned && assigned.reason === 'demo') {
+        showAppToast(t('toastLibraryDemoLocked', lang));
+        return false;
+      }
+      if (assigned.assigned) nextFiles = assigned.files;
+    }
+    if (!result.moved && folderId === undefined) return false;
+    setUploadedFiles(nextFiles);
+    setCourses(nextCourses);
+    if (selectedCourse) {
+      const updated = nextCourses.find((course) => course.id === selectedCourse.id);
+      if (updated) setSelectedCourse(updated);
+    }
+    persistLibrary(
+      nextFiles,
+      glossaryEntries,
+      nextCourses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
+    );
+    showAppToast(t('toastFileMoved', lang));
+    return true;
+  }, [uploadedFiles, courses, selectedCourse, glossaryEntries, libraryFolders, persistLibrary, showAppToast, user.settings.language]);
+
+  const addLibraryFolder = useCallback((name: string) => {
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    const result = createLibraryFolder(libraryFolders, name);
+    if (!result.created) {
+      if (result.reason === 'empty') showAppToast(t('libRenameRequired', lang));
+      return false;
+    }
+    setLibraryFolders(result.folders);
+    saveLibraryFolders(result.folders);
+    showAppToast(t('toastFolderCreated', lang));
+    return true;
+  }, [libraryFolders, showAppToast, user.settings.language]);
+
+  const renameLibraryFolderItem = useCallback((folderId: string, name: string) => {
+    const lang = user.settings.language === 'el' ? 'el' : 'en';
+    const result = renameLibraryFolder(libraryFolders, folderId, name);
+    if (!result.renamed) {
+      if (result.reason === 'empty') showAppToast(t('libRenameRequired', lang));
+      return false;
+    }
+    setLibraryFolders(result.folders);
+    saveLibraryFolders(result.folders);
+    showAppToast(t('toastFolderRenamed', lang));
+    return true;
+  }, [libraryFolders, showAppToast, user.settings.language]);
+
+  const removeLibraryFolder = useCallback((folderId: string) => {
+    const result = deleteLibraryFolder(libraryFolders, uploadedFiles, folderId);
+    if (!result.deleted) return false;
+    setLibraryFolders(result.folders);
+    saveLibraryFolders(result.folders);
+    setUploadedFiles(result.files);
+    persistLibrary(
+      result.files,
+      glossaryEntries,
+      courses.filter((c) => !MOCK_COURSE_IDS.has(c.id)),
+    );
+    return true;
+  }, [libraryFolders, uploadedFiles, glossaryEntries, courses, persistLibrary]);
+
   const simulateUpload = useCallback((files: File[]) => {
     setIsUploading(true);
     const newFiles: UploadedFile[] = files.map((f, i) => ({
@@ -2275,8 +2537,11 @@ export function useAppStore() {
 
   startTaskRef.current = startTask;
 
-  const startSession = useCallback((sessionType: SessionType) => {
-    const queue = filterTasksForSession(tasks, sessionType);
+  const startSession = useCallback((sessionType: SessionType, preferredTaskIds?: readonly string[]) => {
+    const preferred = (preferredTaskIds ?? [])
+      .map((id) => tasks.find((t) => t.id === id && t.status !== 'completed'))
+      .filter((t): t is Task => Boolean(t));
+    const queue = preferred.length > 0 ? preferred : filterTasksForSession(tasks, sessionType);
     if (queue.length === 0) {
       navigate('tasks');
       return;
@@ -2584,8 +2849,10 @@ export function useAppStore() {
 
   const coverageSnapshot = useMemo(() => {
     const primary = pickPrimaryCourseForCoverage(courses);
-    return primary ? buildSyllabusCoverageSnapshot(primary, user.settings.examDate) : null;
-  }, [courses, user.settings.examDate]);
+    return primary
+      ? buildSyllabusCoverageSnapshot(primary, user.settings.examDate, Date.now(), user.settings.masteryThreshold)
+      : null;
+  }, [courses, user.settings.examDate, user.settings.masteryThreshold]);
 
   const dashboardSmartCTAs = useMemo(
     () => buildDashboardSmartCTAs({
@@ -2700,13 +2967,36 @@ export function useAppStore() {
     });
   }, [persist, learnerModel, dashboardStats, user.xp, user.settings, betaMastery, firstAttemptKeys, openMistakes, activities]);
 
+  const upsertManualTask = useCallback((task: Task) => {
+    if (!isManualTask(task)) return;
+    setTasks((prev) => {
+      const idx = prev.findIndex((t) => t.id === task.id);
+      const next = idx >= 0 ? prev.map((t) => (t.id === task.id ? task : t)) : [task, ...prev];
+      persist(learnerModel, dashboardStats, next, user.xp, betaMastery, firstAttemptKeys, openMistakes, activities, user.settings);
+      return next;
+    });
+  }, [persist, learnerModel, dashboardStats, user.xp, user.settings, betaMastery, firstAttemptKeys, openMistakes, activities]);
+
+  const deleteManualTask = useCallback((taskId: string) => {
+    setTasks((prev) => {
+      const existing = prev.find((t) => t.id === taskId);
+      if (!existing || !isManualTask(existing)) return prev;
+      const next = prev.filter((t) => t.id !== taskId);
+      persist(learnerModel, dashboardStats, next, user.xp, betaMastery, firstAttemptKeys, openMistakes, activities, user.settings);
+      return next;
+    });
+    setActiveTaskId((id) => (id === taskId ? null : id));
+    setExpandedTaskId((id) => (id === taskId ? null : id));
+    setSessionQueue((queue) => queue.filter((id) => id !== taskId));
+  }, [persist, learnerModel, dashboardStats, user.xp, user.settings, betaMastery, firstAttemptKeys, openMistakes, activities]);
+
   return {
     currentView, navigate, openCourseReview,
     sidebarOpen, setSidebarOpen,
     user, updateSettings, toggleTheme,
     courses, selectedCourse, setSelectedCourse,
     tasks, completeTask, completeTaskAndAdvance, submitReviewRating, submitReviewAndAdvance, submitLeitnerRating,
-    applyTaskCalendarSync,
+    applyTaskCalendarSync, upsertManualTask, deleteManualTask,
     startTask, startSession, endSession,
     sessionQueue, sessionTotal, activeSessionType,
     activeTask, activeTaskId, setActiveTaskId, expandedTaskId, setExpandedTaskId,
@@ -2731,7 +3021,7 @@ export function useAppStore() {
     applyDailyCheckInAnswers,
     coverageSnapshot,
     uploadedFiles, glossaryEntries, isUploading, isReprocessing, simulateUpload, processUpload,
-    reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, importNotebookLm, importNotebookLmAudioForCourse, transcribeAudioForCourse, importNotebookLmQuizToFsrs, importNotebookLmAudioToFsrs, removeCourse,
+    reprocessCourseMaterial, saveCourseExtractedText, removeUploadedFile, renameCourse, renameUploadedFile, moveUploadedFile, libraryFolders, addLibraryFolder, renameLibraryFolder: renameLibraryFolderItem, removeLibraryFolder, importNotebookLm, importNotebookLmAudioForCourse, transcribeAudioForCourse, importNotebookLmQuizToFsrs, importNotebookLmAudioToFsrs, removeCourse,
     pullLibraryFromServer, pullSessionFromServer, pushSessionToServer, syncAccountOnLogin,
     librarySyncConflict, resolveLibrarySyncConflict, dismissLibrarySyncConflict,
     queueConceptBusSync, flushConceptBusSync,

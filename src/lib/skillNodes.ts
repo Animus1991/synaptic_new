@@ -59,19 +59,21 @@ export function skillNodeFromTopic(topic: Topic, courseId: string): SkillNode {
   };
 }
 
-export function categorizeSkillNodes(nodes: SkillNode[]): {
+export function categorizeSkillNodes(nodes: SkillNode[], strongThreshold = 80): {
   strongAreas: SkillNode[];
   weakAreas: SkillNode[];
   almostKnown: SkillNode[];
 } {
+  const strongAt = Math.min(100, Math.max(60, strongThreshold));
+  const almostAt = strongAt - 20;
   return {
-    strongAreas: nodes.filter((n) => n.mastery >= 80),
-    almostKnown: nodes.filter((n) => n.mastery >= 60 && n.mastery < 80),
-    weakAreas: nodes.filter((n) => n.mastery < 60),
+    strongAreas: nodes.filter((n) => n.mastery >= strongAt),
+    almostKnown: nodes.filter((n) => n.mastery >= almostAt && n.mastery < strongAt),
+    weakAreas: nodes.filter((n) => n.mastery < almostAt),
   };
 }
 
-export function mergeSkillNodesFromCourse(lm: LearnerModel, course: Course): LearnerModel {
+export function mergeSkillNodesFromCourse(lm: LearnerModel, course: Course, strongThreshold = 80): LearnerModel {
   const existing = new Map<string, SkillNode>();
   for (const s of [...lm.strongAreas, ...lm.weakAreas, ...lm.almostKnown]) {
     existing.set(`${s.courseId}:${s.concept}`, s);
@@ -82,17 +84,17 @@ export function mergeSkillNodesFromCourse(lm: LearnerModel, course: Course): Lea
       existing.set(key, skillNodeFromTopic(topic, course.id));
     }
   }
-  const bands = categorizeSkillNodes([...existing.values()]);
+  const bands = categorizeSkillNodes([...existing.values()], strongThreshold);
   return { ...lm, ...bands };
 }
 
-export function applySkillUpdate(lm: LearnerModel, updated: SkillNode): LearnerModel {
+export function applySkillUpdate(lm: LearnerModel, updated: SkillNode, strongThreshold = 80): LearnerModel {
   const map = new Map<string, SkillNode>();
   for (const s of [...lm.strongAreas, ...lm.weakAreas, ...lm.almostKnown]) {
     map.set(`${s.courseId}:${s.concept}`, s);
   }
   map.set(`${updated.courseId}:${updated.concept}`, updated);
-  const bands = categorizeSkillNodes([...map.values()]);
+  const bands = categorizeSkillNodes([...map.values()], strongThreshold);
   return { ...lm, ...bands };
 }
 

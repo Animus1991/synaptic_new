@@ -10,16 +10,28 @@ export function analyticsRangeDays(range: AnalyticsDateRange): number {
   return 180; // semester ≈ 6 months
 }
 
+export function rangeCutoffMs(range: AnalyticsDateRange, nowMs: number = Date.now()): number {
+  return nowMs - analyticsRangeDays(range) * 24 * 60 * 60 * 1000;
+}
+
 export function filterActivitiesByRange<T extends { timestamp: string }>(
   activities: T[],
   range: AnalyticsDateRange,
   nowMs: number = Date.now(),
 ): T[] {
-  const cutoff = nowMs - analyticsRangeDays(range) * 24 * 60 * 60 * 1000;
+  const cutoff = rangeCutoffMs(range, nowMs);
   return activities.filter((a) => {
     const t = new Date(a.timestamp).getTime();
     return Number.isFinite(t) && t >= cutoff;
   });
+}
+
+export function filterEventsByRange<T extends { timestamp: string }>(
+  events: T[],
+  range: AnalyticsDateRange,
+  nowMs: number = Date.now(),
+): T[] {
+  return filterActivitiesByRange(events, range, nowMs);
 }
 
 export function rangeLabel(range: AnalyticsDateRange, lang: 'en' | 'el'): string {

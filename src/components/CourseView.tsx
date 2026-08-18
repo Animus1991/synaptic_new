@@ -672,6 +672,7 @@ function TopicCard({ topic, index, courseColor, course, onGoToSource, onStart }:
   onGoToSource?: (highlight: { fileId: string; charStart: number; charEnd: number }) => void;
   onStart: () => void;
 }) {
+  const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
   const accent = resolveCourseColor(courseColor);
   const hasDetail = (topic.objectives?.length ?? 0) > 0 || (topic.keyConcepts?.length ?? 0) > 0;

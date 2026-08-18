@@ -15,6 +15,7 @@ export function useProductTour(opts: {
 }) {
   const [stepIndex, setStepIndex] = useState(0);
   const wasOpen = useRef(false);
+  const navigatedForStep = useRef<number | null>(null);
 
   useEffect(() => {
     if (opts.open && !wasOpen.current) {
@@ -25,10 +26,21 @@ export function useProductTour(opts: {
 
   const step: ProductTourStep | null = opts.open ? PRODUCT_TOUR_STEPS[stepIndex] ?? null : null;
 
+  /*
+   * Fires once per step entry. Re-asserting it on every currentView change turned the
+   * tour into a navigation lock: any nav click bounced straight back to the step's view,
+   * and because ProductTour renders null while `ready` is false, the cause was invisible.
+   */
   useEffect(() => {
-    if (!opts.open || !step?.navigateOnEnter) return;
-    if (opts.currentView !== step.navigateOnEnter) {
-      opts.onNavigate(step.navigateOnEnter);
+    if (!opts.open) {
+      navigatedForStep.current = null;
+      return;
+    }
+    const target = step?.navigateOnEnter;
+    if (!target || navigatedForStep.current === stepIndex) return;
+    navigatedForStep.current = stepIndex;
+    if (opts.currentView !== target) {
+      opts.onNavigate(target);
     }
   }, [opts.open, stepIndex, step?.navigateOnEnter, opts.currentView, opts.onNavigate]);
 

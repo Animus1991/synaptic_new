@@ -3,6 +3,8 @@ import { Sparkles, Loader2, ChevronDown, ChevronUp, FileText, Library } from '@/
 import type { Course, MessageCitation, UserSettings } from '../types';
 import { cn } from '../utils/cn';
 import { runMultiDocSynthesize } from '../features/agent';
+import { planAllows } from '../lib/planGating';
+import { t } from '../lib/i18n';
 
 type Props = {
   courses: Course[];
@@ -23,6 +25,7 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
   const [citationsOpen, setCitationsOpen] = useState(true);
 
   const token = settings?.authToken?.trim();
+  const planUnlocked = planAllows(settings, 'crossLibrary');
   const defaultQuery =
     lang === 'el'
       ? 'Ποια είναι τα κύρια θέματα και οι σχέσεις μεταξύ των εγγράφων μου;'
@@ -31,6 +34,10 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
   const runSynthesis = async () => {
     if (!token || !settings) {
       setError(lang === 'el' ? 'Απαιτείται σύνδεση στο proxy.' : 'Proxy sign-in required.');
+      return;
+    }
+    if (!planAllows(settings, 'crossLibrary')) {
+      setError(t('planFeatureLocked', lang));
       return;
     }
     setBusy(true);
@@ -107,6 +114,11 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
                 : 'Sign in to the proxy to synthesize across courses. Demo libraries stay local until then.'}
             </p>
           )}
+          {token && !planUnlocked && (
+            <p className="type-caption text-text-muted" data-testid="cross-library-synthesis-plan-hint">
+              {t('planFeatureLocked', lang)}
+            </p>
+          )}
           <textarea
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -138,7 +150,7 @@ export function CrossLibrarySynthesisPanel({ courses, settings, lang, className 
           )}
           <button
             type="button"
-            disabled={busy || !token}
+            disabled={busy || !token || !planUnlocked}
             onClick={() => void runSynthesis()}
             className="ux-combined-study-cta inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg type-caption font-semibold border disabled:opacity-55"
             data-testid="cross-library-synthesis-run"

@@ -3,6 +3,7 @@ import { describe, expect, it, beforeEach } from 'vitest';
 import {
   buildCourseDeepLinkQuery,
   parseCourseDeepLink,
+  parseNoteAnalysisDeepLink,
   seedCourseTabFromDeepLink,
 } from './courseDeepLink';
 import { readPersistedCourseTab } from './coursePageSelectors';
@@ -28,6 +29,12 @@ describe('courseDeepLink', () => {
   it('buildCourseDeepLinkQuery serializes course and tab', () => {
     expect(buildCourseDeepLinkQuery('course-1')).toBe('view=course&course=course-1');
     expect(buildCourseDeepLinkQuery('course-1', 'map')).toBe('view=course&course=course-1&tab=map');
+  });
+
+  it('parseNoteAnalysisDeepLink reads view and optional course', () => {
+    expect(parseNoteAnalysisDeepLink('?view=note-analysis&course=abc')).toEqual({ courseId: 'abc' });
+    expect(parseNoteAnalysisDeepLink('?view=note-analysis')).toEqual({ courseId: null });
+    expect(parseNoteAnalysisDeepLink('?view=library')).toBeNull();
   });
 
   it('seedCourseTabFromDeepLink writes session tab when provided', () => {

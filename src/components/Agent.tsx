@@ -11,6 +11,7 @@ import type { DashboardNextAction } from '../lib/dashboardNextAction';
 import { cn } from '../utils/cn';
 import { streamAgentReply, isLlmAvailable } from '../lib/llmClient';
 import { buildSourceExcerpt, retrieveForQueryHybrid } from '../lib/sourceContext';
+import { extractNotesOutline } from '../lib/notesOutline';
 import { buildAgentChatHistory } from '../features/agent';
 import {
   parseAgentCommand,
@@ -22,6 +23,7 @@ import { buildPathTryChips, type PathTryChip } from '../lib/pathFocus';
 import { isMultiDocSynthesizeAction, runMultiDocSynthesize } from '../features/agent';
 import { spanFromCitation } from '../lib/conceptProvenance';
 import { applyAgentGroundingGate } from '../lib/grounding';
+import { applyAgentBeforeReplyPlugins } from '../lib/pluginApi';
 import { emitAnalyticsLearningEvent } from '../lib/emitLearningEvent';
 import { formatCitation } from '../lib/rag';
 import { GoToSourceButton } from './GoToSourceButton';
@@ -32,11 +34,11 @@ import { getAgentContent, type AgentUiCopy } from '../features/agent';
 import { AgentModeCatalogGrid, AgentModeSidebar } from './agent/AgentModeSidebar';
 import { useI18n } from '../lib/i18n';
 import { PlatformSection, PrimaryCTA } from './ui/primitives';
+import { Button } from './ui/Button';
 import { TrustBadgeRow } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { entranceMotion, useMinimalTheme } from '../lib/useMinimalTheme';
-import { AllCapsLabel } from './ui/AllCapsLabel';
 import { startFeynmanVoiceInput } from '../lib/feynmanVoice';
 import {
   applyCheckInPatch,
@@ -305,11 +307,15 @@ export function Agent({
     return analyzedFiles;
   }, [analyzedFiles, pinnedFileId, selectedSource]);
   const sourceExcerpt = attachSource
-    ? buildSourceExcerpt(
-        scopedFiles,
-        workspaceContext?.concept ?? activeTaskConcept,
-        workspaceContext?.courseId ?? (selectedSource === 'all' ? undefined : selectedSource),
-      )
+    ? (() => {
+        const raw = buildSourceExcerpt(
+          scopedFiles,
+          workspaceContext?.concept ?? activeTaskConcept,
+          workspaceContext?.courseId ?? (selectedSource === 'all' ? undefined : selectedSource),
+        );
+        if (!raw) return undefined;
+        return settings?.sourceMode === 'notes-only' ? extractNotesOutline(raw) : raw;
+      })()
     : undefined;
 
   useEffect(() => {
@@ -727,7 +733,9 @@ export function Agent({
         })
       : { excerpt: undefined, citations: [], grounded: false };
 
-    const queryExcerpt = retrieval.excerpt ?? sourceExcerpt;
+    const queryExcerpt = settings?.sourceMode === 'notes-only'
+      ? extractNotesOutline(retrieval.excerpt ?? sourceExcerpt ?? '')
+      : (retrieval.excerpt ?? sourceExcerpt);
     const contextBlock = buildAgentContextSystemBlock(workspaceContext, lang);
     const lowRetrieval = attachSource && !retrieval.grounded;
     const lowRetrievalHint = lowRetrieval ? buildLowRetrievalClarification(lang) : '';
@@ -835,8 +843,11 @@ export function Agent({
       });
     }
 
+    const studyMode = mode !== 'motivation';
+    const pluginText = await applyAgentBeforeReplyPlugins(gated.content, studyMode);
+
     onUpdateMessage(streamId, {
-      content: gated.content,
+      content: pluginText,
       isStreaming: false,
       sourceReference: citationLine,
       citations: retrieval.citations,
@@ -1180,8 +1191,8 @@ export function Agent({
                 )}
                 {onChangeSourceMode && (
                   <div className="pt-2 border-t border-border-subtle space-y-1">
-                    <p className="type-micro font-medium text-text-tertiary uppercase tracking-wider px-1">
-                      <AllCapsLabel>{ui.sourceModeHeading}</AllCapsLabel>
+                    <p className="agent-mode-group-label px-1 type-micro font-medium text-text-tertiary">
+                      {ui.sourceModeHeading}
                     </p>
                     {sourceModes.map((opt) => (
                       <button
@@ -1380,17 +1391,14 @@ export function Agent({
                 </span>
               )}
               {onCompleteTask && (
-                <button
+                <Button
+                  variant={quietModes ? 'secondary' : 'primary'}
+                  size="sm"
                   onClick={onCompleteTask}
-                  className={cn(
-                    'px-3 py-1.5 rounded-lg border-0 type-caption font-medium transition-all',
-                    quietModes
-                      ? 'bg-surface-secondary text-text-primary hover:bg-surface-hover'
-                      : 'bg-brand-600 hover:bg-brand-500 text-white',
-                  )}
+                  className="agent-complete-task"
                 >
                   {ui.completeTask}
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -1423,8 +1431,8 @@ export function Agent({
               </PlatformSection>
               {onChangeSourceMode && (
                 <div className={cn('border-t border-transparent', embedded ? 'mt-2.5 pt-2.5' : 'mt-4 pt-4')}>
-                  <p className="type-micro font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">
-                    <AllCapsLabel>{ui.sourceModeHeading}</AllCapsLabel>
+                  <p className="agent-mode-group-label mb-1.5 type-micro font-semibold text-text-tertiary">
+                    {ui.sourceModeHeading}
                   </p>
                   <div className="space-y-1">
                     {sourceModes.map((opt) => (

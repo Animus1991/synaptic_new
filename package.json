@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:server": "npm run dev --prefix server",
+    "dev:full": "node scripts/dev-full.mjs",
     "typecheck": "tsc --noEmit",
     "typecheck:all": "npm run typecheck && npm run typecheck --prefix server",
     "test": "vitest run",
@@ -26,6 +28,7 @@
     "b11:stretch-tracker": "vite-node scripts/b11ProdStretchTracker.ts",
     "eval": "vitest run src/eval",
     "doc-lint": "node scripts/doc-lint.mjs",
+    "audit:contrast": "vite-node scripts/contrast-audit.ts",
     "i18n-lint": "node scripts/i18n-lint.mjs",
     "i18n-lint:update": "node scripts/i18n-lint.mjs --update",
     "sentry:import-dashboard": "node scripts/sentry-import-dashboard.mjs",

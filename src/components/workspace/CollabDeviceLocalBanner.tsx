@@ -12,7 +12,7 @@ type Props = {
 };
 
 export function CollabDeviceLocalBanner({ lang, surface }: Props) {
-  if (isCollabReviewMultiDeviceSyncEnabled()) return null;
+  if (isCollabReviewMultiDeviceSyncEnabled(surface)) return null;
 
   return (
     <div

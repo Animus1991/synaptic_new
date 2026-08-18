@@ -67,7 +67,9 @@ describe('Wave SP — Scratchpad productization', () => {
     const agent = header.slice(header.indexOf('crosslink-ask-agent'));
     const btn = agent.slice(0, 400);
     expect(btn).not.toMatch(/ws-chip-brand/);
-    expect(btn).toMatch(/border-border-subtle/);
+    /* quiet secondary: either a subtle hairline border or a borderless surface wash */
+    expect(btn).toMatch(/border-border-subtle|border-0/);
+    expect(btn).toMatch(/text-text-secondary/);
   });
 
   it('purpose copy is warm and native (no SymPy-first jargon)', () => {

@@ -23,15 +23,15 @@ export type SyllabusCoverageSnapshot = {
   topics: TopicCoverageRow[];
 };
 
-function lessonComplete(lesson: Lesson): boolean {
-  return lesson.status === 'completed' || lesson.mastery >= 80;
+function lessonComplete(lesson: Lesson, masteryThreshold = 80): boolean {
+  return lesson.status === 'completed' || lesson.mastery >= masteryThreshold;
 }
 
-export function countCompletedLessons(course: Course): number {
+export function countCompletedLessons(course: Course, masteryThreshold = 80): number {
   let n = 0;
   for (const topic of course.topics) {
     for (const lesson of topic.lessons) {
-      if (lessonComplete(lesson)) n++;
+      if (lessonComplete(lesson, masteryThreshold)) n++;
     }
   }
   return n;
@@ -52,11 +52,12 @@ export function buildSyllabusCoverageSnapshot(
   course: Course,
   settingsExamDate?: string,
   now = Date.now(),
+  masteryThreshold = 80,
 ): SyllabusCoverageSnapshot {
   const examDate = course.examDate ?? settingsExamDate;
   const topics: TopicCoverageRow[] = course.topics.map((topic) => {
     const total = topic.lessons.length;
-    const completed = topic.lessons.filter(lessonComplete).length;
+    const completed = topic.lessons.filter((lesson) => lessonComplete(lesson, masteryThreshold)).length;
     const isComplete = total > 0 && completed >= total;
     return {
       topicId: topic.id,
@@ -69,7 +70,7 @@ export function buildSyllabusCoverageSnapshot(
   });
 
   const totalLessons = countTotalLessons(course);
-  const completedLessons = countCompletedLessons(course);
+  const completedLessons = countCompletedLessons(course, masteryThreshold);
   const completedTopics = topics.filter((t) => t.isComplete).length;
 
   return {

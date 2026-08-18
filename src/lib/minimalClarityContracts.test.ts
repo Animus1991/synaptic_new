@@ -822,19 +822,15 @@ describe('OPT-K69 engineering clarity contracts', () => {
     expect(clarity).toMatch(/14%, transparent/);
   });
 
-  it('K135 — App-wide hidden scrollbars keep scroll', () => {
+  it('K135 — scroll stays enabled (K170 supersedes full hide)', () => {
     const clarity = read('src/styles/cursor-clarity.css');
     expect(clarity).toMatch(/OPT-K135/);
-    expect(clarity).toMatch(/App-wide HIDDEN scrollbars/);
-    expect(clarity).toMatch(/scrollbar-width:\s*none/);
-    expect(clarity).toMatch(/display:\s*none\s*!important/);
     expect(clarity).not.toMatch(/overflow:\s*hidden;\s*\/\*\s*OPT-K135/);
 
     const indexCss = read('src/index.css');
-    expect(indexCss).toMatch(/OPT-K135/);
-    expect(indexCss).toMatch(/FINAL kill-switch/);
-    expect(indexCss).toMatch(/scrollbar-width:\s*none\s*!important/);
-    expect(indexCss).toMatch(/display:\s*none\s*!important/);
+    expect(indexCss).toMatch(/OPT-K170/);
+    expect(indexCss).toMatch(/discreet right-edge page scrollbar/);
+    expect(indexCss).not.toMatch(/FINAL kill-switch/);
   });
 
   it('K126 — Workspace Agent notebook unbox + wash studio/sources', () => {
@@ -1100,9 +1096,9 @@ describe('OPT-K69 engineering clarity contracts', () => {
 
   it('K145 — Tasks flush type column + no tilde minutes + quieter danger + CTA −2%', () => {
     const tasks = read('src/components/Tasks.tsx');
-    expect(tasks).toMatch(/OPT-K140–K145|OPT-K140–K146|OPT-K145/);
+    expect(tasks).toMatch(/OPT-K140–K145|OPT-K140–K146|OPT-K145|OPT-K140–K151/); /* K151 supersedes the K145/K146 range */
     expect(tasks).toMatch(/tasks-entry-hint/);
-    expect(tasks).toMatch(/px-0 py-2/);
+    expect(tasks).toMatch(/px-0 py-2|px-0\.5 pb-1/); /* flush type column: current dense layout uses px-0.5 pb-1 */
     expect(tasks).toMatch(/tasks-danger-zone[\s\S]{0,160}type-caption/);
 
     const content = read('src/lib/tasksContent.ts');
@@ -1565,6 +1561,148 @@ it('K166 — Dashboard residual: sentence-case labels + text-first list chrome',
     expect(live).not.toMatch(/border-l-accent-emerald/);
   });
 
+  it('K167 — Canon-informed global chrome: sentence-case + tap floor + accent slots', () => {
+    const prim = read('src/components/ui/primitives.tsx');
+    expect(prim).toMatch(/OPT-K167/);
+    expect(prim).not.toMatch(/uppercase tracking-\[0\.08em\]/);
+    expect(prim).toMatch(/synapse-tap-target/);
+    expect(prim).toMatch(/--color-accent-fill/);
+
+    const header = read('src/components/ui/platformChrome.tsx');
+    expect(header).not.toMatch(/AllCapsLabel/);
+
+    const button = read('src/components/ui/Button.tsx');
+    expect(button).toMatch(/OPT-K167/);
+    expect(button).toMatch(/synapse-tap-target/);
+
+    const caps = read('src/components/ui/AllCapsLabel.tsx');
+    expect(caps).toMatch(/OPT-K167/);
+
+    const shell = read('src/components/Shell.tsx');
+    expect(shell).not.toMatch(/uppercase tracking-wider/);
+    expect(shell).not.toMatch(/asAllCapsLabel/);
+
+    const settings = read('src/components/Settings.tsx');
+    expect(settings).not.toMatch(/uppercase tracking-\[0\.08em\]/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K167/);
+    expect(indexCss).toMatch(/--color-accent-text/);
+    expect(indexCss).toMatch(/--color-accent-fill/);
+    expect(indexCss).toMatch(/--color-on-accent/);
+    expect(indexCss).toMatch(/synapse-tap-target/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/OPT-K167/);
+  });
+
+  it('K168 — calm layout is theme-independent + contrast CI gate', () => {
+    const hook = read('src/lib/useMinimalTheme.ts');
+    expect(hook).toMatch(/OPT-K168/);
+    expect(hook).toMatch(/export function useMinimalTheme\(\): boolean \{\s*return true;/);
+
+    const theme = read('src/lib/theme.ts');
+    expect(theme).toMatch(/data-calm-layout/);
+
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/dashboard-calm hub-quiet shell-edge-balance/);
+    expect(dash).not.toMatch(/isMinimal \? 'hub-section-stack'/);
+
+    const course = read('src/components/CourseView.tsx');
+    expect(course).toMatch(/from '\.\/ui\/Button'/);
+    expect(course).not.toMatch(/bg-accent-rose\/10 hover:bg-accent-rose\/15/);
+    expect(course).not.toMatch(/bg-accent-amber\/10 hover:bg-accent-amber\/15/);
+
+    const analytics = read('src/components/Analytics.tsx');
+    expect(analytics).toMatch(/from '\.\/ui\/Button'/);
+    expect(analytics).not.toMatch(/bg-brand-600 hover:bg-brand-500 text-white/);
+
+    const pkg = read('package.json');
+    expect(pkg).toMatch(/audit:contrast/);
+    expect(read('src/lib/themeContrastAudit.ts')).toMatch(/OPT-K168/);
+    expect(read('scripts/contrast-audit.ts')).toMatch(/OPT-K168/);
+  });
+
+  it('K170 — discreet right-edge page scrollbar on all pages', () => {
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K170/);
+    expect(indexCss).toMatch(/--page-scrollbar-size:\s*4px/);
+    expect(indexCss).toMatch(/scrollbar-width:\s*thin\s*!important/);
+    expect(indexCss).toMatch(/html\[data-theme\]::-webkit-scrollbar/);
+    expect(indexCss).toMatch(/\.hide-scrollbar/);
+    expect(indexCss).toMatch(/\.scrollbar-none/);
+  });
+
+  it('K177 — next action shares the hero row; Almost There fills its column', () => {
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/const nextActionSlot/);
+    expect(dash).toMatch(/headerAside=\{nextActionSlot\}/);
+
+    const hub = read('src/components/DashboardActionHub.tsx');
+    expect(hub).toMatch(/headerAside\?: ReactNode/);
+    expect(hub).toMatch(/dashboard-hero-heading-row/);
+    expect(hub).toMatch(/dashboard-hero-heading-aside/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K177/);
+    expect(indexCss).toMatch(/dashboard-pair-weak-almost/);
+    expect(indexCss).toMatch(/grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(24rem,\s*32rem\)\s*auto/);
+  });
+
+  it('K176 — Dashboard packs independent columns and keeps one primary action', () => {
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/OPT-K176/);
+    expect(dash).toMatch(/xl:columns-2/);
+    expect(dash).toMatch(/xl:columns-3/);
+    expect(dash).not.toMatch(/xl:grid xl:grid-cols-2/);
+    expect(dash).toMatch(/showDefaultStudyCenter=\{!dashboardNextAction\}/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K176/);
+    expect(indexCss).toMatch(/column-count:\s*2\s*!important/);
+    expect(indexCss).toMatch(/column-count:\s*3\s*!important/);
+    expect(indexCss).toMatch(/display:\s*inline-block\s*!important/);
+
+    const hub = read('src/components/DashboardActionHub.tsx');
+    expect(hub).toMatch(/showDefaultStudyCenter\s*=\s*true/);
+    expect(hub).toMatch(/:\s*showDefaultStudyCenter\s*\?\s*\(/);
+
+    const syllabus = read('src/components/examPrep/SyllabusCoverageWidget.tsx');
+    expect(syllabus).not.toMatch(/max-h-28 overflow-y-auto/);
+  });
+
+  it('K171 — Dashboard structure applies on every theme', () => {
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/OPT-K171/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K171/);
+    expect(indexCss).toMatch(/\[data-testid="dashboard-page"\] \.utility-row-main/);
+    expect(indexCss).toMatch(/\[data-testid="dashboard-page"\] \.ux-callout/);
+
+    const clarity = read('src/styles/cursor-clarity.css');
+    expect(clarity).toMatch(/justify-content:\s*flex-start/);
+    expect(clarity).toMatch(/\.dashboard-hub-chrome-tablist \{[\s\S]*?display:\s*flex/);
+
+    const hub = read('src/components/DashboardActionHub.tsx');
+    expect(hub).toMatch(/max-w-xl/);
+    expect(hub).not.toMatch(/min-w-0 flex-1 px-0\.5/);
+  });
+
+  it('K169 — Dashboard hero shares the body content column', () => {
+    const dash = read('src/components/Dashboard.tsx');
+    expect(dash).toMatch(/dashboard-page-column/);
+    expect(dash).toMatch(/px-4 sm:px-6 lg:px-8/);
+    expect(dash).not.toMatch(/greetingEyebrow=\{t\('dashboardEyebrow'\)\}/);
+
+    const hub = read('src/components/DashboardActionHub.tsx');
+    expect(hub).toMatch(/dashboard-study-band flex w-full flex-row/);
+    expect(hub).not.toMatch(/space-y-2\.5 px-3 py-3 sm:px-4/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/OPT-K169/);
+  });
+
   it('K121 — Dashboard type rhythm applied platform-wide', () => {
     const prim = read('src/components/ui/primitives.tsx');
     expect(prim).toMatch(/OPT-K121/);
@@ -1691,7 +1829,7 @@ it('K166 — Dashboard residual: sentence-case labels + text-first list chrome',
 
     const modal = read('src/components/ui/ModalHeaderStack.tsx');
     expect(modal).toMatch(/OPT-K95/);
-    expect(modal).toMatch(/text-base font-semibold/);
+    expect(modal).toMatch(/type-title font-semibold/);
     expect(modal).not.toMatch(/text-lg font-bold/);
     expect(modal).not.toMatch(/useMinimalTheme/);
   });
@@ -1822,7 +1960,11 @@ it('K166 — Dashboard residual: sentence-case labels + text-first list chrome',
 
     const agent = read('src/components/Agent.tsx');
     expect(agent).toMatch(/OPT-K100/);
-    expect(agent).toMatch(/bg-brand-600 hover:bg-brand-500 text-white/);
+    /* K167 supersedes the hand-rolled brand fill: the task CTA goes through the shared
+       Button primitive, so the accent stays themeable instead of hardcoded brand-600. */
+    expect(agent).toMatch(/from '\.\/ui\/Button'/);
+    expect(agent).toMatch(/<Button\s+variant=\{quietModes \? 'secondary' : 'primary'\}/);
+    expect(agent).not.toMatch(/bg-brand-600 hover:bg-brand-500 text-white/);
     expect(agent).not.toMatch(/text-brand-\d+/);
 
     const reader = read('src/components/workspace/CognitiveReader.tsx');
@@ -1844,7 +1986,9 @@ it('K166 — Dashboard residual: sentence-case labels + text-first list chrome',
     expect(primitives).toMatch(/ux-page-header-icon.*bg-surface-secondary text-text-secondary|bg-surface-secondary text-text-secondary/);
     /* K116 wash CTA dropped the border hover; ink hover survives */
     expect(primitives).toMatch(/hover:text-text-primary/);
-    expect(primitives).toMatch(/bg-brand-600 hover:bg-brand-700/);
+    /* Brand fill is now themeable via --color-accent-fill; brand-600 stays the fallback. */
+    expect(primitives).toMatch(/bg-brand-600|--color-accent-fill,var\(--color-brand-600\)/);
+    expect(primitives).toMatch(/hover:bg-brand-700/);
     expect(primitives).not.toMatch(/hover:text-brand-\d+/);
   });
 
@@ -1929,6 +2073,12 @@ it('K166 — Dashboard residual: sentence-case labels + text-first list chrome',
     const clarity = read('src/styles/cursor-clarity.css');
     expect(clarity).toMatch(/OPT-K92/);
     expect(clarity).toMatch(/hub-section-stack--columns/);
+
+    const indexCss = read('src/index.css');
+    expect(indexCss).toMatch(/\[data-dashboard-layout="stacked"\] \[data-testid="dashboard-masonry"\] > \.dashboard-pair-row/);
+    expect(indexCss).toMatch(/grid-template-columns: minmax\(0, 1fr\) !important/);
+    expect(indexCss).toMatch(/\[data-testid="dashboard-masonry"\]\[data-dashboard-columns="2"\]/);
+    expect(indexCss).toMatch(/\[data-testid="dashboard-masonry"\]\[data-dashboard-columns="3"\]/);
 
     const i18n = read('src/lib/i18n.ts');
     expect(i18n).toMatch(/dashLayoutDual/);

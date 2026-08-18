@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
   buildLtiAgsScore,
+  buildLtiAgsSubmissionNotice,
   registerLtiLineItem,
   submitLtiGradePassback,
+  submitLtiSubmissionPassback,
   listLtiPassbackLog,
   resetLtiPassbackState,
   getLtiLineItemUrl,
@@ -55,5 +57,21 @@ describe('ltiGradePassback', () => {
     const retried = await retryLtiPassback(row.id);
     expect(retried?.status).toBe('stub_queued');
     expect(retried?.attemptCount).toBe(1);
+  });
+
+  it('queues a submission notice as Submitted / PendingManual', async () => {
+    const notice = buildLtiAgsSubmissionNotice('canvas-user-9');
+    expect(notice.activityProgress).toBe('Submitted');
+    expect(notice.gradingProgress).toBe('PendingManual');
+    expect(notice.scoreGiven).toBe(0);
+    const row = await submitLtiSubmissionPassback({
+      classId: 'cls1',
+      assignmentId: 'asg1',
+      enrollmentId: 'enr1',
+      ltiUserId: 'canvas-user-9',
+    });
+    expect(row.status).toBe('stub_queued');
+    expect(row.payload.activityProgress).toBe('Submitted');
+    expect(row.payload.gradingProgress).toBe('PendingManual');
   });
 });

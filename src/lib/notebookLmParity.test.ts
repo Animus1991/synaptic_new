@@ -33,4 +33,9 @@ describe('notebookLmParity', () => {
     setNotebookLmParityOverride(false);
     expect(resolveNotebookLmParity()).toBe(false);
   });
+
+  it('defaults ON everywhere when no override or env is set (Phase 0: Agent visible in production)', () => {
+    expect(getNotebookLmParityOverride()).toBe(null);
+    expect(resolveNotebookLmParity()).toBe(true);
+  });
 });

@@ -27,6 +27,7 @@ This file is the only recommended entry point for humans and agents. Historical 
 | [plugins.md](./plugins.md) | Plugin API / sandbox (D7 draft) |
 | [DEPENDABOT_POLICY.md](./DEPENDABOT_POLICY.md) | Dependabot merge cadence |
 | [runbooks/pwa-chunk-recovery.md](./runbooks/pwa-chunk-recovery.md) | PWA/SW chunk recovery |
+| Canon ⇄ Synapse cross-pollination UI/UX audit — `Obsidian_protocol/docs/CANON_SYNAPSE_CROSS_POLLINATION_UIUX_AUDIT_AND_PLAN.md` (separate repo: `C:\Users\anast\Desktop\Android Projects\Obsidian_protocol`, not a subpath of this repo — no relative link possible) | Bidirectional UI/UX audit vs. the Canon/Obsidian_protocol sibling project (routing, Button primitive, contrast toggle = Synapse-side items X0–X4); lives in that repo per its own doc convention, not duplicated here |
 
 ## History (do not treat as active plans)
 

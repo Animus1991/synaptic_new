@@ -1,5 +1,6 @@
 import type { UserSettings } from '../types';
 import { apiUrl } from './apiBase';
+import type { CoReadingHubStore } from './coReadingHub';
 import {
   localCreateRoom,
   localGetByInvite,
@@ -282,6 +283,28 @@ export async function updateStudyRoomPresence(
     }
     throw err;
   }
+}
+
+export async function fetchCoReadingHub(
+  roomId: string,
+  settings?: UserSettings,
+): Promise<CoReadingHubStore> {
+  const res = await apiFetch(`/v1/study-rooms/${roomId}/coreading`, settings);
+  if (!res.ok) throw new Error(await parseApiError(res));
+  return (await res.json()) as CoReadingHubStore;
+}
+
+export async function pushCoReadingHub(
+  roomId: string,
+  hub: CoReadingHubStore,
+  settings?: UserSettings,
+): Promise<CoReadingHubStore> {
+  const res = await apiFetch(`/v1/study-rooms/${roomId}/coreading`, settings, {
+    method: 'PUT',
+    body: JSON.stringify(hub),
+  });
+  if (!res.ok) throw new Error(await parseApiError(res));
+  return (await res.json()) as CoReadingHubStore;
 }
 
 export function subscribeStudyRoomStream(

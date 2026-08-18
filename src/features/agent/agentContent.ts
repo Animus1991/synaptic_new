@@ -144,7 +144,8 @@ const EN: AgentContent = {
     attachFileTitle: 'Pin a file',
     noAnalyzedFiles: 'No analyzed files yet',
     sourceModeFooter: (mode) => {
-      if (mode === 'strict' || mode === 'notes-only') return 'My notes only';
+      if (mode === 'notes-only') return 'Outline only';
+      if (mode === 'strict') return 'My notes only';
       return 'Notes + trusted extras';
     },
   },
@@ -229,7 +230,8 @@ const EL: AgentContent = {
     attachFileTitle: 'Καρφίτσωμα αρχείου',
     noAnalyzedFiles: 'Δεν υπάρχουν αναλυμένα αρχεία',
     sourceModeFooter: (mode) => {
-      if (mode === 'strict' || mode === 'notes-only') return 'Μόνο οι σημειώσεις μου';
+      if (mode === 'notes-only') return 'Μόνο περίγραμμα';
+      if (mode === 'strict') return 'Μόνο οι σημειώσεις μου';
       return 'Σημειώσεις + αξιόπιστα έξτρα';
     },
   },

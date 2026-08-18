@@ -18,6 +18,9 @@ describe('pluginMarketplace', () => {
     const ids = listPluginCatalog().map((p) => p.id);
     expect(ids).toContain('synapse.fsrs-tags');
     expect(ids).toContain('synapse.export-watermark');
+    expect(ids).toContain('synapse.agent-preface');
+    expect(ids).toContain('synapse.course-stamp');
+    expect(ids).not.toContain('synapse.demo');
   });
 
   it('toggles plugin registration', () => {

@@ -59,16 +59,10 @@ export function setPluginEnabled(
 
 /** Bootstrap catalog + restore enabled plugins from localStorage. */
 export function initPluginMarketplace(): void {
+  catalog.clear();
   for (const p of REFERENCE_PLUGINS) {
     registerCatalogPlugin(p);
   }
-  registerCatalogPlugin({
-    id: 'synapse.demo',
-    name: 'Synapse Demo Plugin',
-    version: '0.1.0',
-    description: 'No-op scaffold proving plugin API wiring',
-    hooks: { 'leitner:beforeExport': (payload) => payload },
-  });
 
   const enabled = loadEnabledIds();
   if (enabled.size === 0) {

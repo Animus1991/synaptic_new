@@ -42,7 +42,7 @@ export function SyllabusCoverageWidget({
     const pct = Math.round(snapshot.coveragePct);
     return (
       <div
-        className="rounded-xl bg-surface-secondary/40 p-3 space-y-2"
+        className="space-y-2"
         data-testid="syllabus-coverage-widget-compact"
       >
         <div className="flex items-center justify-between gap-2">
@@ -71,7 +71,7 @@ export function SyllabusCoverageWidget({
         <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
           <div className="h-1.5 rounded-full bg-brand-600 transition-all" style={{ width: `${pct}%` }} />
         </div>
-        <ul className="space-y-1 max-h-28 overflow-y-auto">
+        <ul className="space-y-1">
           {snapshot.topics.slice(0, 6).map((topic) => (
             /* OPT-K9b — Practice sits beside title (proximity), not far-right justify */
             <li key={topic.topicId} className="coverage-topic-row flex items-center gap-1.5 type-micro">

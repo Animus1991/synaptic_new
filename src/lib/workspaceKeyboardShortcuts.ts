@@ -178,8 +178,8 @@ export const APP_SHELL_KEYBOARD_SHORTCUTS: WorkspaceShortcutDef[] = [
   {
     id: 'toggle-focus-study',
     keys: 'Alt+F',
-    labelEn: 'Toggle Focus study (hide secondary chrome)',
-    labelEl: 'Εναλλαγή Εστίασης μελέτης (κρύβει δευτερεύον chrome)',
+    labelEn: 'Toggle Focus study (quiet study page)',
+    labelEl: 'Εναλλαγή Εστίασης μελέτης (ήσυχη σελίδα)',
     groupEn: 'App',
     groupEl: 'Εφαρμογή',
   },

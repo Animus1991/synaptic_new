@@ -11,8 +11,6 @@ import {
 import { cn } from '../../utils/cn';
 import { useMinimalTheme } from '../../lib/useMinimalTheme';
 import { useI18n } from '../../lib/i18n';
-import { AllCapsLabel } from '../ui/AllCapsLabel';
-
 const SOURCE_ICONS: Record<UserSettings['sourceMode'], ElementType> = {
   strict: Lock,
   enriched: Sparkles,
@@ -161,8 +159,8 @@ export function AgentModeSidebar({
     >
       <div className="flex-1 overflow-y-auto">
         <div className="p-3 border-b border-transparent">
-          <p className="type-micro font-semibold text-text-tertiary uppercase tracking-[0.12em] mb-2.5">
-            <AllCapsLabel>{tutorModeHeading}</AllCapsLabel>
+          <p className="agent-mode-group-label mb-2.5 type-micro font-semibold text-text-tertiary">
+            {tutorModeHeading}
           </p>
 
           {quietModes ? (
@@ -190,8 +188,8 @@ export function AgentModeSidebar({
                       ) : (
                         <ChevronRight className="w-3 h-3 text-text-tertiary shrink-0" aria-hidden />
                       )}
-                      <span className="flex-1 type-micro font-semibold uppercase tracking-wider text-text-tertiary truncate">
-                        <AllCapsLabel>{t(group.labelKey)}</AllCapsLabel>
+                      <span className="agent-mode-group-label flex-1 truncate type-micro font-semibold text-text-tertiary">
+                        {t(group.labelKey)}
                       </span>
                       <span className="type-micro tabular-nums text-text-muted">{count}</span>
                     </button>
@@ -229,8 +227,8 @@ export function AgentModeSidebar({
 
         {onChangeSourceMode && (
           <div className="p-3 border-b border-transparent">
-            <p className="type-micro font-semibold text-text-tertiary uppercase tracking-[0.12em] mb-2.5">
-              <AllCapsLabel>{sourceModeHeading}</AllCapsLabel>
+            <p className="agent-mode-group-label mb-2.5 type-micro font-semibold text-text-tertiary">
+              {sourceModeHeading}
             </p>
             {sourceModeOptions.map((opt) => {
               const Icon = SOURCE_ICONS[opt.id];
@@ -333,8 +331,8 @@ export function AgentModeCatalogGrid({
     >
       {groups.map((group) => (
         <div key={group.id} data-testid={`agent-mode-group-${group.id}`}>
-          <p className="agent-mode-group-label mb-1.5 type-micro font-semibold uppercase tracking-wider text-text-tertiary">
-            <AllCapsLabel>{t(group.labelKey)}</AllCapsLabel>
+          <p className="agent-mode-group-label mb-1.5 type-micro font-semibold text-text-tertiary">
+            {t(group.labelKey)}
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {group.modes.map((m) => {

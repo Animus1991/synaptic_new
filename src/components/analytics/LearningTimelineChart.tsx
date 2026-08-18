@@ -3,8 +3,6 @@ import { Calendar } from '@/lib/lucide-shim';
 import type { LearningTimelineEvent, TimelineEventType } from '../../features/analytics/knowledgeFlowAnalytics';
 import { cn } from '../../utils/cn';
 import { BlueprintSurface } from '../ui/BlueprintSurface';
-import { AllCapsLabel } from '../ui/AllCapsLabel';
-
 /* OPT-K97 — event cards share calm wells; delta/dot carry semantic chroma */
 /* OPT-K128 — wash event chips (no outline cages) */
 const TYPE_STYLE: Record<TimelineEventType, { border: string; bg: string; text: string }> = {
@@ -95,8 +93,8 @@ export function LearningTimelineChart({
                           {event.delta}
                         </span>
                       )}
-                      <span className="type-micro uppercase tracking-wider text-text-muted">
-                        <AllCapsLabel>{dayLabel(event.daysAgo)}</AllCapsLabel>
+                      <span className="ux-section-eyebrow type-micro text-text-muted">
+                        {dayLabel(event.daysAgo)}
                       </span>
                     </div>
                   </div>

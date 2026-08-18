@@ -14,16 +14,53 @@ export function shouldShowDiagrams(settings: UserSettings): boolean {
   return settings.diagramFrequency !== 'minimal';
 }
 
-export function lessonStepCount(settings: UserSettings): number {
-  switch (settings.lessonLength) {
-    case 'short': return 5;
-    case 'long': return 7;
-    default: return 6;
+export function shouldIncludeWorkedExample(settings: UserSettings): boolean {
+  return settings.exampleDensity !== 'fewer';
+}
+
+export function shouldPreferManyExamples(settings: UserSettings): boolean {
+  return settings.exampleDensity === 'many';
+}
+
+export function quizQuestionCount(settings: UserSettings): number {
+  let count = 3;
+  switch (settings.questionFrequency) {
+    case 'minimal': count = 2; break;
+    case 'frequent': count = 5; break;
+    default: count = 3;
   }
+  if (settings.practiceIntensity === 'light') count = Math.max(2, count - 1);
+  if (settings.practiceIntensity === 'intense') count = Math.min(6, count + 1);
+  return count;
+}
+
+export function sessionPaceMinutes(settings: UserSettings): 10 | 25 | 50 {
+  switch (settings.pacing) {
+    case 'slow': return 50;
+    case 'fast': return 10;
+    default: return 25;
+  }
+}
+
+export function lessonStepCount(settings: UserSettings): number {
+  let count = 6;
+  switch (settings.lessonLength) {
+    case 'short': count = 5; break;
+    case 'long': count = 7; break;
+    default: count = 6;
+  }
+  if (settings.revisionLoops === 'fewer') count = Math.max(5, count - 1);
+  if (settings.revisionLoops === 'more') count = Math.min(8, count + 1);
+  return count;
 }
 
 export function passThreshold(settings: UserSettings): number {
   return settings.masteryThreshold;
+}
+
+export function dailyGoalProgressPct(studyMinutesToday: number, dailyGoalMinutes: number): number {
+  const goal = Math.max(1, dailyGoalMinutes);
+  return Math.min(100, Math.round((studyMinutesToday / goal) * 100));
 }
 
 export function agentTonePrefix(settings: UserSettings): string {

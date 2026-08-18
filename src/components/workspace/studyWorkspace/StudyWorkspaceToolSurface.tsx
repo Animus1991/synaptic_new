@@ -35,6 +35,7 @@ import { WorkspaceMobileIntelligenceBottomSheet } from '../WorkspaceMobileIntell
 import { AVAILABLE_TOOLS, type WorkspaceTool } from './types';
 
 import type { StudyWorkspaceModel } from './useStudyWorkspace';
+import { shouldShowDiagrams } from '../../../lib/settingsEffects';
 
 interface StudyWorkspaceToolSurfaceProps {
   model: StudyWorkspaceModel;
@@ -400,15 +401,17 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                             ?? (conceptLensView.struggling ? quizConcept : undefined)
                           }
                           crdt={whiteboardCrdt.active ? whiteboardCrdt : undefined}
-                          onAskAgent={(prompt, intent) => {
-                            const agentIntent: ToolAgentIntent = intent === 'critique'
-                              ? 'diagram-critique'
-                              : intent === 'explain'
-                                ? 'diagram-explain'
-                                : 'diagram-coach';
-                            openAgentForTool('whiteboard', prompt, agentIntent);
-                            noteConceptActivity(quizConcept, 'whiteboard', 'noted');
-                          }}
+                          onAskAgent={(!userSettings || shouldShowDiagrams(userSettings))
+                            ? (prompt, intent) => {
+                              const agentIntent: ToolAgentIntent = intent === 'critique'
+                                ? 'diagram-critique'
+                                : intent === 'explain'
+                                  ? 'diagram-explain'
+                                  : 'diagram-coach';
+                              openAgentForTool('whiteboard', prompt, agentIntent);
+                              noteConceptActivity(quizConcept, 'whiteboard', 'noted');
+                            }
+                            : undefined}
                         />
                         </WorkspaceToolSuspense>
                       )}
@@ -492,6 +495,8 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           session={simulatorSession}
                           concept={quizConcept}
                           courseTitle={linkedCourse?.title}
+                          glossary={scopedGlossary}
+                          notes={noteBundle.sourceFullText || noteBundle.annotationText}
                           lang={lang}
                           emptyMessage={toolEmptyMessage('simulator')}
                           onUpload={handleToolUpload}

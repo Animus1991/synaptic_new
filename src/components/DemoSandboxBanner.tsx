@@ -48,13 +48,13 @@ export function DemoSandboxBanner() {
       title={t('demoSandboxBannerHint')}
       className={cn(
         /* OPT-K117 — status wash only; no stacked hairline under topbar */
-        'sticky top-14 z-[19] border-b border-transparent',
+        'sticky top-12 z-[19] border-b border-transparent',
         quiet
-          ? 'bg-surface-primary px-3 py-0.5 sm:px-5'
-          : 'bg-surface-secondary/55 px-3 py-1 sm:px-5',
+          ? 'bg-surface-primary px-4 py-0 sm:px-6 lg:px-8'
+          : 'bg-surface-secondary/55 px-4 py-0.5 sm:px-6 lg:px-8',
       )}
     >
-      <div className="flex items-center justify-between gap-3 w-full min-h-7">
+      <div className="flex items-center justify-start gap-3 w-full min-h-6">
         <div className="flex items-center gap-1.5 min-w-0">
           <FlaskConical className="w-3.5 h-3.5 text-text-tertiary shrink-0" aria-hidden />
           <p className="type-caption font-medium text-text-secondary truncate">

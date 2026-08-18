@@ -13,6 +13,11 @@ import {
   updateStudyRoomPresence,
   type StudyRoomSnapshot,
 } from '../store/studyRoomStore';
+import {
+  getCoReadingHubAsync,
+  parseCoReadingHub,
+  upsertCoReadingHubAsync,
+} from '../store/coReadingStore';
 
 export const studyRoomsRouter = Router();
 
@@ -145,4 +150,32 @@ studyRoomsRouter.get('/study-rooms/:roomId/stream', (req, res) => {
       if (c.res === res) streamClients.delete(c);
     }
   });
+});
+
+/** GET /v1/study-rooms/:roomId/coreading — shared explanation challenges + votes. */
+studyRoomsRouter.get('/study-rooms/:roomId/coreading', async (req, res) => {
+  const room = getStudyRoom(req.params.roomId);
+  if (!room) {
+    res.status(404).json({ error: 'Room not found' });
+    return;
+  }
+  const hub = await getCoReadingHubAsync(room.id);
+  res.json(hub);
+});
+
+/** PUT /v1/study-rooms/:roomId/coreading — merge this device's hub into the room copy. */
+studyRoomsRouter.put('/study-rooms/:roomId/coreading', async (req, res) => {
+  const room = getStudyRoom(req.params.roomId);
+  if (!room) {
+    res.status(404).json({ error: 'Room not found' });
+    return;
+  }
+  const parsed = parseCoReadingHub(req.body, room.id);
+  if (!parsed) {
+    res.status(400).json({ error: 'invalid co-reading hub' });
+    return;
+  }
+  const hub = await upsertCoReadingHubAsync(room.id, parsed);
+  broadcast(room);
+  res.json(hub);
 });

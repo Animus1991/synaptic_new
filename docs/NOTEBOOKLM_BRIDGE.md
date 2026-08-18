@@ -67,7 +67,7 @@ Features that duplicate NotebookLM without moat are **hidden** by default (`plat
 - Standalone **Agent** nav tab (Agent remains in Study Workspace context)
 - **Cross-library synthesis** hero panel (use NotebookLM for multi-doc digest)
 
-Re-enable via `VITE_SHOW_NOTEBOOKLM_PARITY=true` / `false` (explicit), Settings → Developer override, or leave unset for **DEV default ON / production default OFF** (`notebookLmParity.ts` / AI-05).
+Control via `VITE_SHOW_NOTEBOOKLM_PARITY=true` / `false` (explicit), Settings → Developer override, or leave unset for **default ON everywhere** (`notebookLmParity.ts` / AI-05; Phase 0 opened the previous production-OFF default so the Agent is visible to end users).
 
 ---
 

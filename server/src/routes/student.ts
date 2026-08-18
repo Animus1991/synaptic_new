@@ -12,9 +12,21 @@ import {
   removeAssignmentDiscussionPostAsync,
   validateDiscussionParentPostId,
 } from '../store/discussionStore';
-import { getGradebookAsync } from '../store/gradebookStore';
+import { getGradebookAsync, upsertGradebookCellAsync } from '../store/gradebookStore';
+import {
+  getStudentSubmissionAsync,
+  listEnrollmentSubmissionsAsync,
+  upsertStudentSubmissionAsync,
+} from '../store/submissionStore';
 import { listOrgsForAccountAsync, getOrgMembershipAsync } from '../store/orgStore';
 import { computeStudentDashboardAsync } from '../lib/studentDashboard';
+import {
+  attachmentDownloadHeaders,
+  findAttachment,
+  mergeSubmissionAttachments,
+  toPublicAttachments,
+} from '../lib/submissionAttachments';
+import { submitLtiSubmissionPassback } from '../lib/ltiGradePassback';
 
 export const studentRouter = Router();
 
@@ -29,11 +41,16 @@ studentRouter.get('/student/classes', async (req, res) => {
       const assignments = await listClassAssignmentsAsync(cls.id);
       const gradebook = await getGradebookAsync(cls.id);
       const myCells = gradebook.cells.filter((c) => c.enrollmentId === enrollment.id);
+      const submissions = await listEnrollmentSubmissionsAsync(cls.id, enrollment.id);
       return {
         class: cls,
         enrollment,
         assignments,
         gradeCells: myCells,
+        submissions: submissions.map((s) => ({
+          ...s,
+          attachments: toPublicAttachments(s.attachments),
+        })),
       };
     }),
   );
@@ -70,6 +87,167 @@ studentRouter.get('/student/announcements', async (req, res) => {
   }
   res.json({ email: account.email, announcements });
 });
+
+const SUBMISSION_BODY_MAX = 20_000;
+
+function isValidSubmissionLink(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+/** GET /v1/student/classes/:classId/assignments/:assignmentId/submission — own submission or null. */
+studentRouter.get(
+  '/student/classes/:classId/assignments/:assignmentId/submission',
+  async (req, res) => {
+    const account = req.account!;
+    const enrollment = await getStudentEnrollmentAsync(req.params.classId, account.email);
+    if (!enrollment) {
+      res.status(404).json({ error: 'class not found' });
+      return;
+    }
+    const assignments = await listClassAssignmentsAsync(req.params.classId);
+    if (!assignments.some((a) => a.id === req.params.assignmentId)) {
+      res.status(404).json({ error: 'assignment not found' });
+      return;
+    }
+    const submission = await getStudentSubmissionAsync(
+      req.params.classId,
+      req.params.assignmentId,
+      enrollment.id,
+    );
+    res.json({
+      submission: submission
+        ? { ...submission, attachments: toPublicAttachments(submission.attachments) }
+        : null,
+    });
+  },
+);
+
+/** GET /v1/student/classes/:classId/assignments/:assignmentId/submission/attachments/:attachmentId */
+studentRouter.get(
+  '/student/classes/:classId/assignments/:assignmentId/submission/attachments/:attachmentId',
+  async (req, res) => {
+    const account = req.account!;
+    const enrollment = await getStudentEnrollmentAsync(req.params.classId, account.email);
+    if (!enrollment) {
+      res.status(404).json({ error: 'class not found' });
+      return;
+    }
+    const submission = await getStudentSubmissionAsync(
+      req.params.classId,
+      req.params.assignmentId,
+      enrollment.id,
+    );
+    const file = findAttachment(submission?.attachments, req.params.attachmentId);
+    if (!file) {
+      res.status(404).json({ error: 'attachment not found' });
+      return;
+    }
+    const buf = Buffer.from(file.contentBase64, 'base64');
+    res.set(attachmentDownloadHeaders(file));
+    res.send(buf);
+  },
+);
+
+/**
+ * PUT /v1/student/classes/:classId/assignments/:assignmentId/submission
+ * Create or replace (resubmit) the signed-in student's submission. Flips the
+ * gradebook cell to `submitted` — also after grading, so the teacher sees a
+ * regrade is needed (the existing score is preserved by the gradebook store).
+ */
+studentRouter.put(
+  '/student/classes/:classId/assignments/:assignmentId/submission',
+  async (req, res) => {
+    const account = req.account!;
+    const enrollment = await getStudentEnrollmentAsync(req.params.classId, account.email);
+    if (!enrollment) {
+      res.status(404).json({ error: 'class not found' });
+      return;
+    }
+    const assignments = await listClassAssignmentsAsync(req.params.classId);
+    if (!assignments.some((a) => a.id === req.params.assignmentId)) {
+      res.status(404).json({ error: 'assignment not found' });
+      return;
+    }
+    const body = req.body as {
+      body?: string;
+      linkUrl?: string;
+      attachments?: unknown;
+      keepAttachmentIds?: unknown;
+    };
+    const text = body.body?.trim() ?? '';
+    const linkUrl = body.linkUrl?.trim() || undefined;
+    const specified =
+      Object.prototype.hasOwnProperty.call(body, 'attachments') ||
+      Object.prototype.hasOwnProperty.call(body, 'keepAttachmentIds');
+    const keepIds = Array.isArray(body.keepAttachmentIds)
+      ? body.keepAttachmentIds.filter((id): id is string => typeof id === 'string')
+      : undefined;
+    const existing = await getStudentSubmissionAsync(
+      req.params.classId,
+      req.params.assignmentId,
+      enrollment.id,
+    );
+    const merged = mergeSubmissionAttachments({
+      existing: existing?.attachments ?? [],
+      keepIds,
+      incoming: specified ? body.attachments : undefined,
+      specified,
+    });
+    if (!merged.ok) {
+      res.status(400).json({ error: merged.error });
+      return;
+    }
+    if (!text && !linkUrl && merged.attachments.length === 0) {
+      res.status(400).json({ error: 'body, linkUrl, or attachments required' });
+      return;
+    }
+    if (text.length > SUBMISSION_BODY_MAX) {
+      res.status(400).json({ error: `body exceeds ${SUBMISSION_BODY_MAX} characters` });
+      return;
+    }
+    if (linkUrl && !isValidSubmissionLink(linkUrl)) {
+      res.status(400).json({ error: 'linkUrl must be a valid http(s) URL' });
+      return;
+    }
+    const submission = await upsertStudentSubmissionAsync(
+      req.params.classId,
+      req.params.assignmentId,
+      {
+        enrollmentId: enrollment.id,
+        accountId: account.id,
+        body: text,
+        linkUrl,
+        attachments: merged.attachments,
+      },
+    );
+    const cell = await upsertGradebookCellAsync(req.params.classId, {
+      enrollmentId: enrollment.id,
+      assignmentId: req.params.assignmentId,
+      status: 'submitted',
+    });
+    let ltiPassback = null;
+    try {
+      ltiPassback = await submitLtiSubmissionPassback({
+        classId: req.params.classId,
+        assignmentId: req.params.assignmentId,
+        enrollmentId: enrollment.id,
+        ltiUserId: enrollment.studentEmail,
+      });
+    } catch (err) {
+      console.warn('[lti] submission passback failed', err);
+    }
+    res.status(existing ? 200 : 201).json({
+      submission: { ...submission, attachments: toPublicAttachments(submission.attachments) },
+      cell,
+      ltiPassback,
+    });
+  },
+);
 
 /** GET /v1/student/classes/:classId/assignments/:assignmentId/discussion */
 studentRouter.get(

@@ -1,24 +1,48 @@
 import { useMemo, useState } from 'react';
 import { Play, CaretLeft, CaretRight, Code } from '@phosphor-icons/react';
+import type { GlossaryEntry } from '../../types';
 import { EXERCISE_ARCHETYPES, buildArchetypePromptSuffix } from '../../lib/examPrep/exerciseArchetypes';
 import { METHODOLOGY_PATTERNS } from '../../lib/examPrep/methodologyPatterns';
 import { ALGORITHM_SCENARIOS, clampStepIndex } from '../../lib/examPrep/algorithmStepperModel';
 import { GLOSSA_STARTER, runGlossa } from '../../lib/examPrep/glossaInterpreter';
+import { buildCourseExamPrepModel, courseLooksLikeInformatics } from '../../lib/examPrep/courseExamPrep';
 import { useI18n } from '../../lib/i18n';
 import { useResponsiveLayout } from '../../lib/useResponsiveLayout';
 import { cn } from '../../utils/cn';
 
-type ExamPrepTab = 'patterns' | 'algorithms' | 'glossa' | 'exercises';
+type ExamPrepTab = 'course' | 'patterns' | 'algorithms' | 'glossa' | 'exercises';
+
+type ExamPrepPanelProps = {
+  courseTitle?: string;
+  concept?: string;
+  glossary?: readonly GlossaryEntry[];
+  notes?: string;
+};
 
 /* OPT-K101 — residual markup debt: decorative brand type -> ink */
-export function ExamPrepPanel() {
-  const { t } = useI18n();
-  const [tab, setTab] = useState<ExamPrepTab>('patterns');
+export function ExamPrepPanel({
+  courseTitle,
+  concept,
+  glossary = [],
+  notes = '',
+}: ExamPrepPanelProps) {
+  const { t, lang } = useI18n();
+  const courseModel = useMemo(
+    () => buildCourseExamPrepModel({ courseTitle, concept, glossary, notes, lang }),
+    [courseTitle, concept, glossary, notes, lang],
+  );
+  const showCsTools = courseLooksLikeInformatics({ courseTitle, concept, notes }) || !courseModel.hasCourseContent;
+  const [tab, setTab] = useState<ExamPrepTab>(courseModel.hasCourseContent ? 'course' : 'patterns');
 
   return (
     <div className="flex h-full flex-col overflow-hidden" data-testid="exam-prep-panel">
       <div className="shrink-0 flex gap-1 border-b border-border-subtle px-4 py-2 overflow-x-auto">
-        {(['patterns', 'algorithms', 'glossa', 'exercises'] as const).map((id) => (
+        {([
+          ...(courseModel.hasCourseContent ? (['course'] as const) : []),
+          'patterns',
+          ...(showCsTools ? (['algorithms', 'glossa'] as const) : []),
+          'exercises',
+        ] as const).map((id) => (
           <button
             key={id}
             type="button"
@@ -31,17 +55,57 @@ export function ExamPrepPanel() {
                 : 'text-text-secondary hover:bg-surface-hover',
             )}
           >
-            {t(`examPrepTab${id === 'patterns' ? 'Patterns' : id === 'algorithms' ? 'Algorithms' : id === 'glossa' ? 'Glossa' : 'Exercises'}` as never)}
+            {id === 'course'
+              ? t('examPrepFromCourse')
+              : t(`examPrepTab${id === 'patterns' ? 'Patterns' : id === 'algorithms' ? 'Algorithms' : id === 'glossa' ? 'Glossa' : 'Exercises'}` as never)}
           </button>
         ))}
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
+        {tab === 'course' && <CourseExamPrep model={courseModel} />}
         {tab === 'patterns' && <PatternCards />}
-        {tab === 'algorithms' && <AlgorithmStepper />}
-        {tab === 'glossa' && <GlossaSandbox />}
+        {tab === 'algorithms' && showCsTools && <AlgorithmStepper />}
+        {tab === 'glossa' && showCsTools && <GlossaSandbox />}
         {tab === 'exercises' && <ExerciseArchetypes />}
       </div>
+    </div>
+  );
+}
+
+function CourseExamPrep({ model }: { model: ReturnType<typeof buildCourseExamPrepModel> }) {
+  const { t } = useI18n();
+  if (!model.hasCourseContent) {
+    return <p className="type-caption text-text-tertiary">{t('examPrepNoCourseContent')}</p>;
+  }
+  return (
+    <div className="space-y-4" data-testid="exam-prep-course-content">
+      {model.methods.length > 0 && (
+        <section>
+          <p className="type-caption font-semibold text-text-secondary mb-2">{t('examPrepCourseMethods')}</p>
+          <ul className="space-y-2">
+            {model.methods.map((method) => (
+              <li key={method.id} className="rounded-xl border border-border-subtle bg-surface-card/40 p-3">
+                <p className="type-meta font-medium">{method.title}</p>
+                <p className="type-caption text-text-muted mt-1">{method.summary}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {model.glossary.length > 0 && (
+        <section>
+          <p className="type-caption font-semibold text-text-secondary mb-2">{t('examPrepCourseGlossary')}</p>
+          <ul className="space-y-2">
+            {model.glossary.map((entry) => (
+              <li key={entry.term} className="rounded-xl border border-border-subtle bg-surface-card/40 p-3">
+                <p className="type-meta font-medium">{entry.term}</p>
+                <p className="type-caption text-text-secondary mt-1">{entry.definition}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }
