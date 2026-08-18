@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { X } from '@phosphor-icons/react';
 import { useI18n } from '../lib/i18n';
 import type { DashboardHubActionId } from '../lib/dashboardHubRegistry';
+import { FOCUS_TRAP_FOCUSABLE } from './ui/FocusTrapDialog';
 
 interface Props {
   open: boolean;
@@ -18,12 +19,37 @@ export function DashboardHubPopupShell({ open, actionId, title, onClose, childre
 
   useEffect(() => {
     if (!open) return;
-    panelRef.current?.focus();
+    const prev = document.activeElement as HTMLElement | null;
+
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') { onClose(); return; }
+      if (e.key !== 'Tab' || !panelRef.current) return;
+      const nodes: HTMLElement[] = [];
+      panelRef.current.querySelectorAll<HTMLElement>(FOCUS_TRAP_FOCUSABLE).forEach((el) => {
+        if (!el.hasAttribute('disabled') && el.offsetParent !== null) nodes.push(el);
+      });
+      if (!nodes.length) { e.preventDefault(); panelRef.current.focus(); return; }
+      const first = nodes[0]!;
+      const last = nodes[nodes.length - 1]!;
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey) {
+        if (active === first || !panelRef.current.contains(active)) { e.preventDefault(); last.focus(); }
+      } else if (active === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
+
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    requestAnimationFrame(() => {
+      const first = panelRef.current?.querySelector<HTMLElement>(FOCUS_TRAP_FOCUSABLE);
+      (first || panelRef.current)?.focus();
+    });
+
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      prev?.focus?.();
+    };
   }, [open, onClose]);
 
   return (
@@ -63,7 +89,7 @@ export function DashboardHubPopupShell({ open, actionId, title, onClose, childre
                 aria-label={t('close')}
                 className="p-1.5 rounded-lg hover:bg-surface-hover"
               >
-                <X className="w-4 h-4 text-text-secondary" />
+                <X className="w-4 h-4 text-text-secondary" aria-hidden />
               </button>
             </div>
             <div className="overflow-y-auto p-5">{children}</div>
