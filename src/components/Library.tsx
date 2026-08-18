@@ -1281,7 +1281,7 @@ function CourseCard({
       <div className="mt-2.5 flex items-center justify-between gap-2">
         <div className="flex min-w-0 flex-wrap gap-1">
           {course.sourceFiles.slice(0, 2).map(f => (
-            <span key={f} className="platform-meta-chip border-0 bg-surface-secondary/60 px-1.5 py-0.5 rounded truncate max-w-[100px]">
+            <span key={f} className="platform-meta-chip border-0 bg-surface-secondary/60 px-1.5 py-0.5 rounded truncate max-w-24">
               {f}
             </span>
           ))}

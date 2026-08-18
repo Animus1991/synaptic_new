@@ -805,10 +805,11 @@ export function Settings({
                       <p className="text-text-muted">{new Date(s.createdAt).toLocaleString()}</p>
                     </div>
                     {!s.current && (
-                      <button
+                      <Button
                         type="button"
+                        variant="secondary"
+                        size="sm"
                         data-testid={`session-revoke-${s.id}`}
-                        className="px-2 py-1 rounded-lg border border-border-subtle text-text-secondary"
                         onClick={async () => {
                           if (!settings.authToken) return;
                           try {
@@ -821,17 +822,18 @@ export function Settings({
                         }}
                       >
                         {c.revokeSession}
-                      </button>
+                      </Button>
                     )}
                   </li>
                 ))}
               </ul>
             )}
             {settings.authSessionId && sessions.some((s) => !s.current) && (
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="sm"
                 data-testid="sessions-revoke-others"
-                className="px-3 py-2 rounded-xl type-caption font-medium border border-border-subtle text-text-secondary"
                 onClick={async () => {
                   if (!settings.authToken || !settings.authSessionId) return;
                   try {
@@ -848,7 +850,7 @@ export function Settings({
                 }}
               >
                 {c.revokeOtherSessions}
-              </button>
+              </Button>
             )}
             {sessionsStatus && <p className="type-caption text-text-muted">{sessionsStatus}</p>}
           </div>
@@ -869,10 +871,11 @@ export function Settings({
               </a>
             </p>
             <div className="flex flex-wrap gap-2">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="sm"
                 data-testid="gdpr-export-account"
-                className="px-3 py-2 rounded-xl type-caption font-medium border border-border-subtle text-text-secondary hover:border-brand-500/30"
                 onClick={async () => {
                   if (!settings.authToken) return;
                   try {
@@ -890,7 +893,7 @@ export function Settings({
                 }}
               >
                 {t('gdprExportData')}
-              </button>
+              </Button>
             </div>
             <p className="type-caption text-text-muted pt-1">{t('gdprDeleteHint')}</p>
             <label className="type-caption text-text-secondary block">{t('gdprDeleteConfirm')}</label>
@@ -1038,14 +1041,15 @@ export function Settings({
         {onReplayProductTour && (
           <div className="pt-2 border-t border-border-subtle">
             <p className="type-caption text-text-secondary mb-2">{t('tourReplayHint')}</p>
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               onClick={onReplayProductTour}
               data-testid="settings-replay-product-tour"
-              className="px-3 py-2 rounded-lg type-caption font-medium border border-border-subtle hover:bg-surface-hover transition-colors"
             >
               {t('tourReplay')}
-            </button>
+            </Button>
           </div>
         )}
       </SettingsSection>
