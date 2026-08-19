@@ -97,6 +97,16 @@ describe('Wave I — cross-theme micro-harmony', () => {
     );
   });
 
+  it('I8 — Timer hero ring is capped on wide panels so the practice chrome stays in view', () => {
+    const css = read('src/index.css');
+    const marker = css.indexOf('Wave I8');
+    expect(marker, 'Wave I8 hero-proportion rule must exist').toBeGreaterThan(-1);
+    const block = css.slice(marker, marker + 700);
+    expect(block, 'ring is re-capped on wide panels').toMatch(/min-width:\s*64rem/);
+    expect(block).toMatch(/\.ux-pomodoro-ring-hero\s*\{[\s\S]*?width:\s*min\(/);
+    expect(block, 'stage stops ballooning to full height').toMatch(/flex-grow:\s*0/);
+  });
+
   it('I6 — offline notice collapses to the first offline agent message only', () => {
     const src = read('src/components/Agent.tsx');
     expect(src, 'must compute the first offline message id').toContain('firstOfflineMessageId');
