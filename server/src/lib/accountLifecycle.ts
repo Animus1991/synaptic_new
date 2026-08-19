@@ -1,4 +1,3 @@
-import { config } from '../config';
 import {
   findByIdAsync,
   getUsage,
@@ -75,10 +74,20 @@ export async function deleteAccountData(accountId: string): Promise<boolean> {
   await deleteGoogleTokens(accountId);
   await revokeTokensForAccount(accountId);
 
-  if (!config.databaseUrl?.trim()) {
-    await deleteLibraryAsync(accountId);
-    await deleteSessionAsync(accountId);
-  }
+  /* D5 GDPR hardening — erase the library + session payloads explicitly as part
+     of the account-scoped pre-clean, mirroring the thumbnail/vector-chunk steps
+     above. This is a deliberate defense-in-depth pass, NOT the sole erasure path:
+     in Postgres mode the authoritative deletion happens atomically inside
+     deleteAccountFromStore -> pgRepo.deleteAccount, whose single transaction also
+     DELETEs account_libraries and account_sessions (see store/postgres.ts). Note
+     that account_libraries / account_sessions carry account_id as a plain PK with
+     NO FK ON DELETE CASCADE to accounts (migration 0), so in the in-memory store
+     — where deleteAccountFromStore only drops the accounts map entry — these two
+     explicit deletes are what actually guarantee right-to-erasure completeness.
+     deleteLibraryAsync/deleteSessionAsync are idempotent in both modes, so the
+     redundant Postgres pass is harmless. */
+  await deleteLibraryAsync(accountId);
+  await deleteSessionAsync(accountId);
 
   return deleteAccountFromStore(accountId);
 }
