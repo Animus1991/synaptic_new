@@ -60,6 +60,17 @@ describe('Wave I — cross-theme micro-harmony', () => {
     expect(cls, 'letter weight floored to semibold for legibility').toContain('font-semibold');
   });
 
+  it('I4 — Progress panel states the missing daily breakdown instead of re-printing the week total', () => {
+    const src = read('src/components/workspace/MiniDashboard.tsx');
+    /* Empty-week branch must not re-state the total that already lives in the StatPill. */
+    expect(src).toMatch(/studyTimeWeek > 0\s*\n?\s*\?\s*t\('noDailyBreakdown'\)/);
+    /* Session/tool chips overflow through an accessible expander, not a bare "+9". */
+    const chips = src.match(/testId="progress-tool-chips"[\s\S]{0,220}/);
+    expect(chips, 'tool chips row should exist').toBeTruthy();
+    expect(src).toMatch(/moreAriaLabel=\{\(n\) =>/);
+    expect(src).toMatch(/<OverflowChipRow[\s\S]{0,160}maxVisible=\{3\}/);
+  });
+
   it('I5 — Studio grid shows one AI legend instead of a per-tile badge meaning', () => {
     const src = read('src/components/workspace/studyWorkspace/NotebookWorkspaceLayout.tsx');
     expect(src, 'grid-level AI legend testid must exist').toContain('data-testid="studio-ai-legend"');
