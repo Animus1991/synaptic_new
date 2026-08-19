@@ -56,7 +56,7 @@ Operational / security / quality program for `synaptic_new`. **No new product fe
 | ID | Status | Notes |
 |----|--------|-------|
 | C1 Docs history complete | **done** | INDEX + history/ + CONTRIBUTING |
-| C2 Feature-folder migration | **started** | `src/features/{rum,auth,upload,library,workspace,agent,analytics,teacher}`; remaining: more `workspace*` modules in `src/lib` |
+| C2 Feature-folder migration | **started** | `src/features/{rum,auth,upload,library,workspace,agent,analytics,teacher}`; workspace primitives moved this pass (`workspaceViewport`, `workspacePedagogyLens`, `workspaceStepTools`, `workspaceStepTitleQuality` + tests) with `@deprecated` re-export shims in `src/lib` for import stability; remaining: heavier `workspace*` modules (concept bus, correlation, tool registry/guide, note content) — migrate in cohesive batches |
 | C3 Optional npm workspaces | pending | wait until more features land under `src/features/` |
 
 ## Wave D — P2 Product-ops
