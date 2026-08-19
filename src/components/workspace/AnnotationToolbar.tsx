@@ -167,7 +167,14 @@ export function AnnotationToolbar({
           </button>
         ))}
 
-        <div className="flex items-center gap-1" data-testid="annotation-color-swatches">
+        {/* Wave I7 — the color-dot row now carries a group label so the multi-color
+            swatches read as "highlight color" instead of anonymous colored noise. */}
+        <div
+          className="flex items-center gap-1"
+          data-testid="annotation-color-swatches"
+          role="group"
+          aria-label={t('annoHighlightColor')}
+        >
           {COLORS.map((c, i) => {
             const colorLabel = t(COLOR_LABEL_KEYS[i] ?? 'annoHighlightColor');
             return (

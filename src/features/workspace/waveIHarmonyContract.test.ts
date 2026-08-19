@@ -76,6 +76,27 @@ describe('Wave I — cross-theme micro-harmony', () => {
     expect(src, 'grid-level AI legend testid must exist').toContain('data-testid="studio-ai-legend"');
   });
 
+  it('I7 — annotation source ink stays neutral; the color-dot row is a labelled group', () => {
+    const toolbar = read('src/components/workspace/AnnotationToolbar.tsx');
+    const swatches = toolbar.match(
+      /data-testid="annotation-color-swatches"[\s\S]{0,120}/,
+    );
+    expect(swatches, 'color swatch row must exist').toBeTruthy();
+    expect(swatches![0], 'color-dot row must be a labelled group').toMatch(/role="group"/);
+    expect(swatches![0]).toMatch(/aria-label=\{t\('annoHighlightColor'\)\}/);
+
+    /* Source lines colorise user highlights only — no per-token spell-gate ink by default. */
+    const overlay = read('src/components/workspace/AnnotationOverlay.tsx');
+    const renderFn = overlay.slice(
+      overlay.indexOf('const renderLineText'),
+      overlay.indexOf('const exportMd'),
+    );
+    expect(renderFn).toMatch(/type === 'highlight'/);
+    expect(renderFn, 'plain segments must not force an accent ink color').not.toMatch(
+      /text-accent-(rose|amber|teal|emerald)/,
+    );
+  });
+
   it('I6 — offline notice collapses to the first offline agent message only', () => {
     const src = read('src/components/Agent.tsx');
     expect(src, 'must compute the first offline message id').toContain('firstOfflineMessageId');
