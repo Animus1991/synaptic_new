@@ -5042,6 +5042,9 @@ const EL: Record<I18nKey, string> = {
 
 const DICTS: Record<Lang, Record<I18nKey, string>> = { en: EN, el: EL };
 
+/** Wave D1 — exposed for the i18n coverage gate (`i18nCoverage.test.ts`). */
+export const i18nDictionaries: Record<Lang, Record<I18nKey, string>> = DICTS;
+
 export function t(key: I18nKey, lang: Lang = 'en'): string {
   return DICTS[lang][key] ?? DICTS.en[key] ?? key;
 }
