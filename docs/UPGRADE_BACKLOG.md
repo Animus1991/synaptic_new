@@ -65,7 +65,7 @@ Operational / security / quality program for `synaptic_new`. **No new product fe
 |----|--------|-------|
 | D1 i18n coverage gate | **done** | `i18nCoverage.test.ts` (runtime EN/EL parity + non-empty EL + untranslated-value ratchet via `scripts/i18n-identical-allowlist.json`) on top of the existing `tsc` key-parity + `i18n-lint` inline-string ratchet |
 | D2 Mobile distribution lanes | pending | |
-| D3 A11y widening | pending | |
+| D3 A11y widening | **done** | OS `prefers-contrast: more` now auto-applies the verified ink floor + 2px control borders (mirrors the opt-in boost / `reducedMotion="user"`); `a11yWideningContract.test.ts`. Builds on Wave Audit A–H aria/focus/semantic sweeps + reduced-motion respect already shipped |
 | D4 SOC2/DPA docs | **draft** | `docs/compliance/SOC2_DPA.md` |
 | D5 GDPR export/delete | **partial** | Settings UI existed; keep hardening |
 | D6 Backup restore drill | **draft** | `docs/runbooks/backup-restore.md` |

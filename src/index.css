@@ -4308,6 +4308,31 @@ input[type="range"]::-webkit-slider-thumb {
   font-weight: 600;
 }
 
+/* Wave D3 — a11y widening: honour the OS `prefers-contrast: more` preference by
+   applying the same verified ink floor + control-border thickening the opt-in
+   boost uses (each theme's own already-AA-verified strongest tokens, no new
+   colors). Mirrors the `reducedMotion="user"` auto-respect: additive, and it
+   never alters the palette for users who did not ask the OS for more contrast.
+   The explicit Settings toggle (data-a11y-boost / data-high-contrast) still wins
+   and lets users opt in regardless of the OS setting. */
+@media (prefers-contrast: more) {
+  :root {
+    --color-text-secondary: var(--color-text-primary);
+    --color-text-tertiary: var(--color-text-primary);
+    --color-text-muted: var(--color-text-primary);
+    --color-border-subtle: var(--color-border-strong);
+    --color-border-default: var(--color-border-strong);
+  }
+  button,
+  input,
+  select,
+  textarea,
+  [role="button"] {
+    border-width: 2px;
+    font-weight: 600;
+  }
+}
+
 /* Wave N-T07 — opt-in focus ring for custom controls (menu items, listboxes,
    floating popovers) that need the same ring even without native `:focus-visible`. */
 .ux-focus-ring:focus-visible {
