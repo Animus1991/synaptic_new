@@ -66,10 +66,10 @@ Operational / security / quality program for `synaptic_new`. **No new product fe
 | D1 i18n coverage gate | **done** | `i18nCoverage.test.ts` (runtime EN/EL parity + non-empty EL + untranslated-value ratchet via `scripts/i18n-identical-allowlist.json`) on top of the existing `tsc` key-parity + `i18n-lint` inline-string ratchet |
 | D2 Mobile distribution lanes | pending | |
 | D3 A11y widening | **done** | OS `prefers-contrast: more` now auto-applies the verified ink floor + 2px control borders (mirrors the opt-in boost / `reducedMotion="user"`); `a11yWideningContract.test.ts`. Builds on Wave Audit A–H aria/focus/semantic sweeps + reduced-motion respect already shipped |
-| D4 SOC2/DPA docs | **draft** | `docs/compliance/SOC2_DPA.md` |
+| D4 SOC2/DPA docs | **done (docs)** | `docs/compliance/SOC2_DPA.md` — control narrative + data map + GDPR rights (D5) + subprocessor register + incident pointer + evidence index; residual work is external auditor + counsel-signed DPA (out of code scope) |
 | D5 GDPR export/delete | **done** | `deleteAccountData` explicitly erases library + session (non-cascading PKs — see accurate defense-in-depth rationale + `store/postgres.ts` atomic tx); `accountLifecycle.test.ts` locks in full right-to-erasure, credential-free export, anonymous rejection, delete idempotency |
-| D6 Backup restore drill | **draft** | `docs/runbooks/backup-restore.md` |
-| D7 Plugin API doc | **draft** | `docs/plugins.md` |
+| D6 Backup restore drill | **done (runbook)** | `docs/runbooks/backup-restore.md` — RTO/RPO targets, backup inventory (mirrors `deleteAccount` tx), staging procedure + smoke checks, pass/failure criteria; residual work is executing + signing off the first drill |
+| D7 Plugin API doc | **done** | `docs/plugins.md` — accurate current state (in-process hook registry `pluginApi.ts`, 3 wired hooks, curated `referencePlugins`, marketplace enable/disable), threat posture, and the target sandbox prerequisites before untrusted code |
 | D8 Admin cost/abuse dashboard | pending | |
 | D9 Design clarity regression | keep | `minimalClarityContracts` mandatory |
 
