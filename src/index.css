@@ -4285,7 +4285,8 @@ input[type="range"]::-webkit-slider-thumb {
    and borders to the theme's own already-verified strongest tokens for users who want more than
    the floor, rather than introducing new, unverified colors. Applied via documentElement
    [data-a11y-boost], mirrored on the [data-density] pattern in lib/chromeDensity.ts. */
-[data-a11y-boost="true"] {
+[data-a11y-boost="true"],
+[data-high-contrast="true"] {
   --color-text-secondary: var(--color-text-primary);
   --color-text-tertiary: var(--color-text-primary);
   --color-text-muted: var(--color-text-primary);
@@ -4297,7 +4298,12 @@ input[type="range"]::-webkit-slider-thumb {
 [data-a11y-boost="true"] input,
 [data-a11y-boost="true"] select,
 [data-a11y-boost="true"] textarea,
-[data-a11y-boost="true"] [role="button"] {
+[data-a11y-boost="true"] [role="button"],
+[data-high-contrast="true"] button,
+[data-high-contrast="true"] input,
+[data-high-contrast="true"] select,
+[data-high-contrast="true"] textarea,
+[data-high-contrast="true"] [role="button"] {
   border-width: 2px;
   font-weight: 600;
 }

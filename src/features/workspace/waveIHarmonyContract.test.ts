@@ -1,8 +1,10 @@
+// @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { clipQuizOptionText } from '../../lib/workspaceContentFallback';
 import { extractComparisons } from '../../lib/noteContentExtractors';
+import { applyA11yBoost } from '../../lib/a11yBoost';
 
 const read = (p: string) => readFileSync(resolve(process.cwd(), p), 'utf8');
 
@@ -105,6 +107,27 @@ describe('Wave I — cross-theme micro-harmony', () => {
     expect(block, 'ring is re-capped on wide panels').toMatch(/min-width:\s*64rem/);
     expect(block).toMatch(/\.ux-pomodoro-ring-hero\s*\{[\s\S]*?width:\s*min\(/);
     expect(block, 'stage stops ballooning to full height').toMatch(/flex-grow:\s*0/);
+  });
+
+  it('I9 — opt-in high-contrast variant (2px borders, floored ink) via a Settings toggle', () => {
+    /* Behaviour: enabling the boost exposes both the local + Canon-standard attributes. */
+    applyA11yBoost(true);
+    const root = document.documentElement;
+    expect(root.getAttribute('data-a11y-boost')).toBe('true');
+    expect(root.getAttribute('data-high-contrast')).toBe('true');
+    applyA11yBoost(false);
+    expect(root.hasAttribute('data-a11y-boost')).toBe(false);
+    expect(root.hasAttribute('data-high-contrast')).toBe(false);
+
+    /* CSS: the variant floors muted ink to primary and thickens control borders. */
+    const css = read('src/index.css');
+    expect(css).toMatch(/\[data-high-contrast="true"\]\s*\{[\s\S]*?--color-text-muted: var\(--color-text-primary\)/);
+    expect(css).toMatch(/\[data-high-contrast="true"\] button[\s\S]*?border-width: 2px/);
+
+    /* Settings surfaces the accessibility toggle (opt-in, no default change). */
+    const settings = read('src/components/Settings.tsx');
+    expect(settings).toMatch(/a11yContrastBoost/);
+    expect(settings).toMatch(/labelA11yBoost/);
   });
 
   it('I6 — offline notice collapses to the first offline agent message only', () => {

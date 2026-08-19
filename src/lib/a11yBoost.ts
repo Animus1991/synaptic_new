@@ -9,8 +9,16 @@ const A11Y_BOOST_KEY = 'a11y-contrast-boost';
 
 export function applyA11yBoost(enabled: boolean): boolean {
   if (typeof document !== 'undefined') {
-    if (enabled) document.documentElement.setAttribute('data-a11y-boost', 'true');
-    else document.documentElement.removeAttribute('data-a11y-boost');
+    const root = document.documentElement;
+    if (enabled) {
+      root.setAttribute('data-a11y-boost', 'true');
+      /* Wave I9 — also expose the Canon-standard opt-in attribute so shared
+         high-contrast CSS/selectors match on both projects (additive alias). */
+      root.setAttribute('data-high-contrast', 'true');
+    } else {
+      root.removeAttribute('data-a11y-boost');
+      root.removeAttribute('data-high-contrast');
+    }
   }
   saveJson(A11Y_BOOST_KEY, enabled);
   return enabled;
