@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { clipQuizOptionText } from '../../lib/workspaceContentFallback';
+import { extractComparisons } from '../../lib/noteContentExtractors';
 
 const read = (p: string) => readFileSync(resolve(process.cwd(), p), 'utf8');
 
@@ -13,6 +15,39 @@ const read = (p: string) => readFileSync(resolve(process.cwd(), p), 'utf8');
  * the 2026-08-10 spectrum-theme audit flagged.
  */
 describe('Wave I — cross-theme micro-harmony', () => {
+  it('I2 — compare cells clip on a word boundary with an ellipsis (no mid-word cuts)', () => {
+    /* Behavioural: the shared clip never splits the trailing word. */
+    const long = 'utility subjectivity '.repeat(20).trim();
+    const clipped = clipQuizOptionText(long, 100);
+    expect(clipped.endsWith('…'), 'long cell text is elided').toBe(true);
+    const beforeEllipsis = clipped.slice(0, -1).trimEnd();
+    expect(
+      beforeEllipsis.endsWith('utility') || beforeEllipsis.endsWith('subjectivity'),
+      `clip must land on a whole word, got "${beforeEllipsis}"`,
+    ).toBe(true);
+
+    /* Structural: the compare extractor routes every cell through the clip, not a raw slice. */
+    const src = read('src/lib/noteContentExtractors.ts');
+    const pushFn = src.slice(src.indexOf('const push ='), src.indexOf('// 1) Structured'));
+    expect(pushFn, 'compare push must clip via clipQuizOptionText').toMatch(/clipQuizOptionText\(/);
+
+    /* Integration: a mid-word source still yields word-boundary cells. */
+    const rows = extractComparisons(
+      'Fixed costs stay constant whereas variable costs rise with output volume in every accounting period considered here.',
+      'costs',
+      [],
+    );
+    for (const row of rows) {
+      for (const cell of row) {
+        if (cell.endsWith('…')) {
+          const tail = cell.slice(0, -1).trimEnd();
+          expect(/\s$|\S$/.test(tail)).toBe(true);
+          expect(tail.length).toBeGreaterThan(0);
+        }
+      }
+    }
+  });
+
   it('I3 — Quiz A/B/C/D letter disc keeps ≥AA ink (solid surface, not a /45 wash)', () => {
     const src = read('src/components/workspace/WorkspaceQuiz.tsx');
     const disc = src.match(/rounded-full[^"]*type-caption[^"]*text-text-secondary/);
