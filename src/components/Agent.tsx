@@ -355,6 +355,17 @@ export function Agent({
     });
   }, [messages, ttsEnabled, lang]);
 
+  /**
+   * Wave I6 — offline is a session-wide condition, so the per-message offline
+   * badge only needs to appear once (on the first offline reply); the header /
+   * session strip carries the persistent notice. Kills the repeated banner that
+   * marched down the transcript.
+   */
+  const firstOfflineMessageId = useMemo(
+    () => messages.find((m) => m.role === 'agent' && m.metadata?.inferenceUsed === false)?.id ?? null,
+    [messages],
+  );
+
   /** Soft daily check-in bootstrap — greeting + first closed question. */
   useEffect(() => {
     if (!checkInEnabled || checkInBootstrappedRef.current) return;
@@ -1512,7 +1523,7 @@ export function Agent({
               onGoToSource={onGoToSource}
               lang={lang}
               ui={ui}
-              suppressOfflineBadge={embedded && !llmReady}
+              suppressOfflineBadge={(embedded && !llmReady) || msg.id !== firstOfflineMessageId}
               onSuggestionChip={handleSuggestionChip}
               chipHint={t('agentCheckInChipHint')}
               skipLabel={t('agentCheckInSkip')}

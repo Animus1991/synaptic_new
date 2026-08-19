@@ -109,7 +109,8 @@ export function WorkspaceQuiz({
                 : 'bg-surface-secondary/40 text-text-primary hover:bg-surface-hover',
             )}
           >
-            <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-0 bg-surface-secondary/45 type-caption font-medium text-text-secondary">
+            {/* Wave I3 — solid disc so the A/B/C/D letter keeps ≥AA contrast on white spectrum cards (was /45 wash → pale) */}
+            <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-0 bg-surface-secondary type-caption font-semibold text-text-secondary">
               {String.fromCharCode(65 + i)}
             </span>
             <span className="min-w-0 flex-1 whitespace-normal break-words text-pretty leading-relaxed">

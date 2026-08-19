@@ -482,6 +482,14 @@ export function NotebookWorkspaceLayout({ model }: NotebookWorkspaceLayoutProps)
     <div className="flex-1 min-h-0 overflow-y-auto p-3">
       {/* OPT-K138 — title-only studio cards; description via title/hover */}
       {studioQuickActions}
+      {/* Wave I5 — one grid-level legend for the per-tile “AI” affordance (de-dups the
+          repeated badge meaning); the corner button stays as the functional shortcut. */}
+      <p className="px-0.5 pb-2 type-micro text-text-muted" data-testid="studio-ai-legend">
+        {tx(
+          'Κάθε εργαλείο έχει AI — πάτα «AI» σε μια κάρτα για να το φτιάξει ο βοηθός από τις σημειώσεις σου.',
+          'Every tool is AI-backed — tap “AI” on a card to have the tutor build it from your notes.',
+        )}
+      </p>
       <div
         className={cn(
           'grid gap-2',
