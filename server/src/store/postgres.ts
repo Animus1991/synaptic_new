@@ -136,6 +136,7 @@ export interface AccountRepository {
   markEmailVerified(accountId: string): Promise<Account | undefined>;
   deleteAccount(accountId: string): Promise<boolean>;
   accountStats(): Promise<{ total: number; byPlan: Record<Plan, number> }>;
+  listUsage(): Promise<{ id: string; email: string; plan: Plan; usage: UsageWindow }[]>;
 }
 
 function rowToAccount(row: {
@@ -290,6 +291,13 @@ export function createPostgresAccountRepo(databaseUrl: string): AccountRepositor
         byPlan[row.plan] = Number(row.count);
       }
       return { total: Object.values(byPlan).reduce((a, b) => a + b, 0), byPlan };
+    },
+
+    async listUsage(): Promise<{ id: string; email: string; plan: Plan; usage: UsageWindow }[]> {
+      const res = await pool.query<{ id: string; email: string; plan: Plan; usage: UsageWindow }>(
+        'SELECT id, email, plan, usage FROM accounts',
+      );
+      return res.rows.map((r) => ({ id: r.id, email: r.email, plan: r.plan, usage: r.usage }));
     },
   };
 }

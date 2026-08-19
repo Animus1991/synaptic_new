@@ -70,7 +70,7 @@ Operational / security / quality program for `synaptic_new`. **No new product fe
 | D5 GDPR export/delete | **done** | `deleteAccountData` explicitly erases library + session (non-cascading PKs — see accurate defense-in-depth rationale + `store/postgres.ts` atomic tx); `accountLifecycle.test.ts` locks in full right-to-erasure, credential-free export, anonymous rejection, delete idempotency |
 | D6 Backup restore drill | **done (runbook)** | `docs/runbooks/backup-restore.md` — RTO/RPO targets, backup inventory (mirrors `deleteAccount` tx), staging procedure + smoke checks, pass/failure criteria; residual work is executing + signing off the first drill |
 | D7 Plugin API doc | **done** | `docs/plugins.md` — accurate current state (in-process hook registry `pluginApi.ts`, 3 wired hooks, curated `referencePlugins`, marketplace enable/disable), threat posture, and the target sandbox prerequisites before untrusted code |
-| D8 Admin cost/abuse dashboard | pending | |
+| D8 Admin cost/abuse dashboard | **done (API)** | `GET /v1/admin/cost-abuse` (admin-secret gate) → `costAbuseSummary.ts` pure aggregation: current-month token/request spend per plan, quota utilisation, masked top consumers, abuse signals (over/near quota, high request volume); `listAccountUsageAsync` (in-mem + PG); tests `costAbuseSummary.test.ts` + `routes/admin.test.ts`; documented in `API.md`. Ops-only API by design (shared secret stays off the browser) — no in-app page; external dashboards (Grafana/curl) consume it |
 | D9 Design clarity regression | keep | `minimalClarityContracts` mandatory |
 
 ## Wave E — Workspace interaction speed + UI/UX excellence (audited 2026-08-04, 12 panel screenshots)

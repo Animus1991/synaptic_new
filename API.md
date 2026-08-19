@@ -336,6 +336,44 @@ Response:
 When `ADMIN_SECRET` is unset, any authenticated non-anonymous account is
 treated as admin (dev only — see [`SECURITY.md`](SECURITY.md)).
 
+### `GET /v1/admin/cost-abuse`  (Bearer + `x-admin-secret`)  — D8
+
+Aggregated current-month cost + abuse summary for external ops dashboards.
+Optional query `?topN=<1..100>` (default 10). Emails are masked (`a***@domain`);
+no credentials or note payloads are returned.
+
+Response (shape):
+
+```json
+{
+  "generatedAt": "2026-08-15T00:00:00.000Z",
+  "month": "2026-08",
+  "accounts": { "total": 12, "byPlan": { "free": 9, "pro": 3, "team": 0 } },
+  "totals": { "requests": 1200, "promptTokens": 800000, "completionTokens": 400000, "tokens": 1200000 },
+  "byPlan": {
+    "free": { "accounts": 9, "requests": 300, "promptTokens": 90000, "completionTokens": 60000, "tokens": 150000, "quota": 100000, "quotaUtilization": 0.16 },
+    "pro":  { "accounts": 3, "requests": 900, "promptTokens": 710000, "completionTokens": 340000, "tokens": 1050000, "quota": 5000000, "quotaUtilization": 0.07 },
+    "team": { "accounts": 0, "requests": 0, "promptTokens": 0, "completionTokens": 0, "tokens": 0, "quota": 25000000, "quotaUtilization": 0 }
+  },
+  "topConsumers": [
+    { "emailMasked": "a***@example.com", "plan": "pro", "requests": 500, "tokens": 900000, "quotaUtilization": 0.18 }
+  ],
+  "abuse": {
+    "nearQuotaThreshold": 0.8,
+    "highRequestVolume": 5000,
+    "signals": [
+      { "emailMasked": "b***@example.com", "plan": "free", "tokens": 100000, "requests": 40, "quotaUtilization": 1, "reason": "over-quota" }
+    ]
+  }
+}
+```
+
+Only usage whose window matches the current `month` counts toward spend, so a
+stale (pre-rollover) window reads as zero. `reason` ∈ `over-quota` (≥100% of plan
+quota), `near-quota` (≥`nearQuotaThreshold`), `high-request-volume`
+(≥`highRequestVolume` requests). Consume from Grafana/curl — this is an ops
+endpoint, not an in-app page (keeps the shared secret off the browser).
+
 ---
 
 ## Teacher dashboard

@@ -229,6 +229,26 @@ export async function accountStatsAsync(): Promise<{ total: number; byPlan: Reco
   return { total: accounts.size + (anon ? 1 : 0), byPlan };
 }
 
+/** Cost/abuse footprint (D8) — id/email/plan/usage only, never credentials or payloads. */
+export type AccountUsageSnapshot = { id: string; email: string; plan: Plan; usage: UsageWindow };
+
+/**
+ * List every account's usage footprint for the admin cost/abuse summary.
+ * Reads `usage` verbatim (no month-roll mutation); month-window filtering is the
+ * summary's responsibility so this stays a pure read.
+ */
+export async function listAccountUsageAsync(): Promise<AccountUsageSnapshot[]> {
+  if (pgRepo) return pgRepo.listUsage();
+  const rows: AccountUsageSnapshot[] = [...accounts.values()].map((a) => ({
+    id: a.id,
+    email: a.email,
+    plan: a.plan,
+    usage: a.usage,
+  }));
+  if (anon) rows.push({ id: anon.id, email: anon.email, plan: anon.plan, usage: anon.usage });
+  return rows;
+}
+
 /** @deprecated Use createAccountAsync when DATABASE_URL may be set. */
 export function createAccount(email: string, password: string, plan: Plan = 'free'): Account {
   if (pgRepo) throw new Error('Use createAccountAsync when DATABASE_URL is configured');

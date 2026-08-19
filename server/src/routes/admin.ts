@@ -1,6 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { authenticate } from '../middleware/auth';
 import { accountStatsAsync } from '../store/accounts';
+import { buildCostAbuseSummaryAsync } from '../lib/costAbuseSummary';
 
 export const adminRouter = Router();
 
@@ -34,5 +35,22 @@ adminRouter.get('/admin/stats', authenticate, requireAdmin, async (_req: Request
     });
   } catch (e) {
     res.status(500).json({ error: e instanceof Error ? e.message : 'Stats failed' });
+  }
+});
+
+/**
+ * D8 — admin cost/abuse summary. Aggregates current-month token/request spend per
+ * plan, top consumers (email masked), and abuse signals (over/near quota, high
+ * request volume). Same admin gate as /admin/stats; no credentials leave the server.
+ */
+adminRouter.get('/admin/cost-abuse', authenticate, requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const topN = Number(req.query.topN);
+    const summary = await buildCostAbuseSummaryAsync({
+      topN: Number.isFinite(topN) && topN > 0 ? Math.min(100, Math.floor(topN)) : undefined,
+    });
+    res.json(summary);
+  } catch (e) {
+    res.status(500).json({ error: e instanceof Error ? e.message : 'Cost/abuse summary failed' });
   }
 });
