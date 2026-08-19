@@ -46,9 +46,12 @@
     "mobile:ios:certificates": "cd mobile && bundle exec fastlane ios certificates",
     "mobile:ios:build": "cd mobile && bundle exec fastlane ios build_signed",
     "mobile:ios:beta": "cd mobile && bundle exec fastlane ios beta",
+    "mobile:ios:release": "cd mobile && bundle exec fastlane ios release",
     "mobile:ios:metadata": "cd mobile && bundle exec fastlane ios metadata",
+    "mobile:android:sync": "cd mobile && bundle exec fastlane android sync",
     "mobile:android:build": "cd mobile && bundle exec fastlane android build_signed",
     "mobile:android:beta": "cd mobile && bundle exec fastlane android beta",
+    "mobile:android:release": "cd mobile && bundle exec fastlane android release",
     "distribution:sync-urls": "node scripts/sync-distribution-urls.mjs",
     "preview": "vite preview",
     "postinstall": "node scripts/copy-pyodide.mjs"
