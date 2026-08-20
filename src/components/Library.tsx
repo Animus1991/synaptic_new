@@ -43,6 +43,7 @@ import { DescriptiveStickyTabBar, InfoStack, MiniAlert } from './ui/platformChro
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { t } from '../lib/i18n';
+import { pushNotification } from '../lib/notificationBus';
 import { RagIndexProgressBanner } from './RagIndexProgressBanner';
 import { CrossLibrarySynthesisPanel } from './CrossLibrarySynthesisPanel';
 import { NotebookLmImportPanel } from './NotebookLmImportPanel';
@@ -1601,6 +1602,7 @@ function FileItem({
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
+  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const outlinePreview = useMemo(() => {
     if (!file.extractedText?.trim() || file.status !== 'analyzed') return null;
     return buildMaterialOutlinePreview(file.extractedText, [file.name], userSettings);
@@ -1852,8 +1854,25 @@ function FileItem({
       open={removeDialogOpen}
       onClose={() => setRemoveDialogOpen(false)}
       onConfirm={() => {
-        if (file.id && onRemoveFile) onRemoveFile(file.id);
         setRemoveDialogOpen(false);
+        if (!file.id || !onRemoveFile) return;
+        // Deferred deletion — user can Undo within the toast TTL (6 s)
+        let cancelled = false;
+        const fileId = file.id;
+        undoTimerRef.current = setTimeout(() => {
+          if (!cancelled) onRemoveFile(fileId);
+        }, 5500);
+        pushNotification({
+          level: 'info',
+          title: userLanguage === 'el' ? `Διαγραφή: ${file.name}` : `Deleted: ${file.name}`,
+          action: {
+            label: userLanguage === 'el' ? 'Αναίρεση' : 'Undo',
+            onClick: () => {
+              cancelled = true;
+              if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+            },
+          },
+        });
       }}
       title={removeTitle}
       description={removeDescription}

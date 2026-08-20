@@ -165,6 +165,22 @@ export function ExamPrepView({
     onClose();
   };
 
+  // Keyboard 1–4 shortcut: select answer option during active exam
+  useEffect(() => {
+    if (!isActive || !currentQuestion) return;
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
+      const n = parseInt(e.key, 10);
+      if (n >= 1 && n <= currentQuestion.options.length) {
+        selectAnswer(currentQ, n - 1);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  // selectAnswer is stable (uses setAnswers functional form), but list it to satisfy linter
+  }, [isActive, currentQ, currentQuestion]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <div className="fixed inset-0 z-50 bg-surface-primary flex flex-col">
       <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle bg-surface-secondary/50">
@@ -208,6 +224,23 @@ export function ExamPrepView({
           <span className="type-caption text-accent-amber font-medium">+{xpReward} XP</span>
         </div>
       </div>
+
+      {/* Timer depletion bar — shown during active exam */}
+      {isActive && (
+        <div
+          className="h-0.5 bg-surface-hover"
+          role="timer"
+          aria-label={formatTime(Math.max(0, timeLeft))}
+        >
+          <div
+            className={cn(
+              'h-full transition-all duration-1000',
+              timeLeft <= 30 ? 'bg-accent-rose' : 'bg-brand-500/60',
+            )}
+            style={{ width: `${(timeLeft / durationSeconds) * 100}%` }}
+          />
+        </div>
+      )}
 
       {phase === 'setup' && (
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
@@ -471,11 +504,21 @@ export function ExamPrepView({
                         )}>
                           {isCorrect ? '✓' : isWrongSelected ? '✗' : String.fromCharCode(65 + i)}
                         </span>
-                        <span className="type-body leading-relaxed text-current">{opt}</span>
+                        <span className="type-body leading-relaxed text-current flex-1">{opt}</span>
+                        {isActive && (
+                          <kbd className="shrink-0 hidden sm:inline-flex items-center justify-center w-5 h-5 rounded border border-border-subtle type-micro text-text-muted font-mono self-center" aria-hidden>
+                            {i + 1}
+                          </kbd>
+                        )}
                       </button>
                     );
                   })}
                 </div>
+                {isActive && currentQuestion && currentQuestion.options.length > 0 && (
+                  <p className="hidden sm:block type-micro text-text-muted mt-3 text-right">
+                    {t('examPrepKeyboardHint').replace('{n}', String(currentQuestion.options.length))}
+                  </p>
+                )}
               </div>
 
               {isReview && showExplanations && (

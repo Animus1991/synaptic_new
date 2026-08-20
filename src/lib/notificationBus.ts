@@ -8,6 +8,8 @@ export type AppNotification = {
   createdAt: number;
   /** Screen-reader priority for aria-live region. */
   assertive?: boolean;
+  /** Optional single inline action (e.g. "Undo"). */
+  action?: { label: string; onClick: () => void };
 };
 
 type Listener = (items: AppNotification[]) => void;
@@ -52,6 +54,7 @@ export function pushNotification(input: {
   body?: string;
   ttlMs?: number;
   assertive?: boolean;
+  action?: { label: string; onClick: () => void };
 }): string {
   const id = `ntf-${++seq}-${Date.now()}`;
   const note: AppNotification = {
@@ -61,6 +64,7 @@ export function pushNotification(input: {
     body: input.body,
     createdAt: Date.now(),
     assertive: input.assertive ?? input.level === 'error',
+    action: input.action,
   };
   items.unshift(note);
   while (items.length > MAX_VISIBLE) items.pop();

@@ -5,7 +5,7 @@ import {
   CheckCircle2, Circle, Clock, AlertTriangle, Calendar,
   Play, Brain,
   HelpCircle, XCircle, RefreshCw, ArrowDownRight, TrendingUp, Minus, ArrowRight,
-  List, LayoutGrid, ChevronDown, ChevronRight,
+  List, LayoutGrid, ChevronDown, ChevronRight, Search,
 } from '@/lib/lucide-shim';
 import type { Task, MistakeRecord, SkillNode, SpacingData, UserSettings } from '../types';
 import type { Lang } from '../lib/i18n';
@@ -34,6 +34,7 @@ import { LeitnerDueQueuePanel } from './workspace/LeitnerDueQueuePanel';
 import { buildFsrsDueQueue } from '../lib/leitnerDueQueue';
 import { useWarmSandPageScope, warmSandScopeProps } from '../lib/useDocumentTheme';
 import { useMinimalTheme } from '../lib/useMinimalTheme';
+import { notifySuccess } from '../lib/notificationBus';
 /* OPT-K98 — markup debt: decorative brand type -> ink */
 /* OPT-K140–K151 — Tasks CTA-only diet; denser Tasks type (restored pre-K150) */
 export type { TaskFilter } from '../lib/tasksContent';
@@ -186,6 +187,7 @@ export function Tasks({
   const [formOpen, setFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [deletingTask, setDeletingTask] = useState<Task | null>(null);
+  const [taskSearch, setTaskSearch] = useState('');
   const expandedTask = expandedTaskId ?? localExpanded;
   const setExpandedTask = (id: string | null) => {
     setLocalExpanded(id);
@@ -227,6 +229,25 @@ export function Tasks({
     : tasks;
 
   const todayTasks = visibleTasks.filter((t) => t.status !== 'completed');
+  const searchQuery = taskSearch.trim().toLowerCase();
+  const filteredTodayTasks = searchQuery
+    ? todayTasks.filter((t) =>
+        t.title.toLowerCase().includes(searchQuery) ||
+        (t.description ?? '').toLowerCase().includes(searchQuery),
+      )
+    : todayTasks;
+
+  const handleComplete = (taskId: string) => {
+    const task = tasks.find((t) => t.id === taskId);
+    onComplete(taskId);
+    if (task) {
+      notifySuccess(
+        lang === 'el' ? `✓ ${task.title}` : `✓ ${task.title}`,
+        lang === 'el' ? 'Εργασία ολοκληρώθηκε' : 'Task completed',
+      );
+    }
+  };
+
   const doneCount = visibleTasks.filter((t) => t.status === 'completed').length;
   const totalCount = visibleTasks.length;
   const totalMin = todayTasks.reduce((s, t) => s + t.estimatedMinutes, 0);
@@ -802,6 +823,19 @@ export function Tasks({
       {/* Today's Plan */}
       {tab === 'today' && (
         <div className="space-y-2" id="tasks-panel-today" data-testid="tasks-panel-today" role="tabpanel" aria-labelledby="tasks-tab-today">
+          {todayTasks.length > 3 && (
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted pointer-events-none" aria-hidden />
+              <input
+                type="search"
+                value={taskSearch}
+                onChange={(e) => setTaskSearch(e.target.value)}
+                placeholder={lang === 'el' ? 'Αναζήτηση εργασιών…' : 'Search tasks…'}
+                className="w-full pl-8 pr-3 py-2 rounded-xl bg-surface-secondary/60 border border-border-subtle type-caption text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-500/50 transition-all"
+                aria-label={lang === 'el' ? 'Αναζήτηση εργασιών' : 'Search tasks'}
+              />
+            </div>
+          )}
           {todayTasks.length > 0 && layoutMode === 'board' && (
             <TasksKanbanStatusStrip
               tasks={visibleTasks}
@@ -819,8 +853,12 @@ export function Tasks({
               className="tasks-empty-state"
               data-testid="tasks-empty-today"
             />
+          ) : filteredTodayTasks.length === 0 ? (
+            <p className="type-caption text-text-muted text-center py-8">
+              {lang === 'el' ? 'Δεν βρέθηκαν αποτελέσματα.' : 'No matching tasks.'}
+            </p>
           ) : (
-            todayTasks.map((task, i) => {
+            filteredTodayTasks.map((task, i) => {
               const isExpanded = expandedTask === task.id;
               const isInProgress = task.status === 'in-progress' || task.id === activeTaskId;
               const isRunningNow = task.id === activeTaskId && sessionActive;
@@ -846,7 +884,7 @@ export function Tasks({
                     {layoutMode === 'board' && (
                       <span className={cn('tasks-kanban-status-dot shrink-0', `tasks-kanban-status-${kanbanStatus}`)} aria-hidden />
                     )}
-                    <button type="button" onClick={() => onComplete(task.id)} className="inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-md hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50" data-testid={`task-complete-${task.id}`} aria-label={c.completeTaskAria(task.title)}>
+                    <button type="button" onClick={() => handleComplete(task.id)} className="inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-md hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50" data-testid={`task-complete-${task.id}`} aria-label={c.completeTaskAria(task.title)}>
                       <Circle className="w-5 h-5 text-text-muted hover:text-text-primary" aria-hidden />
                     </button>
                     <div className="tasks-row-icon w-8 h-8 bg-brand-600/15 flex items-center justify-center shrink-0" aria-hidden>

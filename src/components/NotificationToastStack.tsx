@@ -51,6 +51,15 @@ export function NotificationToastStack() {
               <div className="min-w-0 flex-1">
                 <p className="type-meta font-medium text-text-primary">{n.title}</p>
                 {n.body && <p className="type-caption text-text-secondary mt-0.5">{n.body}</p>}
+                {n.action && (
+                  <button
+                    type="button"
+                    onClick={() => { n.action!.onClick(); dismissNotification(n.id); }}
+                    className="mt-1.5 type-caption font-semibold text-brand-400 hover:text-brand-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 rounded"
+                  >
+                    {n.action.label}
+                  </button>
+                )}
               </div>
               <button
                 type="button"
