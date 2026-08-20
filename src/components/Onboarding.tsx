@@ -22,6 +22,7 @@ import {
 } from '../lib/onboardingDraft';
 import { UiIcon } from './ui/UiIcon';
 import { AllCapsLabel } from './ui/AllCapsLabel';
+import { useMotionTransition } from '../lib/motionPrefs';
 
 interface OnboardingProps {
   onComplete: (data: {
@@ -221,6 +222,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     });
   };
 
+  const stepTransition = useMotionTransition({ duration: 0.32 });
   const validationText = validationError ? validationMessage(validationError, content) : null;
 
   return (
@@ -237,6 +239,24 @@ export function Onboarding({ onComplete }: OnboardingProps) {
           className="h-1 bg-brand-700 ux-flow-progress-fill transition-all duration-500"
           style={{ width: `${progress}%` }}
         />
+      </div>
+
+      {/* Step dot breadcrumb */}
+      <div className="flex items-center justify-center gap-2 pt-4 pb-1" aria-hidden>
+        {STEP_ORDER.map((s, i) => (
+          <div
+            key={s}
+            className={cn(
+              'rounded-full transition-all duration-300',
+              i === stepIndex
+                ? 'w-5 h-1.5 bg-brand-500'
+                : i < stepIndex
+                  ? 'w-1.5 h-1.5 bg-brand-500/50'
+                  : 'w-1.5 h-1.5 bg-border-subtle',
+            )}
+          />
+        ))}
+        <span className="sr-only">{progressLabel}</span>
       </div>
 
       <div className="flex-1 flex items-center justify-center p-4">
@@ -269,7 +289,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.32, ease: [0.2, 0, 0, 1] }}
+                transition={stepTransition}
                 className="space-y-8"
                 aria-current="step"
               >
@@ -342,7 +362,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 key="role"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.32, ease: [0.2, 0, 0, 1] }}
+                transition={stepTransition}
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
                 aria-current="step"
@@ -394,7 +414,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 key="goals"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.32, ease: [0.2, 0, 0, 1] }}
+                transition={stepTransition}
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
                 aria-current="step"
@@ -442,7 +462,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 key="schedule"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.32, ease: [0.2, 0, 0, 1] }}
+                transition={stepTransition}
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
                 aria-current="step"

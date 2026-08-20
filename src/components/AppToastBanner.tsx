@@ -1,5 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { CheckCircle2, X } from '@/lib/lucide-shim';
+import { useI18n } from '../lib/i18n';
+import { useMotionTransition } from '../lib/motionPrefs';
 
 export type AppToast = {
   id: number;
@@ -13,6 +15,9 @@ export function AppToastBanner({
   toast: AppToast | null;
   onDismiss: () => void;
 }) {
+  const { t } = useI18n();
+  const toastTransition = useMotionTransition({ duration: 0.36 });
+
   return (
     <AnimatePresence>
       {toast && (
@@ -20,20 +25,20 @@ export function AppToastBanner({
           initial={{ opacity: 0, y: 24, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 12, scale: 0.98 }}
-          transition={{ duration: 0.36, ease: [0.2, 0, 0, 1] }}
+          transition={toastTransition}
           className="app-toast-shell fixed bottom-6 left-1/2 z-[200] -translate-x-1/2 max-w-md w-[calc(100%-2rem)]"
           data-testid="app-toast"
         >
           <div className="app-toast-banner flex items-start gap-3 rounded-2xl border border-accent-emerald/35 bg-surface-secondary/95 backdrop-blur px-4 py-3 shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
-            <CheckCircle2 className="w-5 h-5 text-accent-emerald shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-5 h-5 text-accent-emerald shrink-0 mt-0.5" aria-hidden />
             <p className="type-body text-text-primary flex-1">{toast.message}</p>
             <button
               type="button"
               onClick={onDismiss}
-              className="p-1 rounded-lg hover:bg-surface-hover text-text-muted"
-              aria-label="Dismiss"
+              className="p-1 rounded-lg hover:bg-surface-hover text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
+              aria-label={t('dismiss')}
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4" aria-hidden />
             </button>
           </div>
         </motion.div>

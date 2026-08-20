@@ -123,11 +123,11 @@ export function ThemeSelectorModal({
         <button
           type="button"
           onClick={handleClose}
-          className="shrink-0 p-1.5 rounded-lg text-text-tertiary hover:bg-surface-hover hover:text-text-primary min-h-11 min-w-11 inline-flex items-center justify-center"
+          className="shrink-0 p-1.5 rounded-lg text-text-tertiary hover:bg-surface-hover hover:text-text-primary min-h-11 min-w-11 inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           aria-label={t('close')}
           data-testid="theme-selector-close"
         >
-          <X className="w-4 h-4" />
+          <X className="w-4 h-4" aria-hidden />
         </button>
       </div>
 
@@ -147,7 +147,7 @@ export function ThemeSelectorModal({
               aria-pressed={active}
               data-testid={`theme-selector-option-${opt.value}`}
               className={cn(
-                'inline-flex min-h-9 items-center gap-1.5 rounded-md border px-2.5 py-1.5 type-caption font-medium transition-colors',
+                'inline-flex min-h-9 items-center gap-1.5 rounded-md border px-2.5 py-1.5 type-caption font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
                 active
                   ? 'ux-theme-chip-active'
                   : 'border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-brand-500/25',

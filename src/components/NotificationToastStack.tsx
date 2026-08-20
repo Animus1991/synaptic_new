@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { X } from '@/lib/lucide-shim';
 
 import { cn } from '../utils/cn';
+import { useI18n } from '../lib/i18n';
 import {
   dismissNotification,
   subscribeNotifications,
@@ -17,6 +18,7 @@ const LEVEL_STYLES: Record<AppNotification['level'], string> = {
 
 /** Ephemeral toast stack — L12 notification bus (aria-live for a11y). */
 export function NotificationToastStack() {
+  const { t } = useI18n();
   const [items, setItems] = useState<AppNotification[]>([]);
 
   useEffect(() => subscribeNotifications(setItems), []);
@@ -52,11 +54,11 @@ export function NotificationToastStack() {
               </div>
               <button
                 type="button"
-                aria-label="Dismiss notification"
+                aria-label={t('dismiss')}
                 onClick={() => dismissNotification(n.id)}
-                className="p-2.5 rounded-lg hover:bg-surface-hover shrink-0 min-w-11 min-h-11 inline-flex items-center justify-center"
+                className="p-2.5 rounded-lg hover:bg-surface-hover shrink-0 min-w-11 min-h-11 inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               >
-                <X className="w-3.5 h-3.5 text-text-muted" />
+                <X className="w-3.5 h-3.5 text-text-muted" aria-hidden />
               </button>
             </div>
           </div>
