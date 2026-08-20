@@ -1,6 +1,7 @@
 import { X, RotateCcw, Sparkles } from '@/lib/lucide-shim';
 import { LeitnerBox } from './workspace/LeitnerBox';
 import type { FsrsRating } from '../lib/pedagogy';
+import { useI18n } from '../lib/i18n';
 
 interface ReviewSessionViewProps {
   onClose: () => void;
@@ -24,20 +25,21 @@ export function ReviewSessionView({
   xpReward = 30,
   cards,
 }: ReviewSessionViewProps) {
+  const { t } = useI18n();
   const sessionTitle = taskTitle ?? `Review: ${quizConcept}`;
-  const sessionCourse = courseName ?? 'Spaced Repetition';
+  const sessionCourse = courseName ?? t('reviewSessionSpacedRepLabel');
 
   return (
     <div className="fixed inset-0 z-50 bg-surface-primary flex flex-col">
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-border-subtle bg-surface-secondary/50">
         <div className="flex items-center gap-3">
-          <button type="button" onClick={onClose} aria-label="Close review session" className="p-1.5 rounded-lg hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50">
+          <button type="button" onClick={onClose} aria-label={t('close')} className="p-1.5 rounded-lg hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50">
             <X className="w-5 h-5 text-text-secondary" aria-hidden />
           </button>
           <div>
             <p className="type-meta font-semibold">{sessionTitle}</p>
             <p className="type-caption text-text-tertiary flex items-center gap-1">
-              <RotateCcw className="w-3 h-3" aria-hidden />
+              <RotateCcw className="w-3 h-3 text-text-tertiary" aria-hidden />
               {sessionCourse} · FSRS review
             </p>
           </div>
@@ -46,10 +48,10 @@ export function ReviewSessionView({
           <button
             type="button"
             onClick={onOpenAgent}
-            aria-label="Ask Agent"
+            aria-label={t('reviewSessionAskAgent')}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg type-caption font-medium border border-border-subtle hover:border-brand-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 transition-all"
           >
-            <Sparkles className="w-3.5 h-3.5 text-text-secondary" aria-hidden /> Ask Agent
+            <Sparkles className="w-3.5 h-3.5 text-text-secondary" aria-hidden /> {t('reviewSessionAskAgent')}
           </button>
           <span className="type-caption text-accent-amber font-medium">+{xpReward} XP</span>
         </div>
@@ -66,7 +68,7 @@ export function ReviewSessionView({
 
       <div className="border-t border-border-subtle bg-surface-secondary/50 px-4 py-3">
         <p className="type-caption text-text-muted text-center max-w-md mx-auto">
-          Flip the card, recall the answer, then rate your recall. Your FSRS interval updates automatically.
+          {t('reviewSessionFsrsHint')}
         </p>
       </div>
     </div>

@@ -29,6 +29,16 @@ describe('analyticsDateRange', () => {
     expect(filterActivitiesByRange(list, '30d', now)).toHaveLength(2);
     expect(filterActivitiesByRange(list, 'semester', now)).toHaveLength(3);
   });
+
+  it('excludes invalid and future-dated records from observed ranges', () => {
+    const list: ActivityItem[] = [
+      { ...act(0), id: 'observed', timestamp: new Date(now - 1).toISOString() },
+      { ...act(0), id: 'future', timestamp: new Date(now + 1).toISOString() },
+      { ...act(0), id: 'invalid', timestamp: 'not-a-date' },
+    ];
+
+    expect(filterActivitiesByRange(list, '7d', now).map((row) => row.id)).toEqual(['observed']);
+  });
 });
 
 describe('buildSubjectMasteryTiles', () => {
@@ -59,10 +69,12 @@ describe('buildSubjectMasteryTiles', () => {
         exerciseCount: 0,
       },
     ] satisfies Course[];
-    const tiles = buildSubjectMasteryTiles(courses, [act(1)], '30d');
+    const tiles = buildSubjectMasteryTiles(courses, [act(1)], '30d', now);
     expect(tiles).toHaveLength(1);
     expect(tiles[0]!.mastery).toBe(42);
     expect(tiles[0]!.pendingConcepts).toBe(1);
+    expect(tiles[0]!.trend).toBe('up');
+    expect(tiles[0]!.trendDelta).toBe(1);
   });
 });
 
@@ -78,9 +90,9 @@ describe('buildStudyBehaviorModel', () => {
     expect(model.effectiveness.length).toBe(7);
   });
 
-  it('uses fortnight buckets for the semester range', () => {
+  it('uses thirteen fortnight buckets to cover the semester range', () => {
     const model = buildStudyBehaviorModel([act(0), act(20), act(40)], 'semester', 'en');
-    expect(model.dayBars.length).toBe(12);
+    expect(model.dayBars.length).toBe(13);
     expect(model.dayBars.reduce((sum, d) => sum + d.count, 0)).toBeGreaterThanOrEqual(3);
   });
 });

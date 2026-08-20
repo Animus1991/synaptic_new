@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { ArrowDownUp, Download, Sparkles, List, Calculator, Flag, TrendingUp } from '@/lib/lucide-shim';
 import { termMatchesFocus } from '../../lib/workspaceFocus';
 import { cn } from '../../utils/cn';
@@ -338,11 +338,15 @@ export function ProgressTimeline({ milestones, title }: { milestones: Milestone[
 /* --- Retention Curve (J-A02: theme-aware stroke + day markers) --- */
 export function RetentionCurve({ dataPoints }: { dataPoints: { day: number; retention: number }[] }) {
   const { t } = useI18n();
+  const gradientId = `${useId().replace(/[^a-zA-Z0-9_-]/g, '')}-retention-gradient`;
   const w = 300, h = 168, pad = 28;
   const gw = w - 2 * pad, gh = h - 2 * pad - 14;
-  const maxDay = Math.max(...dataPoints.map(d => d.day), 14);
+  const validDataPoints = dataPoints
+    .filter((point) => Number.isFinite(point.day) && point.day >= 0 && Number.isFinite(point.retention))
+    .map((point) => ({ ...point, retention: Math.max(0, Math.min(100, point.retention)) }));
+  const maxDay = Math.max(...validDataPoints.map(d => d.day), 14);
 
-  const points = dataPoints.map(d => ({
+  const points = validDataPoints.map(d => ({
     day: d.day,
     x: pad + (d.day / maxDay) * gw,
     y: pad + gh - (d.retention / 100) * gh,
@@ -354,13 +358,30 @@ export function RetentionCurve({ dataPoints }: { dataPoints: { day: number; rete
   const grid = 'var(--color-border-subtle)';
   const axis = 'var(--color-text-muted)';
 
+  if (validDataPoints.length === 0) {
+    return (
+      <div className="rounded-xl border border-border-subtle bg-surface-card p-4 text-center" role="status">
+        <p className="type-caption text-text-muted">{t('analyticsRetentionEmpty')}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-xl border border-border-subtle bg-surface-card p-3" data-testid="retention-curve">
       <p className="type-caption font-semibold mb-0.5 text-text-secondary inline-flex items-center gap-1.5">
         <TrendingUp className="w-3.5 h-3.5 rotate-180" /> {t('analyticsRetentionCurveTitle')}
       </p>
       <p className="type-caption text-text-muted mb-2">{t('analyticsRetentionCurveSubtitle')}</p>
-      <svg width={w} height={h} className="block mx-auto max-w-full" viewBox={`0 0 ${w} ${h}`}>
+      <svg
+        width={w}
+        height={h}
+        className="block mx-auto max-w-full"
+        viewBox={`0 0 ${w} ${h}`}
+        role="img"
+        aria-label={`${t('analyticsRetentionCurveTitle')}: ${validDataPoints
+          .map((point) => `${point.day}d ${Math.round(point.retention)}%`)
+          .join(', ')}`}
+      >
         {[0, 25, 50, 75, 100].map(v => (
           <g key={v}>
             <line x1={pad} y1={pad + gh - (v / 100) * gh} x2={w - pad} y2={pad + gh - (v / 100) * gh} stroke={grid} strokeWidth={1} />
@@ -375,9 +396,9 @@ export function RetentionCurve({ dataPoints }: { dataPoints: { day: number; rete
           initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2 }}
         />
 
-        <path d={`${pathD} L${points[points.length - 1]?.x || pad},${pad + gh} L${pad},${pad + gh} Z`} fill="url(#retention-grad)" opacity={0.18} />
+        <path d={`${pathD} L${points[points.length - 1]?.x || pad},${pad + gh} L${pad},${pad + gh} Z`} fill={`url(#${gradientId})`} opacity={0.18} />
         <defs>
-          <linearGradient id="retention-grad" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="var(--color-brand-500)" /><stop offset="100%" stopColor="transparent" />
           </linearGradient>
         </defs>

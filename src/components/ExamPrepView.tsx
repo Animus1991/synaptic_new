@@ -199,10 +199,11 @@ export function ExamPrepView({
             </span>
           )}
           <button
+            type="button"
             onClick={onOpenAgent}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg type-caption font-medium border border-border-subtle hover:border-brand-500/30 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg type-caption font-medium border border-border-subtle hover:border-brand-500/30 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
-            <Sparkles className="w-3.5 h-3.5 text-text-secondary" /> {t('askAgentShort')}
+            <Sparkles className="w-3.5 h-3.5 text-text-secondary" aria-hidden /> {t('askAgentShort')}
           </button>
           <span className="type-caption text-accent-amber font-medium">+{xpReward} XP</span>
         </div>
@@ -283,8 +284,9 @@ export function ExamPrepView({
 
             <div className="flex justify-center pb-16 sm:pb-0">
               <button
+                type="button"
                 onClick={startExam}
-                className="hidden sm:inline-flex px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-2xl type-meta font-medium transition-all"
+                className="hidden sm:inline-flex px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-2xl type-meta font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               >
                 {t('examPrepBegin')}
               </button>
@@ -445,7 +447,7 @@ export function ExamPrepView({
                         onClick={() => selectAnswer(currentQ, i)}
                         disabled={!isActive}
                         className={cn(
-                          'w-full flex items-start gap-4 p-4 rounded-2xl border text-left transition-all',
+                          'w-full flex items-start gap-4 p-4 rounded-2xl border text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
                           isCorrect
                             ? 'border-accent-emerald/40 bg-accent-emerald/10'
                             : isWrongSelected

@@ -1,4 +1,4 @@
-import { Brain, CheckCircle2, Clock, Target, TrendingUp } from '@/lib/lucide-shim';
+import { AlertTriangle, Brain, CheckCircle2, Clock, Target, TrendingUp } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { ConfidenceBucket, ProgressInsight, ProgressKpi, RadarDimension } from '../../lib/progressInsights';
 import { useMinimalTheme } from '../../lib/useMinimalTheme';
@@ -45,15 +45,32 @@ export function ProgressKpiRow({ kpis }: { kpis: ProgressKpi[] }) {
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5" data-testid="progress-kpi-row">
       {kpis.map((kpi, i) => {
         const Icon = KPI_ICONS[i] ?? Brain;
+        const accentColor =
+          kpi.tone === 'good'
+            ? 'var(--color-accent-emerald)'
+            : kpi.tone === 'warn'
+              ? 'var(--color-accent-amber)'
+              : 'var(--color-text-tertiary)';
         return (
-          <div key={kpi.label} className="ux-card border-0 bg-surface-secondary/50 p-2.5 min-h-[4.5rem]">
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <Icon className="w-3.5 h-3.5 text-text-tertiary" />
-              <span className="type-micro font-medium text-text-muted truncate"><AllCapsLabel>{kpi.label}</AllCapsLabel></span>
+          <div
+            key={kpi.label}
+            className="ux-card border-0 bg-surface-secondary/50 p-3.5 min-h-[5.5rem] flex flex-col justify-between gap-1 overflow-hidden relative"
+          >
+            {/* Tone accent stripe */}
+            {(kpi.tone === 'good' || kpi.tone === 'warn') && (
+              <div
+                className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-xl"
+                style={{ backgroundColor: accentColor }}
+                aria-hidden
+              />
+            )}
+            <div className="flex items-center gap-1.5">
+              <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: accentColor }} aria-hidden />
+              <span className="type-micro font-medium text-text-muted truncate leading-none"><AllCapsLabel>{kpi.label}</AllCapsLabel></span>
             </div>
-            <p className="ux-kpi-value-sm">{kpi.value}</p>
+            <p className="ux-kpi-value-sm leading-none tabular-nums">{kpi.value}</p>
             <p className={cn(
-              'type-micro mt-0.5',
+              'type-micro leading-snug',
               kpi.tone === 'good' || kpi.tone === 'warn' ? 'ink-allow-accent' : null,
               kpi.tone === 'good' ? 'text-accent-emerald' : kpi.tone === 'warn' ? 'text-accent-amber' : 'text-text-tertiary',
             )}>
@@ -90,10 +107,10 @@ export function ConfidenceBucketChart({ buckets, title }: { buckets: ConfidenceB
 }
 
 export function LearningRadarChart({ dimensions, title }: { dimensions: RadarDimension[]; title: string }) {
-  const size = 220;
+  const size = 240;
   const cx = size / 2;
   const cy = size / 2;
-  const r = 80;
+  const r = 88;
   const n = dimensions.length;
   const angleStep = (Math.PI * 2) / n;
 
@@ -103,7 +120,7 @@ export function LearningRadarChart({ dimensions, title }: { dimensions: RadarDim
   };
 
   const dataPoints = dimensions.map((d, i) => {
-    const p = pointAt(i, (d.score / 100) * r);
+    const p = pointAt(i, Math.max(4, (d.score / 100) * r));
     return `${p.x},${p.y}`;
   }).join(' ');
 
@@ -111,11 +128,19 @@ export function LearningRadarChart({ dimensions, title }: { dimensions: RadarDim
 
   return (
     <div className="ux-card flex flex-col items-center" data-testid="learning-radar-chart">
-      <h3 className="type-meta font-semibold text-text-primary mb-4 self-start flex items-center gap-2">
-        <TrendingUp className="w-4 h-4 text-text-secondary" />
+      <h3 className="type-meta font-semibold text-text-primary mb-3 self-start flex items-center gap-2">
+        <TrendingUp className="w-4 h-4 text-text-secondary" aria-hidden />
         {title}
       </h3>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="max-w-full">
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        className="max-w-full"
+        role="img"
+        aria-label={`${title}: ${dimensions.map((dimension) => `${dimension.subject} ${dimension.score}%`).join(', ')}`}
+      >
+        {/* Grid rings */}
         {gridLevels.map((level) => (
           <polygon
             key={level}
@@ -123,21 +148,42 @@ export function LearningRadarChart({ dimensions, title }: { dimensions: RadarDim
               const p = pointAt(i, r * level);
               return `${p.x},${p.y}`;
             }).join(' ')}
-            fill="none"
+            fill={level === 1 ? 'var(--color-surface-secondary)' : 'none'}
+            fillOpacity={level === 1 ? 0.3 : 0}
             stroke="var(--color-border-subtle)"
-            strokeWidth={1}
+            strokeWidth={level === 1 ? 1.5 : 0.8}
+            strokeOpacity={level === 1 ? 0.8 : 0.5}
           />
         ))}
+        {/* Axis lines */}
         {dimensions.map((d, i) => {
           const outer = pointAt(i, r);
-          const inner = pointAt(i, r * 0.15);
-          return <line key={d.subject} x1={inner.x} y1={inner.y} x2={outer.x} y2={outer.y} stroke="var(--color-border-subtle)" />;
+          const inner = pointAt(i, r * 0.1);
+          return <line key={d.subject} x1={inner.x} y1={inner.y} x2={outer.x} y2={outer.y} stroke="var(--color-border-subtle)" strokeWidth={0.8} strokeOpacity={0.6} />;
         })}
-        <polygon points={dataPoints} fill="color-mix(in srgb, var(--color-brand-500) 25%, transparent)" stroke="var(--color-brand-400)" strokeWidth={2} />
+        {/* Data polygon fill */}
+        <polygon
+          points={dataPoints}
+          fill="var(--color-brand-500)"
+          fillOpacity={0.18}
+          stroke="var(--color-brand-400)"
+          strokeWidth={2}
+          strokeLinejoin="round"
+        />
+        {/* Data point dots */}
         {dimensions.map((d, i) => {
-          const label = pointAt(i, r + 18);
+          const p = pointAt(i, Math.max(4, (d.score / 100) * r));
           return (
-            <text key={d.subject} x={label.x} y={label.y} textAnchor="middle" dominantBaseline="middle" className="fill-text-tertiary" fontSize={9}>
+            <circle key={`dot-${d.subject}`} cx={p.x} cy={p.y} r={3} fill="var(--color-brand-400)" stroke="var(--color-surface-primary)" strokeWidth={1.5}>
+              <title>{d.subject}: {d.score}%</title>
+            </circle>
+          );
+        })}
+        {/* Axis labels */}
+        {dimensions.map((d, i) => {
+          const label = pointAt(i, r + 20);
+          return (
+            <text key={d.subject} x={label.x} y={label.y} textAnchor="middle" dominantBaseline="middle" className="fill-text-tertiary" fontSize={9.5} fontWeight={500}>
               {d.subject.split(' ')[0]}
             </text>
           );
@@ -147,28 +193,51 @@ export function LearningRadarChart({ dimensions, title }: { dimensions: RadarDim
   );
 }
 
+function insightIcon(tone: string | undefined) {
+  if (tone === 'good') return CheckCircle2;
+  if (tone === 'warn') return AlertTriangle;
+  return Brain;
+}
+
+function insightAccent(tone: string | undefined): string {
+  if (tone === 'good') return 'var(--color-accent-emerald)';
+  if (tone === 'warn') return 'var(--color-accent-amber)';
+  return 'var(--color-text-tertiary)';
+}
+
 export function LearnerInsightCards({ insights, title }: { insights: ProgressInsight[]; title: string }) {
   return (
     <div className="ux-card" data-testid="learner-insight-cards">
       <h3 className="type-meta font-semibold text-text-primary mb-4 flex items-center gap-2">
-        <Brain className="w-4 h-4 text-text-secondary" />
+        <Brain className="w-4 h-4 text-text-secondary" aria-hidden />
         {title}
       </h3>
-      <div className="space-y-3">
-        {insights.map((ins, i) => (
-          <div
-            key={i}
-            className={cn(
-              'p-3 rounded-xl border-0',
-              ins.tone === 'good' ? 'bg-accent-emerald/5' :
-              ins.tone === 'warn' ? 'bg-accent-amber/5' :
-              'bg-surface-secondary/50',
-            )}
-          >
-            <p className="type-body font-medium text-text-primary">{ins.insight}</p>
-            <p className="type-caption text-text-tertiary mt-1">{ins.evidence}</p>
-          </div>
-        ))}
+      <div className="space-y-2.5">
+        {insights.map((ins, i) => {
+          const Icon = insightIcon(ins.tone);
+          const accent = insightAccent(ins.tone);
+          return (
+            <div
+              key={i}
+              className={cn(
+                'relative pl-4 pr-3 py-3 rounded-xl overflow-hidden',
+                ins.tone === 'good' ? 'bg-accent-emerald/5' :
+                ins.tone === 'warn' ? 'bg-accent-amber/5' :
+                'bg-surface-secondary/50',
+              )}
+            >
+              {/* Tone accent stripe */}
+              <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-xl" style={{ backgroundColor: accent }} aria-hidden />
+              <div className="flex items-start gap-2">
+                <Icon className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: accent }} aria-hidden />
+                <div className="min-w-0">
+                  <p className="type-body font-medium text-text-primary leading-snug">{ins.insight}</p>
+                  <p className="type-caption text-text-tertiary mt-1 leading-snug">{ins.evidence}</p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

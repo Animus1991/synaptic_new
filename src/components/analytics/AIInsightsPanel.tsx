@@ -5,7 +5,7 @@ import { buildLearnerInsights } from '../../lib/progressInsights';
 import { useAnalyticsDateRange } from './AnalyticsDateRangeContext';
 import { filterActivitiesByRange } from '../../features/analytics/analyticsDateRange';
 import { SectionLabel } from '../ui/SectionLabel';
-import { useI18n } from '../../lib/i18n';
+import { useI18n, type I18nKey } from '../../lib/i18n';
 import { configuredProxyBase } from '../../lib/authClient';
 import { useAppStore } from '../../store/useStore';
 import { cn } from '../../utils/cn';
@@ -40,6 +40,7 @@ function buildLocalInsights(
   activities: ActivityItem[],
   courses: Course[],
   lang: 'en' | 'el',
+  t: (key: I18nKey) => string,
 ): AnalyticsInsightsPayload {
   const profile = buildLearnerInsights(learnerModel, activities, courses, lang);
   const weak = learnerModel.weakAreas[0];
@@ -47,10 +48,8 @@ function buildLocalInsights(
   if (weak) {
     actions.push({
       id: `study-${weak.concept}`,
-      title: lang === 'el' ? `Μελέτη: ${weak.concept}` : `Study: ${weak.concept}`,
-      detail: lang === 'el'
-        ? 'Άνοιξε το workspace στο αδύναμο concept.'
-        : 'Open the workspace focused on this weak concept.',
+      title: t('analyticsInsightsStudyAction').replace('{concept}', weak.concept),
+      detail: t('analyticsInsightsStudyDetail'),
       concept: weak.concept,
     });
   }
@@ -58,10 +57,8 @@ function buildLocalInsights(
   if (almost && almost.concept !== weak?.concept) {
     actions.push({
       id: `push-${almost.concept}`,
-      title: lang === 'el' ? `Ολοκλήρωσε: ${almost.concept}` : `Finish: ${almost.concept}`,
-      detail: lang === 'el'
-        ? 'Είσαι κοντά — μια σύντομη επανάληψη αρκεί.'
-        : 'You are close — a short review should lock it in.',
+      title: t('analyticsInsightsFinishAction').replace('{concept}', almost.concept),
+      detail: t('analyticsInsightsFinishDetail'),
       concept: almost.concept,
     });
   }
@@ -87,8 +84,8 @@ export function AIInsightsPanel({
   const userSettings = store.user.settings;
   const scoped = useMemo(() => filterActivitiesByRange(activities, range), [activities, range]);
   const local = useMemo(
-    () => buildLocalInsights(learnerModel, scoped, courses, lang),
-    [learnerModel, scoped, courses, lang],
+    () => buildLocalInsights(learnerModel, scoped, courses, lang, t),
+    [learnerModel, scoped, courses, lang, t],
   );
   const [payload, setPayload] = useState<AnalyticsInsightsPayload>(local);
   const [busy, setBusy] = useState(false);
@@ -151,7 +148,7 @@ export function AIInsightsPanel({
             <button
               type="button"
               data-testid="ai-insights-ask-agent"
-              className="type-micro font-medium text-text-secondary hover:text-text-primary"
+              className="type-micro font-medium text-text-secondary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 rounded"
               onClick={() => {
                 const weak = payload.actions.find((a) => a.concept?.trim())?.concept;
                 openAgentFromWorkspace({
@@ -163,14 +160,14 @@ export function AIInsightsPanel({
                 });
               }}
             >
-              {lang === 'el' ? 'Ρώτα Agent' : 'Ask Agent'}
+              {t('analyticsInsightsAskAgent')}
             </button>
             <span className="type-micro text-text-muted">
               {payload.source === 'llm'
-                ? (lang === 'el' ? 'μοντέλο' : 'model')
+                ? t('analyticsInsightsSourceModel')
                 : payload.source === 'api'
-                  ? (lang === 'el' ? 'API' : 'API')
-                  : (lang === 'el' ? 'κανόνες' : 'rules')}
+                  ? t('analyticsInsightsSourceApi')
+                  : t('analyticsInsightsSourceRules')}
             </span>
           </div>
         )}
@@ -181,15 +178,13 @@ export function AIInsightsPanel({
       <div className="rounded-xl border-0 bg-surface-secondary/50 p-3 space-y-2">
         {payload.observations.length === 0 ? (
           <p className="type-caption text-text-tertiary">
-            {lang === 'el'
-              ? 'Συνέχισε τη μελέτη για πιο πλούσια insights.'
-              : 'Keep studying to unlock richer insights.'}
+            {t('analyticsInsightsUnlockHint')}
           </p>
         ) : (
           <ul className="space-y-1.5">
             {payload.observations.map((obs, i) => (
               <li key={i} className="flex items-start gap-2 type-caption text-text-secondary">
-                <Lightbulb className="h-3.5 w-3.5 shrink-0 text-text-tertiary mt-0.5" aria-hidden />
+                <Lightbulb className="h-3.5 w-3.5 shrink-0 text-accent-amber/70 mt-0.5" aria-hidden />
                 <span>{obs}</span>
               </li>
             ))}
@@ -202,12 +197,12 @@ export function AIInsightsPanel({
           {payload.actions.map((action) => (
             <div
               key={action.id}
-              className="rounded-xl border-0 bg-surface-secondary/60 p-3 text-left"
+              className="rounded-xl bg-surface-secondary/60 overflow-hidden"
               data-testid={`ai-insight-action-${action.id}`}
             >
               <button
                 type="button"
-                className="w-full text-left hover:opacity-90 transition-opacity"
+                className="w-full text-left p-3 hover:bg-surface-hover/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 rounded-xl"
                 onClick={() => {
                   if (action.concept) openStudyWorkspaceForConcept(action.concept);
                   else {
@@ -218,30 +213,32 @@ export function AIInsightsPanel({
                   }
                 }}
               >
-                <p className="type-caption font-semibold text-text-primary flex items-center gap-1">
+                <p className="type-caption font-semibold text-text-primary flex items-center gap-1.5">
+                  <ArrowRight className="h-3 w-3 text-brand-400 shrink-0" aria-hidden />
                   {action.title}
-                  <ArrowRight className="h-3 w-3 text-text-tertiary" aria-hidden />
                 </p>
-                <p className="type-micro text-text-tertiary mt-1 leading-relaxed">{action.detail}</p>
+                <p className="type-micro text-text-tertiary mt-1.5 leading-relaxed pl-4">{action.detail}</p>
               </button>
               {action.concept && (
-                <button
-                  type="button"
-                  className="mt-2 type-micro font-medium text-text-secondary hover:underline"
-                  data-testid={`ai-insight-ask-${action.id}`}
-                  onClick={() => {
-                    openAgentFromWorkspace({
-                      fullPage: true,
-                      prompt: buildInsightsAskPrompt(payload, lang),
-                      context: {
-                        concept: action.concept,
-                        pathFocus: pathFocusFromWeakArea(action.concept!),
-                      },
-                    });
-                  }}
-                >
-                  {lang === 'el' ? 'εώτα Agent για αυτό' : 'Ask Agent about this'}
-                </button>
+                <div className="px-3 pb-2.5">
+                  <button
+                    type="button"
+                    className="type-micro font-medium text-text-tertiary hover:text-text-secondary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 rounded"
+                    data-testid={`ai-insight-ask-${action.id}`}
+                    onClick={() => {
+                      openAgentFromWorkspace({
+                        fullPage: true,
+                        prompt: buildInsightsAskPrompt(payload, lang),
+                        context: {
+                          concept: action.concept,
+                          pathFocus: pathFocusFromWeakArea(action.concept!),
+                        },
+                      });
+                    }}
+                  >
+                    {t('analyticsInsightsAskAgentAbout')}
+                  </button>
+                </div>
               )}
             </div>
           ))}

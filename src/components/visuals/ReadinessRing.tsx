@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { motion } from 'framer-motion';
 import { readinessBandMeta } from '../../lib/masteryPalette';
 
@@ -8,6 +9,8 @@ interface ReadinessRingProps {
   label?: string;
   sublabel?: string;
   showBand?: boolean;
+  /** Localized override for the mastery-band label used visually and by assistive technology. */
+  bandLabel?: string;
 }
 
 /**
@@ -22,28 +25,45 @@ export function ReadinessRing({
   label = 'Exam Readiness',
   sublabel,
   showBand = true,
+  bandLabel,
 }: ReadinessRingProps) {
-  const band = readinessBandMeta(value);
+  const instanceId = useId().replace(/[^a-zA-Z0-9_-]/g, '');
+  const gradientId = `${instanceId}-readiness-ring-gradient`;
+  const normalizedValue = Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0));
+  const displayValue = Math.round(normalizedValue);
+  const band = readinessBandMeta(normalizedValue);
+  const resolvedBandLabel = bandLabel ?? band.label;
   const r = (size - strokeWidth) / 2;
   const c = 2 * Math.PI * r;
-  const offset = c - (value / 100) * c;
+  const offset = c - (normalizedValue / 100) * c;
   const center = size / 2;
   const pctFontSize = Math.max(22, Math.round(size * 0.27));
+  const accessibleLabel = [
+    label,
+    `${displayValue}%`,
+    resolvedBandLabel,
+    sublabel,
+  ].filter(Boolean).join(' — ');
 
   return (
     <div className="dashboard-readiness-ring flex flex-col items-center gap-2" data-testid="dashboard-readiness-ring">
-      <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <div
+        className="relative shrink-0"
+        style={{ width: size, height: size }}
+        role="img"
+        aria-label={accessibleLabel}
+      >
         <svg width={size} height={size} className="-rotate-90" aria-hidden>
           <circle cx={center} cy={center} r={r} fill="none" stroke="var(--viz-track)" strokeWidth={strokeWidth} />
           <defs>
-            <linearGradient id={`ring-grad-${value}-${size}`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor={band.color} stopOpacity="0.4" />
               <stop offset="100%" stopColor={band.color} />
             </linearGradient>
           </defs>
           <motion.circle
             cx={center} cy={center} r={r} fill="none"
-            stroke={`url(#ring-grad-${value}-${size})`}
+            stroke={`url(#${gradientId})`}
             strokeWidth={strokeWidth}
             strokeDasharray={c}
             strokeLinecap="round"
@@ -71,7 +91,7 @@ export function ReadinessRing({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.35 }}
           >
-            {value}%
+            {displayValue}%
           </motion.text>
         </svg>
       </div>
@@ -82,7 +102,7 @@ export function ReadinessRing({
       ) : null}
       {showBand && (
         <span className="type-caption font-medium text-text-secondary">
-          {band.label}
+          {resolvedBandLabel}
         </span>
       )}
       {sublabel && <p className="type-caption text-text-secondary text-center max-w-[200px]">{sublabel}</p>}

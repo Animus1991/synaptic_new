@@ -1,5 +1,6 @@
 import type { RetentionForecastPoint } from './adaptiveScheduler';
 import type { SkillNode } from '../types';
+import { retentionPredictionProbability } from './retentionUnits';
 
 export type SparklineItem = {
   id: string;
@@ -29,25 +30,12 @@ export function buildRetentionSparklineItems(
 
   for (const skill of ranked) {
     if (items.length >= maxItems) break;
-    const end = Math.max(0.15, Math.min(1, skill.retentionPrediction / 100));
+    const end = Math.max(0.15, retentionPredictionProbability(skill.retentionPrediction));
     const values = Array.from({ length: 8 }, (_, i) => 1 - (1 - end) * (i / 7));
     items.push({
       id: skill.concept,
       label: skill.concept,
       values,
-    });
-  }
-
-  if (items.length === 0 && forecast.length >= 2) {
-    return items;
-  }
-
-  while (items.length < Math.min(3, maxItems)) {
-    const i = items.length;
-    items.push({
-      id: `placeholder-${i}`,
-      label: `T${i + 1}`,
-      values: [0.92, 0.88, 0.84, 0.8, 0.76, 0.72, 0.68, 0.65],
     });
   }
 

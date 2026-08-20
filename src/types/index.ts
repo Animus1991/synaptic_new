@@ -415,11 +415,27 @@ export interface ErrorPattern {
 
 export interface SpacingData {
   concept: string;
+  /** Legacy/display interval in fractional days. */
   interval: number;
   nextReview: string;
   stability: number;
+  /** Normalized FSRS difficulty in the historical 0–1 application scale. */
   difficulty: number;
   reviewCount: number;
+  /**
+   * Exact scheduler state. Optional so persisted rows created before the
+   * FSRS-6 migration remain readable and can use the documented fallback.
+   */
+  fsrsCard?: {
+    algorithmVersion: 'FSRS-6';
+    due: string;
+    lastReview?: string;
+    state: number;
+    scheduledDays: number;
+    learningSteps: number;
+    reps: number;
+    lapses: number;
+  };
 }
 
 export interface ConfidencePoint {

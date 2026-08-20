@@ -566,7 +566,7 @@ describe('Wave H2 — Dashboard productization', () => {
   it('learner copy drops forgetting-curve / first-attempts / Synapse Agent jargon', () => {
     expect(i18n).toMatch(/We space your reviews so hard cards come back sooner/);
     expect(i18n).toMatch(/Αραιώνουμε τις επαναλήψεις ώστε τα δύσκολα να επιστρέφουν νωρίτερα/);
-    expect(i18n).not.toMatch(/forgetting curve/);
+    expect(i18n).not.toMatch(/forgetting curve/i);
     expect(i18n).toMatch(/Based on real quiz answers/);
     expect(i18n).not.toMatch(/Derived from graded first-attempts only/);
     expect(i18n).toMatch(/Ask Tutor if you want help choosing/);

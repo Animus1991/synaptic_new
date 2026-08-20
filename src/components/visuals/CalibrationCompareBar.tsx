@@ -28,6 +28,8 @@ export function CalibrationCompareBar({
     <div
       className="relative h-7 flex-1 rounded-lg overflow-hidden"
       style={{ backgroundColor: 'var(--viz-bar-track)' }}
+      role="img"
+      aria-label={`${youLabel} · ${actualLabel}`}
     >
       <div
         className="absolute inset-y-0 left-0 rounded-lg bg-brand-600"

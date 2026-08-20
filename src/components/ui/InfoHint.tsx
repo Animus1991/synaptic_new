@@ -51,26 +51,62 @@ export function InfoHint({
   );
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const bubbleRef = useRef<HTMLDivElement | null>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const triggerHoveredRef = useRef(false);
+  const bubbleHoveredRef = useRef(false);
+  const pointerStartedOpenRef = useRef<boolean | null>(null);
   const id = useId();
+
+  const clearScheduledClose = () => {
+    if (closeTimerRef.current !== null) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+
+  const scheduleClose = () => {
+    clearScheduledClose();
+    closeTimerRef.current = setTimeout(() => {
+      closeTimerRef.current = null;
+      const active = document.activeElement;
+      const focusInside = triggerRef.current === active || Boolean(bubbleRef.current?.contains(active));
+      if (!triggerHoveredRef.current && !bubbleHoveredRef.current && !focusInside) setOpen(false);
+    }, 120);
+  };
 
   const place = () => {
     const el = triggerRef.current;
     if (!el || typeof window === 'undefined') return;
     const r = el.getBoundingClientRect();
     const spaceBelow = window.innerHeight - r.bottom;
-    const placement: Placement = spaceBelow < 140 ? 'top' : 'bottom';
-    const left = Math.min(Math.max(8, r.left + r.width / 2), window.innerWidth - 8);
-    const top = placement === 'bottom' ? r.bottom + 8 : r.top - 8;
+    const spaceAbove = r.top;
+    const placement: Placement = spaceBelow >= 140 || spaceBelow >= spaceAbove ? 'bottom' : 'top';
+    const bubbleRect = bubbleRef.current?.getBoundingClientRect();
+    const bubbleWidth = Math.min(
+      bubbleRect?.width || maxWidth,
+      Math.max(0, window.innerWidth - 16),
+    );
+    const halfWidth = bubbleWidth / 2;
+    const left = Math.min(
+      Math.max(8 + halfWidth, r.left + r.width / 2),
+      Math.max(8 + halfWidth, window.innerWidth - 8 - halfWidth),
+    );
+    const bubbleHeight = bubbleRect?.height ?? 0;
+    const top = placement === 'bottom'
+      ? Math.min(r.bottom + 8, Math.max(8, window.innerHeight - bubbleHeight - 8))
+      : Math.max(r.top - 8, bubbleHeight + 8);
     setCoords({ top, left, placement });
   };
 
   useLayoutEffect(() => {
     if (!open) return;
     place();
+    const frame = requestAnimationFrame(place);
     const reposition = () => place();
     window.addEventListener('scroll', reposition, true);
     window.addEventListener('resize', reposition);
     return () => {
+      cancelAnimationFrame(frame);
       window.removeEventListener('scroll', reposition, true);
       window.removeEventListener('resize', reposition);
     };
@@ -96,6 +132,8 @@ export function InfoHint({
     };
   }, [open]);
 
+  useEffect(() => () => clearScheduledClose(), []);
+
   return (
     <>
       <button
@@ -105,20 +143,32 @@ export function InfoHint({
         aria-describedby={open ? id : undefined}
         aria-expanded={open}
         data-testid={testId}
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
-        onFocus={() => setOpen(true)}
-        onBlur={() => setOpen(false)}
+        onPointerDown={() => {
+          pointerStartedOpenRef.current = open;
+        }}
+        onMouseEnter={() => {
+          triggerHoveredRef.current = true;
+          clearScheduledClose();
+          setOpen(true);
+        }}
+        onMouseLeave={() => {
+          triggerHoveredRef.current = false;
+          scheduleClose();
+        }}
+        onFocus={() => {
+          clearScheduledClose();
+          if (pointerStartedOpenRef.current === null) setOpen(true);
+        }}
+        onBlur={scheduleClose}
         onClick={(e) => {
           e.stopPropagation();
           e.preventDefault();
-          // Open-only: on touch, the tap already fired mouseenter/focus (open),
-          // so a toggle here would close the hint before it is ever seen.
-          // Dismissal is handled by mouseleave / blur / Escape / outside tap.
-          setOpen(true);
+          const startedOpen = pointerStartedOpenRef.current;
+          pointerStartedOpenRef.current = null;
+          setOpen(startedOpen === null ? (current) => !current : !startedOpen);
         }}
         className={cn(
-          'inline-flex h-6 w-6 min-h-[24px] min-w-[24px] shrink-0 items-center justify-center rounded-full text-text-tertiary transition-colors hover:text-text-primary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60',
+          'relative inline-flex h-6 w-6 min-h-[24px] min-w-[24px] shrink-0 touch-manipulation items-center justify-center rounded-full text-text-tertiary transition-colors after:absolute after:-inset-2.5 after:content-["\"] hover:text-text-primary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60',
           className,
         )}
       >
@@ -130,6 +180,14 @@ export function InfoHint({
               ref={bubbleRef}
               id={id}
               role="tooltip"
+              onMouseEnter={() => {
+                bubbleHoveredRef.current = true;
+                clearScheduledClose();
+              }}
+              onMouseLeave={() => {
+                bubbleHoveredRef.current = false;
+                scheduleClose();
+              }}
               style={{
                 position: 'fixed',
                 top: coords.top,
@@ -138,10 +196,10 @@ export function InfoHint({
                   coords.placement === 'bottom'
                     ? 'translate(-50%, 0)'
                     : 'translate(-50%, -100%)',
-                maxWidth,
+                maxWidth: Math.min(maxWidth, Math.max(0, window.innerWidth - 16)),
                 zIndex: 1000,
               }}
-              className="pointer-events-none rounded-md border-0 bg-surface-elevated px-2.5 py-1.5 type-caption leading-snug text-text-secondary shadow-md"
+              className="pointer-events-auto rounded-md border-0 bg-surface-elevated px-2.5 py-1.5 type-caption leading-snug text-text-secondary shadow-md"
             >
               {label}
             </div>,

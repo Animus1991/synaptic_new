@@ -6,13 +6,13 @@ import {
   Activity, Shield, Eye, HelpCircle, FlaskConical, Download,
   GitBranch, ChevronRight, ArrowUpRight, ArrowDownRight, Minus,
 } from '@/lib/lucide-shim';
-import type { LearnerModel, DashboardStats, Course, ActivityItem } from '../types';
-import { computeCalibration, type PrerequisiteRepair } from '../lib/pedagogy';
+import type { LearnerModel, DashboardStats, Course, ActivityItem, ErrorPattern } from '../types';
+import { computeCalibration, masteryBand, type PrerequisiteRepair } from '../lib/pedagogy';
 import { buildRetentionForecast, summarizeRetentionForecast } from '../lib/adaptiveScheduler';
 import {
   adaptiveRecommendations,
   retentionCurveFromActivities,
-  weeklyMasteryFromActivities,
+  weeklyLearningSignalFromActivities,
 } from '../features/analytics/retentionAnalytics';
 import { CalibrationCompareBar } from './visuals/CalibrationCompareBar';
 import { CalibrationChip } from './visuals/CalibrationChip';
@@ -27,9 +27,9 @@ import { ReadinessRing } from './visuals/ReadinessRing';
 import { RetentionCurve } from './visuals/DiagramGenerator';
 import { ConceptGraph } from './visuals/ConceptGraph';
 import { useI18n, type I18nKey } from '../lib/i18n';
+import { useMotionTransition } from '../lib/motionPrefs';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
-import { formatHeatmapDayTooltip } from '../lib/localeFormat';
-import { useMinimalTheme } from '../lib/useMinimalTheme';
+import { formatHeatmapDayTooltip, localeTag, parseCalendarDate } from '../lib/localeFormat';
 import { readAllLearningEvents } from '../lib/learningEvents';
 import {
   computeResearchMetrics,
@@ -71,12 +71,19 @@ import { SubjectMasteryGrid } from './analytics/SubjectMasteryGrid';
 import { SubjectDrillDown } from './analytics/SubjectDrillDown';
 import { StudyBehaviorCharts } from './analytics/StudyBehaviorCharts';
 import { AIInsightsPanel } from './analytics/AIInsightsPanel';
-import { buildSubjectMasteryTiles, type SubjectMasteryTile } from '../features/analytics/subjectMasteryAnalytics';
-import { filterActivitiesByRange, filterEventsByRange } from '../features/analytics/analyticsDateRange';
+import { buildSubjectMasteryTiles } from '../features/analytics/subjectMasteryAnalytics';
+import {
+  analyticsRangeDays,
+  filterActivitiesByRange,
+  filterEventsByRange,
+  rangeLabel,
+} from '../features/analytics/analyticsDateRange';
 import { useAppStore } from '../store/useStore';
 import { SectionHeader } from './ui/platformChrome';
 import { SectionLabel } from './ui/SectionLabel';
+import { InfoHint } from './ui/InfoHint';
 import { loadVisualLabOpen, saveVisualLabOpen } from '../lib/visualLabPrefs';
+import { retentionPredictionPercent } from '../lib/retentionUnits';
 
 interface AnalyticsProps {
   learnerModel: LearnerModel;
@@ -89,15 +96,16 @@ interface AnalyticsProps {
 
 type AnalyticsTab = 'overview' | 'mastery' | 'behavior' | 'insights' | 'research';
 
-const WEEKDAY_KEYS: I18nKey[] = [
-  'analyticsWeekMon', 'analyticsWeekTue', 'analyticsWeekWed', 'analyticsWeekThu',
-  'analyticsWeekFri', 'analyticsWeekSat', 'analyticsWeekSun',
-];
+const ERROR_CATEGORY_META = {
+  calculation: { labelKey: 'analyticsCatCalculation', className: 'bg-accent-amber/10 text-accent-amber' },
+  conceptual: { labelKey: 'analyticsCatConceptual', className: 'bg-accent-rose/10 text-accent-rose' },
+  procedural: { labelKey: 'analyticsCatProcedural', className: 'bg-accent-cyan/10 text-accent-cyan' },
+  application: { labelKey: 'analyticsCatApplication', className: 'bg-brand-500/10 text-brand-600' },
+  recall: { labelKey: 'analyticsCatRecall', className: 'bg-accent-teal/10 text-accent-teal' },
+} satisfies Record<ErrorPattern['category'], { labelKey: I18nKey; className: string }>;
 
-function errorCategoryLabel(category: string, t: (key: I18nKey) => string): string {
-  if (category === 'calculation') return t('analyticsCatCalculation');
-  if (category === 'conceptual') return t('analyticsCatConceptual');
-  return t('analyticsCatProcedural');
+function errorCategoryLabel(category: ErrorPattern['category'], t: (key: I18nKey) => string): string {
+  return t(ERROR_CATEGORY_META[category].labelKey);
 }
 
 type GraphNode = {
@@ -110,14 +118,16 @@ type GraphNode = {
 };
 type GraphEdge = { from: string; to: string; relation: 'prerequisite' | 'related' | 'contrasts' | 'example-of' };
 
-const slug = (s: string): string =>
-  s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 24) || 'n';
+const normalizeGraphLabel = (label: string): string =>
+  label.normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+
+const graphIdentityPart = (value: string): string => encodeURIComponent(value);
 
 function classifyNode(label: string): GraphNode['type'] {
   const lower = label.toLowerCase();
-  if (/(formula|equation|=|theorem|law of)/.test(lower)) return 'formula';
-  if (/(definition|defined|is the|means)/.test(lower)) return 'definition';
-  if (/(theory|model|principle)/.test(lower)) return 'theory';
+  if (/(formula|equation|=|theorem|law of|τύπος|εξίσωση|θεώρημα|νόμος)/.test(lower)) return 'formula';
+  if (/(definition|defined|is the|means|ορισμός|ορίζεται|σημαίνει)/.test(lower)) return 'definition';
+  if (/(theory|model|principle|θεωρία|μοντέλο|αρχή)/.test(lower)) return 'theory';
   return 'concept';
 }
 
@@ -134,13 +144,21 @@ function radialLayout(count: number, width: number, height: number): { x: number
   });
 }
 
+function calendarDateKey(date: Date): string {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, '0'),
+    String(date.getDate()).padStart(2, '0'),
+  ].join('-');
+}
+
 /**
  * Build a concept-mastery graph from the learner's actual data:
  *   - Nodes from course topics (with their mastery), plus learner skill nodes if not already present.
  *   - Prerequisite edges from each topic's `prerequisites` field, resolving by title similarity.
  *   - Falls back to an empty graph when there is no real data.
  */
-function buildMasteryGraph(
+export function buildMasteryGraph(
   learnerModel: LearnerModel,
   courses: Course[],
 ): { nodes: GraphNode[]; edges: GraphEdge[]; height: number } {
@@ -150,24 +168,38 @@ function buildMasteryGraph(
     ...learnerModel.almostKnown,
     ...learnerModel.weakAreas,
   ];
-  const labelToId = new Map<string, string>();
-  const items: { label: string; mastery: number }[] = [];
+  const courseLabelToId = new Map<string, string>();
+  const courseTopicIdToGraphId = new Map<string, string>();
+  const globalLabelToIds = new Map<string, string[]>();
+  const items: { id: string; label: string; mastery: number }[] = [];
+
+  const registerLabel = (label: string, id: string) => {
+    const normalized = normalizeGraphLabel(label);
+    globalLabelToIds.set(normalized, [...(globalLabelToIds.get(normalized) ?? []), id]);
+  };
 
   for (const c of generated) {
     for (const t of c.topics) {
       const key = t.title.trim();
-      if (!key || labelToId.has(key.toLowerCase())) continue;
-      const id = `t-${slug(key)}`;
-      labelToId.set(key.toLowerCase(), id);
-      items.push({ label: key, mastery: Math.round(t.mastery) });
+      if (!key) continue;
+      const id = `topic:${graphIdentityPart(c.id)}:${graphIdentityPart(t.id)}`;
+      const courseLabelKey = `${c.id}:${normalizeGraphLabel(key)}`;
+      if (courseLabelToId.has(courseLabelKey)) continue;
+      courseLabelToId.set(courseLabelKey, id);
+      courseTopicIdToGraphId.set(`${c.id}:${t.id}`, id);
+      registerLabel(key, id);
+      items.push({ id, label: key, mastery: Math.round(t.mastery) });
     }
   }
   for (const s of skills) {
     const key = s.concept.trim();
-    if (!key || labelToId.has(key.toLowerCase())) continue;
-    const id = `s-${slug(key)}`;
-    labelToId.set(key.toLowerCase(), id);
-    items.push({ label: key, mastery: Math.round(s.mastery) });
+    if (!key) continue;
+    const courseLabelKey = `${s.courseId}:${normalizeGraphLabel(key)}`;
+    if (courseLabelToId.has(courseLabelKey)) continue;
+    const id = `skill:${graphIdentityPart(s.courseId)}:${graphIdentityPart(normalizeGraphLabel(key))}`;
+    courseLabelToId.set(courseLabelKey, id);
+    registerLabel(key, id);
+    items.push({ id, label: key, mastery: Math.round(s.mastery) });
   }
 
   if (items.length === 0) return { nodes: [], edges: [], height: 380 };
@@ -176,7 +208,7 @@ function buildMasteryGraph(
   const height = Math.max(380, 200 + items.length * 18);
   const positions = radialLayout(items.length, width, height);
   const nodes: GraphNode[] = items.map((it, i) => ({
-    id: labelToId.get(it.label.toLowerCase())!,
+    id: it.id,
     label: it.label,
     mastery: it.mastery,
     type: classifyNode(it.label),
@@ -185,13 +217,22 @@ function buildMasteryGraph(
   }));
 
   const edges: GraphEdge[] = [];
+  const edgeKeys = new Set<string>();
   for (const c of generated) {
     for (const t of c.topics) {
-      const toId = labelToId.get(t.title.toLowerCase());
+      const toId = courseTopicIdToGraphId.get(`${c.id}:${t.id}`);
       if (!toId) continue;
       for (const pre of t.prerequisites ?? []) {
-        const fromId = labelToId.get(pre.toLowerCase());
-        if (fromId && fromId !== toId) edges.push({ from: fromId, to: toId, relation: 'prerequisite' });
+        const normalizedPre = normalizeGraphLabel(pre);
+        const sameCourse = courseLabelToId.get(`${c.id}:${normalizedPre}`)
+          ?? courseTopicIdToGraphId.get(`${c.id}:${pre}`);
+        const globalMatches = globalLabelToIds.get(normalizedPre) ?? [];
+        const fromId = sameCourse ?? (globalMatches.length === 1 ? globalMatches[0] : undefined);
+        const edgeKey = `${fromId ?? ''}->${toId}`;
+        if (fromId && fromId !== toId && !edgeKeys.has(edgeKey)) {
+          edgeKeys.add(edgeKey);
+          edges.push({ from: fromId, to: toId, relation: 'prerequisite' });
+        }
       }
     }
   }
@@ -230,6 +271,7 @@ export function Analytics({
         />
 
         <TabBar
+          idPrefix="analytics"
           ariaLabel={t('analyticsTabListAria')}
           activeKey={tab}
           onChange={(key) => setTab(key as AnalyticsTab)}
@@ -242,43 +284,41 @@ export function Analytics({
           ]}
         />
 
-        {tab === 'overview' && (
-          <OverviewTab
-            learnerModel={learnerModel}
-            stats={stats}
-            courses={courses}
-            activities={activities}
-            daysToExam={daysToExam}
-          />
-        )}
-        {tab === 'mastery' && (
-          <MasteryTab learnerModel={learnerModel} courses={courses} activities={activities} />
-        )}
-        {tab === 'behavior' && <BehaviorTab learnerModel={learnerModel} activities={activities} />}
-        {tab === 'insights' && (
-          <InsightsTab
-            learnerModel={learnerModel}
-            activities={activities}
-            repairs={prerequisiteRepairs}
-            courses={courses}
-          />
-        )}
-        {tab === 'research' && (
-          <ResearchTab learnerModel={learnerModel} activities={activities} courses={courses} />
-        )}
+        <div
+          id={`analytics-panel-${tab}`}
+          role="tabpanel"
+          aria-labelledby={`analytics-tab-${tab}`}
+          tabIndex={0}
+        >
+          {tab === 'overview' && (
+            <OverviewTab
+              learnerModel={learnerModel}
+              stats={stats}
+              courses={courses}
+              activities={activities}
+              daysToExam={daysToExam}
+            />
+          )}
+          {tab === 'mastery' && (
+            <MasteryTab learnerModel={learnerModel} courses={courses} activities={activities} />
+          )}
+          {tab === 'behavior' && <BehaviorTab learnerModel={learnerModel} activities={activities} />}
+          {tab === 'insights' && (
+            <InsightsTab
+              learnerModel={learnerModel}
+              activities={activities}
+              repairs={prerequisiteRepairs}
+              courses={courses}
+            />
+          )}
+          {tab === 'research' && (
+            <ResearchTab learnerModel={learnerModel} activities={activities} courses={courses} />
+          )}
+        </div>
       </Page>
       </div>
     </AnalyticsDateRangeProvider>
   );
-}
-
-function countMeaningfulLearningActivities(activities: ActivityItem[]): number {
-  return activities.filter((a) =>
-    a.type === 'quiz_passed'
-    || a.type === 'quiz_failed'
-    || a.type === 'review_done'
-    || a.type === 'task_complete',
-  ).length;
 }
 
 function OverviewTab({
@@ -297,7 +337,8 @@ function OverviewTab({
   const { t, lang } = useI18n();
   const { range } = useAnalyticsDateRange();
   const store = useAppStore();
-  const [drillTile, setDrillTile] = useState<SubjectMasteryTile | null>(null);
+  const visualLabTransition = useMotionTransition({ duration: 0.36, ease: [0.2, 0, 0, 1] });
+  const [drillCourseId, setDrillCourseId] = useState<string | null>(null);
   const [visualLabOpen, setVisualLabOpen] = useState(() => loadVisualLabOpen(false));
   const [flowOpen, setFlowOpen] = useState<boolean | null>(null);
   const rangedActivities = useMemo(
@@ -308,30 +349,71 @@ function OverviewTab({
     () => buildSubjectMasteryTiles(courses, activities, range),
     [courses, activities, range],
   );
-  const meaningfulActivityCount = countMeaningfulLearningActivities(rangedActivities);
-  const hasConfidenceMetrics = meaningfulActivityCount >= 3;
-  const calibration = hasConfidenceMetrics
-    ? computeCalibration(learnerModel.confidenceCalibration)
-    : null;
-  const retentionPoints = retentionCurveFromActivities(rangedActivities);
-  const weekly = weeklyMasteryFromActivities(rangedActivities);
-  const hasRetentionData = rangedActivities.some(
-    (a) => a.type === 'quiz_passed' || a.type === 'quiz_failed' || a.type === 'review_done',
+  const drillTile = subjectTiles.find((tile) => tile.courseId === drillCourseId) ?? null;
+  const rangedConfidence = useMemo(
+    () => filterActivitiesByRange(learnerModel.confidenceCalibration, range),
+    [learnerModel.confidenceCalibration, range],
   );
+  const calibration = computeCalibration(rangedConfidence);
+  const hasConfidenceMetrics = calibration !== null;
+  const retentionPoints = retentionCurveFromActivities(rangedActivities);
+  const weekly = weeklyLearningSignalFromActivities(rangedActivities);
+  const hasRetentionData = retentionPoints.length > 0;
   const fsrsSummary = summarizeRetentionForecast(learnerModel.spacingIntervals);
   const fsrsForecast = buildRetentionForecast(learnerModel.spacingIntervals, 14);
+  const fsrsForecastAria = t('analyticsFsrsForecastAria')
+    .replace('{retrievability}', String(Math.round(fsrsSummary.avgRetrievabilityToday * 100)))
+    .replace('{due}', String(fsrsSummary.dueNext7Days));
   const progressKpis = buildProgressKpis(learnerModel, stats, daysToExam, lang);
   const confidenceBuckets = hasConfidenceMetrics
     ? buildConfidenceBuckets(learnerModel, lang)
     : [];
   const generatedCourseCount = courses.filter((c) => c.status !== 'generating').length;
-  const learningEvents = readAllLearningEvents();
+  const learningEvents = filterEventsByRange(readAllLearningEvents(), range);
   const sankeyModel = buildKnowledgeFlowSankey(rangedActivities, learningEvents, learnerModel, generatedCourseCount);
   const waterfallModel = buildMasteryWaterfall(rangedActivities, learnerModel, lang);
   const treemapModel = buildConceptTreemap(courses, learnerModel);
   const timelineModel = buildLearningTimeline(rangedActivities, lang);
+  const heatmapDayCount = Math.min(90, analyticsRangeDays(range));
+  const heatmapToday = new Date();
+  heatmapToday.setHours(0, 0, 0, 0);
+  const heatmapCutoff = new Date(heatmapToday);
+  heatmapCutoff.setDate(heatmapToday.getDate() - (heatmapDayCount - 1));
+  const heatmapWindow = [...learnerModel.heatmapData]
+    .filter((day) => parseCalendarDate(day.date).getTime() >= heatmapCutoff.getTime())
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const heatmapActiveDays = heatmapWindow.filter((d) => d.minutes > 0).length;
+  const heatmapByDate = new Map(heatmapWindow.map((day) => [day.date, day]));
+  const heatmapGridStart = new Date(heatmapCutoff);
+  heatmapGridStart.setDate(heatmapGridStart.getDate() - ((heatmapGridStart.getDay() + 6) % 7));
+  const heatmapGridEnd = new Date(heatmapToday);
+  heatmapGridEnd.setDate(heatmapGridEnd.getDate() + ((7 - heatmapGridEnd.getDay()) % 7));
+  const heatmapCells: Array<{ date: string; minutes: number; padding: boolean }> = [];
+  for (
+    const cursor = new Date(heatmapGridStart);
+    cursor.getTime() <= heatmapGridEnd.getTime();
+    cursor.setDate(cursor.getDate() + 1)
+  ) {
+    const date = calendarDateKey(cursor);
+    const row = heatmapByDate.get(date);
+    const padding = cursor.getTime() < heatmapCutoff.getTime() || cursor.getTime() > heatmapToday.getTime();
+    heatmapCells.push({ date, minutes: row?.minutes ?? 0, padding });
+  }
+  const heatmapWeekCount = Math.max(1, Math.ceil(heatmapCells.length / 7));
+  const heatmapAria = t('analyticsHeatmapAria')
+    .replace('{title}', t('analyticsStudyHeatmap'))
+    .replace('{range}', rangeLabel(range, lang))
+    .replace('{days}', String(heatmapActiveDays));
   const flowDefaultOpen = sankeyModel.hasData || waterfallModel.hasData || treemapModel.hasData || timelineModel.hasData;
   const flowIsOpen = flowOpen ?? flowDefaultOpen;
+  const readinessBand = masteryBand(learnerModel.overallMastery);
+  const readinessBandLabel = t({
+    weak: 'analyticsMasteryBandWeak',
+    developing: 'analyticsMasteryBandDeveloping',
+    proficient: 'analyticsMasteryBandProficient',
+    strong: 'analyticsMasteryBandStrong',
+  }[readinessBand] as I18nKey);
+  const weekdayFormatter = new Intl.DateTimeFormat(localeTag(lang), { weekday: 'short' });
   return (
     <div className="hub-section-stack analytics-hub-stack" data-soft-sep="stack">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
@@ -370,21 +452,39 @@ function OverviewTab({
       {/* Readiness Ring + Retention Curve */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {hasConfidenceMetrics ? (
-          <div className="platform-panel-lg flex items-center justify-center">
-            <ReadinessRing value={learnerModel.overallMastery} size={200} sublabel={t('analyticsReadinessSublabel')} />
+          <div className="platform-panel-lg relative flex items-center justify-center">
+            <InfoHint
+              className="absolute right-2 top-2"
+              label={t('analyticsHintReadiness')}
+              triggerAriaLabel={`${t('analyticsHintTrigger')}: ${t('analyticsReadinessTitle')}`}
+              data-testid="analytics-hint-readiness"
+            />
+            <ReadinessRing
+              value={learnerModel.overallMastery}
+              size={200}
+              label={t('analyticsReadinessTitle')}
+              bandLabel={readinessBandLabel}
+              sublabel={t('analyticsReadinessSublabel')}
+            />
           </div>
         ) : (
-          <div className="platform-panel-lg flex flex-col items-center justify-center text-center min-h-36 px-4">
-            <Target className="w-6 h-6 text-text-tertiary mb-2" aria-hidden />
-            <p className="type-caption text-text-secondary">{t('analyticsReadinessEmpty')}</p>
+          <div className="platform-panel-lg flex items-center justify-center min-h-36 px-4">
+            <AnalyticsEmptyState icon={Target} size="sm" title={t('analyticsReadinessEmpty')} />
           </div>
         )}
         {hasRetentionData ? (
-          <RetentionCurve dataPoints={retentionPoints} />
+          <div className="relative">
+            <InfoHint
+              className="absolute right-2 top-2 z-10"
+              label={t('analyticsHintRetention')}
+              triggerAriaLabel={`${t('analyticsHintTrigger')}: ${t('analyticsRetentionTitle')}`}
+              data-testid="analytics-hint-retention"
+            />
+            <RetentionCurve dataPoints={retentionPoints} />
+          </div>
         ) : (
-          <div className="platform-panel-lg flex flex-col items-center justify-center text-center min-h-36 px-4">
-            <Activity className="w-6 h-6 text-text-tertiary mb-2" aria-hidden />
-            <p className="type-caption text-text-secondary">{t('analyticsRetentionEmpty')}</p>
+          <div className="platform-panel-lg flex items-center justify-center min-h-36 px-4">
+            <AnalyticsEmptyState icon={Activity} size="sm" title={t('analyticsRetentionEmpty')} />
           </div>
         )}
       </motion.div>
@@ -397,10 +497,19 @@ function OverviewTab({
           className="platform-panel-md"
           data-testid="analytics-fsrs-forecast"
         >
-          <SectionLabel icon={Brain}>{t('analyticsFsrsForecastTitle')}</SectionLabel>
+          <SectionLabel
+            icon={Brain}
+            action={(
+              <InfoHint
+                label={t('analyticsHintFsrs')}
+                triggerAriaLabel={`${t('analyticsHintTrigger')}: ${t('analyticsFsrsForecastTitle')}`}
+                data-testid="analytics-hint-fsrs"
+              />
+            )}
+          >{t('analyticsFsrsForecastTitle')}</SectionLabel>
           <p className="type-micro text-text-muted mb-2.5">{t('analyticsFsrsForecastHint')}</p>
           {/* OPT-K128 — denser wash FSRS tiles (width parity with KPI rhythm) */}
-          <div className="grid grid-cols-3 gap-2.5 mb-2.5" data-testid="analytics-fsrs-kpi-row">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-2.5" data-testid="analytics-fsrs-kpi-row">
             <div className="rounded-xl bg-surface-secondary/50 px-3 py-2 min-h-[3.75rem]">
               <p className="type-micro text-text-muted">{t('analyticsFsrsRetrievability')}</p>
               <p className="ux-kpi-value-sm">
@@ -412,6 +521,10 @@ function OverviewTab({
               <p className="ux-kpi-value-sm">{fsrsSummary.dueNext7Days}</p>
             </div>
             <div className="rounded-xl bg-surface-secondary/50 px-3 py-2 min-h-[3.75rem]">
+              <p className="type-micro text-text-muted">{t('analyticsFsrsOverdue')}</p>
+              <p className="ux-kpi-value-sm">{fsrsSummary.overdueNow}</p>
+            </div>
+            <div className="rounded-xl bg-surface-secondary/50 px-3 py-2 min-h-[3.75rem]">
               <p className="type-micro text-text-muted">{t('analyticsFsrsTracked')}</p>
               <p className="ux-kpi-value-sm">{fsrsSummary.trackedConcepts}</p>
             </div>
@@ -420,6 +533,8 @@ function OverviewTab({
           <div
             className="flex items-end gap-1.5 h-16 rounded-lg px-0.5"
             data-testid="analytics-fsrs-day-bars"
+            role="img"
+            aria-label={fsrsForecastAria}
           >
             {fsrsForecast.map((point) => {
               const label =
@@ -459,46 +574,93 @@ function OverviewTab({
       >
         <div className="flex min-h-0 min-w-0 flex-col space-y-3">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
-            <h3 className="type-meta font-semibold flex items-center gap-2 mb-2.5"><TrendingUp className="w-4 h-4 text-text-secondary" aria-hidden />{t('analyticsWeeklyTrend')}</h3>
-            <div className="flex items-end gap-1.5 h-28" data-testid="analytics-weekly-trend">
-              {weekly.map((val, i) => (
-                <div key={i} className="analytics-weekly-col flex h-full flex-1 flex-col items-center justify-end gap-1 min-h-0">
+            <h3 className="type-meta font-semibold flex items-center gap-2 mb-2.5">
+              <TrendingUp className="w-4 h-4 text-text-secondary" aria-hidden />
+              {t('analyticsWeeklyTrend')}
+              <InfoHint
+                label={t('analyticsHintWeekly')}
+                triggerAriaLabel={`${t('analyticsHintTrigger')}: ${t('analyticsWeeklyTrend')}`}
+                data-testid="analytics-hint-weekly"
+              />
+            </h3>
+            <div
+              className="flex items-end gap-1.5 h-28"
+              data-testid="analytics-weekly-trend"
+              role="img"
+              aria-label={`${t('analyticsWeeklyTrend')}: ${weekly.map((day) => {
+                const label = weekdayFormatter.format(parseCalendarDate(day.date));
+                return `${label} ${day.score == null ? '—' : `${day.score}%`}`;
+              }).join(', ')}`}
+            >
+              {weekly.map((day, i) => {
+                const label = weekdayFormatter.format(parseCalendarDate(day.date));
+                return (
+                <div key={day.date} className="analytics-weekly-col flex h-full flex-1 flex-col items-center justify-end gap-1 min-h-0">
                   <div
                     className="analytics-weekly-bar w-[70%] max-w-[14px] rounded-full transition-all duration-500"
-                    style={{
-                      height: `${Math.max(6, val * 1.2)}%`,
+                    style={day.score == null ? {
+                      height: '4px',
+                      backgroundColor: 'var(--color-border-subtle)',
+                      opacity: 0.4,
+                    } : {
+                      height: `${Math.max(6, day.score)}%`,
                       backgroundColor: i === weekly.length - 1
                         ? 'var(--viz-bar-fill)'
                         : 'var(--viz-bar-fill-muted)',
-                      opacity: i === weekly.length - 1 ? 0.95 : 0.55,
+                      opacity: i === weekly.length - 1 ? 0.95 : 0.6,
                     }}
-                    title={`${val}%`}
+                    title={`${day.date}: ${day.score == null ? '—' : `${day.score}%`}`}
                   />
                   <span className="analytics-weekly-meta flex items-baseline gap-0.5 type-micro text-text-muted leading-none">
-                    <span>{t(WEEKDAY_KEYS[i]!)}</span>
-                    <span className="tabular-nums font-medium text-text-secondary">{val}%</span>
+                    <span>{label}</span>
+                    <span className="tabular-nums font-medium text-text-secondary">
+                      {day.score == null ? '—' : `${day.score}%`}
+                    </span>
                   </span>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="platform-panel-md flex-1">
-            <h3 className="type-meta font-semibold flex items-center gap-2 mb-2.5"><Calendar className="w-4 h-4 text-text-secondary" aria-hidden />{t('analyticsStudyHeatmap')}</h3>
-            <div className="grid grid-cols-[repeat(13,1fr)] gap-[3px]" data-testid="analytics-heatmap-grid">
-              {learnerModel.heatmapData.slice(-91).map((day, i) => {
+            <h3 className="type-meta font-semibold flex items-center gap-2 mb-2.5">
+              <Calendar className="w-4 h-4 text-text-secondary" aria-hidden />
+              {t('analyticsStudyHeatmap')}
+              <InfoHint
+                label={t('analyticsHintHeatmap')}
+                triggerAriaLabel={`${t('analyticsHintTrigger')}: ${t('analyticsStudyHeatmap')}`}
+                data-testid="analytics-hint-heatmap"
+              />
+            </h3>
+            <div
+              className="grid grid-flow-col grid-rows-7 gap-[3px]"
+              style={{ gridTemplateColumns: `repeat(${heatmapWeekCount}, minmax(0, 1fr))` }}
+              data-testid="analytics-heatmap-grid"
+              role="img"
+              aria-label={heatmapAria}
+            >
+              {heatmapCells.map((day) => {
                 const intensity = day.minutes === 0 ? 0 : day.minutes < 15 ? 1 : day.minutes < 30 ? 2 : day.minutes < 60 ? 3 : 4;
                 const heatmapVar = `var(--color-heatmap-scale-${intensity})`;
                 return (
                   <div
-                    key={i}
-                    className="heatmap-cell w-full aspect-square rounded-sm"
+                    key={day.date}
+                    className={cn('heatmap-cell w-full aspect-square rounded-sm', day.padding && 'opacity-0')}
                     style={{ backgroundColor: heatmapVar }}
-                    title={formatHeatmapDayTooltip(day.date, day.minutes, lang)}
+                    title={day.padding ? undefined : formatHeatmapDayTooltip(day.date, day.minutes, lang)}
+                    aria-hidden={day.padding || undefined}
                   />
                 );
               })}
             </div>
+            <ul className="sr-only" aria-label={t('analyticsStudyHeatmap')}>
+              {heatmapCells.filter((day) => !day.padding).map((day) => (
+                <li key={`heatmap-data-${day.date}`}>
+                  {formatHeatmapDayTooltip(day.date, day.minutes, lang)}
+                </li>
+              ))}
+            </ul>
             <div className="flex items-center justify-end gap-1 mt-2 type-micro text-text-muted">
               <span>{t('analyticsHeatmapLess')}</span>
               {[0, 1, 2, 3, 4].map((step) => (
@@ -580,6 +742,11 @@ function OverviewTab({
             <h3 className="type-meta font-semibold mb-2.5 flex items-center gap-2">
               <Eye className="w-4 h-4 text-text-secondary" aria-hidden />
               {t('analyticsCalibrationColumn')}
+              <InfoHint
+                label={t('analyticsHintCalibration')}
+                triggerAriaLabel={`${t('analyticsHintTrigger')}: ${t('analyticsCalibrationColumn')}`}
+                data-testid="analytics-hint-calibration"
+              />
             </h3>
             <div className="space-y-2">
               {learnerModel.confidenceCalibration.slice(0, 5).map((point, i) => {
@@ -628,17 +795,17 @@ function OverviewTab({
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
           <ConfidenceBucketChart
             buckets={confidenceBuckets}
-            title={lang === 'el' ? 'Calibration ανά επίπεδο εμπιστοσύνης' : 'Calibration by confidence level'}
+            title={t('analyticsCalibrationByLevel')}
           />
         </motion.div>
       )}
 
-      <SubjectMasteryGrid tiles={subjectTiles} onSelect={setDrillTile} />
+      <SubjectMasteryGrid tiles={subjectTiles} onSelect={(tile) => setDrillCourseId(tile.courseId)} />
       <SubjectDrillDown
         tile={drillTile}
-        onClose={() => setDrillTile(null)}
+        onClose={() => setDrillCourseId(null)}
         onStudyConcept={(concept) => {
-          setDrillTile(null);
+          setDrillCourseId(null);
           store.openStudyWorkspaceForConcept(concept);
         }}
       />
@@ -737,7 +904,7 @@ function OverviewTab({
                 initial={{ opacity: 0, y: 8, height: 0 }}
                 animate={{ opacity: 1, y: 0, height: 'auto' }}
                 exit={{ opacity: 0, y: 8, height: 0 }}
-                transition={{ duration: 0.36, ease: [0.2, 0, 0, 1] }}
+                transition={visualLabTransition}
                 style={{ overflow: 'hidden' }}
               >
                 <AnalyticsVisualLabPanel
@@ -804,11 +971,12 @@ function MasteryTab({
   const { t } = useI18n();
   const { range } = useAnalyticsDateRange();
   const store = useAppStore();
-  const [drillTile, setDrillTile] = useState<SubjectMasteryTile | null>(null);
+  const [drillCourseId, setDrillCourseId] = useState<string | null>(null);
   const subjectTiles = useMemo(
     () => buildSubjectMasteryTiles(courses, activities, range),
     [courses, activities, range],
   );
+  const drillTile = subjectTiles.find((tile) => tile.courseId === drillCourseId) ?? null;
   const rangedActivities = useMemo(
     () => filterActivitiesByRange(activities, range),
     [activities, range],
@@ -817,12 +985,12 @@ function MasteryTab({
   const masteryHeatmap = buildConceptMasteryHeatmap(rangedActivities, courses, learnerModel);
   return (
     <div className="hub-section-stack" data-soft-sep="stack">
-      <SubjectMasteryGrid tiles={subjectTiles} onSelect={setDrillTile} />
+      <SubjectMasteryGrid tiles={subjectTiles} onSelect={(tile) => setDrillCourseId(tile.courseId)} />
       <SubjectDrillDown
         tile={drillTile}
-        onClose={() => setDrillTile(null)}
+        onClose={() => setDrillCourseId(null)}
         onStudyConcept={(concept) => {
-          setDrillTile(null);
+          setDrillCourseId(null);
           store.openStudyWorkspaceForConcept(concept);
         }}
       />
@@ -830,6 +998,18 @@ function MasteryTab({
       {/* Concept Graph */}
       {graph.nodes.length > 0 ? (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <SectionLabel
+            icon={GitBranch}
+            action={(
+              <InfoHint
+                label={t('analyticsHintConceptGraph')}
+                triggerAriaLabel={`${t('analyticsHintTrigger')}: ${t('analyticsConceptGraphTitle')}`}
+                data-testid="analytics-hint-concept-graph"
+              />
+            )}
+          >
+            {t('analyticsConceptGraphTitle')}
+          </SectionLabel>
           <ConceptGraph
             nodes={graph.nodes}
             edges={graph.edges}
@@ -838,8 +1018,8 @@ function MasteryTab({
           />
         </motion.div>
       ) : (
-        <div className="platform-panel-xl text-center type-body text-text-secondary">
-          {t('analyticsMasteryMapEmpty')}
+        <div className="platform-panel-xl flex items-center justify-center min-h-[220px]">
+          <AnalyticsEmptyState icon={GitBranch} title={t('analyticsMasteryMapEmpty')} />
         </div>
       )}
 
@@ -928,7 +1108,6 @@ function BehaviorTab({
   activities: ActivityItem[];
 }) {
   const { t, lang } = useI18n();
-  const isMinimal = useMinimalTheme();
   const { range } = useAnalyticsDateRange();
   const rangedActivities = useMemo(
     () => filterActivitiesByRange(activities, range),
@@ -936,6 +1115,12 @@ function BehaviorTab({
   );
   const inference = inferBehaviorFromActivities(rangedActivities, filterEventsByRange(readAllLearningEvents(), range));
   const radarDimensions = buildLearningRadar(learnerModel, lang);
+  const hasRadarEvidence = learnerModel.totalSessions > 0 || [
+    ...learnerModel.strongAreas,
+    ...learnerModel.almostKnown,
+    ...learnerModel.weakAreas,
+  ].some((skill) => skill.practiceCount > 0);
+  const radarTitle = t('analyticsRadarTitle');
   const modelVars: { labelKey: I18nKey; value: string; barPct?: number }[] = [
     { labelKey: 'analyticsRetrievalPerformance', value: `${Math.round(learnerModel.retrievalPerformance * 100)}%`, barPct: Math.round(learnerModel.retrievalPerformance * 100) },
     { labelKey: 'analyticsTransferAbility', value: `${Math.round(learnerModel.transferAbility * 100)}%`, barPct: Math.round(learnerModel.transferAbility * 100) },
@@ -945,14 +1130,17 @@ function BehaviorTab({
     { labelKey: 'analyticsStreakDays', value: `${learnerModel.streakDays}` },
   ];
   const behaviorMetrics = [
-    { icon: <Clock className="w-5 h-5 text-text-tertiary" />, label: t('analyticsAvgSession'), value: `${learnerModel.averageSessionLength}m`, sub: t('analyticsAvgSessionSub') },
-    { icon: <Target className="w-5 h-5 text-text-tertiary" />, label: t('analyticsConfidence'), value: `${Math.round(learnerModel.averageConfidence * 100)}%`, sub: t('analyticsConfidenceSub') },
-    { icon: <HelpCircle className="w-5 h-5 text-text-tertiary" />, label: t('analyticsHelpSeeking'), value: `${Math.round(learnerModel.helpSeekingRate * 100)}%`, sub: t('analyticsHelpSeekingSub') },
-    { icon: <Shield className="w-5 h-5 text-text-tertiary" />, label: t('analyticsPersistence'), value: `${Math.round(learnerModel.persistenceScore * 100)}%`, sub: t('analyticsPersistenceSub') },
+    { icon: <Clock className="w-3.5 h-3.5 text-text-tertiary" />, label: t('analyticsAvgSession'), value: `${learnerModel.averageSessionLength}m`, sub: t('analyticsAvgSessionSub') },
+    { icon: <Target className="w-3.5 h-3.5 text-text-tertiary" />, label: t('analyticsConfidence'), value: `${Math.round(learnerModel.averageConfidence * 100)}%`, sub: t('analyticsConfidenceSub') },
+    { icon: <HelpCircle className="w-3.5 h-3.5 text-text-tertiary" />, label: t('analyticsHelpSeeking'), value: `${Math.round(learnerModel.helpSeekingRate * 100)}%`, sub: t('analyticsHelpSeekingSub') },
+    { icon: <Shield className="w-3.5 h-3.5 text-text-tertiary" />, label: t('analyticsPersistence'), value: `${Math.round(learnerModel.persistenceScore * 100)}%`, sub: t('analyticsPersistenceSub') },
   ];
   return (
     <div className="hub-section-stack" data-soft-sep="stack">
       <StudyBehaviorCharts activities={rangedActivities} />
+      <p className="type-caption text-text-muted" data-testid="analytics-behavior-scope">
+        {t('analyticsBehaviorSnapshotScope')}
+      </p>
       {inference.inferenceConfidence === 'low' && (
         <p className="type-caption text-accent-amber" data-soft-card="off">{t('analyticsBehaviorLowConfidence')}</p>
       )}
@@ -965,11 +1153,30 @@ function BehaviorTab({
         ))}
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-        <LearningRadarChart
-          dimensions={radarDimensions}
-          title={lang === 'el' ? 'Προφίλ μάθησης' : 'Learning profile'}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        className="relative"
+      >
+        <InfoHint
+          className="absolute right-3 top-3 z-10"
+          label={t('analyticsHintRadar')}
+          triggerAriaLabel={`${t('analyticsHintTrigger')}: ${radarTitle}`}
+          data-testid="analytics-hint-radar"
         />
+        {hasRadarEvidence ? (
+          <LearningRadarChart dimensions={radarDimensions} title={radarTitle} />
+        ) : (
+          <div className="platform-panel-md min-h-40">
+            <AnalyticsEmptyState
+              icon={TrendingUp}
+              size="sm"
+              className="min-h-32"
+              title={t('analyticsRadarEmpty')}
+            />
+          </div>
+        )}
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
@@ -979,10 +1186,9 @@ function BehaviorTab({
             <div key={i} className="p-4 rounded-xl bg-surface-secondary/50">
               <div className="flex items-center justify-between mb-2">
                 <span className="type-meta font-medium">{p.type}</span>
-                <span className={cn('type-micro px-2 py-0.5 rounded-full font-medium capitalize',
-                  p.category === 'calculation' ? 'bg-accent-amber/10 text-accent-amber' :
-                  p.category === 'conceptual' ? 'bg-accent-rose/10 text-accent-rose' :
-                  'bg-accent-cyan/10 text-accent-cyan'
+                <span className={cn(
+                  'type-micro px-2 py-0.5 rounded-full font-medium capitalize',
+                  ERROR_CATEGORY_META[p.category].className,
                 )}>{errorCategoryLabel(p.category, t)}</span>
               </div>
               <p className="type-caption text-text-tertiary">{p.frequency} {t('analyticsErrorOccurrences')}: {p.concepts.join(', ')}</p>
@@ -992,34 +1198,17 @@ function BehaviorTab({
         </div>
       </motion.div>
 
-      {isMinimal ? (
-        <HubSection title={t('analyticsAdaptiveModelVars')} data-testid="analytics-adaptive-model-vars">
-          {modelVars.map((item) => (
-            <UtilityRow
-              key={item.labelKey}
-              label={t(item.labelKey)}
-              value={item.value}
-              barPct={item.barPct}
-            />
-          ))}
-          <p className="utility-row-hint mt-2">{t('analyticsAdaptiveModelFootnote')}</p>
-        </HubSection>
-      ) : (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="platform-panel-md" data-testid="analytics-adaptive-model-vars">
-          <h3 className="type-meta font-semibold mb-4">{t('analyticsAdaptiveModelVars')}</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {modelVars.map((item) => (
-              <div key={item.labelKey} className="p-3 rounded-xl bg-surface-secondary/50 text-center">
-                <p className="type-micro text-text-muted mb-1">{t(item.labelKey)}</p>
-                <p className="type-meta font-semibold capitalize">{item.value}</p>
-              </div>
-            ))}
-          </div>
-          <p className="type-micro text-text-muted mt-4 leading-relaxed">
-            {t('analyticsAdaptiveModelFootnote')}
-          </p>
-        </motion.div>
-      )}
+      <HubSection title={t('analyticsAdaptiveModelVars')} data-testid="analytics-adaptive-model-vars">
+        {modelVars.map((item) => (
+          <UtilityRow
+            key={item.labelKey}
+            label={t(item.labelKey)}
+            value={item.value}
+            barPct={item.barPct}
+          />
+        ))}
+        <p className="utility-row-hint mt-2">{t('analyticsAdaptiveModelFootnote')}</p>
+      </HubSection>
     </div>
   );
 }
@@ -1055,7 +1244,7 @@ function InsightsTab({
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <LearnerInsightCards
             insights={profileInsights}
-            title={lang === 'el' ? 'Insights μαθητή' : 'Learner profile insights'}
+            title={t('analyticsInsightsLearnerTitle')}
           />
         </motion.div>
       )}
@@ -1078,13 +1267,18 @@ function InsightsTab({
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
         <h3 className="type-meta font-semibold mb-3">{t('analyticsAdaptiveRecommendations')}</h3>
-        <div className="space-y-2 type-body text-text-secondary">
-          {tips.length > 0 ? tips.map((tip, i) => (
-            <p key={i}>‶ {tip}</p>
-          )) : (
-            <p>{t('analyticsRecommendationsEmpty')}</p>
-          )}
-        </div>
+        {tips.length > 0 ? (
+          <ul className="space-y-2 type-body text-text-secondary">
+            {tips.map((tip, i) => (
+              <li key={i} className="flex items-start gap-2.5">
+                <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-text-tertiary" aria-hidden />
+                <span className="min-w-0 flex-1 leading-relaxed">{tip}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="type-body text-text-secondary">{t('analyticsRecommendationsEmpty')}</p>
+        )}
       </motion.div>
     </div>
   );
@@ -1099,55 +1293,109 @@ function ResearchTab({
   activities: ActivityItem[];
   courses: Course[];
 }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { range } = useAnalyticsDateRange();
   const rangedActivities = useMemo(
     () => filterActivitiesByRange(activities, range),
     [activities, range],
   );
+  const rangedConfidence = useMemo(
+    () => filterActivitiesByRange(learnerModel.confidenceCalibration, range),
+    [learnerModel.confidenceCalibration, range],
+  );
+  const scopedLearnerModel = useMemo(
+    () => ({ ...learnerModel, confidenceCalibration: rangedConfidence }),
+    [learnerModel, rangedConfidence],
+  );
   const events = filterEventsByRange(readAllLearningEvents(), range);
-  const metrics = computeResearchMetrics(learnerModel, rangedActivities, events);
-  const hasData = metrics.bktConcepts.length > 0 || metrics.sampleActivities >= 3;
+  const metrics = computeResearchMetrics(scopedLearnerModel, rangedActivities, events);
+  const hasConceptData = metrics.bktConcepts.length > 0;
+  const numberFormatter = new Intl.NumberFormat(localeTag(lang), { maximumFractionDigits: 1 });
 
   const handleExport = () => {
-    const manifest = buildResearchExport(learnerModel, rangedActivities, events, courses);
+    const manifest = buildResearchExport(
+      scopedLearnerModel,
+      rangedActivities,
+      events,
+      courses,
+      { range },
+    );
     downloadResearchExport(manifest);
   };
+
+  const confidenceSample = t('analyticsResearchMetricSamples')
+    .replace('{count}', String(metrics.calibrationSampleSize));
+  const spacingSample = t('analyticsResearchSpacingSamples')
+    .replace('{count}', String(metrics.spacingSampleSize));
+  const transitionSample = t('analyticsResearchTransitionSamples')
+    .replace('{count}', String(metrics.interleavingTransitions))
+    .replace('{events}', String(metrics.interleavingConceptEvents));
 
   const researchMetrics = [
     {
       icon: <Target className="w-5 h-5 text-text-tertiary" />,
       label: t('analyticsResearchBrier'),
       value: metrics.brierScore != null ? metrics.brierScore.toFixed(3) : '—',
-      sub: t('analyticsConfidenceHint').slice(0, 40),
+      sub: confidenceSample,
+      info: {
+        label: t('analyticsHintBrier'),
+        triggerAriaLabel: `${t('analyticsHintTrigger')}: ${t('analyticsResearchBrier')}`,
+        testId: 'analytics-hint-brier',
+      },
     },
     {
       icon: <Eye className="w-5 h-5 text-text-tertiary" />,
       label: t('analyticsResearchEce'),
       value: metrics.expectedCalibrationError != null ? metrics.expectedCalibrationError.toFixed(3) : '—',
-      sub: t('analyticsCalibrated'),
+      sub: `${confidenceSample} · ${t('analyticsResearchCalibrationBins')
+        .replace('{count}', String(metrics.calibrationBinCount))}`,
+      info: {
+        label: t('analyticsHintEce'),
+        triggerAriaLabel: `${t('analyticsHintTrigger')}: ${t('analyticsResearchEce')}`,
+        testId: 'analytics-hint-ece',
+      },
     },
     {
       icon: <Clock className="w-5 h-5 text-text-tertiary" />,
       label: t('analyticsResearchSpacing'),
-      value: `${Math.round(metrics.spacingDensity * 100)}%`,
-      sub: t('analyticsSevenDayRecall'),
+      value: metrics.meanSpacingIntervalDays == null
+        ? '—'
+        : t('analyticsResearchDays').replace(
+          '{count}',
+          numberFormatter.format(metrics.meanSpacingIntervalDays),
+        ),
+      sub: spacingSample,
+      info: {
+        label: t('analyticsHintSpacing'),
+        triggerAriaLabel: `${t('analyticsHintTrigger')}: ${t('analyticsResearchSpacing')}`,
+        testId: 'analytics-hint-spacing',
+      },
     },
     {
       icon: <Brain className="w-5 h-5 text-text-tertiary" />,
       label: t('analyticsResearchInterleaving'),
-      value: `${Math.round(metrics.interleavingRatio * 100)}%`,
-      sub: t('analyticsVsBaseline'),
+      value: metrics.interleavingRatio == null
+        ? '—'
+        : `${Math.round(metrics.interleavingRatio * 100)}%`,
+      sub: transitionSample,
+      info: {
+        label: t('analyticsHintInterleaving'),
+        triggerAriaLabel: `${t('analyticsHintTrigger')}: ${t('analyticsResearchInterleaving')}`,
+        testId: 'analytics-hint-interleaving',
+      },
     },
   ];
 
   return (
     <div className="hub-section-stack" data-soft-sep="stack">
       <p className="type-body text-text-secondary" data-soft-card="off">{t('analyticsResearchSubtitle')}</p>
+      <p className="type-caption text-text-muted" data-testid="analytics-research-scope">
+        {t('analyticsResearchScopeNotice')}
+      </p>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="analytics-research-metrics">
         {researchMetrics.map((m) => (
-          <MetricCard key={m.label} icon={m.icon} label={m.label} value={m.value} sub={m.sub} />
+          <MetricCard key={m.label} icon={m.icon} label={m.label} value={m.value} sub={m.sub} info={m.info} />
         ))}
       </div>
 
@@ -1157,7 +1405,7 @@ function ResearchTab({
           {t('analyticsResearchBktTitle')}
         </h3>
         <p className="type-caption text-text-tertiary mb-4">{t('analyticsResearchBktHint')}</p>
-        {!hasData ? (
+        {!hasConceptData ? (
           <p className="type-body text-text-secondary">{t('analyticsResearchEmpty')}</p>
         ) : (
           <div className="overflow-x-auto">
@@ -1174,7 +1422,7 @@ function ResearchTab({
                   <tr key={row.concept} className="border-b border-transparent">
                     <td className="py-2 pr-3 text-text-secondary truncate max-w-[200px]">{row.concept}</td>
                     <td className="py-2 px-3 text-right tabular-nums">{row.attempts}</td>
-                    <td className="py-2 pl-3 text-right tabular-nums">{Math.round(row.pLearned * 100)}%</td>
+                    <td className="py-2 pl-3 text-right tabular-nums">{Math.round(row.observedAccuracy * 100)}%</td>
                   </tr>
                 ))}
               </tbody>
@@ -1182,13 +1430,30 @@ function ResearchTab({
           </div>
         )}
         <p className="type-micro text-text-muted mt-3">
-          {t('analyticsResearchSample')}: {metrics.sampleActivities} activities · {metrics.sampleEvents} events
+          {t('analyticsResearchSample')}: {t('analyticsResearchSampleDetail')
+            .replace('{activities}', String(metrics.sampleActivities))
+            .replace('{events}', String(metrics.sampleEvents))}
         </p>
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="platform-panel-md">
-        <h3 className="type-meta font-semibold mb-4">{t('analyticsResearchForgetting')}</h3>
-        <RetentionCurve dataPoints={metrics.forgettingCurve} />
+        <h3 className="type-meta font-semibold flex items-center gap-2 mb-1">
+          {t('analyticsResearchForgetting')}
+          <InfoHint
+            label={t('analyticsResearchForgettingHint')}
+            triggerAriaLabel={`${t('analyticsHintTrigger')}: ${t('analyticsResearchForgetting')}`}
+          />
+        </h3>
+        {metrics.forgettingCurve.length > 0 ? (
+          <RetentionCurve dataPoints={metrics.forgettingCurve} />
+        ) : (
+          <AnalyticsEmptyState
+            icon={Activity}
+            size="sm"
+            className="min-h-32"
+            title={t('analyticsResearchForgettingEmpty')}
+          />
+        )}
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="platform-panel-md">
@@ -1209,11 +1474,61 @@ function parseTrailingPct(value: string): number | undefined {
   return Number(m[1]);
 }
 
-function MetricCard({ icon, label, value, sub }: { icon: React.ReactNode; label: string; value: string; sub: string }) {
+type AnalyticsEmptyIcon = React.ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
+
+function AnalyticsEmptyState({
+  icon: Icon,
+  title,
+  hint,
+  size = 'md',
+  className,
+  'data-testid': testId,
+}: {
+  icon: AnalyticsEmptyIcon;
+  title: string;
+  hint?: string;
+  size?: 'sm' | 'md';
+  className?: string;
+  'data-testid'?: string;
+}) {
+  return (
+    <div
+      className={cn('flex flex-col items-center justify-center text-center', className)}
+      data-testid={testId}
+    >
+      <Icon
+        className={cn(size === 'sm' ? 'w-6 h-6' : 'w-8 h-8', 'text-text-tertiary mb-2')}
+        aria-hidden
+      />
+      <p className="type-body font-medium text-text-secondary">{title}</p>
+      {hint && <p className="type-caption text-text-muted mt-1 max-w-[34ch]">{hint}</p>}
+    </div>
+  );
+}
+
+function MetricCard({
+  icon,
+  label,
+  value,
+  sub,
+  info,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  sub: string;
+  info?: { label: string; triggerAriaLabel: string; testId?: string };
+}) {
   return (
     <UtilityRow
       icon={icon}
-      label={label}
+      label={info ? (
+        <span className="inline-flex items-center gap-1">
+          {label}
+          <InfoHint label={info.label} triggerAriaLabel={info.triggerAriaLabel} data-testid={info.testId} />
+        </span>
+      ) : label}
+      barAriaLabel={label}
       value={value}
       hint={sub}
       barPct={parseTrailingPct(value)}
@@ -1228,7 +1543,7 @@ function SkillBar({ concept, mastery, retention, count }: { concept: string; mas
       label={concept}
       value={`${mastery}%`}
       barPct={mastery}
-      hint={`${t('analyticsSkillRetention')}: ${Math.round(retention * 100)}% · ${t('analyticsSkillPracticed')} ${count}×`}
+      hint={`${t('analyticsSkillRetention')}: ${Math.round(retentionPredictionPercent(retention))}% · ${t('analyticsSkillPracticed')} ${count}×`}
     />
   );
 }

@@ -67,6 +67,7 @@ export function ConceptTreemapChart({
             <button
               key={block.id}
               type="button"
+              aria-pressed={isActive}
               onClick={() => setActiveId(isActive ? null : block.id)}
               className={cn(
                 'rounded-xl border-0 p-3 text-left transition-all duration-200 min-w-[8rem] treemap-block',

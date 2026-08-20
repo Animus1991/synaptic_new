@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { cn } from '../../utils/cn';
 import { BlueprintSurface } from '../ui/BlueprintSurface';
 import { SectionHeader } from '../ui/platformChrome';
@@ -159,8 +159,47 @@ export function AnalyticsVisualLabPanel({
 }: Props) {
   const { t, lang } = useI18n();
   const [mode, setMode] = useState<VisualLabModeId>('source');
+  const tabSetId = useId();
+  const panelId = `${tabSetId}-visual-lab-panel`;
+  const tabRefs = useRef<Partial<Record<VisualLabModeId, HTMLButtonElement | null>>>({});
+  const focusFrameRef = useRef<number | null>(null);
   const active = VISUAL_LAB_MODES.find((m) => m.id === mode) ?? VISUAL_LAB_MODES[0];
   const live = sankeyHasData || skills.length > 0 || overallMastery > 0;
+
+  const tabId = (id: VisualLabModeId) => `${tabSetId}-visual-lab-tab-${id}`;
+
+  useEffect(() => () => {
+    if (focusFrameRef.current !== null) {
+      cancelAnimationFrame(focusFrameRef.current);
+      focusFrameRef.current = null;
+    }
+  }, []);
+
+  const focusTab = (id: VisualLabModeId) => {
+    if (focusFrameRef.current !== null) {
+      cancelAnimationFrame(focusFrameRef.current);
+    }
+    focusFrameRef.current = requestAnimationFrame(() => {
+      focusFrameRef.current = null;
+      tabRefs.current[id]?.focus();
+    });
+  };
+
+  const handleTabKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+    const count = VISUAL_LAB_MODES.length;
+    const idx = VISUAL_LAB_MODES.findIndex((item) => tabRefs.current[item.id] === e.currentTarget);
+    if (idx < 0) return;
+    let nextIdx: number | null = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextIdx = (idx + 1) % count;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') nextIdx = (idx - 1 + count) % count;
+    else if (e.key === 'Home') nextIdx = 0;
+    else if (e.key === 'End') nextIdx = count - 1;
+    if (nextIdx === null) return;
+    e.preventDefault();
+    const next = VISUAL_LAB_MODES[nextIdx]!;
+    setMode(next.id);
+    focusTab(next.id);
+  };
 
   const sourceLabel = lang === 'el'
     ? 'Διάγραμμα ροής πηγής προς mastery'
@@ -202,11 +241,18 @@ export function AnalyticsVisualLabPanel({
         {VISUAL_LAB_MODES.map((item) => (
           <button
             key={item.id}
+            ref={(node) => {
+              tabRefs.current[item.id] = node;
+            }}
+            id={tabId(item.id)}
             type="button"
             role="tab"
             aria-selected={mode === item.id}
+            aria-controls={panelId}
+            tabIndex={mode === item.id ? 0 : -1}
             data-testid={`visual-lab-mode-${item.id}`}
             onClick={() => setMode(item.id)}
+            onKeyDown={handleTabKeyDown}
             className={cn(
               'visual-lab-mode-tab',
               mode === item.id && 'visual-lab-mode-tab-active',
@@ -219,7 +265,13 @@ export function AnalyticsVisualLabPanel({
       </div>
 
       <div className="mt-5 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-        <div className="visual-lab-board-well">
+        <div
+          className="visual-lab-board-well"
+          role="tabpanel"
+          id={panelId}
+          aria-labelledby={tabId(mode)}
+          tabIndex={0}
+        >
           <div className="mb-3 flex flex-wrap items-start justify-between gap-3 visual-lab-board-head">
             <div>
               <p className="dashboard-live-preview-eyebrow"><AllCapsLabel>{t('visualLabCurrentModeEyebrow')}</AllCapsLabel></p>

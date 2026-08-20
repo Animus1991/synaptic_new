@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { GitBranch } from '@/lib/lucide-shim';
+import { GitBranch, TrendingUp } from '@/lib/lucide-shim';
 import type { SankeyLink } from '../../features/analytics/knowledgeFlowAnalytics';
 import { sankeyNodeLayout, SANKEY_NODE_ORDER } from '../../features/analytics/knowledgeFlowAnalytics';
 import { cn } from '../../utils/cn';
@@ -24,7 +24,7 @@ export function KnowledgeFlowSankeyChart({ links, title, hint, emptyLabel, hasDa
   if (!hasData || links.length === 0) {
     return (
       <div className="ux-card blueprint-surface flex flex-col items-center justify-center min-h-[220px] text-center" data-testid="knowledge-flow-sankey-empty">
-        <GitBranch className="w-8 h-8 text-text-tertiary mb-2" />
+        <GitBranch className="w-8 h-8 text-text-tertiary mb-2" aria-hidden />
         <p className="type-body text-text-muted">{emptyLabel}</p>
       </div>
     );
@@ -38,7 +38,12 @@ export function KnowledgeFlowSankeyChart({ links, title, hint, emptyLabel, hasDa
       </h3>
       <p className="type-caption text-text-tertiary mb-4">{hint}</p>
       <div className="overflow-x-auto rounded-xl border-0 bg-surface-primary/40 p-3">
-        <svg viewBox="0 0 1000 240" className="h-[280px] w-full min-w-[640px]" role="img" aria-label={title}>
+        <svg
+          viewBox="0 0 1000 240"
+          className="h-[280px] w-full min-w-[640px]"
+          role="img"
+          aria-label={`${title}: ${links.map((link) => `${link.from} → ${link.to}, ${link.value}`).join('; ')}`}
+        >
           {links.map((link) => {
             const from = layout[link.from as keyof typeof layout];
             const to = layout[link.to as keyof typeof layout];
@@ -115,6 +120,7 @@ export function MasteryWaterfallChart({
   if (!hasData || cumulative.length === 0) {
     return (
       <div className="ux-card blueprint-surface flex flex-col items-center justify-center min-h-[220px] text-center" data-testid="mastery-waterfall-empty">
+        <TrendingUp className="w-8 h-8 text-text-tertiary mb-2" aria-hidden />
         <p className="type-body text-text-muted">{emptyLabel}</p>
       </div>
     );
@@ -125,7 +131,12 @@ export function MasteryWaterfallChart({
       <h3 className="type-meta font-semibold text-text-primary mb-1">{title}</h3>
       <p className="type-caption text-text-tertiary mb-4">{hint}</p>
       <div className="overflow-x-auto rounded-xl border-0 bg-surface-primary/40 p-3">
-        <svg viewBox="0 0 780 280" className="h-[280px] w-full min-w-[520px]" role="img" aria-label={title}>
+        <svg
+          viewBox="0 0 780 280"
+          className="h-[280px] w-full min-w-[520px]"
+          role="img"
+          aria-label={`${title}: ${cumulative.map((step) => `${step.label} ${step.delta >= 0 ? '+' : ''}${step.delta}`).join('; ')}`}
+        >
           {cumulative.map((step, i) => {
             const x = i * (780 / cumulative.length) + 12;
             const w = 780 / cumulative.length - 16;

@@ -2228,4 +2228,187 @@ it('K166 — Dashboard residual: sentence-case labels + text-first list chrome',
     const calm = read('src/styles/chatgpt-calm.css');
     expect(calm).toMatch(/border-radius:\s*var\(--radius-panel\)/);
   });
+
+  it('K168 — UtilityRow / UsageBar / HubSection primitives are theme-agnostic (calm baseline on every theme)', () => {
+    const clarity = read('src/styles/cursor-clarity.css');
+
+    /* useMinimalTheme() always resolves the calm markup, so these structural
+       primitives must NOT be gated behind [data-theme="minimal"] or they break
+       (e.g. oversized UtilityRow icons) on light / warm-sand resolved themes. */
+    expect(clarity).toMatch(/^\.utility-row \{/m);
+    expect(clarity).toMatch(/^\.utility-row-icon \{/m);
+    expect(clarity).toMatch(/^\.utility-row-icon svg \{\s*\n\s*width: 0\.875rem;/m);
+    expect(clarity).toMatch(/^\.usage-bar \{/m);
+    expect(clarity).toMatch(/^\.usage-bar-fill \{/m);
+    expect(clarity).toMatch(/^\.hub-section \{/m);
+    expect(clarity).toMatch(/^\.hub-section-stack \{/m);
+
+    /* Regression guard: none of these primitives may be re-scoped to minimal. */
+    expect(clarity).not.toMatch(
+      /:is\(\[data-theme="minimal"\], \[data-theme="minimal-dark"\]\) \.utility-row-icon svg \{/,
+    );
+  });
+
+  it('K168b — Analytics viz chrome (.analytics-quiet) applies on every resolved theme', () => {
+    const clarity = read('src/styles/cursor-clarity.css');
+
+    /* The .analytics-quiet wrapper already scopes to the Analytics page; the
+       viz-chrome vars (bar fills, heatmap scale) must be theme-agnostic so the
+       heatmap and charts are not un-styled outside the minimal palette. */
+    expect(clarity).toMatch(/^\.analytics-quiet \{\s*\n\s*--viz-bar-fill:/m);
+    expect(clarity).toMatch(/^\.analytics-quiet \.analytics-course-bar-fill \{/m);
+    expect(clarity).not.toMatch(
+      /:is\(\[data-theme="minimal"\], \[data-theme="minimal-dark"\]\) \.analytics-quiet/,
+    );
+
+    /* data-tone lives on the child span inside .utility-row-hint, so the KPI
+       delta colour must use a descendant combinator (not an attribute on the p). */
+    expect(clarity).toMatch(
+      /\.utility-row-hint \[data-tone="good"\] \{\s*\n\s*color: var\(--color-accent-emerald\);/,
+    );
+    expect(clarity).toMatch(
+      /\.utility-row-hint \[data-tone="warn"\] \{\s*\n\s*color: var\(--color-accent-amber\);/,
+    );
+  });
+
+  it('K169 — analytics a11y attributes are locked (role/aria-label/aria-expanded/aria-pressed)', () => {
+    /* Static grep-gates so screen-reader affordances added across the Analytics
+       surface cannot silently regress. Each chart/control keeps an accessible
+       name or state hook; interactive charts expose expanded/pressed state. */
+
+    const behavior = read('src/components/analytics/StudyBehaviorCharts.tsx');
+    expect(behavior).toContain('const activityAria');
+    expect(behavior).toContain('const effectivenessAria');
+    expect(behavior).toContain('const donutAria');
+    expect(behavior).toContain('role="img" aria-label={activityAria}');
+    expect(behavior).toContain('role="img" aria-label={effectivenessAria}');
+    expect(behavior).toContain('role="img" aria-label={donutAria}');
+    expect(behavior).toContain("t('analyticsStudyBehaviorActivityAria')");
+    expect(behavior).toContain("t('analyticsStudyBehaviorEffectivenessAria')");
+    expect(behavior).toContain("t('analyticsStudyBehaviorSessionTypesAria')");
+    expect(behavior).toContain("t('analyticsStudyBehaviorNoEligibleRecall')");
+
+    const grid = read('src/components/analytics/SubjectMasteryGrid.tsx');
+    expect(grid).toContain('${tile.title}, ${tile.mastery}% ${masteryWord}, ${pendingLabel}, ${trendLabel}');
+    expect(grid).toContain('aria-haspopup="dialog"');
+    expect(grid).toContain("t('analyticsMasteryWord')");
+    expect(grid).toContain("t('analyticsRecentActivityIncreased')");
+    expect(grid).toContain("t('analyticsRecentActivityDecreased')");
+    expect(grid).toContain("t('analyticsRecentActivitySteady')");
+
+    const drill = read('src/components/analytics/SubjectDrillDown.tsx');
+    expect(drill).toContain('role="dialog"');
+    expect(drill).toContain('aria-modal="true"');
+    expect(drill).toContain("if (e.key === 'Escape') {");
+    expect(drill).toContain('e.preventDefault();');
+    expect(drill).toContain('e.stopPropagation();');
+    expect(drill).toContain('onCloseRef.current();');
+    expect(drill).toContain("document.body.style.overflow = 'hidden';");
+    expect(drill).toContain('closeRef.current?.focus();');
+    expect(drill).toContain("t('analyticsMasteryWord')");
+
+    const lab = read('src/components/analytics/AnalyticsVisualLabPanel.tsx');
+    expect(lab).toContain('role="tablist"');
+    expect(lab).toContain('role="tab"');
+    expect(lab).toContain('role="tabpanel"');
+    expect(lab).toContain('aria-controls={panelId}');
+    expect(lab).toContain('tabIndex={mode === item.id ? 0 : -1}');
+    expect(lab).toContain('const handleTabKeyDown');
+    expect(lab).toContain('aria-labelledby={tabId(mode)}');
+
+    const ai = read('src/components/analytics/AIInsightsPanel.tsx');
+    expect(ai).toContain('Ρώτα Agent για αυτό');
+    expect(ai).not.toContain('εώτα Agent');
+
+    const heatmap = read('src/components/analytics/ConceptMasteryHeatmapChart.tsx');
+    expect(heatmap).toContain('role="group" aria-label={');
+    expect(heatmap).toContain('${concepts.length} × ${dayLabels.length}');
+    expect(heatmap).toContain('type="button"');
+    expect(heatmap).toContain('aria-label={dayTooltip(concept, daysAgo, mastery)}');
+
+    const timeline = read('src/components/analytics/LearningTimelineChart.tsx');
+    expect(timeline).toContain('aria-expanded={isExpanded}');
+
+    const treemap = read('src/components/analytics/ConceptTreemapChart.tsx');
+    expect(treemap).toContain('aria-pressed={isActive}');
+
+    const sankey = read('src/components/analytics/KnowledgeFlowSankey.tsx');
+    expect(sankey).toContain('aria-label={`${title}: ${links.map(');
+    expect(sankey).toContain('aria-label={`${title}: ${cumulative.map(');
+    expect(sankey).toContain('<TrendingUp className="w-8 h-8 text-text-tertiary mb-2" aria-hidden />');
+
+    const sourceFlow = read('src/components/analytics/SourceFlowDiagram.tsx');
+    expect(sourceFlow).toContain('role="img"');
+    expect(sourceFlow).toContain('aria-label={ariaLabel}');
+
+    const sparkline = read('src/components/analytics/RetentionSparklineBoard.tsx');
+    expect(sparkline).toContain('role="img"');
+    expect(sparkline).toContain('aria-label={ariaLabel}');
+
+    const analytics = read('src/components/Analytics.tsx');
+    expect(analytics).toContain('<AnalyticsEmptyState');
+    expect(analytics).toContain('role="img"');
+    expect(analytics).toContain("t('analyticsFsrsForecastAria')");
+    expect(analytics).toContain("t('analyticsHeatmapAria')");
+
+    /* Visual primitives (rings/bars/graphs) expose accessible names. */
+    const ring = read('src/components/visuals/ReadinessRing.tsx');
+    expect(ring).toContain('role="img"');
+    expect(ring).toContain('aria-label={accessibleLabel}');
+    expect(ring).toContain('const instanceId = useId()');
+
+    const calib = read('src/components/visuals/CalibrationCompareBar.tsx');
+    expect(calib).toContain('role="img"');
+    expect(calib).toContain('aria-label={`${youLabel} · ${actualLabel}`}');
+
+    const graph = read('src/components/visuals/ConceptGraph.tsx');
+    expect(graph).toContain('role="group"');
+    expect(graph).toContain('role="button"');
+    expect(graph).toContain('aria-pressed={isSelected}');
+    expect(graph).toContain("t('analyticsConceptGraphAria')");
+    expect(graph).toContain("t('analyticsConceptNodeMasteryAria')");
+    expect(graph).toContain("t('analyticsConceptGraphPrerequisites')");
+    expect(graph).toContain("t('analyticsConceptGraphNone')");
+
+    const insightSections = read('src/components/analytics/ProgressInsightsSections.tsx');
+    expect(insightSections).toContain('role="img"');
+    expect(insightSections).toContain('aria-label={`${title}: ${dimensions.map(');
+
+    /* SubjectDrillDown mastery bars carry an accessible name (axe-caught gap). */
+    expect(drill).toContain('aria-label={`${topic.title} ${Math.round(topic.mastery)}%`}');
+  });
+
+  it('K170 — analytics scientific InfoHint affordances are wired and localized', () => {
+    /* Self-explanation gate: the overview's specialized metrics (FSRS, weekly
+       trend, study heatmap) must carry an accessible InfoHint with a scientific
+       explanation, and each explanation must be bilingual (EN + EL dicts). */
+
+    const analytics = read('src/components/Analytics.tsx');
+    expect(analytics).toContain("import { InfoHint } from './ui/InfoHint';");
+    expect(analytics).toContain('data-testid="analytics-hint-fsrs"');
+    expect(analytics).toContain('data-testid="analytics-hint-weekly"');
+    expect(analytics).toContain('data-testid="analytics-hint-heatmap"');
+    expect(analytics).toContain("label={t('analyticsHintFsrs')}");
+    expect(analytics).toContain("label={t('analyticsHintWeekly')}");
+    expect(analytics).toContain("label={t('analyticsHintHeatmap')}");
+    expect(analytics).toContain("t('analyticsHintTrigger')");
+
+    const i18n = read('src/lib/i18n.ts');
+    for (const key of [
+      'analyticsHintTrigger',
+      'analyticsHintCalibration',
+      'analyticsHintReadiness',
+      'analyticsHintRetention',
+      'analyticsHintFsrs',
+      'analyticsHintWeekly',
+      'analyticsHintHeatmap',
+    ]) {
+      // Present in both EN and EL dictionaries (2 occurrences minimum).
+      const occurrences = i18n.split(`${key}:`).length - 1;
+      expect(occurrences).toBeGreaterThanOrEqual(2);
+    }
+    // FSRS explanation names the verified algorithm and counterfactual scope.
+    expect(i18n).toContain('FSRS-6 models stability and retrievability');
+    expect(i18n).toContain('90% retention target');
+  });
 });

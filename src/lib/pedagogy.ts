@@ -2,6 +2,7 @@ import type { LearnerModel, SkillNode, ConfidencePoint } from '../types';
 import type { Lang } from './i18n';
 import { bandColorVar } from './masteryPalette';
 import { studyPlanBlockLabel } from './tasksContent';
+import { updateRetentionPredictionPercent } from './retentionUnits';
 
 export type MasteryBand = 'strong' | 'proficient' | 'developing' | 'weak';
 export type CalibrationDirection = 'overconfident' | 'calibrated' | 'underconfident';
@@ -63,11 +64,12 @@ export function updateBetaMastery(
 export function computeExamReadiness(
   concepts: BetaMastery[],
   fallbackAccuracy: number,
-  selfReliance: number,
+  _selfReliance: number,
   firstAttemptCount: number,
 ): number {
+  if (firstAttemptCount <= 0) return 0;
   if (firstAttemptCount < 5 || concepts.length === 0) {
-    return Math.round(100 * (0.7 * fallbackAccuracy + 0.3 * selfReliance));
+    return Math.round(100 * Math.max(0, Math.min(1, fallbackAccuracy)));
   }
   let num = 0;
   let den = 0;
@@ -75,7 +77,9 @@ export function computeExamReadiness(
     const mastery = betaMean(c.alpha, c.beta);
     const gate = Math.min(1, c.firstAttempts / 5);
     num += c.importance * mastery * gate;
-    den += c.importance * gate;
+    // Keep all declared objectives in the denominator so a narrow practiced
+    // subset cannot make an exam-wide readiness estimate look complete.
+    den += c.importance;
   }
   return den > 0 ? Math.round(100 * num / den) : 0;
 }
@@ -87,14 +91,26 @@ export function computeCalibration(points: ConfidencePoint[]): {
   avgConfidence: number;
   sampleSize: number;
 } | null {
-  if (points.length < 5) return null;
-  const avgConfidence = points.reduce((s, p) => s + p.predicted, 0) / points.length;
-  const accuracy = points.reduce((s, p) => s + p.actual, 0) / points.length;
+  const eligible = points.filter((point) =>
+    Number.isFinite(point.predicted)
+    && Number.isFinite(point.actual)
+    && point.predicted >= 0
+    && point.predicted <= 1
+    && point.actual >= 0
+    && point.actual <= 1,
+  );
+  if (eligible.length < 5) return null;
+  const avgConfidence = eligible.reduce((s, p) => s + p.predicted, 0) / eligible.length;
+  const accuracy = eligible.reduce((s, p) => s + p.actual, 0) / eligible.length;
   const gap = avgConfidence - accuracy;
-  const score = Math.round((1 - Math.min(1, Math.abs(gap))) * 100);
+  const meanAbsoluteError = eligible.reduce(
+    (sum, point) => sum + Math.abs(point.predicted - point.actual),
+    0,
+  ) / eligible.length;
+  const score = Math.round((1 - Math.min(1, meanAbsoluteError)) * 100);
   const direction: CalibrationDirection =
     gap > 0.1 ? 'overconfident' : gap < -0.1 ? 'underconfident' : 'calibrated';
-  return { score, direction, avgConfidence: Math.round(avgConfidence * 100), sampleSize: points.length };
+  return { score, direction, avgConfidence: Math.round(avgConfidence * 100), sampleSize: eligible.length };
 }
 
 /** Prerequisite repair from concept graph */
@@ -148,9 +164,10 @@ export function updateSkillMastery(skill: SkillNode, correct: boolean, _confiden
     ...skill,
     mastery,
     practiceCount: skill.practiceCount + 1,
-    retentionPrediction: correct
-      ? Math.min(100, skill.retentionPrediction + 4)
-      : Math.max(0, skill.retentionPrediction - 8),
+    retentionPrediction: updateRetentionPredictionPercent(
+      skill.retentionPrediction,
+      correct ? 4 : -8,
+    ),
     errorRate: correct
       ? Math.max(0, skill.errorRate - 0.05)
       : Math.min(1, skill.errorRate + 0.1),

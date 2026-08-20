@@ -232,7 +232,7 @@ export function LessonView({
       </header>
 
       <div
-        className="h-[3px] bg-surface-hover"
+        className="h-0.5 bg-surface-hover"
         role="progressbar"
         aria-valuenow={Math.round(progress)}
         aria-valuemin={0}

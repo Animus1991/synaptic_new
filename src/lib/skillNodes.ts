@@ -1,5 +1,9 @@
 import type { Course, LearnerModel, SkillNode, Topic } from '../types';
 import type { BetaMastery } from './pedagogy';
+import {
+  retentionPredictionPercent,
+  updateRetentionPredictionPercent,
+} from './retentionUnits';
 
 /** Normalize a concept label for matching: lowercase, strip punctuation, collapse spaces. */
 function normLabel(label: string): string {
@@ -52,7 +56,7 @@ export function skillNodeFromTopic(topic: Topic, courseId: string): SkillNode {
     courseId,
     mastery: topic.mastery ?? 0,
     lastPracticed: '',
-    retentionPrediction: topic.retentionPrediction ?? 50,
+    retentionPrediction: retentionPredictionPercent(topic.retentionPrediction ?? 50),
     practiceCount: 0,
     averageResponseTime: 0,
     errorRate: 0,
@@ -176,9 +180,10 @@ export function updateCourseTopicMastery(
       return {
         ...t,
         mastery: nextMastery,
-        retentionPrediction: correct
-          ? Math.min(100, t.retentionPrediction + 4)
-          : Math.max(0, t.retentionPrediction - 6),
+        retentionPrediction: updateRetentionPredictionPercent(
+          t.retentionPrediction,
+          correct ? 4 : -6,
+        ),
       };
     });
     const avg = topics.length

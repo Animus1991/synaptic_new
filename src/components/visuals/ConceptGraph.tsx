@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { motion } from 'framer-motion';
 import { bandColorVar, masteryColorForValue, accentHighlightVar } from '../../lib/masteryPalette';
 import type { MasteryBand } from '../../lib/pedagogy';
@@ -49,20 +49,34 @@ export function ConceptGraph({
   openConceptLabel,
 }: ConceptGraphProps) {
   const { t } = useI18n();
+  const instanceId = useId().replace(/[^a-zA-Z0-9_-]/g, '');
+  const arrowheadId = `${instanceId}-concept-graph-arrowhead`;
+  const glowId = `${instanceId}-concept-graph-glow`;
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+  const [focusedNode, setFocusedNode] = useState<string | null>(null);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
   const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]));
   const resolvedOpenConceptLabel = openConceptLabel ?? t('cognitiveReader');
+  const graphAriaLabel = t('analyticsConceptGraphAria').replace('{count}', String(nodes.length));
+  const toggleNode = (nodeId: string) => {
+    setSelectedNode((current) => current === nodeId ? null : nodeId);
+  };
 
   return (
     <BlueprintSurface className="relative overflow-hidden" style={{ width: '100%', maxWidth: width }}>
-      <svg width="100%" viewBox={`0 0 ${width} ${height}`} className="block">
+      <svg
+        width="100%"
+        viewBox={`0 0 ${width} ${height}`}
+        className="block"
+        role="group"
+        aria-label={graphAriaLabel}
+      >
         <defs>
-          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <marker id={arrowheadId} markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
             <polygon points="0 0, 8 3, 0 6" fill="var(--color-text-muted)" />
           </marker>
-          <filter id="glow">
+          <filter id={glowId}>
             <feGaussianBlur stdDeviation="3" result="blur" />
             <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
           </filter>
@@ -74,17 +88,20 @@ export function ConceptGraph({
           const to = nodeMap[edge.to];
           if (!from || !to) return null;
 
-          const isHighlighted = hoveredNode === edge.from || hoveredNode === edge.to;
+          const isHighlighted = hoveredNode === edge.from || hoveredNode === edge.to
+            || focusedNode === edge.from || focusedNode === edge.to;
           const dashArray = edge.relation === 'contrasts' ? '6,4' : edge.relation === 'related' ? '3,3' : 'none';
 
           return (
             <motion.line
               key={i}
+              aria-hidden="true"
+              focusable="false"
               x1={from.x} y1={from.y} x2={to.x} y2={to.y}
               stroke={isHighlighted ? accentHighlightVar() : 'var(--color-border-subtle)'}
               strokeWidth={isHighlighted ? 2 : 1}
               strokeDasharray={dashArray}
-              markerEnd="url(#arrowhead)"
+              markerEnd={`url(#${arrowheadId})`}
               initial={{ pathLength: 0 }}
               animate={{ pathLength: 1 }}
               transition={{ duration: 0.8, delay: i * 0.1 }}
@@ -95,24 +112,52 @@ export function ConceptGraph({
         {/* Nodes */}
         {nodes.map((node, i) => {
           const isHovered = hoveredNode === node.id;
+          const isFocused = focusedNode === node.id;
+          const isEngaged = isHovered || isFocused;
           const isSelected = selectedNode === node.id;
           const color = getMasteryColor(node.mastery);
-          const r = isHovered || isSelected ? 32 : 26;
+          const r = isEngaged || isSelected ? 32 : 26;
+          const nodeAriaLabel = t('analyticsConceptNodeMasteryAria')
+            .replace('{concept}', node.label)
+            .replace('{mastery}', String(Math.round(node.mastery)));
 
           return (
             <motion.g
               key={node.id}
+              role="button"
+              tabIndex={0}
+              focusable="true"
+              aria-label={nodeAriaLabel}
+              aria-pressed={isSelected}
+              data-node-active={isEngaged ? 'true' : 'false'}
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 + i * 0.08, type: 'spring' }}
               onMouseEnter={() => setHoveredNode(node.id)}
               onMouseLeave={() => setHoveredNode(null)}
-              onClick={() => setSelectedNode(isSelected ? null : node.id)}
-              className="cursor-pointer"
+              onFocus={() => setFocusedNode(node.id)}
+              onBlur={() => setFocusedNode(null)}
+              onClick={() => toggleNode(node.id)}
+              onKeyDown={(event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                event.preventDefault();
+                toggleNode(node.id);
+              }}
+              className="cursor-pointer focus:outline-none"
             >
               {/* Glow ring */}
-              {(isHovered || isSelected) && (
-                <circle cx={node.x} cy={node.y} r={r + 6} fill="none" stroke={color} strokeWidth={2} opacity={0.3} filter="url(#glow)" />
+              {(isEngaged || isSelected) && (
+                <circle
+                  cx={node.x}
+                  cy={node.y}
+                  r={r + 6}
+                  fill="none"
+                  stroke={color}
+                  strokeWidth={isFocused ? 3 : 2}
+                  opacity={isFocused ? 0.7 : 0.3}
+                  filter={`url(#${glowId})`}
+                  aria-hidden="true"
+                />
               )}
 
               {/* Background circle */}
@@ -141,8 +186,8 @@ export function ConceptGraph({
               <text
                 x={node.x} y={node.y + r + 16}
                 textAnchor="middle" fontSize={10}
-                fill={isHovered || isSelected ? 'var(--color-text-primary)' : 'var(--color-text-tertiary)'}
-                fontWeight={isHovered ? '600' : '400'}
+                fill={isEngaged || isSelected ? 'var(--color-text-primary)' : 'var(--color-text-tertiary)'}
+                fontWeight={isEngaged ? '600' : '400'}
               >
                 {node.label.length > 18 ? node.label.slice(0, 16) + '…' : node.label}
               </text>
@@ -183,7 +228,7 @@ export function ConceptGraph({
             </span>
           </div>
           <div className="text-text-muted">
-            Prerequisites: {edges.filter(e => e.to === selectedNode && e.relation === 'prerequisite').map(e => nodeMap[e.from]?.label).filter(Boolean).join(', ') || 'None'}
+            {t('analyticsConceptGraphPrerequisites')}: {edges.filter(e => e.to === selectedNode && e.relation === 'prerequisite').map(e => nodeMap[e.from]?.label).filter(Boolean).join(', ') || t('analyticsConceptGraphNone')}
           </div>
           {onOpenConcept && (
             <button

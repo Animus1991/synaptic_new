@@ -1,5 +1,9 @@
 import type { ActivityItem, Course, Topic } from '../../types';
-import { filterActivitiesByRange, type AnalyticsDateRange } from './analyticsDateRange';
+import {
+  filterActivitiesByRange,
+  rangeCutoffMs,
+  type AnalyticsDateRange,
+} from './analyticsDateRange';
 
 export type SubjectMasteryTile = {
   courseId: string;
@@ -28,11 +32,13 @@ export function buildSubjectMasteryTiles(
   courses: Course[],
   activities: ActivityItem[],
   range: AnalyticsDateRange,
+  nowMs: number = Date.now(),
 ): SubjectMasteryTile[] {
-  const inRange = filterActivitiesByRange(activities, range);
-  const mid = Math.floor(inRange.length / 2);
-  const recent = inRange.slice(0, mid);
-  const older = inRange.slice(mid);
+  const inRange = filterActivitiesByRange(activities, range, nowMs);
+  const cutoff = rangeCutoffMs(range, nowMs);
+  const midpoint = cutoff + (nowMs - cutoff) / 2;
+  const older = inRange.filter((activity) => new Date(activity.timestamp).getTime() < midpoint);
+  const recent = inRange.filter((activity) => new Date(activity.timestamp).getTime() >= midpoint);
 
   return courses
     .filter((c) => c.status !== 'generating')

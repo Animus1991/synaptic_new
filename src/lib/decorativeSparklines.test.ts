@@ -44,6 +44,25 @@ describe('buildRetentionSparklineItems', () => {
     );
     expect(items.some((i) => i.label === 'Elasticity')).toBe(true);
   });
+
+  it('does not synthesize placeholder memory data when inputs are empty', () => {
+    expect(buildRetentionSparklineItems([], [], 6)).toEqual([]);
+  });
+
+  it('normalizes probability-scale skill predictions at the boundary', () => {
+    const items = buildRetentionSparklineItems([], [{
+      concept: 'Probability-scale',
+      courseId: 'c1',
+      mastery: 50,
+      lastPracticed: '2026-01-01',
+      retentionPrediction: 0.88,
+      practiceCount: 1,
+      averageResponseTime: 10,
+      errorRate: 0.2,
+    }]);
+
+    expect(items[0]?.values.at(-1)).toBeCloseTo(0.88, 8);
+  });
 });
 
 describe('sparklinePath', () => {

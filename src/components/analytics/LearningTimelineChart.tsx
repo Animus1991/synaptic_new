@@ -71,6 +71,7 @@ export function LearningTimelineChart({
                 />
                 <button
                   type="button"
+                  aria-expanded={isExpanded}
                   onClick={() => setExpandedId(isExpanded ? null : event.id)}
                   className={cn(
                     'w-full rounded-xl border-0 p-3 text-left transition-all duration-200 hover:bg-surface-hover',

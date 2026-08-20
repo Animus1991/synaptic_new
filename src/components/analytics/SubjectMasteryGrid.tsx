@@ -16,6 +16,7 @@ type Props = {
 /* OPT-K101 — residual markup debt: decorative brand type -> ink */
 export function SubjectMasteryGrid({ tiles, onSelect, className }: Props) {
   const { t } = useI18n();
+  const masteryWord = t('analyticsMasteryWord');
 
   return (
     <div className={cn('space-y-2', className)} data-testid="subject-mastery-grid">
@@ -32,21 +33,31 @@ export function SubjectMasteryGrid({ tiles, onSelect, className }: Props) {
                 : tile.trend === 'down'
                   ? 'text-accent-rose'
                   : 'text-text-muted';
+            const trendLabel =
+              tile.trend === 'up'
+                ? t('analyticsRecentActivityIncreased')
+                : tile.trend === 'down'
+                  ? t('analyticsRecentActivityDecreased')
+                  : t('analyticsRecentActivitySteady');
+            const pendingLabel = t('analyticsSubjectMasteryPending')
+              .replace('{count}', String(tile.pendingConcepts));
             return (
               <button
                 key={tile.courseId}
                 type="button"
                 data-testid={`subject-mastery-tile-${tile.courseId}`}
                 onClick={() => onSelect(tile)}
+                aria-label={`${tile.title}, ${tile.mastery}% ${masteryWord}, ${pendingLabel}, ${trendLabel} (${tile.trendDelta >= 0 ? '+' : ''}${tile.trendDelta})`}
+                aria-haspopup="dialog"
                 /* OPT-K128 — wash subject tiles (no outline / hover border) */
                 className="rounded-xl border-0 bg-surface-secondary/50 p-3 text-left hover:bg-surface-hover transition-colors min-h-[4.25rem]"
               >
                 <div className="flex items-start gap-2">
                   <CourseIcon icon={tile.icon} size="sm" colorClassName="text-text-secondary shrink-0" />
                   <div className="min-w-0 flex-1">
-                    <p className="type-caption font-semibold text-text-primary truncate">{tile.title}</p>
+                    <p className="type-caption font-semibold text-text-primary break-words">{tile.title}</p>
                     <p className="type-micro text-text-tertiary mt-0.5">
-                      {t('analyticsSubjectMasteryPending').replace('{count}', String(tile.pendingConcepts))}
+                      {pendingLabel}
                     </p>
                   </div>
                   <span className={cn('inline-flex items-center gap-0.5 type-micro font-semibold', trendTone)}>

@@ -318,11 +318,12 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     />
                   </div>
                   <button
+                    type="button"
                     onClick={next}
                     data-testid="onboarding-continue"
-                    className="w-full inline-flex items-center justify-center gap-2 px-8 py-3 ws-fab rounded-xl font-medium transition-all"
+                    className="w-full inline-flex items-center justify-center gap-2 px-8 py-3 ws-fab rounded-xl font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   >
-                    {content.letsGo} <ArrowRight className="w-4 h-4" />
+                    {content.letsGo} <ArrowRight className="w-4 h-4" aria-hidden />
                   </button>
                   <button
                     type="button"

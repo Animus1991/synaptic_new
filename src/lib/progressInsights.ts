@@ -43,26 +43,19 @@ export function buildProgressKpis(
   daysToExam: number | null,
   lang: Lang,
 ): ProgressKpi[] {
-  const weeklyDelta = learnerModel.weeklyMastery.length >= 2
-    ? learnerModel.weeklyMastery[learnerModel.weeklyMastery.length - 1]! - learnerModel.weeklyMastery[0]!
-    : stats.masteryTrend.length >= 2
-      ? stats.masteryTrend[stats.masteryTrend.length - 1]! - stats.masteryTrend[0]!
-      : 0;
-  const deltaLabel = weeklyDelta >= 0
-    ? (lang === 'el' ? `+${weeklyDelta}% αυτή την εβδομάδα` : `+${weeklyDelta}% this week`)
-    : (lang === 'el' ? `${weeklyDelta}% αυτή την εβδομάδα` : `${weeklyDelta}% this week`);
-
   const masteredThreshold = 75;
   const mastered = [
     ...learnerModel.strongAreas,
     ...learnerModel.almostKnown.filter((s) => s.mastery >= masteredThreshold),
   ].length;
 
-  const examReadiness = Math.round(
-    learnerModel.overallMastery * 0.55
-    + learnerModel.retentionRate * 100 * 0.25
-    + Math.min(100, stats.conceptsMastered / Math.max(stats.totalConcepts, 1) * 100) * 0.2,
-  );
+  const readiness = Math.max(0, Math.min(100, Math.round(learnerModel.overallMastery)));
+  const recallRate = Math.max(0, Math.min(100, Math.round(learnerModel.retentionRate * 100)));
+  const readinessSub = daysToExam === null
+    ? (lang === 'el' ? 'Δεν έχει οριστεί ημερομηνία εξέτασης' : 'No exam date set')
+    : daysToExam === 0
+      ? (lang === 'el' ? 'Εξέταση σήμερα' : 'Exam today')
+      : (lang === 'el' ? `${daysToExam} ημέρες απομένουν` : `${daysToExam} days remaining`);
 
   const hours = Math.floor(learnerModel.totalStudyTime / 60);
   const mins = learnerModel.totalStudyTime % 60;
@@ -70,10 +63,10 @@ export function buildProgressKpis(
 
   return [
     {
-      label: lang === 'el' ? 'Συνολικό mastery' : 'Overall Mastery',
-      value: `${learnerModel.overallMastery}%`,
-      sub: deltaLabel,
-      tone: weeklyDelta >= 0 ? 'good' : 'warn',
+      label: lang === 'el' ? 'Ετοιμότητα εξέτασης' : 'Exam Readiness',
+      value: `${readiness}%`,
+      sub: readinessSub,
+      tone: readiness >= 70 ? 'good' : 'warn',
     },
     {
       label: lang === 'el' ? 'Έννοιες mastered' : 'Concepts Mastered',
@@ -82,14 +75,10 @@ export function buildProgressKpis(
       tone: mastered >= 3 ? 'good' : 'neutral',
     },
     {
-      label: lang === 'el' ? 'Exam readiness' : 'Exam Readiness',
-      value: `${examReadiness}%`,
-      sub: daysToExam === null
-        ? (lang === 'el' ? 'Δεν έχει οριστεί ημερομηνία' : 'No exam date set')
-        : daysToExam === 0
-          ? (lang === 'el' ? 'Εξέταση σήμερα' : 'Exam today')
-          : (lang === 'el' ? `${daysToExam} ημέρες απομένουν` : `${daysToExam} days remaining`),
-      tone: examReadiness >= 70 ? 'good' : examReadiness >= 50 ? 'warn' : 'warn',
+      label: lang === 'el' ? 'Πρόσφατη ανάκληση' : 'Recent Recall',
+      value: `${recallRate}%`,
+      sub: lang === 'el' ? 'Τρέχον σήμα του μοντέλου μαθητή' : 'Current learner-model signal',
+      tone: recallRate >= 70 ? 'good' : 'warn',
     },
     {
       label: lang === 'el' ? 'Χρόνος μελέτης' : 'Total Study Time',
@@ -142,17 +131,19 @@ export function buildConfidenceBuckets(
 
 export function buildLearningRadar(learnerModel: LearnerModel, lang: Lang): RadarDimension[] {
   const labels = lang === 'el'
-    ? ['Ταχύτητα recall', 'Ακρίβεια εννοιών', 'Εφαρμογή', 'Τεχνική εξέτασης', 'Retention', 'Transfer']
-    : ['Recall Speed', 'Concept Accuracy', 'Application', 'Exam Technique', 'Retention', 'Transfer'];
+    ? ['Ταχύτητα απόκρισης', 'Ανάκληση', 'Μεταφορά', 'Επιμονή', 'Διατήρηση', 'Βαθμονόμηση']
+    : ['Response Speed', 'Retrieval', 'Transfer', 'Persistence', 'Retention', 'Calibration'];
 
   const skillNodes = [
     ...learnerModel.strongAreas,
     ...learnerModel.weakAreas,
     ...learnerModel.almostKnown,
   ];
-  const avgResponseMs = skillNodes.length > 0
-    ? skillNodes.reduce((sum, s) => sum + s.averageResponseTime, 0) / skillNodes.length
-    : 8000;
+  const practisedSkills = skillNodes.filter((skill) => skill.practiceCount > 0);
+  const avgResponseMs = practisedSkills.length > 0
+    ? practisedSkills.reduce((sum, s) => sum + s.averageResponseTime, 0) / practisedSkills.length
+    : 12000;
+  const calibration = computeCalibration(learnerModel.confidenceCalibration);
 
   const scores = [
     Math.min(100, Math.round((1 - Math.min(avgResponseMs / 12000, 1)) * 100)),
@@ -160,7 +151,7 @@ export function buildLearningRadar(learnerModel: LearnerModel, lang: Lang): Rada
     Math.round(learnerModel.transferAbility * 100),
     Math.round(learnerModel.persistenceScore * 100),
     Math.round(learnerModel.retentionRate * 100),
-    Math.round(learnerModel.transferAbility * 0.7 * 100 + learnerModel.retrievalPerformance * 0.3 * 100),
+    calibration?.score ?? 0,
   ];
 
   return labels.map((subject, i) => ({ subject, score: scores[i] ?? 0 }));

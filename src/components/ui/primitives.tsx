@@ -1,4 +1,4 @@
-import { ReactNode, forwardRef, type ButtonHTMLAttributes, type HTMLAttributes } from 'react';
+import { ReactNode, forwardRef, useRef, type ButtonHTMLAttributes, type HTMLAttributes } from 'react';
 import { motion, type HTMLMotionProps } from 'framer-motion';
 import type { LucideIcon } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
@@ -331,31 +331,60 @@ export function TabBar({
   activeKey,
   onChange,
   ariaLabel,
+  idPrefix,
   className,
 }: {
   tabs: PlatformTabItem[];
   activeKey: string;
   onChange: (key: string) => void;
   ariaLabel?: string;
+  /** Connect tabs to caller-rendered panels via `${idPrefix}-tab/panel-${key}`. */
+  idPrefix?: string;
   className?: string;
 }) {
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  const moveFocus = (currentIndex: number, key: string) => {
+    let nextIndex: number | null = null;
+    if (key === 'ArrowRight' || key === 'ArrowDown') nextIndex = (currentIndex + 1) % tabs.length;
+    if (key === 'ArrowLeft' || key === 'ArrowUp') nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+    if (key === 'Home') nextIndex = 0;
+    if (key === 'End') nextIndex = tabs.length - 1;
+    if (nextIndex === null) return false;
+    const nextTab = tabs[nextIndex];
+    if (!nextTab) return false;
+    onChange(nextTab.key);
+    tabRefs.current[nextIndex]?.focus();
+    return true;
+  };
+
   return (
     <div className={cn('ux-tab-bar', className)} role="tablist" aria-label={ariaLabel}>
-      {tabs.map((tab) => {
+      {tabs.map((tab, index) => {
         const Icon = tab.icon;
         const active = activeKey === tab.key;
         return (
           <button
             key={tab.key}
+            ref={(node) => {
+              tabRefs.current[index] = node;
+            }}
+            id={idPrefix ? `${idPrefix}-tab-${tab.key}` : undefined}
             type="button"
             role="tab"
             aria-selected={active}
+            aria-controls={idPrefix ? `${idPrefix}-panel-${tab.key}` : undefined}
+            aria-label={typeof tab.label === 'string' ? tab.label : undefined}
+            tabIndex={active ? 0 : -1}
             data-testid={tab.testId}
             onClick={() => onChange(tab.key)}
-            className={cn('ux-tab', active && 'ux-tab-active')}
+            onKeyDown={(event) => {
+              if (moveFocus(index, event.key)) event.preventDefault();
+            }}
+            className={cn('ux-tab min-h-11', active && 'ux-tab-active')}
           >
             {Icon && <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />}
-            {Icon ? <span className="hidden sm:inline">{tab.label}</span> : tab.label}
+            {Icon ? <span className="sr-only sm:not-sr-only">{tab.label}</span> : tab.label}
           </button>
         );
       })}

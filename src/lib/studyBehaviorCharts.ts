@@ -1,34 +1,50 @@
 import type { ActivityItem } from '../types';
 import { filterActivitiesByRange, type AnalyticsDateRange } from './analyticsDateRange';
+import { recallOutcomeFromActivity } from '../features/analytics/retentionAnalytics';
+import { localeTag, parseCalendarDate } from './localeFormat';
 
 export type DayBar = { key: string; label: string; count: number };
 export type SessionTypeSlice = { key: string; label: string; value: number; color: string };
-export type EffectivenessPoint = { key: string; label: string; score: number };
-
-const DAY_LABELS_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const DAY_LABELS_EL = ['Κυρ', 'Δευ', 'Τρι', 'Τετ', 'Πεμ', 'Παρ', 'Σαβ'];
+export type EffectivenessPoint = {
+  key: string;
+  label: string;
+  score: number | null;
+  sampleSize: number;
+};
 
 function dayKey(d: Date): string {
-  return d.toISOString().slice(0, 10);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function activityDayKey(activity: ActivityItem): string | null {
+  const date = new Date(activity.timestamp);
+  return Number.isFinite(date.getTime()) ? dayKey(date) : null;
 }
 
 export function buildStudyBehaviorModel(
   activities: ActivityItem[],
   range: AnalyticsDateRange,
   lang: 'en' | 'el',
+  now: Date = new Date(),
 ): {
   dayBars: DayBar[];
   sessionTypes: SessionTypeSlice[];
   effectiveness: EffectivenessPoint[];
 } {
-  const inRange = filterActivitiesByRange(activities, range);
-  const days = range === '7d' ? 7 : range === '30d' ? 14 : 12;
-  const stepDays = range === 'semester' ? 14 : 1;
-  const now = new Date();
+  const inRange = filterActivitiesByRange(activities, range, now.getTime());
+  const bucketCount = range === '7d' ? 7 : range === '30d' ? 15 : 13;
+  const stepDays = range === '7d' ? 1 : range === '30d' ? 2 : 14;
   const dayBars: DayBar[] = [];
-  const labels = lang === 'el' ? DAY_LABELS_EL : DAY_LABELS_EN;
+  const dailyFormatter = new Intl.DateTimeFormat(localeTag(lang), { weekday: 'short' });
+  const periodFormatter = new Intl.DateTimeFormat(localeTag(lang), { month: 'short', day: 'numeric' });
+  const activityRows = inRange
+    .map((activity) => ({ activity, key: activityDayKey(activity) }))
+    .filter((row): row is { activity: ActivityItem; key: string } => row.key !== null);
 
-  for (let i = days - 1; i >= 0; i--) {
+  for (let i = bucketCount - 1; i >= 0; i--) {
     const d = new Date(now);
     d.setHours(12, 0, 0, 0);
     d.setDate(d.getDate() - i * stepDays);
@@ -36,13 +52,14 @@ export function buildStudyBehaviorModel(
     const windowStart = new Date(d);
     windowStart.setDate(windowStart.getDate() - (stepDays - 1));
     const startKey = dayKey(windowStart);
-    const count = inRange.filter((a) => {
-      const day = a.timestamp.slice(0, 10);
-      return day >= startKey && day <= key;
+    const count = activityRows.filter((row) => {
+      return row.key >= startKey && row.key <= key;
     }).length;
     dayBars.push({
       key,
-      label: range === '7d' ? labels[d.getDay()]! : key.slice(5),
+      label: range === '7d'
+        ? dailyFormatter.format(parseCalendarDate(key))
+        : periodFormatter.format(parseCalendarDate(key)),
       count,
     });
   }
@@ -71,15 +88,13 @@ export function buildStudyBehaviorModel(
     const startDate = new Date(`${end}T12:00:00`);
     startDate.setDate(startDate.getDate() - (stepDays - 1));
     const start = dayKey(startDate);
-    const dayActs = inRange.filter((a) => {
-      const day = a.timestamp.slice(0, 10);
-      return day >= start && day <= end;
-    });
-    const passed = dayActs.filter((a) => a.type === 'quiz_passed' || a.type === 'review_done').length;
-    const failed = dayActs.filter((a) => a.type === 'quiz_failed').length;
-    const denom = passed + failed;
-    const score = denom === 0 ? 0 : Math.round((passed / denom) * 100);
-    return { key: d.key, label: d.label, score };
+    const outcomes = activityRows
+      .filter((row) => row.key >= start && row.key <= end)
+      .map((row) => recallOutcomeFromActivity(row.activity))
+      .filter((outcome): outcome is boolean => outcome !== null);
+    const passed = outcomes.filter(Boolean).length;
+    const score = outcomes.length === 0 ? null : Math.round((passed / outcomes.length) * 100);
+    return { key: d.key, label: d.label, score, sampleSize: outcomes.length };
   });
 
   return { dayBars, sessionTypes, effectiveness };

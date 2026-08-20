@@ -8,6 +8,7 @@ export function UtilityRow({
   hint,
   icon,
   barPct,
+  barAriaLabel,
   onClick,
   className,
   'data-testid': dataTestId,
@@ -18,6 +19,8 @@ export function UtilityRow({
   icon?: ReactNode;
   /** 0–100; when set, renders a UsageBar under the row. */
   barPct?: number;
+  /** Accessible name for the UsageBar when `label` is not a plain string. */
+  barAriaLabel?: string;
   onClick?: () => void;
   className?: string;
   'data-testid'?: string;
@@ -54,7 +57,7 @@ export function UtilityRow({
         <p className="utility-row-hint">{hint}</p>
       )}
       {typeof barPct === 'number' && Number.isFinite(barPct) && (
-        <UsageBar pct={barPct} className="mt-1.5" aria-label={typeof label === 'string' ? label : undefined} />
+        <UsageBar pct={barPct} className="mt-1.5" aria-label={barAriaLabel ?? (typeof label === 'string' ? label : undefined)} />
       )}
     </div>
   );

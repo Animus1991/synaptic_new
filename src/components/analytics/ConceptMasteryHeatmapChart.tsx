@@ -66,7 +66,10 @@ export function ConceptMasteryHeatmapChart({
       <p className="type-caption text-text-tertiary mb-4">{hint}</p>
 
       {hover && (
-        <div className="mb-3 inline-flex items-center gap-3 rounded-2xl border-0 bg-surface-card/60 px-4 py-2 type-body">
+        <div
+          className="mb-3 inline-flex items-center gap-3 rounded-2xl border-0 bg-surface-card/60 px-4 py-2 type-body"
+          aria-live="polite"
+        >
           <span
             className="h-3 w-3 rounded shrink-0"
             style={{ backgroundColor: masteryColorForValue(hover.mastery) }}
@@ -77,8 +80,12 @@ export function ConceptMasteryHeatmapChart({
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-xl border-0 bg-surface-primary/40 p-4">
-        <div className="min-w-[640px]">
+      <div
+        className="overflow-x-auto rounded-xl border-0 bg-surface-primary/40 p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
+        tabIndex={0}
+        aria-label={`${title} — ${concepts.length} × ${dayLabels.length}`}
+      >
+        <div className="min-w-[640px]" role="group" aria-label={`${title} — ${concepts.length} × ${dayLabels.length}`}>
           <div className="mb-2 flex">
             <div className="w-28 shrink-0" />
             {dayLabels.map((daysAgo) => (
@@ -89,7 +96,7 @@ export function ConceptMasteryHeatmapChart({
           </div>
           {concepts.map((concept, rowIdx) => (
             <div key={concept} className="mb-1 flex items-center">
-              <div className="w-28 shrink-0 truncate pr-2 type-caption text-text-secondary" title={concept}>
+              <div className="sticky left-0 z-[1] w-28 shrink-0 break-words bg-surface-primary/95 pr-2 type-caption text-text-secondary" title={concept}>
                 {concept}
               </div>
               {dayLabels.map((daysAgo, colIdx) => {
@@ -97,18 +104,23 @@ export function ConceptMasteryHeatmapChart({
                 const color = masteryColorForValue(mastery);
                 return (
                   <div key={daysAgo} className="flex flex-1 justify-center px-px">
-                    <div
+                    <button
+                      type="button"
                       className={cn(
                         'heatmap-cell h-5 w-full max-w-[28px] rounded-[5px] transition-all duration-150',
-                        'hover:scale-125 hover:ring-2 hover:ring-brand-500/30',
+                        'hover:scale-125 hover:ring-2 hover:ring-brand-500/30 focus-visible:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
                       )}
                       style={{
                         backgroundColor: color,
                         opacity: 0.35 + (mastery / 100) * 0.65,
                       }}
+                      aria-label={dayTooltip(concept, daysAgo, mastery)}
                       title={dayTooltip(concept, daysAgo, mastery)}
                       onMouseEnter={() => setHover({ concept, daysAgo, mastery })}
                       onMouseLeave={() => setHover(null)}
+                      onFocus={() => setHover({ concept, daysAgo, mastery })}
+                      onBlur={() => setHover(null)}
+                      onClick={() => setHover({ concept, daysAgo, mastery })}
                     />
                   </div>
                 );

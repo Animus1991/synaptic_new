@@ -22,7 +22,9 @@ export function filterActivitiesByRange<T extends { timestamp: string }>(
   const cutoff = rangeCutoffMs(range, nowMs);
   return activities.filter((a) => {
     const t = new Date(a.timestamp).getTime();
-    return Number.isFinite(t) && t >= cutoff;
+    // This is an observed-data window. Future-dated telemetry (clock skew,
+    // imports, or corrupt records) must not become evidence in the charts.
+    return Number.isFinite(t) && t >= cutoff && t <= nowMs;
   });
 }
 
