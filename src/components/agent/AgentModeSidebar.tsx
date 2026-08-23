@@ -57,7 +57,7 @@ function ModeRow({
       title={m.desc}
       className={cn(
         /* OPT-K124 — wash active mode (no outline cage) */
-        'agent-mode-row w-full flex items-start gap-3 p-2.5 rounded-xl text-left transition-colors border-0',
+        'agent-mode-row w-full flex items-start gap-3 p-2.5 rounded-xl text-left transition-colors border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
         active
           ? 'bg-surface-secondary'
           : 'hover:bg-surface-hover/60 bg-transparent',
@@ -180,7 +180,7 @@ export function AgentModeSidebar({
                       onClick={() => toggleGroup(group.id)}
                       aria-expanded={open}
                       aria-label={`${t('agentModeGroupToggleAria')}: ${t(group.labelKey)}`}
-                      className="agent-mode-group-toggle w-full flex items-center gap-1.5 px-2 py-1.5 text-left hover:bg-surface-hover/50 transition-colors"
+                      className="agent-mode-group-toggle w-full flex items-center gap-1.5 px-2 py-1.5 text-left hover:bg-surface-hover/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 rounded"
                       data-testid={`agent-mode-group-toggle-${group.id}`}
                     >
                       {open ? (
@@ -239,7 +239,7 @@ export function AgentModeSidebar({
                   type="button"
                   onClick={() => onChangeSourceMode(opt.id)}
                   className={cn(
-                    'w-full flex items-start gap-3 p-2.5 rounded-xl text-left mb-1 transition-colors border-0',
+                    'w-full flex items-start gap-3 p-2.5 rounded-xl text-left mb-1 transition-colors border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
                     active
                       ? 'bg-surface-secondary'
                       : 'hover:bg-surface-hover/50 bg-transparent',
@@ -247,6 +247,7 @@ export function AgentModeSidebar({
                   data-testid={`agent-source-mode-${opt.id}`}
                 >
                   <Icon
+                    aria-hidden
                     className={cn(
                       'w-3.5 h-3.5 mt-0.5',
                       active
@@ -303,7 +304,7 @@ export function AgentModeCatalogGrid({
               title={m.desc}
               data-testid={`agent-mode-${m.mode}`}
               className={cn(
-                'ux-card border-0 p-2.5 text-left transition-colors bg-surface-secondary/50',
+                'ux-card border-0 p-2.5 text-left transition-colors bg-surface-secondary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
                 active ? 'bg-surface-secondary ring-0' : 'hover:bg-surface-hover',
               )}
             >
@@ -349,7 +350,7 @@ export function AgentModeCatalogGrid({
                   title={m.desc}
                   data-testid={`agent-mode-${m.mode}`}
                   className={cn(
-                    'ux-card agent-mode-catalog-tile border-0 p-2.5 text-left transition-colors',
+                    'ux-card agent-mode-catalog-tile border-0 p-2.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
                     active
                       ? 'bg-surface-secondary ring-0'
                       : 'bg-surface-secondary/40 hover:bg-surface-hover',

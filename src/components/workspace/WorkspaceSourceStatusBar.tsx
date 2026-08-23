@@ -243,7 +243,7 @@ export function WorkspaceSourceStatusBar({
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); onInspect(); }}
-                  className="ws-source-action-btn inline-flex min-h-9 items-center gap-1.5 rounded-lg border-0 bg-surface-primary/80 px-3 py-1.5 type-caption font-semibold text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                  className="ws-source-action-btn inline-flex min-h-9 items-center gap-1.5 rounded-lg border-0 bg-surface-primary/80 px-3 py-1.5 type-caption font-semibold text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   data-testid="source-status-inspect"
                 >
                   <FileSearch className="h-3.5 w-3.5 shrink-0" aria-hidden />
@@ -255,7 +255,7 @@ export function WorkspaceSourceStatusBar({
                   type="button"
                   onClick={(e) => { e.stopPropagation(); onReprocess(); }}
                   disabled={reprocessing}
-                  className="ws-source-action-btn ws-source-action-btn-primary inline-flex min-h-9 items-center gap-1.5 rounded-lg border-0 bg-surface-primary px-3 py-1.5 type-caption font-semibold text-text-primary transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-60"
+                  className="ws-source-action-btn ws-source-action-btn-primary inline-flex min-h-9 items-center gap-1.5 rounded-lg border-0 bg-surface-primary px-3 py-1.5 type-caption font-semibold text-text-primary transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   data-testid="source-status-reprocess"
                 >
                   <Cpu className={cn('h-3.5 w-3.5 shrink-0', reprocessing && 'animate-pulse')} aria-hidden />
@@ -266,7 +266,7 @@ export function WorkspaceSourceStatusBar({
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); onReupload(); }}
-                  className="ws-source-action-btn ws-source-action-btn-warn inline-flex min-h-9 items-center gap-1.5 rounded-lg border-0 bg-surface-primary/80 px-3 py-1.5 type-caption font-semibold text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                  className="ws-source-action-btn ws-source-action-btn-warn inline-flex min-h-9 items-center gap-1.5 rounded-lg border-0 bg-surface-primary/80 px-3 py-1.5 type-caption font-semibold text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   data-testid="source-status-reupload"
                 >
                   <RefreshCw className="h-3.5 w-3.5 shrink-0" aria-hidden />
@@ -277,7 +277,7 @@ export function WorkspaceSourceStatusBar({
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); onContinue(); }}
-                  className="ws-source-action-btn ws-source-action-btn-ghost inline-flex min-h-9 items-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1.5 type-caption font-semibold text-text-muted transition-colors hover:bg-surface-hover/60 hover:text-text-secondary"
+                  className="ws-source-action-btn ws-source-action-btn-ghost inline-flex min-h-9 items-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1.5 type-caption font-semibold text-text-muted transition-colors hover:bg-surface-hover/60 hover:text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   data-testid="source-status-continue"
                 >
                   {t('continue')}

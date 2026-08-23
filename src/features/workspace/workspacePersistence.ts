@@ -155,6 +155,26 @@ export function replaceAllConceptBuses(map: Record<string, unknown> | null | und
   saveJson(CONCEPT_BUS_KEY, map ?? {});
 }
 
+/**
+ * Remove concept bus entries for specific scope keys.
+ * Called after reprocessing a course — engagement signals are anchored to
+ * source text that just changed, so old signals for file/concept scopes
+ * would map to the wrong content if kept.
+ * Step schedules and attempt histories are NOT touched (text-independent data).
+ */
+export function clearConceptBusForScopes(scopeKeys: string[]): void {
+  if (scopeKeys.length === 0) return;
+  const all = loadJson<Record<string, unknown>>(CONCEPT_BUS_KEY, {});
+  let changed = false;
+  for (const key of scopeKeys) {
+    if (key in all) {
+      delete all[key];
+      changed = true;
+    }
+  }
+  if (changed) saveJson(CONCEPT_BUS_KEY, all);
+}
+
 const EXAM_TARGET_KEY = 'exam-target';
 
 export function loadExamTarget(scope: string): string | null {

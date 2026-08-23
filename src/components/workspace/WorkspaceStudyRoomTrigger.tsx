@@ -32,7 +32,7 @@ export function WorkspaceStudyRoomTrigger({
         aria-pressed={open}
         aria-label={t('studyRoomTitle')}
         data-testid="workspace-study-room-open"
-        className={cn('ws-chrome-btn', open && 'ws-chrome-btn-active', className)}
+        className={cn('ws-chrome-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50', open && 'ws-chrome-btn-active', className)}
       >
         <Users className="h-3.5 w-3.5 shrink-0" aria-hidden />
         <span className="hidden sm:inline">{label}</span>
@@ -48,7 +48,7 @@ export function WorkspaceStudyRoomTrigger({
       aria-label={t('studyRoomTitle')}
       data-testid="workspace-study-room-open"
       className={cn(
-        'ws-eyebrow shrink-0 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 type-caption',
+        'ws-eyebrow shrink-0 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 type-caption focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
         open ? 'ws-chip-brand' : 'ws-chip-neutral',
         className,
       )}

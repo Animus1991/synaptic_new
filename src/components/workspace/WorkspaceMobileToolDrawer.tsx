@@ -79,9 +79,9 @@ export function WorkspaceMobileToolDrawer({
                 type="button"
                 onClick={onClose}
                 aria-label={t('close', lang)}
-                className="rounded-md p-2 text-text-muted hover:bg-surface-hover min-h-[40px] min-w-[40px] inline-flex items-center justify-center"
+                className="rounded-md p-2 text-text-muted hover:bg-surface-hover min-h-[40px] min-w-[40px] inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" aria-hidden />
               </button>
             </div>
             <div className="overflow-y-auto overscroll-contain px-3 py-3 space-y-3.5 max-h-[calc(82vh-80px)]" data-testid="workspace-mobile-tool-list">
@@ -106,7 +106,7 @@ export function WorkspaceMobileToolDrawer({
                             onClick={() => handleSelect(toolId)}
                             aria-current={active ? 'true' : undefined}
                             className={cn(
-                              'flex items-start gap-2.5 rounded-md border p-3 text-left transition-colors min-h-[56px]',
+                              'flex items-start gap-2.5 rounded-md border p-3 text-left transition-colors min-h-[56px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
                               active
                                 ? 'border-brand-600/30 bg-surface-secondary text-text-secondary'
                                 : 'border-border-subtle bg-surface-primary/50 text-text-secondary hover:border-brand-400/30 hover:bg-surface-hover',

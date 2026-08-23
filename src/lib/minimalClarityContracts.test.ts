@@ -2317,8 +2317,14 @@ it('K166 — Dashboard residual: sentence-case labels + text-first list chrome',
     expect(lab).toContain('aria-labelledby={tabId(mode)}');
 
     const ai = read('src/components/analytics/AIInsightsPanel.tsx');
-    expect(ai).toContain('Ρώτα Agent για αυτό');
-    expect(ai).not.toContain('εώτα Agent');
+    expect(ai).toContain("t('analyticsInsightsAskAgentAbout')");
+
+    // The Greek copy for this affordance now lives in i18n (no longer hardcoded in
+    // the component). Assert the localized string is correct and keep guarding
+    // against the historical 'Ρ'-dropping mojibake ('εώτα Agent' vs 'Ρώτα Agent').
+    const i18n = read('src/lib/i18n.ts');
+    expect(i18n).toContain("analyticsInsightsAskAgentAbout: 'Ρώτα Agent για αυτό'");
+    expect(i18n).not.toContain('εώτα Agent');
 
     const heatmap = read('src/components/analytics/ConceptMasteryHeatmapChart.tsx');
     expect(heatmap).toContain('role="group" aria-label={');

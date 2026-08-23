@@ -15,7 +15,7 @@ import { FocusTrapDialog } from './ui/FocusTrapDialog';
 import { ModalHeaderStack } from './ui/ModalHeaderStack';
 
 const fieldClass =
-  'w-full min-h-9 rounded-lg border-0 bg-surface-secondary/55 px-3 py-2 type-caption text-text-primary placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/35';
+  'synapse-field w-full min-h-9 px-3 py-2 type-caption text-text-primary placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus-ring,var(--color-brand-400))] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-surface-primary)]';
 
 const CATEGORIES: Task['category'][] = ['learn', 'review', 'practice', 'exam', 'fix'];
 const PRIORITIES: Task['priority'][] = ['low', 'medium', 'high', 'critical'];

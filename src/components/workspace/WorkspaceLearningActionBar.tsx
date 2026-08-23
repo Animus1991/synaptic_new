@@ -52,7 +52,7 @@ export function WorkspaceLearningActionBar({
     >
       <button
         type="button"
-        className="flex w-full items-center justify-between gap-2 text-left"
+        className="flex w-full items-center justify-between gap-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 rounded"
         onClick={() => setExpanded((v) => !v)}
         aria-expanded={expanded}
         data-testid="learning-actions-toggle"
@@ -61,9 +61,9 @@ export function WorkspaceLearningActionBar({
           <AllCapsLabel>{t('nextAction')}</AllCapsLabel>
         </span>
         {expanded ? (
-          <ChevronUp className="h-3.5 w-3.5 shrink-0 text-text-muted" />
+          <ChevronUp className="h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden />
         ) : (
-          <ChevronDown className="h-3.5 w-3.5 shrink-0 text-text-muted" />
+          <ChevronDown className="h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden />
         )}
       </button>
 
@@ -82,7 +82,7 @@ export function WorkspaceLearningActionBar({
                 onClick={runPrimary}
                 data-testid="next-action-primary"
                 className={cn(
-                  'w-full rounded-xl px-3 py-2.5 text-left transition-colors',
+                  'w-full rounded-xl px-3 py-2.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
                   isReprocess
                     ? 'ws-status-strip ws-status-warn'
                     : 'border border-brand-500/35 bg-brand-500/10 hover:bg-brand-500/15',
@@ -110,7 +110,7 @@ export function WorkspaceLearningActionBar({
                         data-testid={`learning-action-${action.id}`}
                         onClick={() => onAction(action.id)}
                         className={cn(
-                          'ws-source-action-btn',
+                          'ws-source-action-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
                           active && action.id === 'mark-understood' && 'ws-chip-ok',
                           active && action.id === 'mark-confusing' && 'ws-chip-warn',
                         )}

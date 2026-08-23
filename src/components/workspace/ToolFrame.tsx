@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
+import { workspaceToolLabel } from '../../lib/workspaceToolRegistry';
 import { WorkspaceToolHeader } from './WorkspaceToolHeader';
 import { BlueprintSurface } from '../ui/BlueprintSurface';
 import { CollapsibleChromeSection } from './CollapsibleChromeSection';
@@ -39,6 +40,8 @@ export function ToolFrame({
   return (
     <BlueprintSurface
       className="flex h-full min-h-0 flex-1 flex-col overflow-hidden border-0 shadow-none"
+      role="region"
+      aria-label={workspaceToolLabel(activeTool, lang)}
       data-testid="workspace-tool-frame"
       data-tool={activeTool}
       data-border-diet="cta-only"

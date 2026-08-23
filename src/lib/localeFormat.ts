@@ -4,6 +4,19 @@ export function localeTag(lang: Lang): string {
   return lang === 'el' ? 'el-GR' : 'en-US';
 }
 
+/**
+ * Locale-aware integer formatting (thousands grouping per locale). A no-op for
+ * values < 1000 in both EN/EL (identical digits), so it future-proofs large
+ * counts — e.g. EN `12,345` vs EL `12.345` — without any change to current
+ * dashboard values. Percentages intentionally stay `${n}%` (identical in both
+ * locales; locale percent-style would inject a narrow space and change the look).
+ */
+export function formatCount(value: number, lang: Lang): string {
+  return new Intl.NumberFormat(localeTag(lang)).format(
+    Number.isFinite(value) ? value : 0,
+  );
+}
+
 /** Parse YYYY-MM-DD without UTC drift. */
 export function parseCalendarDate(dateKey: string): Date {
   const [y, m, d] = dateKey.split('-').map(Number);

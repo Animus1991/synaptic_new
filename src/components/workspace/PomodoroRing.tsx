@@ -37,10 +37,19 @@ export function PomodoroRing({
         />
       </svg>
       <div className="ux-pomodoro-ring-center">
-        <span className="ux-pomodoro-ring-time" aria-live="polite">
+        {/* role="timer" carries an implicit aria-live="off": the countdown stays
+            readable on demand but is NOT re-announced every second while running
+            (a per-second "polite" region floods a screen reader). The phase is
+            folded into the timer's label and hidden below to avoid a double read. */}
+        <span
+          className="ux-pomodoro-ring-time"
+          role="timer"
+          aria-label={`${phaseLabel} ${timeDisplay}`}
+        >
           {timeDisplay}
         </span>
         <span
+          aria-hidden
           className={cn(
             'ux-pomodoro-ring-phase',
             strokeTone === 'work' && 'ux-pomodoro-ring-phase-work',

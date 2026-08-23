@@ -36,6 +36,7 @@ export interface StudyWorkspaceProps {
   reprocessingMaterial?: boolean;
   onQuizAttempt?: (concept: string, correct: boolean, confidence: number, stepKey?: string) => void;
   onLeitnerRate?: (concept: string, rating: FsrsRating) => void;
+  onFeynmanResult?: (concept: string, courseId: string, overallScore: number) => void;
   onLogStudyMinutes?: (minutes: number, label?: string) => void;
   onStartTask?: (taskId: string) => void;
   tasks?: Task[];

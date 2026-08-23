@@ -129,19 +129,24 @@ export function MiniDashboard({
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={emphasizedTransition}>
             {/* Tabs */}
             {/* OPT-K153 — text-first tabs when embedded Progress */}
-            <div className={cn('flex', embedded ? 'border-b border-transparent' : 'border-b border-border-subtle')}>
+            <div className={cn('flex', embedded ? 'border-b border-transparent' : 'border-b border-border-subtle')} role="tablist" aria-label={t('quickView')}>
               {(['overview', 'weak', 'next'] as const).map((tab) => (
-                <button key={tab} type="button" onClick={() => setActiveTab(tab)}
+                <button
+                  key={tab}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === tab}
+                  onClick={() => setActiveTab(tab)}
                   className={cn('flex-1 py-1.5 type-caption font-medium capitalize transition-all inline-flex items-center justify-center gap-0.5',
                     activeTab === tab
                       ? (embedded ? 'text-text-primary bg-surface-secondary/55' : 'text-text-secondary border-b border-brand-500')
                       : 'text-text-muted hover:text-text-secondary')}>
                   {tab === 'overview' ? (
-                    embedded ? t('status') : <><Target className="w-3 h-3" /> {t('status')}</>
+                    embedded ? t('status') : <><Target className="w-3 h-3" aria-hidden /> {t('status')}</>
                   ) : tab === 'weak' ? (
-                    embedded ? t('weak') : <><AlertTriangle className="w-3 h-3" /> {t('weak')}</>
+                    embedded ? t('weak') : <><AlertTriangle className="w-3 h-3" aria-hidden /> {t('weak')}</>
                   ) : (
-                    embedded ? t('nextActions') : <><Play className="w-3 h-3" /> {t('nextActions')}</>
+                    embedded ? t('nextActions') : <><Play className="w-3 h-3" aria-hidden /> {t('nextActions')}</>
                   )}
                 </button>
               ))}
@@ -155,7 +160,13 @@ export function MiniDashboard({
               >
                 {/* Mini readiness ring */}
                 <div className="flex items-center gap-3">
-                  <svg width={size} height={size} className="-rotate-90 shrink-0">
+                  <svg
+                    width={size}
+                    height={size}
+                    className="-rotate-90 shrink-0"
+                    role="img"
+                    aria-label={`${t('examReadiness')} ${readiness}% — ${band.label}`}
+                  >
                     <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--viz-track)" strokeWidth={sw} />
                     <circle cx={size / 2} cy={size / 2} r={r} fill="none"
                       stroke={band.color} strokeWidth={sw} strokeDasharray={c} strokeDashoffset={offset}

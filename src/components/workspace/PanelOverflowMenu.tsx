@@ -70,8 +70,8 @@ export function PanelOverflowMenu({
     >
       <summary
         className={cn(
-          /* OPT-K160 — wash trigger; keep focus ring via focus-visible utilities elsewhere */
-          'flex min-h-8 min-w-8 cursor-pointer list-none items-center justify-center rounded-lg border-0 bg-surface-secondary/50 text-text-secondary hover:bg-surface-hover hover:text-text-primary [&::-webkit-details-marker]:hidden',
+          /* OPT-K160 — wash trigger */
+          'flex min-h-8 min-w-8 cursor-pointer list-none items-center justify-center rounded-lg border-0 bg-surface-secondary/50 text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 [&::-webkit-details-marker]:hidden',
           summaryLabel != null && 'gap-1 px-2.5 py-1',
           summaryClassName,
         )}

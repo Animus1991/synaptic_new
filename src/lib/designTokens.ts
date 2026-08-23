@@ -36,6 +36,18 @@ export const RADIUS_TOKENS = [
   '--radius-bubble',
 ] as const;
 
+/** Canon / Obsidian_protocol aliases (6/10/14/20/24 + alpha hairlines). Additive. */
+export const CANON_SURFACE_TOKENS = [
+  '--canon-radius-sm',
+  '--canon-radius-md',
+  '--canon-radius-lg',
+  '--canon-radius-xl',
+  '--canon-radius-2xl',
+  '--canon-radius-pill',
+  '--canon-border',
+  '--canon-border-strong',
+] as const;
+
 export const ELEVATION_TOKENS = [
   '--elev-0',
   '--elev-1',
@@ -52,6 +64,7 @@ export const PACKAGE2_CSS_VARS = [
   ...TYPE_SCALE_TOKENS,
   ...SPACING_TOKENS,
   ...RADIUS_TOKENS,
+  ...CANON_SURFACE_TOKENS,
   ...ELEVATION_TOKENS,
   ...FONT_TOKENS,
 ] as const;

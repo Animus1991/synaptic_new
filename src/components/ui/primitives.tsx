@@ -457,7 +457,7 @@ export const PrimaryCTA = forwardRef<
       ref={ref}
       type="button"
       className={cn(
-        'ux-primary-cta synapse-tap-target inline-flex items-center justify-center gap-2 rounded-xl font-semibold text-white transition-all duration-300',
+        'ux-primary-cta synapse-tap-target inline-flex items-center justify-center gap-2 rounded-[var(--canon-radius-pill,9999px)] font-semibold text-white transition-all duration-300',
         'bg-[var(--color-accent-fill,var(--color-brand-600))] hover:bg-brand-700 disabled:opacity-60 disabled:pointer-events-none',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus-ring,var(--color-brand-400))] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-surface-primary)]',
         size === 'sm' ? 'px-4 py-2 type-caption min-h-[var(--btn-height-sm,2rem)]' : 'px-5 type-meta min-h-[var(--btn-height)]',
@@ -480,7 +480,7 @@ export const SecondaryCTA = forwardRef<
       ref={ref}
       type="button"
       className={cn(
-        'ux-secondary-cta synapse-tap-target inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-300 platform-pill',
+        'ux-secondary-cta synapse-tap-target inline-flex items-center justify-center gap-2 rounded-[var(--canon-radius-pill,9999px)] font-medium transition-all duration-300 platform-pill',
         /* OPT-K116 — wash CTA (no outline cage); focus ring remains for a11y */
         'border-0 bg-surface-secondary/70 text-text-secondary hover:bg-surface-hover hover:text-text-primary',
         'disabled:opacity-60 disabled:pointer-events-none',

@@ -44,24 +44,24 @@ export function CompactStudyTimer({ lang, className }: Props) {
       )}
       title={lang === 'el' ? 'Χρονόμετρο μελέτης' : 'Study timer'}
     >
-      <Clock className="w-3 h-3 shrink-0" />
+      <Clock className="w-3 h-3 shrink-0" aria-hidden />
       <span className="min-w-[36px] text-center">{fmt(seconds)}</span>
       <button
         type="button"
         onClick={toggle}
         aria-label={running ? 'Pause' : 'Start'}
-        className="p-0.5 rounded hover:bg-surface-hover transition-colors"
+        className="p-0.5 rounded hover:bg-surface-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
       >
-        {running ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+        {running ? <Pause className="w-3 h-3" aria-hidden /> : <Play className="w-3 h-3" aria-hidden />}
       </button>
       {seconds > 0 && (
         <button
           type="button"
           onClick={reset}
           aria-label="Reset"
-          className="p-0.5 rounded hover:bg-surface-hover transition-colors"
+          className="p-0.5 rounded hover:bg-surface-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         >
-          <RotateCcw className="w-3 h-3" />
+          <RotateCcw className="w-3 h-3" aria-hidden />
         </button>
       )}
     </div>

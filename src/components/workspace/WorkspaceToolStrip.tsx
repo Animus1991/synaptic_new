@@ -58,13 +58,13 @@ export function WorkspaceToolStrip({
         title={lang === 'el' ? labelEl : label}
         className={cn(
           /* OPT-K142 — wash tool tabs (no outline cages) */
-          'ux-workspace-tool-tab inline-flex shrink-0 items-center gap-1 rounded-lg border-0 px-2 py-1 type-micro font-medium transition-colors',
+          'ux-workspace-tool-tab inline-flex shrink-0 items-center gap-1 rounded-lg border-0 px-2 py-1 type-micro font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
           active
             ? 'bg-surface-secondary text-text-secondary'
             : 'text-text-muted hover:bg-surface-hover hover:text-text-secondary',
         )}
       >
-        <Icon className="h-3.5 w-3.5" />
+        <Icon className="h-3.5 w-3.5" aria-hidden />
         <span className="hidden sm:inline">{lang === 'el' ? labelEl : label}</span>
       </button>
     );
@@ -89,14 +89,14 @@ export function WorkspaceToolStrip({
             onClick={() => setMoreOpen((v) => !v)}
             data-testid="workspace-tool-more"
             className={cn(
-              'inline-flex items-center gap-0.5 rounded-lg border-0 px-2 py-1 type-micro font-medium transition-colors',
+              'inline-flex items-center gap-0.5 rounded-lg border-0 px-2 py-1 type-micro font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
               secondaryActive || moreOpen
                 ? 'bg-surface-secondary text-text-secondary'
                 : 'text-text-muted hover:bg-surface-hover hover:text-text-secondary',
             )}
           >
             {t('wsMore', lang)}
-            <ChevronDown className={cn('h-3 w-3 transition-transform', moreOpen && 'rotate-180')} />
+            <ChevronDown className={cn('h-3 w-3 transition-transform', moreOpen && 'rotate-180')} aria-hidden />
           </button>
           {moreOpen && (
             <div
@@ -112,11 +112,11 @@ export function WorkspaceToolStrip({
                     setMoreOpen(false);
                   }}
                   className={cn(
-                    'flex w-full items-center gap-2 px-3 py-1.5 text-left type-micro font-medium hover:bg-surface-hover',
+                    'flex w-full items-center gap-2 px-3 py-1.5 text-left type-micro font-medium hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-inset',
                     activeTool === id ? 'bg-surface-secondary text-text-secondary font-semibold' : 'text-text-secondary',
                   )}
                 >
-                  <Icon className="h-3.5 w-3.5 shrink-0" />
+                  <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
                   {lang === 'el' ? labelEl : label}
                 </button>
               ))}

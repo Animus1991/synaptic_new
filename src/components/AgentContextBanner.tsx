@@ -103,12 +103,12 @@ export function AgentContextBanner({
           <button
             type="button"
             onClick={() => setJsonOpen((v) => !v)}
-            className="shrink-0 rounded-md px-1.5 py-1 type-caption text-text-muted hover:bg-surface-hover hover:text-text-primary transition-colors min-h-9"
+            className="shrink-0 rounded-md px-1.5 py-1 type-caption text-text-muted hover:bg-surface-hover hover:text-text-primary transition-colors min-h-9 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
             aria-expanded={jsonOpen}
             aria-label={t('agentJsonContext')}
             data-testid="agent-context-json-toggle"
           >
-            {jsonOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+            {jsonOpen ? <ChevronUp className="h-3.5 w-3.5" aria-hidden /> : <ChevronDown className="h-3.5 w-3.5" aria-hidden />}
           </button>
         )}
         {jsonOpen && jsonText && (
@@ -176,7 +176,7 @@ export function AgentContextBanner({
                   data-testid="agent-context-json-toggle"
                   aria-expanded={jsonOpen}
                 >
-                  {jsonOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                  {jsonOpen ? <ChevronUp className="h-3 w-3" aria-hidden /> : <ChevronDown className="h-3 w-3" aria-hidden />}
                   {t('agentJsonContext')}
                 </button>
                 {jsonOpen && (

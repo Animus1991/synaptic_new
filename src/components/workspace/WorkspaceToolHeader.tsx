@@ -104,11 +104,12 @@ export function WorkspaceToolHeader({
           onClick={() => setCollapsed(!collapsed)}
           data-testid="workspace-tool-header-toggle"
           aria-expanded={!collapsed}
+          aria-controls={`workspace-tool-guide-${activeTool}`}
           aria-label={t('toolGuideAria')}
           /* No title= — native yellow tips near GUIDE were mistaken for a Close chip (F0). */
           className={cn(
             /* OPT-K155 — ghost text Guide (no button cage / wash chip) */
-            'ws-tool-guide-btn relative z-10 inline-flex min-h-8 shrink-0 items-center justify-center gap-0.5 rounded-md px-1.5 py-0.5 type-caption text-text-secondary transition-colors hover:text-text-primary',
+            'ws-tool-guide-btn relative z-10 inline-flex min-h-8 shrink-0 items-center justify-center gap-0.5 rounded-md px-1.5 py-0.5 type-caption text-text-secondary transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
             !collapsed && 'text-text-primary',
           )}
         >
@@ -125,7 +126,11 @@ export function WorkspaceToolHeader({
 
       {/* Expandable guidance */}
       {!collapsed && (
-        <div className="ws-tool-header-guide space-y-1.5 px-3 pb-2.5 sm:px-3.5" data-testid="workspace-tool-header-guide">
+        <div
+          id={`workspace-tool-guide-${activeTool}`}
+          className="ws-tool-header-guide space-y-1.5 px-3 pb-2.5 sm:px-3.5"
+          data-testid="workspace-tool-header-guide"
+        >
           {/* Wave SP2 — how-to collapsed by default so GUIDE never buries the work surface */}
           <details
             className="ws-tool-howto rounded-md border-0 bg-transparent px-0"
@@ -206,7 +211,7 @@ export function WorkspaceToolHeader({
                       onClick={() => onJumpTool?.(link.tool)}
                       disabled={!onJumpTool}
                       data-testid={i === 0 ? 'workspace-tool-header-next' : `crosslink-jump-${link.tool}`}
-                      className="ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 bg-surface-secondary/45 px-2 type-caption font-medium text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary disabled:opacity-50"
+                      className="ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 bg-surface-secondary/45 px-2 type-caption font-medium text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                     >
                       {lang === 'el' ? link.labelEl : link.labelEn}
                     </button>
@@ -217,7 +222,7 @@ export function WorkspaceToolHeader({
                       type="button"
                       data-testid="crosslink-open-reader"
                       onClick={onOpenReader}
-                      className="ws-touch-floor inline-flex min-h-8 items-center justify-center rounded-md border-0 bg-surface-secondary/45 px-2.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+                      className="ws-touch-floor inline-flex min-h-8 items-center justify-center rounded-md border-0 bg-surface-secondary/45 px-2.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                       aria-label={t('toolSource')}
                     >
                       {t('toolSource')}
@@ -228,7 +233,7 @@ export function WorkspaceToolHeader({
                       type="button"
                       data-testid="crosslink-ask-agent"
                       onClick={onAskAgent}
-                      className="ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 bg-surface-secondary/45 px-2.5 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+                      className="ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 bg-surface-secondary/45 px-2.5 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                     >
                       {t('askAgentShort')}
                     </button>

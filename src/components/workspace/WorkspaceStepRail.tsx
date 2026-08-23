@@ -53,7 +53,7 @@ export function WorkspaceStepRail({
         data-testid={`workspace-step-rail-${i}`}
         aria-current={currentStep === i ? 'step' : undefined}
         className={cn(
-          'ws-step-timeline-item flex items-center gap-1.5 px-2.5 py-1 rounded-full type-caption font-medium shrink-0 transition-all',
+          'ws-step-timeline-item flex items-center gap-1.5 px-2.5 py-1 rounded-full type-caption font-medium shrink-0 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
           currentStep === i
             ? 'ws-step-timeline-item--current bg-surface-secondary text-text-primary'
             : i < currentStep
@@ -91,7 +91,7 @@ export function WorkspaceStepRail({
         <button
           type="button"
           onClick={() => onSelectStep(0, { focusReader: true })}
-          className="px-2 py-1 rounded-full type-caption text-text-muted hover:text-text-secondary shrink-0"
+          className="px-2 py-1 rounded-full type-caption text-text-muted hover:text-text-secondary shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           aria-label="First step"
         >
           1…
@@ -102,7 +102,7 @@ export function WorkspaceStepRail({
         <button
           type="button"
           onClick={() => onSelectStep(total - 1, { focusReader: true })}
-          className="px-2 py-1 rounded-full type-caption text-text-muted hover:text-text-secondary shrink-0"
+          className="px-2 py-1 rounded-full type-caption text-text-muted hover:text-text-secondary shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           aria-label="Last step"
         >
           …{total}

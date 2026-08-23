@@ -172,7 +172,7 @@ export function ComparePanel({
               <button
                 type="button"
                 onClick={() => onOpenInReader(concept)}
-                className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary"
+                className="ws-touch-floor inline-flex min-h-9 items-center gap-1 rounded-lg border border-border-subtle px-2.5 type-caption text-text-secondary hover:border-border-default hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                 data-testid="compare-open-reader"
               >
                 <BookOpen className="h-3.5 w-3.5" aria-hidden />
@@ -191,7 +191,7 @@ export function ComparePanel({
             term: selectedRow[0],
             text: buildCompareSelectionContext(selectedRow, concept, session.sectionLabel).text,
           })}
-          className="mx-3 mt-2 inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-3 py-1.5 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary"
+          className="mx-3 mt-2 inline-flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-secondary px-3 py-1.5 type-caption font-medium text-text-secondary hover:border-border-default hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         >
           {t('compareExplainDiff')}
         </button>
@@ -224,7 +224,7 @@ export function ComparePanel({
             type="button"
             data-testid="compare-ai-diff"
             onClick={() => onAiDiff(selectedRow[0], selectedRow[1] || concept)}
-            className="rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover"
+            className="rounded-lg border border-border-subtle bg-surface-secondary px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
             {t('compareAiDiff')}
           </button>

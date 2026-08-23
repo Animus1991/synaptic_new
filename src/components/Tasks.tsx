@@ -315,16 +315,18 @@ export function Tasks({
   const almostKnownPreview = almostKnown.slice(0, 2);
   const showInsightStrip = almostKnownPreview.length > 0 || antiPassiveAlert;
 
-  const tabs: { id: CommandTab; label: string; summary: string; count: number }[] = [
-    { id: 'today', label: c.tabToday, summary: c.tabTodaySummary, count: todayTasks.length },
-    { id: 'weak', label: c.tabWeak, summary: c.tabWeakSummary, count: scopedWeak.length },
+  const tabCountAria = (n: number) => (lang === 'el' ? `${n} εργασίες` : `${n} tasks`);
+  const tabs: { id: CommandTab; label: string; summary: string; count: number; countLabel: string }[] = [
+    { id: 'today', label: c.tabToday, summary: c.tabTodaySummary, count: todayTasks.length, countLabel: tabCountAria(todayTasks.length) },
+    { id: 'weak', label: c.tabWeak, summary: c.tabWeakSummary, count: scopedWeak.length, countLabel: tabCountAria(scopedWeak.length) },
     {
       id: 'reviews',
       label: c.tabReviews,
       summary: c.tabReviewsSummary,
       count: reviewTasks.length + fsrsQueue.length,
+      countLabel: tabCountAria(reviewTasks.length + fsrsQueue.length),
     },
-    { id: 'mistakes', label: c.tabMistakes, summary: c.tabMistakesSummary, count: openMistakes.length },
+    { id: 'mistakes', label: c.tabMistakes, summary: c.tabMistakesSummary, count: openMistakes.length, countLabel: tabCountAria(openMistakes.length) },
   ];
 
   const recommendedSessionTasks = filterTasksForSession(visibleTasks, recommendedSession);
@@ -350,6 +352,8 @@ export function Tasks({
   return (
     <div
       {...warmSandScopeProps(warmSandPage)}
+      role="region"
+      aria-label={t('tasks', lang)}
       data-testid="tasks-page"
       data-bleed="full"
       data-border-diet="cta-only"
@@ -854,7 +858,7 @@ export function Tasks({
               data-testid="tasks-empty-today"
             />
           ) : filteredTodayTasks.length === 0 ? (
-            <p className="type-caption text-text-muted text-center py-8">
+            <p className="type-caption text-text-muted text-center py-8" role="status">
               {lang === 'el' ? 'Δεν βρέθηκαν αποτελέσματα.' : 'No matching tasks.'}
             </p>
           ) : (

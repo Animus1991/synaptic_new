@@ -125,6 +125,7 @@ const WATERFALL_LABELS: Record<Lang, Record<ActivityType, string>> = {
     streak: 'Streak',
     xp_earned: 'XP earned',
     study_time: 'Study session',
+    feynman_complete: 'Feynman explanation',
   },
   el: {
     upload: 'Ανέβασμα υλικού',
@@ -138,6 +139,7 @@ const WATERFALL_LABELS: Record<Lang, Record<ActivityType, string>> = {
     streak: 'Streak',
     xp_earned: 'XP',
     study_time: 'Συνεδρία μελέτης',
+    feynman_complete: 'Εξήγηση Feynman',
   },
 };
 

@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { PanelLeftClose, PanelLeftOpen } from '@/lib/lucide-shim';
+import { PanelLeftClose, PanelLeftOpen, ChevronDown } from '@/lib/lucide-shim';
 import { cn } from '../../utils/cn';
 import type { WorkspaceToolId } from '../../lib/taskFlows';
 import {
+  PRIMARY_WORKSPACE_TOOLS,
   WORKSPACE_TOOL_GROUPS,
   WORKSPACE_TOOLS,
   workspaceToolLabel,
@@ -23,6 +24,7 @@ interface Props {
 }
 
 const EXPAND_KEY = 'workspace-dock-expanded';
+const MORE_KEY = 'workspace-dock-more';
 
 /**
  * Canonical Study Workspace tool navigator (desktop).
@@ -34,6 +36,7 @@ const EXPAND_KEY = 'workspace-dock-expanded';
 export function WorkspaceDock({ activeTool, onSelectTool, availableTools, lang = 'en', onOpenStudyRoom, studyRoomOpen = false }: Props) {
   const { t } = useI18n();
   const [expanded, setExpanded] = useState<boolean>(() => loadJson<boolean>(EXPAND_KEY, true));
+  const [moreVisible, setMoreVisible] = useState<boolean>(() => loadJson<boolean>(MORE_KEY, false));
 
   const toggleExpanded = () => {
     setExpanded((prev) => {
@@ -43,9 +46,21 @@ export function WorkspaceDock({ activeTool, onSelectTool, availableTools, lang =
     });
   };
 
+  const toggleMoreVisible = () => {
+    setMoreVisible((prev) => {
+      const next = !prev;
+      saveJson(MORE_KEY, next);
+      return next;
+    });
+  };
+
   const visible = availableTools
     ? WORKSPACE_TOOLS.filter((t) => availableTools.includes(t.id))
     : WORKSPACE_TOOLS;
+
+  // If the active tool is secondary and the section is collapsed, auto-reveal it
+  // so the user always sees which tool is selected.
+  const effectiveMoreVisible = moreVisible || !PRIMARY_WORKSPACE_TOOLS.includes(activeTool);
 
   return (
     <nav
@@ -63,19 +78,20 @@ export function WorkspaceDock({ activeTool, onSelectTool, availableTools, lang =
         aria-expanded={expanded}
         title={expanded ? t('wsDockCollapse') : t('wsDockExpand')}
         className={cn(
-          'flex items-center shrink-0 border-b border-border-subtle/60 px-3 py-2.5 text-text-muted transition-colors hover:bg-surface-hover hover:text-text-secondary',
+          'flex items-center shrink-0 border-b border-border-subtle/60 px-3 py-2.5 text-text-muted transition-colors hover:bg-surface-hover hover:text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-inset',
           expanded ? 'justify-between' : 'justify-center',
         )}
       >
         {expanded && <span className="ws-eyebrow"><AllCapsLabel>{t('wsToolsLabel')}</AllCapsLabel></span>}
-        {expanded ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
+        {expanded ? <PanelLeftClose className="h-4 w-4" aria-hidden /> : <PanelLeftOpen className="h-4 w-4" aria-hidden />}
       </button>
 
       <div className="flex flex-col gap-0.5 py-1.5">
         {WORKSPACE_TOOL_GROUPS.map((group, gi) => {
           const groupTools = group.tools
             .map((id) => visible.find((t) => t.id === id))
-            .filter(Boolean) as typeof visible;
+            .filter(Boolean)
+            .filter((tool) => effectiveMoreVisible || PRIMARY_WORKSPACE_TOOLS.includes(tool!.id)) as typeof visible;
           if (groupTools.length === 0) return null;
           return (
             <div
@@ -124,9 +140,34 @@ export function WorkspaceDock({ activeTool, onSelectTool, availableTools, lang =
                 );
               })}
             </div>
-
           );
         })}
+
+        {/* Progressive disclosure toggle — reveals secondary tools */}
+        <div className="mt-1 border-t border-border-subtle/50 pt-1.5">
+          <button
+            type="button"
+            onClick={toggleMoreVisible}
+            data-testid="dock-more-tools"
+            title={effectiveMoreVisible ? t('wsDockCollapse') : t('wsMoreTools')}
+            aria-expanded={effectiveMoreVisible}
+            className={cn(
+              'group relative flex w-full items-center transition-colors outline-none text-text-muted hover:bg-surface-hover hover:text-text-secondary',
+              'focus-visible:ring-2 focus-visible:ring-brand-400/60 focus-visible:ring-inset',
+              expanded ? 'gap-2.5 px-3 py-2' : 'h-11 justify-center px-1',
+            )}
+          >
+            <ChevronDown
+              className={cn('shrink-0 transition-transform', effectiveMoreVisible && 'rotate-180', expanded ? 'h-[18px] w-[18px]' : 'h-5 w-5')}
+              aria-hidden
+            />
+            {expanded && (
+              <span className="ws-meta truncate">
+                {effectiveMoreVisible ? t('wsDockCollapse') : t('wsMoreTools')}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
       {onOpenStudyRoom && (

@@ -82,7 +82,7 @@ export function AnnotationToolbar({
   const countFor = (cat: AnnotationCategory | 'general') => categoryCounts?.[cat] ?? 0;
 
   return (
-    <div className="ws-panel-toolbar" data-testid="annotation-toolbar">
+    <div className="ws-panel-toolbar" data-testid="annotation-toolbar" role="toolbar" aria-label={highlightLabel}>
       {/* Wave AN — source / sync / export nested closed */}
       <CollapsibleChromeSection
         title={sourceViewerLabel}

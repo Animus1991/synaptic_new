@@ -336,7 +336,7 @@ export function FeynmanCheck({
                   data-testid="feynman-voice-input"
                   onClick={toggleVoice}
                   aria-pressed={voiceActive}
-                  className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+                  className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-inset"
                 >
                   {voiceActive ? <MicOff className="h-3.5 w-3.5" aria-hidden /> : <Mic className="h-3.5 w-3.5" aria-hidden />}
                   {t('feynmanVoice')}
@@ -346,7 +346,7 @@ export function FeynmanCheck({
                   data-testid="feynman-export-rubric"
                   disabled={!rubric}
                   onClick={() => exportRubric('download')}
-                  className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover disabled:opacity-40"
+                  className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-inset"
                 >
                   <Download className="h-3.5 w-3.5" aria-hidden />
                   {t('feynmanExportReport')}
@@ -356,7 +356,7 @@ export function FeynmanCheck({
                   data-testid="feynman-print-rubric"
                   disabled={!rubric}
                   onClick={() => exportRubric('print')}
-                  className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary disabled:opacity-40"
+                  className="flex w-full items-center gap-1.5 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-inset"
                 >
                   <Printer className="h-3.5 w-3.5" aria-hidden />
                   PDF
@@ -390,7 +390,7 @@ export function FeynmanCheck({
                       type="button"
                       title={kt.definition}
                       onClick={() => onOpenInReader?.(kt.term)}
-                      className="ws-touch-floor rounded-lg border-0 bg-surface-secondary/70 px-2.5 py-1 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+                      className="ws-touch-floor rounded-lg border-0 bg-surface-secondary/70 px-2.5 py-1 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                     >
                       {kt.term}
                     </button>
@@ -438,7 +438,7 @@ export function FeynmanCheck({
                         <button
                           type="button"
                           onClick={() => onOpenInReader(g.searchTerm)}
-                          className="shrink-0 type-caption font-medium text-text-secondary hover:text-text-primary"
+                          className="shrink-0 type-caption font-medium text-text-secondary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 rounded"
                         >
                           {t('feynmanOpenInReader')}
                         </button>
@@ -459,7 +459,7 @@ export function FeynmanCheck({
                       data-testid="feynman-rubric-export-download"
                       onClick={() => exportRubric('download')}
                       title={t('feynmanDownloadReport')}
-                      className="inline-flex min-h-8 items-center gap-1 rounded-lg border-0 bg-surface-secondary/70 px-2 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+                      className="inline-flex min-h-8 items-center gap-1 rounded-lg border-0 bg-surface-secondary/70 px-2 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                     >
                       <Download className="h-3 w-3" aria-hidden />
                       {t('exportLabel')}
@@ -469,7 +469,7 @@ export function FeynmanCheck({
                       data-testid="feynman-rubric-export-print"
                       onClick={() => exportRubric('print')}
                       title={t('dashPrintPdf')}
-                      className="inline-flex min-h-8 items-center gap-1 rounded-lg border-0 bg-surface-secondary/70 px-2 py-1 type-caption font-medium text-text-muted hover:bg-surface-hover hover:text-text-secondary"
+                      className="inline-flex min-h-8 items-center gap-1 rounded-lg border-0 bg-surface-secondary/70 px-2 py-1 type-caption font-medium text-text-muted hover:bg-surface-hover hover:text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                     >
                       <Printer className="h-3 w-3" aria-hidden />
                       PDF
@@ -501,7 +501,7 @@ export function FeynmanCheck({
                       type="button"
                       data-testid="feynman-open-quiz"
                       onClick={onOpenQuiz}
-                      className="ws-touch-floor inline-flex min-h-8 items-center gap-1 rounded-lg border-0 bg-surface-secondary/70 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+                      className="ws-touch-floor inline-flex min-h-8 items-center gap-1 rounded-lg border-0 bg-surface-secondary/70 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                     >
                       {t('feynmanOpenQuiz')}
                     </button>
@@ -521,7 +521,7 @@ export function FeynmanCheck({
                             if (onAskAgentWithPrompt) onAskAgentWithPrompt(prompt);
                             else (onAskAgent ?? onOpenAgent)?.();
                           }}
-                          className="inline-flex min-h-8 items-center rounded-lg border-0 bg-surface-secondary/70 px-2 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+                          className="inline-flex min-h-8 items-center rounded-lg border-0 bg-surface-secondary/70 px-2 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                         >
                           {t('feynmanAgentFixDim').replace('{dim}', t(RUBRIC_LABEL_KEYS[dim]))}
                         </button>
@@ -530,7 +530,7 @@ export function FeynmanCheck({
                         <button
                           type="button"
                           onClick={() => onOpenInReader(gapSearchTerm(dim, concept, gapTerms))}
-                          className="inline-flex min-h-8 items-center type-caption font-medium text-text-secondary hover:text-text-primary"
+                          className="inline-flex min-h-8 items-center type-caption font-medium text-text-secondary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 rounded"
                         >
                           {t('feynmanReadInSource')}
                         </button>
@@ -539,7 +539,7 @@ export function FeynmanCheck({
                         <button
                           type="button"
                           onClick={() => onFocusConcept('concept-map')}
-                          className="type-caption font-medium text-text-secondary hover:text-text-primary"
+                          className="type-caption font-medium text-text-secondary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 rounded"
                         >
                           {t('feynmanConceptMapArrow')}
                         </button>

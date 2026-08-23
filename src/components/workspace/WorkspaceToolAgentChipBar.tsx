@@ -38,7 +38,7 @@ export function WorkspaceToolAgentChipBar({ tool, lang, concept, onChip, classNa
           type="button"
           data-testid={`workspace-agent-chip-${tool}-${chip.id}`}
           onClick={() => onChip(chip.buildPrompt(concept, lang), chip.intent)}
-          className="ux-agent-chip min-h-8 border-0 bg-surface-secondary/55 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+          className="ux-agent-chip min-h-8 border-0 bg-surface-secondary/55 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         >
           {t(chip.labelKey)}
         </button>

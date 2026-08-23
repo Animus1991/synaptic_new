@@ -467,6 +467,7 @@ export type ActivityType =
   | 'mistake_fixed'
   | 'task_complete'
   | 'study_time'
+  | 'feynman_complete'
   | 'upload';
 
 export interface ActivityItem {

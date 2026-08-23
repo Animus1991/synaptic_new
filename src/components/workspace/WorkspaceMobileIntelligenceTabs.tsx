@@ -27,7 +27,7 @@ type Props = {
 export function WorkspaceMobileIntelligenceTabs({ active, onChange, lang = 'en', badges }: Props) {
   return (
     <div
-      className="flex gap-1.5 overflow-x-auto px-2 py-2 border-b border-white/5 hide-scrollbar snap-x snap-mandatory"
+      className="flex gap-1.5 overflow-x-auto px-2 py-2 border-b border-border-subtle/50 hide-scrollbar snap-x snap-mandatory"
       data-testid="workspace-mobile-intel-tabs"
       role="tablist"
       aria-label={t('workspaceIntelAria', lang)}
@@ -47,10 +47,10 @@ export function WorkspaceMobileIntelligenceTabs({ active, onChange, lang = 'en',
             data-testid={`workspace-mobile-intel-tab-${tab.id}`}
             onClick={() => onChange(tab.id)}
             className={cn(
-              'shrink-0 snap-start rounded-full border px-3 py-2 min-h-11 type-caption font-medium transition-colors touch-manipulation',
+              'shrink-0 snap-start rounded-full border px-3 py-2 min-h-11 type-caption font-medium transition-colors touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
               selected
                 ? 'border-brand-500/40 bg-surface-secondary text-text-secondary'
-                : 'border-white/10 bg-surface-card text-text-secondary hover:text-text-primary active:bg-surface-hover',
+                : 'border-border-subtle bg-surface-card text-text-secondary hover:text-text-primary active:bg-surface-hover',
             )}
           >
             {label}

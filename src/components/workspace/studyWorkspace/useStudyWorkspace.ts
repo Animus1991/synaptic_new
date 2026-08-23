@@ -1,5 +1,5 @@
 import { fallbackWorkspaceSteps } from '../../../lib/noteContentExtractors';
-import { workspaceToolLabel } from '../../../lib/workspaceToolRegistry';
+import { workspaceToolLabel, PRIMARY_WORKSPACE_TOOLS } from '../../../lib/workspaceToolRegistry';
 import { crossLinkAgentPrompt } from '../WorkspaceToolCrossLinkBar';
 import { useWorkspaceNoteBundle } from '../../../lib/useWorkspaceNoteBundle';
 import { usedHandwritingOcr } from '../../../lib/handwritingOcr';
@@ -261,6 +261,7 @@ export function useStudyWorkspace({
   reprocessingMaterial = false,
   onQuizAttempt,
   onLeitnerRate,
+  onFeynmanResult,
   onLogStudyMinutes,
   onStartTask,
   tasks = [],
@@ -1855,7 +1856,7 @@ export function useStudyWorkspace({
     const toolItems: CommandItem[] = AVAILABLE_TOOLS.map((tool) => ({
       id: `tool-${tool}`,
       label: t('paletteOpenTool').replace('{tool}', workspaceToolLabel(tool, lang)),
-      group: t('paletteGroupTools'),
+      group: PRIMARY_WORKSPACE_TOOLS.includes(tool) ? t('paletteGroupTools') : t('paletteGroupMoreTools'),
       run: () => openWorkspaceTool(tool),
     }));
     const docActions: CommandItem[] = [];
@@ -2531,6 +2532,7 @@ export function useStudyWorkspace({
     reprocessingMaterial,
     onQuizAttempt,
     onLeitnerRate,
+    onFeynmanResult,
     onLogStudyMinutes,
     onStartTask,
     tasks,

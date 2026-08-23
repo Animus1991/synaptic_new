@@ -39,6 +39,7 @@ import { TrustBadgeRow } from './ui/platformChrome';
 import { BlueprintSurface } from './ui/BlueprintSurface';
 import { CollapsibleChromeSection } from './workspace/CollapsibleChromeSection';
 import { entranceMotion, useMinimalTheme } from '../lib/useMinimalTheme';
+import { useMotionTransition } from '../lib/motionPrefs';
 import { startFeynmanVoiceInput } from '../lib/feynmanVoice';
 import {
   applyCheckInPatch,
@@ -365,6 +366,21 @@ export function Agent({
     () => messages.find((m) => m.role === 'agent' && m.metadata?.inferenceUsed === false)?.id ?? null,
     [messages],
   );
+
+  /**
+   * Screen-reader announcement for the completed tutor reply. We surface only the
+   * last finished (non-streaming) agent message in an sr-only polite live region,
+   * so assistive tech hears the full answer once — mirroring the auto-TTS-on-
+   * completion behavior above. Per-token streaming updates are intentionally not
+   * announced (that would be verbose); the visible transcript is unchanged.
+   */
+  const lastCompletedAgentReply = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role === 'agent' && !m.isStreaming && m.content.trim()) return m.content;
+    }
+    return '';
+  }, [messages]);
 
   /** Soft daily check-in bootstrap — greeting + first closed question. */
   useEffect(() => {
@@ -1021,7 +1037,7 @@ export function Agent({
 
   const handleSkipCheckInSlot = () => {
     if (!activeCheckInSlot) return;
-    void handleSend(lang === 'el' ? 'Παράλειψη προς το παρόν' : 'Skip for now');
+    void handleSend(t('agentCheckInSkip'));
   };
 
   const handlePathTryChip = (chip: PathTryChip) => {
@@ -1057,6 +1073,7 @@ export function Agent({
   const currentMode = agentModes.find(m => m.mode === mode)!;
   /** OPT-C2 — mute rainbow mode chrome under Minimal. */
   const quietModes = useMinimalTheme();
+  const modeDropdownTransition = useMotionTransition({ duration: 0.36 });
   /* OPT-K85 — non-Minimal: scrollbar-sized L/R pad; Minimal keeps prior gutters */
   const pagePadX = quietModes ? 'px-4 sm:px-6' : 'shell-edge-balance';
   const lastUserMessage = useMemo(
@@ -1087,6 +1104,8 @@ export function Agent({
         quietModes && 'agent-quiet-chrome',
         embedded ? 'flex-col h-full' : 'h-[calc(100vh-56px)] lg:h-[calc(100vh-56px)]',
       )}
+      role={embedded ? undefined : 'region'}
+      aria-label={embedded ? undefined : t('navAgent')}
       data-testid={embedded ? 'agent-embedded' : 'agent-page'}
       data-bleed="full"
       data-type-rhythm="dashboard"
@@ -1117,13 +1136,15 @@ export function Agent({
           <div className="flex items-center gap-3 min-w-0">
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="ws-serif type-meta font-semibold text-text-primary">{ui.title}</span>
+                <span className="ws-serif type-meta font-semibold text-text-primary" role="heading" aria-level={1}>{ui.title}</span>
                 <button
+                  type="button"
                   onClick={() => setShowModes(!showModes)}
-                  className="lg:hidden flex items-center gap-1 px-2 py-0.5 rounded-md type-caption font-medium bg-surface-secondary border-0 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                  aria-expanded={showModes}
+                  className="lg:hidden flex items-center gap-1 px-2 py-0.5 rounded-md type-caption font-medium bg-surface-secondary border-0 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                 >
                   {currentMode.label}
-                  <ChevronDown className={cn('w-3 h-3 transition-transform', showModes && 'rotate-180')} />
+                  <ChevronDown className={cn('w-3 h-3 transition-transform', showModes && 'rotate-180')} aria-hidden />
                 </button>
                 <span className="hidden lg:inline-flex items-center px-2 py-0.5 rounded-md type-caption font-medium bg-surface-secondary border-0 text-text-secondary">
                   {currentMode.label}
@@ -1140,6 +1161,7 @@ export function Agent({
           <div className="flex items-center gap-2 relative">
             <select
               ref={sourceSelectRef}
+              aria-label={t('agentSourceScopeAria')}
               value={selectedSource}
               onChange={e => {
                 setSelectedSource(e.target.value);
@@ -1171,7 +1193,7 @@ export function Agent({
                 setShowAttachPicker(false);
               }}
               className={cn(
-                'p-1.5 rounded-lg hover:bg-surface-hover text-text-tertiary',
+                'p-1.5 rounded-lg hover:bg-surface-hover text-text-tertiary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
                 showSourceSettings && (quietModes ? 'bg-surface-hover text-text-primary' : 'bg-surface-hover text-text-secondary'),
               )}
             >
@@ -1236,11 +1258,7 @@ export function Agent({
           className="flex items-center justify-between gap-2 border-b border-transparent px-2.5 py-1.5 shrink-0 bg-surface-secondary/20"
           data-testid="agent-embedded-chrome"
           /* OPT-K138 — one controls row; grounding lives in title (no second header line) */
-          title={
-            attachSource
-              ? (lang === 'el' ? 'Απαντά με βάση τις σημειώσεις σου' : 'Answers from your notes')
-              : (lang === 'el' ? 'Χωρίς πηγές ακόμα' : 'No sources yet')
-          }
+          title={attachSource ? t('agentEmbeddedSourceWithNotes') : t('agentEmbeddedSourceNoNotes')}
         >
           <button
             type="button"
@@ -1248,7 +1266,7 @@ export function Agent({
             className="flex items-center gap-1 rounded-md border-0 bg-surface-secondary px-1.5 py-0.5 type-caption font-medium text-text-primary transition-colors hover:bg-surface-hover"
           >
             {currentMode.label}
-            <ChevronDown className={cn('h-3 w-3 transition-transform', showModes && 'rotate-180')} />
+            <ChevronDown className={cn('h-3 w-3 transition-transform', showModes && 'rotate-180')} aria-hidden />
           </button>
           <div className="flex items-center gap-1 relative">
             {/* Wave M-X05 — compact source picker inline in embedded chrome (no full-page trip required). */}
@@ -1335,7 +1353,7 @@ export function Agent({
                 )}
                 data-testid="agent-open-full-page"
               >
-                {lang === 'el' ? 'Πλήρης προβολή' : 'Full view'}
+                {t('agentFullView')}
               </button>
             )}
           </div>
@@ -1423,7 +1441,7 @@ export function Agent({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.36, ease: [0.2, 0, 0, 1] }}
+            transition={modeDropdownTransition}
             className={cn(
               'border-b border-transparent bg-surface-secondary/40 overflow-hidden',
               !embedded && 'lg:hidden',
@@ -1540,11 +1558,15 @@ export function Agent({
             />
           ))}
           {isThinking && (
-            <div className="agent-thinking px-1 py-2 type-body text-text-muted animate-pulse" data-testid="agent-thinking">
+            <div className="agent-thinking px-1 py-2 type-body text-text-muted animate-pulse" data-testid="agent-thinking" role="status">
               <span>{ui.thinking}</span>
             </div>
           )}
           <div ref={messagesEndRef} />
+          {/* SR-only announcer — reads the finished tutor reply once (no visual change). */}
+          <div className="sr-only" role="status" aria-live="polite" aria-atomic="true" data-testid="agent-live-region">
+            {lastCompletedAgentReply}
+          </div>
 
           {/* Quick Actions — collapsed in embedded chat to save vertical space */}
           {showQuickActions && messages.length <= 4 && !embedded && (
@@ -1562,6 +1584,7 @@ export function Agent({
                   {contextualSuggestions.map(action => (
                     <button
                       key={action}
+                      type="button"
                       onClick={() => handleQuickAction(action)}
                       className="ux-agent-chip font-medium"
                     >
@@ -1589,6 +1612,7 @@ export function Agent({
             <div className="relative min-w-0 w-full">
               <textarea
                 ref={inputRef}
+                aria-label={ui.inputPlaceholder}
                 value={input}
                 data-testid="agent-chat-input"
                 onChange={e => setInput(e.target.value)}
@@ -1708,7 +1732,7 @@ export function Agent({
           {!embedded && (
           <div className="flex items-center justify-between mt-2 flex-wrap gap-2">
             <p className="type-micro text-text-muted text-center w-full sm:text-left sm:w-auto">
-              {lang === 'el' ? 'Πηγή' : 'Source'}: {activeSourceLabel}
+              {t('agentSourceLabel')}: {activeSourceLabel}
               {' · '}
               {ui.sourceModeFooter(activeSourceMode)}
               {' · '}
@@ -1736,7 +1760,7 @@ export function Agent({
                 className="inline-flex items-center gap-1 type-micro text-text-tertiary hover:text-text-secondary transition-colors"
               >
                 <RotateCcw className="w-3 h-3" aria-hidden="true" />
-                {lang === 'el' ? 'Επανάληψη' : 'Regenerate'}
+                {t('agentRegenerate')}
               </button>
             )}
           </div>
@@ -1765,10 +1789,10 @@ function CitationList({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 type-caption text-text-tertiary hover:text-text-primary transition-colors"
+        className="flex items-center gap-1.5 type-caption text-text-tertiary hover:text-text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 rounded"
       >
         {citations.length} {citations.length === 1 ? ui.citationSingular : ui.citationPlural} · {ui.citationToggle}
-        <ChevronDown className={cn('w-3 h-3 transition-transform', open && 'rotate-180')} />
+        <ChevronDown className={cn('w-3 h-3 transition-transform', open && 'rotate-180')} aria-hidden />
       </button>
       {open && (
         <div className="mt-2 space-y-1.5">
@@ -1989,7 +2013,7 @@ function MessageBubble({
 
         {message.confidence !== undefined && message.confidence < 0.8 && (
           <div className="mt-1.5 flex items-center gap-1 type-caption text-accent-amber">
-            <AlertTriangle className="w-3 h-3" />
+            <AlertTriangle className="w-3 h-3" aria-hidden />
             <span>{ui.lowConfidence}</span>
           </div>
         )}

@@ -42,7 +42,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         ref={ref}
         type="button"
         className={cn(
-          'ux-ghost-btn synapse-tap-target inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-300 platform-pill',
+          'ux-ghost-btn synapse-tap-target inline-flex items-center justify-center gap-2 rounded-[var(--canon-radius-pill,9999px)] font-medium transition-all duration-300 platform-pill',
           'border-0 bg-transparent text-text-secondary hover:bg-surface-hover hover:text-text-primary',
           'disabled:opacity-60 disabled:pointer-events-none',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus-ring,var(--color-brand-400))] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-surface-primary)]',
@@ -61,7 +61,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       ref={ref}
       type="button"
       className={cn(
-        'ux-danger-btn synapse-tap-target inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-300',
+        'ux-danger-btn synapse-tap-target inline-flex items-center justify-center gap-2 rounded-[var(--canon-radius-pill,9999px)] font-semibold transition-all duration-300',
         'border border-[color-mix(in_srgb,var(--color-state-danger)_50%,transparent)] bg-transparent',
         'text-[var(--color-state-danger)] hover:bg-[color-mix(in_srgb,var(--color-state-danger)_8%,transparent)]',
         'disabled:opacity-60 disabled:pointer-events-none',

@@ -84,7 +84,7 @@ import {
   enrichLearnerModelFromConceptBus,
   mergeDashboardReviewsDue,
 } from '../lib/conceptBusSync';
-import { loadAllConceptBuses, replaceAllConceptBuses } from '../features/workspace';
+import { loadAllConceptBuses, replaceAllConceptBuses, clearConceptBusForScopes } from '../features/workspace';
 import { loadAllStepSchedules, replaceAllStepSchedules } from '../lib/spacedStepSchedule';
 import { loadAllDeckStates, replaceAllDeckStates } from '../lib/leitnerDeckSync';
 import { loadAllQuizAttemptHistories, replaceAllQuizAttemptHistories } from '../lib/quizAttemptHistory';
@@ -717,6 +717,10 @@ function useAppStoreState() {
     return () => window.removeEventListener('synapse:library-reload', reloadFromDisk);
   }, [mergedSettings, mockUploadedFiles, applyThumbnailBackfill]);
 
+  const [remoteSyncStatus, setRemoteSyncStatusState] = useState<'idle' | 'pending' | 'syncing' | 'error'>('idle');
+  const setRemoteSyncStatus = useCallback((s: 'idle' | 'pending' | 'syncing' | 'error') => setRemoteSyncStatusState(s), []);
+  const scheduleRemoteSyncRef = useRef<(() => void) | null>(null);
+
   const persist = useCallback((
     nextLearner: LearnerModel,
     nextStats: DashboardStats,
@@ -739,6 +743,7 @@ function useAppStoreState() {
       activities: nextActivities,
       userSettings: nextSettings,
     } satisfies PersistedState);
+    scheduleRemoteSyncRef.current?.();
   }, []);
 
   const logActivity = useCallback((item: ActivityItem): ActivityItem[] => {
@@ -1082,6 +1087,57 @@ function useAppStoreState() {
       return next;
     });
   }, [courses, learnerModel.spacingIntervals, betaMastery, firstAttemptKeys, openMistakes, dashboardStats, tasks, user.xp, user.settings, persist, recomputeLearnerMetrics, logActivity]);
+
+  const submitFeynmanResult = useCallback((
+    concept: string,
+    overallScore: number,
+    courseId?: string,
+  ) => {
+    const resolvedCourseId =
+      courseId ??
+      courses.find((c) => !MOCK_COURSE_IDS.has(c.id))?.id ??
+      'unknown';
+    const correct = overallScore >= 60;
+    const confidence = overallScore;
+
+    const betaIdx = betaMastery.findIndex(
+      (b) => b.concept.toLowerCase().includes(concept.toLowerCase().slice(0, 6))
+        || concept.toLowerCase().includes(b.concept.toLowerCase().slice(0, 6)),
+    );
+    const betaRecord = betaIdx >= 0
+      ? betaMastery[betaIdx]!
+      : { concept, alpha: 1, beta: 1, firstAttempts: 0, importance: 1 };
+    const nextBetaRecord = updateBetaMastery(betaRecord, correct);
+    const nextBeta = betaIdx >= 0
+      ? betaMastery.map((b, i) => (i === betaIdx ? nextBetaRecord : b))
+      : [...betaMastery, nextBetaRecord];
+    setBetaMastery(nextBeta);
+
+    const skill = ensureSkillNode(learnerModel, concept, resolvedCourseId);
+    const updatedSkill = updateSkillMastery(skill, correct, confidence);
+    let nextLm = applySkillUpdate(learnerModel, updatedSkill, user.settings.masteryThreshold);
+
+    let next: LearnerModel = {
+      ...nextLm,
+      retrievalPerformance: correct
+        ? Math.min(1, nextLm.retrievalPerformance + 0.02)
+        : Math.max(0, nextLm.retrievalPerformance - 0.02),
+      totalSessions: nextLm.totalSessions + 1,
+    };
+    next = recomputeLearnerMetrics(next, nextBeta, firstAttemptKeys, openMistakes);
+    setLearnerModel(next);
+    setCourses((prev) => updateCourseTopicMastery(prev, resolvedCourseId, concept, correct ? 6 : -8, correct));
+    const nextActs = logActivity(
+      createActivity('feynman_complete', `Feynman: ${concept} (${overallScore}%)`, correct ? 10 : undefined),
+    );
+    const nextWithRetention = {
+      ...next,
+      retentionRate: computeRetentionRate(nextActs),
+      weeklyMastery: weeklyMasteryFromActivities(nextActs),
+    };
+    setLearnerModel(nextWithRetention);
+    persist(nextWithRetention, dashboardStats, tasks, user.xp, nextBeta, firstAttemptKeys, openMistakes, nextActs, user.settings);
+  }, [betaMastery, firstAttemptKeys, openMistakes, learnerModel, dashboardStats, tasks, courses, user.xp, user.settings, persist, recomputeLearnerMetrics, logActivity]);
 
   const resolveMistake = useCallback((mistakeId: string) => {
     setOpenMistakes((prev) => {
@@ -1541,16 +1597,30 @@ function useAppStoreState() {
 
   useEffect(() => {
     conceptBusPusherRef.current = createDebouncedConceptBusPusher(
-      () => pushSessionToServer(),
+      async () => {
+        setRemoteSyncStatus('syncing');
+        try {
+          await pushSessionToServer();
+          setRemoteSyncStatus('idle');
+        } catch {
+          setRemoteSyncStatus('error');
+        }
+      },
       {
         debounceMs: 2500,
         isEnabled: () => Boolean(user.settings.authToken),
       },
     );
+    scheduleRemoteSyncRef.current = user.settings.authToken
+      ? () => {
+          setRemoteSyncStatus('pending');
+          conceptBusPusherRef.current?.schedule();
+        }
+      : null;
     return () => {
       conceptBusPusherRef.current?.cancel();
     };
-  }, [pushSessionToServer, user.settings.authToken]);
+  }, [pushSessionToServer, user.settings.authToken, setRemoteSyncStatus]);
 
   const queueConceptBusSync = useCallback(() => {
     conceptBusPusherRef.current?.schedule();
@@ -1949,6 +2019,15 @@ function useAppStoreState() {
       const totalFlagged = annotationsFlagged + readerFlagged;
       clearQuizSessions();
       markCourseArtifactsStale(courseId, CONTENT_PIPELINE_VERSION);
+      // Clear concept bus entries for all known scopes of this course.
+      // Engagement signals anchor to source text — after reprocess the text
+      // changed so old signals would map to wrong content. Step schedules and
+      // quiz attempt histories are preserved (text-independent memory data).
+      clearConceptBusForScopes([
+        ...courseFiles.map((f) => f.name),
+        ...courseFiles.map((f) => f.id),
+        ...result.course.topics.map((topic) => `concept:${topic.title}`),
+      ]);
       const lang = user.settings.language === 'el' ? 'el' : 'en';
       const reviewHint = totalFlagged > 0
         ? t('toastAnnotationsReview', lang).replace('{count}', String(totalFlagged))
@@ -2995,7 +3074,7 @@ function useAppStoreState() {
     sidebarOpen, setSidebarOpen,
     user, updateSettings, toggleTheme,
     courses, selectedCourse, setSelectedCourse,
-    tasks, completeTask, completeTaskAndAdvance, submitReviewRating, submitReviewAndAdvance, submitLeitnerRating,
+    tasks, completeTask, completeTaskAndAdvance, submitReviewRating, submitReviewAndAdvance, submitLeitnerRating, submitFeynmanResult,
     applyTaskCalendarSync, upsertManualTask, deleteManualTask,
     startTask, startSession, endSession,
     sessionQueue, sessionTotal, activeSessionType,
@@ -3047,6 +3126,7 @@ function useAppStoreState() {
     postUploadCourseId, markPostUploadCourse, clearPostUploadHighlight,
     noteAnalysisCourseId, openNoteAnalysis, closeNoteAnalysis,
     notificationUnreadCount, markNotificationsRead,
+    remoteSyncStatus,
   };
 }
 
@@ -3063,4 +3143,14 @@ function getFileType(name: string): UploadedFile['type'] {
     case 'jpg': case 'jpeg': case 'png': case 'gif': case 'webp': return 'image';
     default: return 'txt';
   }
+}
+
+// AppStoreContext is created at module scope. If Vite hot-replaces this module
+// it mints a new context object while the already-mounted AppStoreProvider still
+// holds the old one — any lazy consumer then sees null and throws. Vite 5+ removed
+// import.meta.hot.decline(), so we self-accept and immediately invalidate: the update
+// bubbles to the root and forces a full page reload, keeping context identity stable.
+if (import.meta.hot) {
+  const hot = import.meta.hot;
+  hot.accept(() => hot.invalidate('AppStoreContext identity must survive HMR — full reload'));
 }

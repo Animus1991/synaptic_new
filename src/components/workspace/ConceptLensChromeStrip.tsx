@@ -66,7 +66,7 @@ export function ConceptLensChromeStrip({
             <button
               type="button"
               role="listitem"
-              className="whitespace-nowrap rounded-lg bg-brand-600 px-3 py-1.5 type-caption font-medium text-white"
+              className="whitespace-nowrap rounded-lg bg-brand-600 px-3 py-1.5 type-caption font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               onClick={onToggleExpand}
               aria-expanded={conceptLensExpanded}
             >
@@ -78,7 +78,7 @@ export function ConceptLensChromeStrip({
               key={c.label}
               type="button"
               role="listitem"
-              className="whitespace-nowrap rounded-lg bg-surface-secondary px-3 py-1.5 type-caption font-medium text-text-secondary hover:bg-surface-hover"
+              className="whitespace-nowrap rounded-lg bg-surface-secondary px-3 py-1.5 type-caption font-medium text-text-secondary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               onClick={() => onFocus(c.label)}
             >
               {c.label}
@@ -90,10 +90,10 @@ export function ConceptLensChromeStrip({
               onClick={onToggleExpand}
               aria-expanded={conceptLensExpanded}
               aria-label={conceptLensExpanded ? t('collapse') : t('lensFocusAllTools')}
-              className="ml-auto shrink-0 rounded-lg border border-border-subtle bg-surface-secondary/80 p-1.5 text-text-muted hover:text-text-primary"
+              className="ml-auto shrink-0 rounded-lg border border-border-subtle bg-surface-secondary/80 p-1.5 text-text-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               data-testid="concept-lens-expand-minimal"
             >
-              {conceptLensExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              {conceptLensExpanded ? <ChevronUp className="h-3.5 w-3.5" aria-hidden /> : <ChevronDown className="h-3.5 w-3.5" aria-hidden />}
             </button>
           )}
         </div>

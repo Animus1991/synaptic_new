@@ -269,7 +269,7 @@ export function DashboardPanel({
             <button
               type="button"
               onClick={() => onOpenInReader(concept)}
-              className="ws-touch-floor inline-flex min-h-8 items-center rounded-lg border-0 bg-surface-secondary/55 px-2.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+              className="ws-touch-floor inline-flex min-h-8 items-center rounded-lg border-0 bg-surface-secondary/55 px-2.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               data-testid="dashboard-open-reader"
             >
               {t('cognitiveReader')}
@@ -285,7 +285,7 @@ export function DashboardPanel({
             <button
               type="button"
               onClick={handleExportHtml}
-              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
+              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-inset"
               data-testid="dashboard-export-html"
             >
               <Download className="h-3.5 w-3.5" aria-hidden />
@@ -294,7 +294,7 @@ export function DashboardPanel({
             <button
               type="button"
               onClick={handlePrintPdf}
-              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
+              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-inset"
               data-testid="dashboard-export-pdf"
             >
               <Printer className="h-3.5 w-3.5" aria-hidden />
@@ -303,7 +303,7 @@ export function DashboardPanel({
             <button
               type="button"
               onClick={handleExportJson}
-              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover"
+              className="flex w-full items-center gap-2 px-3 py-2 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-inset"
               data-testid="dashboard-export-json"
             >
               JSON

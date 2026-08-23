@@ -95,6 +95,25 @@ tied to a real, named reason (there: per-theme personality; here: per-context de
 deliberate decision, not drift to "fix" — recorded so a future pass doesn't flatten it back to
 the app-wide scale under the assumption it's an inconsistency.
 
+## Canon / Obsidian_protocol surface kit (additive)
+
+Copied **mechanisms**, not a visual clone of the fiction app. Tokens live on `:root` as
+`--canon-radius-{sm,md,lg,xl,2xl,pill}` (6 / 10 / 14 / 20 / 24 px) and
+`--canon-border` / `--canon-border-strong` (12% / 28% ink alpha). They do **not** replace
+`--radius-*`.
+
+| Surface | Canon step | Where Synapse uses it |
+|---------|------------|------------------------|
+| Nested wells / icon tiles | 6px (`sm`) | Tasks mistake wells, session icons |
+| Cards / session tiles / tabs | 10px (`md`) | Tasks cards + Dashboard `--dash-card-radius` |
+| Empty wells | 14px (`lg`) | Tasks empty state |
+| Panels | 20px (`xl`) | `--radius-panel` already matched |
+| Buttons | pill | `PrimaryCTA` / `SecondaryCTA` / `Button` |
+
+Hairlines beat the Tasks CTA-only border-diet so washes read as rounded cards (border-over-shadow,
+no extra elevation). Routing (Canon X0) is **not** copied — out of proportion for this pass.
+High-contrast remains the existing Settings toggle (`data-high-contrast`).
+
 ## Acceptance
 
 - Switching to Minimal does not hide any tool, strip action, or settings section  

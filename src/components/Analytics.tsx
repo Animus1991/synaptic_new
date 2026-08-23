@@ -256,6 +256,8 @@ export function Analytics({
     <AnalyticsDateRangeProvider>
       <div
         {...warmSandScopeProps(warmSandPage)}
+        role="region"
+        aria-label={t('navAnalytics')}
         className="enterprise-calm analytics-quiet"
         data-testid="analytics-page"
         data-type-rhythm="dashboard"

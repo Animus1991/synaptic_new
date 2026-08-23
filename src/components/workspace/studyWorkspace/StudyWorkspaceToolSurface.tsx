@@ -47,6 +47,7 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
     quizConcept,
     onQuizAttempt,
     onLeitnerRate,
+    onFeynmanResult,
     onLogStudyMinutes,
     onStartTask,
     onSessionDirty,
@@ -605,8 +606,9 @@ export function StudyWorkspaceToolSurface({ model }: StudyWorkspaceToolSurfacePr
                           weakExtraction={feynmanSession.weakExtraction}
                           draftScopeKey={progressKey}
                           initialDraft={loadFeynmanDraft(progressKey)}
-                          onExplanationSubmitted={() => {
+                          onExplanationSubmitted={(_draft, overallScore) => {
                             noteConceptActivity(quizConcept, 'feynman', 'explained');
+                            onFeynmanResult?.(quizConcept, effectiveCourseId ?? '', overallScore ?? 0);
                           }}
                           onFocusConcept={() => openWorkspaceTool('concept-map')}
                           onOpenInReader={(query) => openReaderAtSearch(query, 'feynman')}

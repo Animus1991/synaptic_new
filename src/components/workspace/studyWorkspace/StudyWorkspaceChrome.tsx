@@ -173,10 +173,11 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     {/* OPT-K74 — phone: AI + overflow (search/notes/room/theme) instead of icon cluster */}
                     <div className="relative flex items-center gap-2 shrink-0">
                       <button
+                        type="button"
                         onClick={handleOpenAgent}
                         aria-label={t('agentBtn')}
                         data-testid="workspace-mobile-open-agent"
-                        className="p-2 rounded-full bg-surface-secondary hover:bg-surface-hover text-text-secondary transition-colors min-h-10 min-w-10 flex items-center justify-center"
+                        className="p-2 rounded-full bg-surface-secondary hover:bg-surface-hover text-text-secondary transition-colors min-h-10 min-w-10 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                       >
                         <Sparkles className="w-4 h-4" aria-hidden />
                       </button>
@@ -186,7 +187,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         aria-expanded={mobileMenuOpen}
                         aria-label={t('wsMoreTools')}
                         data-testid="workspace-mobile-chrome-menu"
-                        className="p-2 rounded-full bg-surface-secondary hover:bg-surface-hover text-text-secondary transition-colors min-h-10 min-w-10 flex items-center justify-center"
+                        className="p-2 rounded-full bg-surface-secondary hover:bg-surface-hover text-text-secondary transition-colors min-h-10 min-w-10 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                       >
                         <SlidersHorizontal className="w-4 h-4" aria-hidden />
                       </button>
@@ -372,9 +373,9 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     aria-expanded={notebookMenuOpen}
                     aria-label={t('wsMoreTools')}
                     data-testid="notebook-chrome-menu"
-                    className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors"
+                    className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   >
-                    <SlidersHorizontal className="w-4 h-4" />
+                    <SlidersHorizontal className="w-4 h-4" aria-hidden />
                   </button>
                   {notebookMenuOpen && (
                     <div className="absolute right-0 top-full mt-1 z-30 w-52 rounded-xl border border-border-subtle bg-surface-card shadow-lg py-1 type-caption">
@@ -456,9 +457,9 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       data-testid="workspace-split-layout"
                       data-tour="workspace-split-layout"
                       title={t('wsSplitLesson')}
-                      className="hidden md:inline-flex items-center gap-1 p-1.5 rounded-lg border border-border-subtle bg-surface-card hover:bg-surface-hover text-text-secondary hover:text-text-primary shrink-0 transition-colors"
+                      className="hidden md:inline-flex items-center gap-1 p-1.5 rounded-lg border border-border-subtle bg-surface-card hover:bg-surface-hover text-text-secondary hover:text-text-primary shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                     >
-                      <PanelLeftOpen className="w-4 h-4" />
+                      <PanelLeftOpen className="w-4 h-4" aria-hidden />
                     </button>
                   )}
                   {layout !== 'zen' && !useClassicOverflow && (
@@ -467,7 +468,7 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                       onClick={() => setShowPalette(true)}
                       data-testid="workspace-command-palette-open"
                       title={`${t('wsCommandPalette')} (${commandPaletteBadge()})`}
-                      className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-border-subtle bg-surface-card hover:bg-surface-hover type-micro font-mono text-text-secondary hover:text-text-primary shrink-0 transition-colors"
+                      className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-border-subtle bg-surface-card hover:bg-surface-hover type-micro font-mono text-text-secondary hover:text-text-primary shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                     >
                       {commandPaletteBadge()}
                     </button>
@@ -484,30 +485,32 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     <CompactStudyTimer lang={lang} className="hidden lg:inline-flex" />
                   )}
                   {!useClassicOverflow && (
-                    <button onClick={() => setShowNotes((v) => !v)} className={cn('ws-chrome-btn p-1.5 shrink-0', showNotes && 'ws-chrome-btn-active')} title={t('paletteSessionNotes')} aria-pressed={showNotes}>
-                      <StickyNote className="w-4 h-4" />
+                    <button type="button" onClick={() => setShowNotes((v) => !v)} className={cn('ws-chrome-btn p-1.5 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50', showNotes && 'ws-chrome-btn-active')} title={t('paletteSessionNotes')} aria-pressed={showNotes}>
+                      <StickyNote className="w-4 h-4" aria-hidden />
                     </button>
                   )}
                   {!useClassicOverflow && (
                     <button
+                      type="button"
                       onClick={() => setNotebookMode(!notebookMode)}
-                      className={cn('ws-chrome-btn p-1.5 shrink-0', notebookMode && 'ws-chrome-btn-active')}
+                      className={cn('ws-chrome-btn p-1.5 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50', notebookMode && 'ws-chrome-btn-active')}
                       aria-pressed={notebookMode}
                       data-testid="workspace-notebook-toggle"
                       title={notebookMode ? t('wsClassicView') : t('wsNotebookView')}
                     >
-                      <LayoutGrid className="w-4 h-4" />
+                      <LayoutGrid className="w-4 h-4" aria-hidden />
                     </button>
                   )}
                   <button
+                    type="button"
                     onClick={() => setLayout(layout === 'zen' ? 'split' : 'zen')}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                     title={layout === 'zen' ? t('wsExitFocus') : t('wsFocusStudyHint')}
                     data-testid="workspace-zen-toggle"
                     aria-pressed={layout === 'zen'}
                     aria-label={layout === 'zen' ? t('wsExitFocus') : t('wsFocusStudy')}
                   >
-                    {layout === 'zen' ? <Minimize2 className="w-4 h-4 text-text-secondary" /> : <Maximize2 className="w-4 h-4" />}
+                    {layout === 'zen' ? <Minimize2 className="w-4 h-4 text-text-secondary" aria-hidden /> : <Maximize2 className="w-4 h-4" aria-hidden />}
                   </button>
                   {!useClassicOverflow && langPill}
                   {!useClassicOverflow && themeToggle && (
@@ -516,8 +519,8 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                     </div>
                   )}
                   {!useClassicOverflow && (
-                    <button onClick={handleOpenAgent} className="flex items-center gap-1 px-2.5 py-1.5 rounded-full type-micro font-medium border border-border-subtle bg-surface-card hover:border-border-default hover:bg-surface-hover text-text-secondary hover:text-text-primary shrink-0 transition-colors">
-                      <Sparkles className="w-3.5 h-3.5 text-text-secondary" /> {t('agentBtn')}
+                    <button type="button" onClick={handleOpenAgent} className="flex items-center gap-1 px-2.5 py-1.5 rounded-full type-micro font-medium border border-border-subtle bg-surface-card hover:border-border-default hover:bg-surface-hover text-text-secondary hover:text-text-primary shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50">
+                      <Sparkles className="w-3.5 h-3.5 text-text-secondary" aria-hidden /> {t('agentBtn')}
                     </button>
                   )}
                   {useClassicOverflow && (
@@ -529,9 +532,9 @@ export function StudyWorkspaceChrome({ model }: StudyWorkspaceChromeProps) {
                         aria-expanded={classicMenuOpen}
                         aria-label={t('chromeMoreMenu')}
                         data-testid="classic-chrome-menu"
-                        className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                       >
-                        <SlidersHorizontal className="w-4 h-4" />
+                        <SlidersHorizontal className="w-4 h-4" aria-hidden />
                       </button>
                       {classicMenuOpen && (
                         <div

@@ -215,9 +215,10 @@ export function StudyTimer({
           <button
             type="button"
             data-testid="timer-mode-pomodoro"
+            aria-pressed={mode === 'pomodoro'}
             onClick={() => { setMode('pomodoro'); setRunning(false); reset(); }}
             className={cn(
-              'ws-touch-floor min-h-8 px-2.5 py-1 font-medium',
+              'ws-touch-floor min-h-8 px-2.5 py-1 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-inset',
               mode === 'pomodoro' ? 'bg-surface-card text-text-primary' : 'text-text-muted hover:text-text-secondary',
             )}
           >
@@ -226,9 +227,10 @@ export function StudyTimer({
           <button
             type="button"
             data-testid="timer-mode-exam"
+            aria-pressed={mode === 'exam'}
             onClick={() => { setMode('exam'); setRunning(true); }}
             className={cn(
-              'ws-touch-floor inline-flex min-h-8 items-center px-2.5 py-1 font-medium',
+              'ws-touch-floor inline-flex min-h-8 items-center px-2.5 py-1 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-inset',
               mode === 'exam' ? 'bg-surface-card text-text-primary' : 'text-text-muted hover:text-text-secondary',
             )}
           >
@@ -252,7 +254,7 @@ export function StudyTimer({
             type="button"
             data-testid="timer-break-open-leitner"
             onClick={onOpenBreakTool}
-            className="ws-touch-floor shrink-0 rounded-lg border-0 bg-surface-secondary/70 px-2.5 py-1 type-caption font-medium text-text-primary hover:bg-surface-hover"
+            className="ws-touch-floor shrink-0 rounded-lg border-0 bg-surface-secondary/70 px-2.5 py-1 type-caption font-medium text-text-primary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
             {t('timerBreakOpenLeitner')}
           </button>
@@ -260,7 +262,7 @@ export function StudyTimer({
             type="button"
             aria-label={t('dismiss')}
             onClick={() => setLeitnerBreakDismissed(true)}
-            className="shrink-0 px-1 type-caption text-text-muted hover:text-text-secondary"
+            className="shrink-0 px-1 type-caption text-text-muted hover:text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 rounded"
           >
             ×
           </button>
@@ -316,7 +318,7 @@ export function StudyTimer({
                 type="button"
                 data-testid="timer-open-simulator"
                 onClick={onOpenSimulator}
-                className="type-caption text-text-secondary hover:text-text-primary hover:underline"
+                className="type-caption text-text-secondary hover:text-text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 rounded"
               >
                 {t('timerGoToExam')}
               </button>
@@ -351,7 +353,7 @@ export function StudyTimer({
                 `exam-${concept || scopeKey}`,
                 buildExamIcs(examTarget, concept || 'Study exam', lang),
               )}
-              className="ws-touch-floor inline-flex min-h-8 items-center rounded-lg border-0 bg-surface-secondary/55 px-2.5 type-caption font-medium text-text-secondary hover:bg-surface-hover"
+              className="ws-touch-floor inline-flex min-h-8 items-center rounded-lg border-0 bg-surface-secondary/55 px-2.5 type-caption font-medium text-text-secondary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
             >
               {t('timerExportIcs')}
             </button>
@@ -380,7 +382,7 @@ export function StudyTimer({
                 data-testid="timer-play-pause"
                 onClick={() => setRunning(false)}
                 aria-label={t('pause')}
-                className="ux-pomodoro-play-btn-pause ws-touch-floor inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl px-5 type-meta font-medium"
+                className="ux-pomodoro-play-btn-pause ws-touch-floor inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl px-5 type-meta font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               >
                 <Pause className="h-4 w-4" aria-hidden />
                 {t('pause')}
@@ -403,7 +405,7 @@ export function StudyTimer({
               data-testid="timer-reset"
               onClick={reset}
               aria-label={t('reset')}
-              className="ws-touch-floor inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border-0 bg-surface-secondary/55 text-text-secondary hover:bg-surface-hover"
+              className="ws-touch-floor inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border-0 bg-surface-secondary/55 text-text-secondary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
             >
               <RotateCcw className="h-4 w-4" aria-hidden />
             </button>
@@ -426,7 +428,7 @@ export function StudyTimer({
                 type="button"
                 onClick={() => selectPreset(i)}
                 className={cn(
-                  'ws-touch-floor min-h-8 rounded-lg px-2.5 type-caption font-medium',
+                  'ws-touch-floor min-h-8 rounded-lg px-2.5 type-caption font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
                   presetIdx === i && !examPracticeId
                     ? 'border-0 bg-surface-secondary text-text-primary'
                     : 'border-0 bg-surface-secondary/35 text-text-muted hover:text-text-secondary',
@@ -472,7 +474,7 @@ export function StudyTimer({
                   `sessions-${scopeKey}`,
                   buildStudySessionsIcs(recentSessions, lang),
                 )}
-                className="inline-flex items-center type-caption text-text-secondary hover:text-text-primary"
+                className="inline-flex items-center type-caption text-text-secondary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 rounded"
               >
                 {t('timerExportIcs')}
               </button>

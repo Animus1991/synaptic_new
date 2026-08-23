@@ -87,7 +87,7 @@ export function WorkspaceContextStrip({
           <button
             type="button"
             onClick={onNextAction}
-            className="ws-eyebrow ws-chip-brand inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 type-caption hover:opacity-90"
+            className="ws-eyebrow ws-chip-brand inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 type-caption hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
             data-testid="workspace-next-action"
           >
             <AllCapsLabel>{nextActionLabelProp ?? t('next')}</AllCapsLabel>
@@ -98,7 +98,7 @@ export function WorkspaceContextStrip({
             type="button"
             onClick={onWeakAreas}
             aria-pressed={weakPanelOpen}
-            className={`ws-eyebrow shrink-0 rounded-md px-2 py-1 type-caption ${
+            className={`ws-eyebrow shrink-0 rounded-md px-2 py-1 type-caption focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 ${
               weakPanelOpen ? 'ws-chip-danger' : 'ws-chip-neutral hover:opacity-90'
             }`}
             data-testid="workspace-weak-areas-toggle"
@@ -111,7 +111,7 @@ export function WorkspaceContextStrip({
             type="button"
             onClick={onConceptBus}
             aria-pressed={conceptBusOpen}
-            className={`ws-eyebrow shrink-0 rounded-md px-2 py-1 type-caption ${
+            className={`ws-eyebrow shrink-0 rounded-md px-2 py-1 type-caption focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 ${
               conceptBusOpen ? 'ws-chip-brand' : 'ws-chip-neutral hover:opacity-90'
             }`}
             data-testid="workspace-concept-bus-toggle"

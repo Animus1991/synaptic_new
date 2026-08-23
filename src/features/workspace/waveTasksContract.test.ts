@@ -58,8 +58,11 @@ describe('Wave H5 — Tasks productization', () => {
 
   it('uses Dashboard radius tokens (cards vs nested wells)', () => {
     const css = read('index.css');
-    expect(css).toContain('--tasks-card-radius: 0.625rem');
-    expect(css).toContain('--tasks-well-radius: var(--radius-md)');
+    expect(css).toContain('--canon-radius-md: 0.625rem');
+    expect(css).toContain('--tasks-card-radius: var(--canon-radius-md, 0.625rem)');
+    expect(css).toContain('--tasks-well-radius: var(--canon-radius-sm, 0.375rem)');
+    expect(css).toContain('--tasks-hairline: var(--canon-border)');
+    expect(css).toMatch(/border: 1px solid var\(--tasks-hairline\) !important/);
     expect(css).toMatch(/--tasks-card-radius\) !important/);
     expect(css).toContain('.ux-session-card');
     expect(css).toContain('.descriptive-sticky-tab');
@@ -68,6 +71,8 @@ describe('Wave H5 — Tasks productization', () => {
     expect(page).toContain('tasks-row-icon');
     expect(page).not.toMatch(/tasks-insight-card[^\n]*rounded-xl/);
     expect(page).not.toMatch(/tasks-danger-zone[^\n]*px-0/);
+    expect(read('components/TaskFormDialog.tsx')).toContain('synapse-field');
+    expect(read('components/ui/primitives.tsx')).toContain('--canon-radius-pill');
   });
 
   it('warm purpose EN+EL (no FSRS / scheduler / Create Plan / shouting RUNNING)', () => {

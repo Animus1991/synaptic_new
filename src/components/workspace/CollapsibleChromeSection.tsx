@@ -45,6 +45,7 @@ export function CollapsibleChromeSection({
   const [open, setOpen] = useState(defaultOpen);
   const metaLabel = meta === undefined || meta === '' || meta === 0 ? null : String(meta);
   const focusChrome = keepInFocus ? 'keep' : 'secondary';
+  const panelId = `${testId}-body`;
 
   if (!alwaysCollapse && !minimal) {
     return (
@@ -68,8 +69,9 @@ export function CollapsibleChromeSection({
     >
       <button
         type="button"
-        className="flex w-full items-center justify-between gap-2 px-3 py-1 text-left type-caption font-medium text-text-secondary hover:text-text-primary"
+        className="flex w-full items-center justify-between gap-2 px-3 py-1 text-left type-caption font-medium text-text-secondary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-inset"
         aria-expanded={open}
+        aria-controls={panelId}
         aria-label={metaLabel ? `${title} (${metaLabel})` : title}
         data-testid={`${testId}-toggle`}
         onClick={() => setOpen((v) => !v)}
@@ -85,10 +87,10 @@ export function CollapsibleChromeSection({
             </span>
           ) : null}
         </span>
-        {open ? <ChevronDown className="h-3.5 w-3.5 shrink-0" /> : <ChevronRight className="h-3.5 w-3.5 shrink-0" />}
+        {open ? <ChevronDown className="h-3.5 w-3.5 shrink-0" aria-hidden /> : <ChevronRight className="h-3.5 w-3.5 shrink-0" aria-hidden />}
       </button>
       {open ? (
-        <div className="collapsible-chrome-section-body" data-testid={`${testId}-body`}>
+        <div id={panelId} className="collapsible-chrome-section-body" data-testid={`${testId}-body`}>
           {children}
         </div>
       ) : null}

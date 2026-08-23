@@ -1,5 +1,6 @@
 import path from "path";
 import { fileURLToPath } from "url";
+import { connect } from "net";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
@@ -87,6 +88,40 @@ function rumBeaconDevPlugin(): Plugin {
   };
 }
 
+/**
+ * Silences Vite "http proxy error: /health" when the backend (port 8787) is
+ * offline. Does a cheap TCP probe first: if the backend IS up, the request
+ * falls through to the real proxy so study-room works normally. If it's down,
+ * we return 503 ourselves — no proxy error, no console noise.
+ */
+function healthProbePlugin(): Plugin {
+  const isBackendReachable = (host: string, port: number): Promise<boolean> =>
+    new Promise((resolve) => {
+      const socket = connect(port, host, () => { socket.destroy(); resolve(true); });
+      socket.on('error', () => resolve(false));
+      socket.setTimeout(150, () => { socket.destroy(); resolve(false); });
+    });
+
+  const middleware = (
+    req: import('http').IncomingMessage,
+    res: import('http').ServerResponse,
+    next: () => void,
+  ) => {
+    if (req.url !== '/health') { next(); return; }
+    void isBackendReachable('127.0.0.1', 8787).then((up) => {
+      if (up) { next(); return; }
+      res.writeHead(503, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'offline', dev: true }));
+    });
+  };
+
+  return {
+    name: 'synapse-health-probe',
+    configureServer(server) { server.middlewares.use(middleware); },
+    configurePreviewServer(server) { server.middlewares.use(middleware); },
+  };
+}
+
 /** B11 — emit hashed entry-chunk URLs for runtime `<link rel="prefetch">`. */
 function workspaceEntryManifestPlugin(): Plugin {
   return {
@@ -124,6 +159,7 @@ export default defineConfig({
     tailwindcss(),
     chunkErrorsDevPlugin(),
     rumBeaconDevPlugin(),
+    healthProbePlugin(),
     workspaceEntryManifestPlugin(),
     ...(analyze
       ? [

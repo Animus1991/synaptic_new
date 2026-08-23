@@ -222,7 +222,7 @@ export function WorkspaceQuizSession({
                 type="button"
                 data-testid="quiz-review-feynman-cluster"
                 onClick={() => onRemediateWrongCluster(wrongItems)}
-                className="mb-2 inline-flex items-center rounded-md border-0 bg-surface-secondary/55 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+                className="mb-2 inline-flex items-center rounded-md border-0 bg-surface-secondary/55 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               >
                 {t('quizSessFeynmanCluster')}
               </button>
@@ -241,7 +241,7 @@ export function WorkspaceQuizSession({
                         type="button"
                         data-testid={`quiz-review-make-card-${w.itemId}`}
                         onClick={() => onRemediateWrong('make-card', item)}
-                        className="rounded-md border-0 bg-surface-secondary/55 px-2 py-0.5 type-caption text-text-secondary"
+                        className="rounded-md border-0 bg-surface-secondary/55 px-2 py-0.5 type-caption text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                       >
                         {t('quizSessCard')}
                       </button>
@@ -249,7 +249,7 @@ export function WorkspaceQuizSession({
                         type="button"
                         data-testid={`quiz-review-feynman-${w.itemId}`}
                         onClick={() => onRemediateWrong('feynman', item)}
-                        className="rounded-md border-0 bg-surface-secondary/55 px-2 py-0.5 type-caption text-text-secondary"
+                        className="rounded-md border-0 bg-surface-secondary/55 px-2 py-0.5 type-caption text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                       >
                         Feynman
                       </button>
@@ -258,7 +258,7 @@ export function WorkspaceQuizSession({
                           type="button"
                           data-testid={`quiz-review-reader-${w.itemId}`}
                           onClick={() => onOpenQuestionInReader(w.question)}
-                          className="rounded-md border-0 bg-surface-secondary/45 px-2 py-0.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+                          className="rounded-md border-0 bg-surface-secondary/45 px-2 py-0.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                         >
                           {t('toolReader')}
                         </button>
@@ -277,7 +277,7 @@ export function WorkspaceQuizSession({
               type="button"
               data-testid="quiz-open-flashcards"
               onClick={onOpenFlashcards}
-              className="rounded-md border-0 bg-surface-secondary/55 px-3 py-1.5 type-caption font-medium text-text-secondary hover:bg-surface-hover"
+              className="rounded-md border-0 bg-surface-secondary/55 px-3 py-1.5 type-caption font-medium text-text-secondary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
             >
               {t('quizSessReviewFlashcards')}
             </button>
@@ -287,7 +287,7 @@ export function WorkspaceQuizSession({
               type="button"
               data-testid="quiz-open-feynman"
               onClick={onOpenFeynman}
-              className="rounded-md border-0 bg-surface-secondary/55 px-3 py-1.5 type-caption font-medium text-text-secondary hover:bg-surface-hover"
+              className="rounded-md border-0 bg-surface-secondary/55 px-3 py-1.5 type-caption font-medium text-text-secondary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
             >
               {t('quizSessFeynmanExplain')}
             </button>
@@ -297,7 +297,7 @@ export function WorkspaceQuizSession({
               type="button"
               data-testid="quiz-open-reader"
               onClick={onOpenReader}
-              className="rounded-md border-0 bg-surface-secondary/45 px-3 py-1.5 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+              className="rounded-md border-0 bg-surface-secondary/45 px-3 py-1.5 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
             >
               {t('quizSessBackToReader')}
             </button>
@@ -396,7 +396,7 @@ export function WorkspaceQuizSession({
                       type="button"
                       data-testid="quiz-grounded-open-reader"
                       onClick={() => onOpenQuestionInReader(groundedFeedback.sourceExcerpt ?? concept)}
-                      className="inline-flex items-center gap-1 rounded-full border border-border-subtle bg-surface-secondary px-2 py-0.5 type-caption font-medium text-text-secondary hover:text-text-primary"
+                      className="inline-flex items-center gap-1 rounded-full border border-border-subtle bg-surface-secondary px-2 py-0.5 type-caption font-medium text-text-secondary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                     >
                       {t('quizGroundedViewSource')}
                     </button>
@@ -429,7 +429,7 @@ export function WorkspaceQuizSession({
                     type="button"
                     data-testid="quiz-remediate-make-card"
                     onClick={() => onRemediateWrong('make-card', current)}
-                    className="rounded-lg border border-border-subtle bg-surface-secondary px-3 py-1.5 type-caption font-medium text-text-secondary hover:text-text-primary"
+                    className="rounded-lg border border-border-subtle bg-surface-secondary px-3 py-1.5 type-caption font-medium text-text-secondary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   >
                     {t('quizSessMakeCardFromMistake')}
                   </button>
@@ -437,7 +437,7 @@ export function WorkspaceQuizSession({
                     type="button"
                     data-testid="quiz-remediate-feynman"
                     onClick={() => onRemediateWrong('feynman', current)}
-                    className="rounded-lg border border-border-subtle bg-surface-secondary px-3 py-1.5 type-caption font-medium text-text-secondary hover:text-text-primary"
+                    className="rounded-lg border border-border-subtle bg-surface-secondary px-3 py-1.5 type-caption font-medium text-text-secondary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   >
                     {t('quizSessFeynmanExplain')}
                   </button>
@@ -446,7 +446,7 @@ export function WorkspaceQuizSession({
                       type="button"
                       data-testid="quiz-remediate-reader"
                       onClick={() => onOpenQuestionInReader(quizItemQuestion(current))}
-                      className="rounded-md border-0 bg-surface-secondary/45 px-3 py-1.5 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+                      className="rounded-md border-0 bg-surface-secondary/45 px-3 py-1.5 type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                     >
                       {t('panelOpenReader')}
                     </button>
@@ -467,7 +467,7 @@ export function WorkspaceQuizSession({
                   data-testid={`quiz-confidence-${n}`}
                   onClick={() => setConfidence(n)}
                   className={cn(
-                    'flex-1 py-1.5 rounded-lg type-caption font-medium border',
+                    'flex-1 py-1.5 rounded-lg type-caption font-medium border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
                     confidence === n
                       ? 'border-brand-500 bg-brand-600/20 text-text-secondary'
                       : 'border-border-subtle text-text-muted',
@@ -482,7 +482,7 @@ export function WorkspaceQuizSession({
             type="button"
             data-testid="quiz-session-confirm"
             onClick={confirmAndAdvance}
-            className="px-4 py-2 rounded-lg bg-brand-600 text-white type-meta font-medium"
+            className="px-4 py-2 rounded-lg bg-brand-600 text-white type-meta font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2"
           >
             {session.currentIndex + 1 >= session.items.length ? t('quizSessFinishSession') : t('quizSessNextQuestion')}
           </button>

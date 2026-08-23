@@ -109,8 +109,8 @@ export function WorkspaceIntelSideSheet({
               <span className="type-meta font-semibold">
                 {t('sourceIntelTitle')}
               </span>
-              <button type="button" onClick={onClose} className="rounded-lg p-1.5 hover:bg-surface-hover text-text-muted">
-                <X className="h-4 w-4" />
+              <button type="button" onClick={onClose} className="rounded-lg p-1.5 hover:bg-surface-hover text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50">
+                <X className="h-4 w-4" aria-hidden />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-4">

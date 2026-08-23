@@ -202,9 +202,9 @@ export function MasteryWaterfallChart({
         </svg>
       </div>
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
-        {cumulative.slice(-4).map((s) => (
+        {cumulative.slice(-4).map((s, i) => (
           <div
-            key={s.label}
+            key={`${i}-${s.label}`}
             className={cn(
               'rounded-xl border-0 p-3 type-body',
               s.delta >= 0 ? 'bg-accent-emerald/5' : 'bg-accent-rose/5',

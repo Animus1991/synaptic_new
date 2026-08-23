@@ -86,13 +86,13 @@ export function LessonStepToolBar({
                 data-recommended={action.recommended ? 'true' : undefined}
                 onClick={() => onLearningAction(action.id)}
                 className={cn(
-                  'inline-flex items-center gap-1 rounded-lg border px-2 py-1.5 type-caption font-medium transition-all',
+                  'inline-flex items-center gap-1 rounded-lg border px-2 py-1.5 type-caption font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
                   action.recommended
                     ? 'border-brand-600/30 bg-surface-secondary text-text-secondary'
                     : 'border-border-subtle text-text-secondary hover:border-brand-500/30 hover:text-text-primary',
                 )}
               >
-                <Icon className="w-3 h-3 shrink-0" />
+                <Icon className="w-3 h-3 shrink-0" aria-hidden />
                 {action.label}
               </button>
             );
@@ -113,7 +113,7 @@ export function LessonStepToolBar({
             type="button"
             onClick={() => onOpenTool(tool)}
             className={cn(
-              'inline-flex items-center gap-1 rounded-lg border px-2 py-1 type-caption font-medium transition-all',
+              'inline-flex items-center gap-1 rounded-lg border px-2 py-1 type-caption font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
               isRecommended
                 ? 'border-accent-emerald/35 bg-accent-emerald/10 text-accent-emerald'
                 : isActive
@@ -123,7 +123,7 @@ export function LessonStepToolBar({
             data-testid={`lesson-open-tool-${tool}`}
             data-recommended={isRecommended ? 'true' : undefined}
           >
-            <Icon className="w-3 h-3" />
+            <Icon className="w-3 h-3" aria-hidden />
             {stepToolActionLabel(tool, lang)}
             {isRecommended && (
               <span className="rounded bg-accent-emerald/15 px-1 type-caption font-semibold">

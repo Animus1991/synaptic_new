@@ -216,6 +216,12 @@ export type DescriptiveTabItem<T extends string = string> = {
   label: string;
   summary: string;
   count?: number;
+  /**
+   * Accessible phrasing for `count` (e.g. "7 tasks"). The numeric badge stays
+   * visual-only (`aria-hidden`); this string is what assistive tech announces.
+   * Falls back to the bare number when omitted so the count is never silent.
+   */
+  countLabel?: string;
 };
 
 /** Option-B sticky section tabs — title + summary per tab (progressive disclosure). */
@@ -294,9 +300,14 @@ export function DescriptiveStickyTabBar<T extends string>({
               <span className="descriptive-sticky-tab-label">{item.label}</span>
               <span className="descriptive-sticky-tab-summary">{item.summary}</span>
               {item.count != null && item.count > 0 && (
-                <span className="descriptive-sticky-tab-count" aria-hidden>
-                  {item.count}
-                </span>
+                <>
+                  <span className="descriptive-sticky-tab-count" aria-hidden>
+                    {item.count}
+                  </span>
+                  {/* Count is visual-only above; expose it to assistive tech
+                      (never silent) with optional richer phrasing per caller. */}
+                  <span className="sr-only">{item.countLabel ?? String(item.count)}</span>
+                </>
               )}
             </button>
           );

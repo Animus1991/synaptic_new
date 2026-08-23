@@ -207,7 +207,7 @@ export function QuizPanel({
               <button
                 type="button"
                 onClick={() => onOpenInReader(concept)}
-                className="ws-touch-floor inline-flex min-h-8 items-center rounded-lg border-0 bg-surface-secondary/55 px-2.5 py-1 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+                className="ws-touch-floor inline-flex min-h-8 items-center rounded-lg border-0 bg-surface-secondary/55 px-2.5 py-1 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                 data-testid="quiz-open-reader"
               >
                 {t('quizOpenReader')}
@@ -222,7 +222,7 @@ export function QuizPanel({
                   key={item.id}
                   type="button"
                   onClick={() => (onSelectionAction ? selectQuestion(item) : onOpenInReader?.(quizItemQuestion(item)))}
-                  className="max-w-full rounded-lg border-0 bg-surface-secondary/55 px-2.5 py-1 text-left type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+                  className="max-w-full rounded-lg border-0 bg-surface-secondary/55 px-2.5 py-1 text-left type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                 >
                   <span className="line-clamp-2 whitespace-normal break-words">
                     {quizItemQuestion(item)}

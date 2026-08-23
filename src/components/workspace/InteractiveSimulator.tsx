@@ -253,6 +253,8 @@ export function InteractiveSimulator({
                   max={cue.max}
                   step={cue.unit === '%' ? 1 : (cue.max - cue.min) / 40}
                   value={cueValues[cue.id] ?? cue.baseline}
+                  aria-label={cue.label}
+                  aria-valuetext={`${(cueValues[cue.id] ?? cue.baseline).toFixed(cue.unit === '%' ? 0 : 1)}${cue.unit === '%' ? '%' : cue.unit ? ` ${cue.unit}` : ''}`}
                   onChange={(e) => {
                     setCueValues((v) => ({ ...v, [cue.id]: Number(e.target.value) }));
                     onEngage?.();
@@ -279,7 +281,11 @@ export function InteractiveSimulator({
                   {sensitivityCells.map((cell) => (
                     <div key={cell.cueId} className="flex items-center gap-2">
                       <span className="w-24 truncate type-caption text-text-secondary">{cell.label}</span>
-                      <div className="flex-1 h-2 rounded-full bg-surface-primary overflow-hidden">
+                      <div
+                        className="flex-1 h-2 rounded-full bg-surface-primary overflow-hidden"
+                        role="img"
+                        aria-label={`${cell.label} ${Math.round(cell.intensity * 100)}%`}
+                      >
                         <div
                           className="h-full rounded-full bg-accent-cyan/80"
                           style={{ width: `${Math.round(cell.intensity * 100)}%` }}
@@ -380,7 +386,7 @@ export function InteractiveSimulator({
           viewBox={`0 0 ${w} ${h}`}
           className="mb-3 block w-full max-w-none overflow-visible"
           role="img"
-          aria-label={`${t('parametricSandbox')} P–Q`}
+          aria-label={`${t('parametricSandbox')} P–Q · P* ${eqP.toFixed(1)}, Q* ${eqQ.toFixed(1)}`}
           data-testid="simulator-sd-graph"
         >
           <line x1={pad} y1={pad - 10} x2={pad} y2={h - pad} stroke="var(--color-border-strong, var(--color-text-muted))" strokeWidth={2} />
@@ -449,14 +455,14 @@ export function InteractiveSimulator({
               <label htmlFor="sim-demand-shift" className="type-caption font-semibold text-accent-emerald">{t('demandShock')}</label>
               <span className="font-mono type-caption text-text-muted">{demandShift > 0 ? '+' : ''}{demandShift}</span>
             </div>
-            <input id="sim-demand-shift" type="range" min={-40} max={40} value={demandShift} onChange={(e) => { setDemandShift(Number(e.target.value)); onEngage?.(); }} className="w-full" style={{ accentColor: '#34d399' }} />
+            <input id="sim-demand-shift" type="range" min={-40} max={40} value={demandShift} aria-valuetext={`${demandShift > 0 ? '+' : ''}${demandShift}`} onChange={(e) => { setDemandShift(Number(e.target.value)); onEngage?.(); }} className="w-full" style={{ accentColor: '#34d399' }} />
           </div>
           <div>
             <div className="mb-2 flex justify-between">
               <label htmlFor="sim-supply-shift" className="type-caption font-semibold text-text-secondary">{t('supplyShock')}</label>
               <span className="font-mono type-caption text-text-muted">{supplyShift > 0 ? '+' : ''}{supplyShift}</span>
             </div>
-            <input id="sim-supply-shift" type="range" min={-40} max={40} value={supplyShift} onChange={(e) => { setSupplyShift(Number(e.target.value)); onEngage?.(); }} className="w-full" style={{ accentColor: '#818cf8' }} />
+            <input id="sim-supply-shift" type="range" min={-40} max={40} value={supplyShift} aria-valuetext={`${supplyShift > 0 ? '+' : ''}${supplyShift}`} onChange={(e) => { setSupplyShift(Number(e.target.value)); onEngage?.(); }} className="w-full" style={{ accentColor: '#818cf8' }} />
           </div>
           <div className="flex items-center justify-between border-t border-transparent pt-3 font-mono type-caption">
             <span>P* = <strong>{eqP.toFixed(1)}</strong></span>
@@ -494,10 +500,15 @@ export function InteractiveSimulator({
             {['demand', 'supply'].map((axis) => {
               const cells = econSensitivity.filter((c) => c.cueId === axis);
               const peak = Math.max(...cells.map((c) => c.intensity), 0.01);
+              const axisLabel = axis === 'demand' ? t('simAxisDemand') : t('simAxisSupply');
               return (
                 <div key={axis} className="rounded-lg bg-surface-primary/50 p-2">
-                  <p className="type-caption font-medium text-text-secondary mb-1 capitalize">{axis}</p>
-                  <div className="flex gap-0.5 h-6 items-end">
+                  <p className="type-caption font-medium text-text-secondary mb-1">{axisLabel}</p>
+                  <div
+                    className="flex gap-0.5 h-6 items-end"
+                    role="img"
+                    aria-label={`${t('pStarSensitivity')} — ${axisLabel}`}
+                  >
                     {cells.slice(0, 5).map((cell, i) => (
                       <div
                         key={i}

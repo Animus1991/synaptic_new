@@ -72,6 +72,7 @@ interface ShellProps {
   language?: Lang;
   onLanguageChange?: (lang: Lang) => void;
   onPatchSettings?: (partial: Partial<UserSettings>) => void;
+  remoteSyncStatus?: 'idle' | 'pending' | 'syncing' | 'error';
 }
 
 type MobileBarItem =
@@ -177,6 +178,7 @@ export function Shell({
   language,
   onLanguageChange,
   onPatchSettings,
+  remoteSyncStatus,
 }: ShellProps) {
   const { t, lang } = useI18n();
   const activeLang = language ?? lang;
@@ -1071,6 +1073,28 @@ export function Shell({
                 </button>
               )}
 
+              {remoteSyncStatus && remoteSyncStatus !== 'idle' && user.settings.authToken && (
+                <div
+                  className={cn(
+                    'hidden md:flex items-center gap-1 rounded-full px-2 py-0.5 type-micro font-medium',
+                    remoteSyncStatus === 'error'
+                      ? 'bg-accent-rose/10 text-accent-rose'
+                      : 'bg-surface-secondary/70 text-text-muted',
+                  )}
+                  role="status"
+                  aria-live="polite"
+                  data-testid="shell-sync-status"
+                >
+                  {(remoteSyncStatus === 'pending' || remoteSyncStatus === 'syncing') && (
+                    <Wind className="w-3 h-3 animate-spin" aria-hidden />
+                  )}
+                  <span>
+                    {remoteSyncStatus === 'pending' && 'Saving...'}
+                    {remoteSyncStatus === 'syncing' && 'Syncing...'}
+                    {remoteSyncStatus === 'error' && '⚠ Sync error'}
+                  </span>
+                </div>
+              )}
               {onPatchSettings && (
                 <HeaderAccountAuth
                   settings={user.settings}

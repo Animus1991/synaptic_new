@@ -78,11 +78,11 @@ export function AnnotationMarginRail({
       <button
         type="button"
         onClick={onToggleExpanded}
-        className="flex w-full shrink-0 items-center justify-center py-1.5 text-text-muted hover:text-text-secondary"
+        className="flex w-full shrink-0 items-center justify-center py-1.5 text-text-muted hover:text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-inset"
         aria-expanded={expanded}
         aria-label={expanded ? t('collapse') : t('expand')}
       >
-        {expanded ? <ChevronDown className="h-3 w-3 rotate-90" /> : <ChevronUp className="h-3 w-3 rotate-90" />}
+        {expanded ? <ChevronDown className="h-3 w-3 rotate-90" aria-hidden /> : <ChevronUp className="h-3 w-3 rotate-90" aria-hidden />}
       </button>
 
       {expanded && (
@@ -93,7 +93,7 @@ export function AnnotationMarginRail({
               <button
                 type="button"
                 onClick={onExportJson}
-                className="type-caption font-medium text-text-secondary hover:underline"
+                className="rounded type-caption font-medium text-text-secondary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               >
                 JSON
               </button>
@@ -118,7 +118,7 @@ export function AnnotationMarginRail({
                     }
                   }}
                   className={cn(
-                    'ws-annotation-card border cursor-pointer transition-colors',
+                    'ws-annotation-card border cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
                     selectedAnnId === ann.id && 'ring-1 ring-brand-600/35 bg-brand-100/40',
                   )}
                   style={{ borderColor: `${ann.color}35`, backgroundColor: `${ann.color}06` }}
@@ -145,10 +145,10 @@ export function AnnotationMarginRail({
                         onRemoveAnn(ann.id);
                         if (selectedAnnId === ann.id) onSelectAnn(null);
                       }}
-                      className="text-text-muted hover:text-accent-rose"
+                      className="text-text-muted hover:text-accent-rose focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 rounded"
                       aria-label={t('deleteLabel')}
                     >
-                      <Trash2 className="h-2.5 w-2.5" />
+                      <Trash2 className="h-2.5 w-2.5" aria-hidden />
                     </button>
                   </div>
 
@@ -205,9 +205,9 @@ export function AnnotationMarginRail({
                           e.stopPropagation();
                           onOpenInReader(lines[ann.lineStart]?.trim() || ann.focusTerm || '');
                         }}
-                        className="inline-flex items-center gap-0.5 type-caption font-medium text-text-secondary hover:underline"
+                        className="inline-flex items-center gap-0.5 rounded type-caption font-medium text-text-secondary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                       >
-                        <BookOpen className="h-2.5 w-2.5" />
+                        <BookOpen className="h-2.5 w-2.5" aria-hidden />
                         {t('annoReaderShort')}
                       </button>
                     )}
@@ -218,7 +218,7 @@ export function AnnotationMarginRail({
                           e.stopPropagation();
                           onPublishShared(ann);
                         }}
-                        className="type-caption font-medium text-accent-amber hover:underline"
+                        className="rounded type-caption font-medium text-accent-amber hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                       >
                         {t('shareShort')}
                       </button>
@@ -230,9 +230,9 @@ export function AnnotationMarginRail({
                           e.stopPropagation();
                           onAskAgent(lines[ann.lineStart] || '');
                         }}
-                        className="inline-flex items-center gap-0.5 type-caption font-medium text-text-secondary hover:underline"
+                        className="inline-flex items-center gap-0.5 rounded type-caption font-medium text-text-secondary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                       >
-                        <Sparkles className="h-2.5 w-2.5" />
+                        <Sparkles className="h-2.5 w-2.5" aria-hidden />
                         {askAgentLabel}
                       </button>
                     )}

@@ -46,6 +46,7 @@ function StatusItemButton({
       data-severity={item.severity}
       onClick={() => onReveal(item.id)}
       title={revealLabel}
+      aria-label={`${item.title}. ${revealLabel}`}
     >
       <SeverityIcon severity={item.severity} />
       <span className="min-w-0 flex-1">
@@ -98,6 +99,8 @@ export function WorkspaceStatusPanel({ className, defaultOpen = false }: Props) 
         type="button"
         className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left type-caption font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary"
         aria-expanded={open}
+        aria-controls="workspace-status-panel-list"
+        aria-label={`${consoleMode ? t('workspaceStatusConsole') : t('workspaceStatusPanel')} (${bus.items.length})`}
         data-testid="workspace-status-panel-toggle"
         onClick={() => setOpen((v) => !v)}
       >
@@ -114,15 +117,18 @@ export function WorkspaceStatusPanel({ className, defaultOpen = false }: Props) 
             {bus.items.length}
           </span>
         </span>
-        {open ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+        {open ? <ChevronDown className="h-3.5 w-3.5" aria-hidden /> : <ChevronRight className="h-3.5 w-3.5" aria-hidden />}
       </button>
       {open ? (
         <div
+          id="workspace-status-panel-list"
           className={cn(
             'overflow-y-auto border-t border-border-subtle px-2 py-2',
             consoleMode ? 'max-h-56 space-y-2' : 'max-h-40',
           )}
           data-testid="workspace-status-panel-list"
+          role="status"
+          aria-live="polite"
         >
           {consoleMode ? (
             <>

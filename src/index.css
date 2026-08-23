@@ -148,10 +148,26 @@
   --radius-pill: 9999px;
   /* Wave D1 — chat bubbles (was ad-hoc 1.5rem on Blueprint) */
   --radius-bubble: var(--radius-xl);
+  /* Canon / Obsidian_protocol surface kit (additive aliases — do not replace --radius-*).
+   * Editorial DEFAULT_RADII: 6 / 10 / 14 / 20 / 24. Hairlines are alpha, not boxes. */
+  --canon-radius-sm: 0.375rem;
+  --canon-radius-md: 0.625rem;
+  --canon-radius-lg: 0.875rem;
+  --canon-radius-xl: 1.25rem;
+  --canon-radius-2xl: 1.5rem;
+  --canon-radius-pill: 9999px;
+  --canon-border: color-mix(in srgb, var(--color-text-primary) 12%, transparent);
+  --canon-border-strong: color-mix(in srgb, var(--color-text-primary) 28%, transparent);
 
-  /* Package 2 — elevation (hairline → modal) */
+  /* Package 2 — elevation (hairline → modal)
+   * Canon parity (cross-pollination §6.3): resting in-flow cards are border-first
+   * across ALL themes, not just minimal — .ws-bento / .ux-card / .platform-panel
+   * each already carry a 1px border-subtle hairline, so elev-1 drops to none and
+   * the surface reads as a calm bordered card (no double edge). Functional
+   * elevation stays on floating/identity layers only (elev-2/3/4 = glass, FAB,
+   * hover-lift; popover/drawer/modal), which Canon also keeps. */
   --elev-0: none;
-  --elev-1: 0 1px 0 color-mix(in srgb, var(--color-border-subtle) 55%, transparent);
+  --elev-1: none;
   --elev-2: 0 4px 24px color-mix(in srgb, #0a0a0c 8%, transparent);
   --elev-3: 0 12px 28px -10px color-mix(in srgb, #0a0a0c 22%, transparent),
             0 2px 6px color-mix(in srgb, #0a0a0c 10%, transparent);
@@ -3976,6 +3992,16 @@ html[data-density="compact"] .app-shell {
    over Tailwind's layered utility; directional utilities (rounded-t-*, etc.)
    still override their specific corners. */
 .rounded { border-radius: var(--radius-sm); }
+.rounded-canon-sm { border-radius: var(--canon-radius-sm); }
+.rounded-canon-md { border-radius: var(--canon-radius-md); }
+.rounded-canon-lg { border-radius: var(--canon-radius-lg); }
+.rounded-canon-xl { border-radius: var(--canon-radius-xl); }
+.rounded-canon-pill { border-radius: var(--canon-radius-pill); }
+.synapse-field {
+  border: 1px solid var(--canon-border-strong);
+  border-radius: var(--canon-radius-md);
+  background: color-mix(in srgb, var(--color-surface-secondary) 55%, transparent);
+}
 .space-stack-sm > * + * { margin-top: var(--space-4); }
 .space-stack-md > * + * { margin-top: var(--space-6); }
 .space-stack-lg > * + * { margin-top: var(--space-8); }
@@ -8064,7 +8090,7 @@ body::-webkit-scrollbar-corner,
  * actions, compact empty wells, quieter cream cards.
  */
 [data-testid="dashboard-page"] {
-  --dash-card-radius: 0.625rem;
+  --dash-card-radius: var(--canon-radius-md, 0.625rem);
   --dash-card-pad-block: 0.75rem;
   --dash-card-pad-inline: 0.9rem;
 }
@@ -8532,12 +8558,13 @@ body::-webkit-scrollbar-corner,
 [data-testid="dashboard-page"] .ux-card {
   border-radius: var(--radius-lg);
 }
-/* Tasks radius map — lockstep with Dashboard OPT-K172 (cards 10px, nested wells md).
- * !important matches Dashboard OPT-K167 so later diet/tab resets cannot square the washes. */
+/* Canon surface kit on Tasks — radius 6/10/14/20 + alpha hairline (border-over-shadow).
+ * !important beats CTA-only border-diet so cards read as rounded Canon wells, not squares. */
 [data-testid="tasks-page"] {
-  --tasks-card-radius: 0.625rem;
-  --tasks-well-radius: var(--radius-md);
-  --radius-control: 0.625rem;
+  --tasks-card-radius: var(--canon-radius-md, 0.625rem);
+  --tasks-well-radius: var(--canon-radius-sm, 0.375rem);
+  --tasks-hairline: var(--canon-border);
+  --radius-control: var(--canon-radius-md, 0.625rem);
 }
 [data-testid="tasks-page"] :is(
   .ux-card,
@@ -8546,16 +8573,25 @@ body::-webkit-scrollbar-corner,
   .ux-session-card,
   .tasks-kanban-column,
   .tasks-kanban-card,
-  .tasks-empty-state,
   .ux-callout,
-  .descriptive-sticky-tab,
-  .tasks-layout-toggle,
-  .dashboard-today-stat,
   [data-testid="tasks-session-status"],
   [data-testid="tasks-sr-banner"],
   [data-testid="tasks-danger-zone"]
 ) {
   border-radius: var(--tasks-card-radius) !important;
+  border: 1px solid var(--tasks-hairline) !important;
+  box-shadow: none !important;
+}
+[data-testid="tasks-page"] :is(
+  .descriptive-sticky-tab,
+  .tasks-layout-toggle,
+  .dashboard-today-stat
+) {
+  border-radius: var(--tasks-card-radius) !important;
+}
+[data-testid="tasks-page"] .tasks-empty-state {
+  border-radius: var(--canon-radius-lg, 0.875rem) !important;
+  border: 1px solid var(--tasks-hairline) !important;
 }
 [data-testid="tasks-page"] :is(
   .ux-callout,
@@ -8573,8 +8609,10 @@ body::-webkit-scrollbar-corner,
 }
 [data-testid="dashboard-page"] .dashboard-continue-hero,
 [data-testid="tasks-page"] .tasks-row-start-cta,
-[data-testid="tasks-page"] .tasks-create-plan-cta {
-  border-radius: var(--radius-xl);
+[data-testid="tasks-page"] .tasks-create-plan-cta,
+[data-testid="tasks-page"] .ux-primary-cta,
+[data-testid="tasks-page"] .ux-secondary-cta {
+  border-radius: var(--canon-radius-pill, 9999px) !important;
 }
 @media (pointer: coarse) {
   [data-testid="dashboard-page"] .dashboard-continue-hero,

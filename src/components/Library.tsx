@@ -384,6 +384,8 @@ export function Library({
   return (
     <div
       {...warmSandScopeProps(warmSandPage)}
+      role="region"
+      aria-label={t('library', userLanguage)}
       className={cn('w-full max-w-none', isMinimal && 'library-calm library-files-density')}
       data-testid="library-page"
       data-bleed="full"
@@ -593,6 +595,8 @@ export function Library({
         activeId={tab}
         onChange={setTab}
         testIdPrefix="library-tab"
+        panelIdPrefix="library-panel"
+        ariaLabel={t('libSectionsAria', userLanguage)}
       />
 
       {/* Wave H4 — upload-first: drop strip above the course grid when materials exist. */}
@@ -684,6 +688,9 @@ export function Library({
         {tab === 'courses' && (
           <motion.div
             key="courses"
+            id="library-panel-courses"
+            role="tabpanel"
+            aria-labelledby="library-tab-courses"
             initial={isMinimal ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -858,6 +865,9 @@ export function Library({
         {tab === 'files' && (
           <motion.div
             key="files"
+            id="library-panel-files"
+            role="tabpanel"
+            aria-labelledby="library-tab-files"
             initial={isMinimal ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

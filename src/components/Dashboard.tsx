@@ -3,6 +3,8 @@ import {
   Warning as AlertTriangle,
   CaretRight as ChevronRight, ArrowRight,
 UploadSimple as Upload,
+  CheckCircle,
+  ChartLineUp,
 } from '@phosphor-icons/react';
 import type { Course, DashboardStats, LearnerModel, PersonalStudyDate, Task } from '../types';
 import { cn } from '../utils/cn';
@@ -26,6 +28,7 @@ import type { DashboardNextAction } from '../lib/dashboardNextAction';
 import { TaskActionIcon } from './ui/TaskActionIcon';
 import { courseRingColor, resolveCourseColor, accentHighlightVar } from '../lib/masteryPalette';
 import { greetingForTime, dashboardSubtitle } from '../lib/greeting';
+import { formatCount } from '../lib/localeFormat';
 import { useI18n } from '../lib/i18n';
 import { CardLink, PrimaryCTA, SecondaryCTA } from './ui/primitives';
 import { Button } from './ui/Button';
@@ -83,8 +86,8 @@ function taskDurationLabel(minutes: number, translate: (key: I18nKey) => string)
   return translate('dashMinutesShort').replace('{count}', String(minutes));
 }
 
-function taskXpLabel(xp: number, translate: (key: I18nKey) => string) {
-  return translate('dashXpReward').replace('{count}', String(xp));
+function taskXpLabel(xp: number, translate: (key: I18nKey) => string, lang: Lang) {
+  return translate('dashXpReward').replace('{count}', formatCount(xp, lang));
 }
 
 interface DashboardProps {
@@ -172,7 +175,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
   const weekdayLabels = DASHBOARD_WEEKDAY_KEYS.map((key) => t(key));
   const spacedRepetitionPanel = (
     <BlueprintSurface className="p-2 sm:p-2.5" data-testid="dashboard-spaced-repetition">
-      <SectionLabel>{t('dashSpacedRepetition')}</SectionLabel>
+      <SectionLabel headingLevel={2}>{t('dashSpacedRepetition')}</SectionLabel>
       <p className="type-caption text-text-tertiary">{t('dashSpacedRepetitionHint')}</p>
       <div className="mt-1.5 grid grid-cols-3 gap-1 text-center">
         <button
@@ -341,6 +344,8 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
         /* OPT-K85 — scrollbar-sized edge pad on both sides (L/R column balance) */
         'dashboard-calm hub-quiet shell-edge-balance',
       )}
+      role="region"
+      aria-label={t('navDashboard')}
       data-testid="dashboard-page" data-clarity-pass="k166"
       data-bleed="full"
       data-border-diet="cta-only"
@@ -454,7 +459,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     {
                       id: 'today-xp',
                       label: t('dashboardStatTodayXp'),
-                      value: `${pageStats.todayXp}`,
+                      value: formatCount(pageStats.todayXp, lang),
                       onClick: undefined,
                     },
                     {
@@ -746,7 +751,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
               <div className="min-w-0 space-y-3">
                 {conceptMastery.length > 0 && (
                   <div data-testid="dashboard-concept-mastery">
-                    <SectionLabel>{t('dashConceptMastery')}</SectionLabel>
+                    <SectionLabel headingLevel={2}>{t('dashConceptMastery')}</SectionLabel>
                     <ConceptMasteryBars concepts={conceptMastery} className="concept-mastery-bars" />
                   </div>
                 )}
@@ -877,12 +882,13 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                       'type-micro font-medium px-1.5 py-0.5 rounded-md',
                       task.priority === 'critical' ? 'ux-chip-soft-danger' : 'ux-chip-soft-warn',
                     )}>{taskPriorityLabel(task.priority, t)}</span>
-                    <span className="type-caption text-text-tertiary">{taskXpLabel(task.xpReward, t)}</span>
+                    <span className="type-caption text-text-tertiary">{taskXpLabel(task.xpReward, t, lang)}</span>
                   </div>
                 </MotionSection>
               ))}
               {criticalTasks.length === 0 && (
-                <p className="dashboard-panel-empty type-caption text-text-tertiary py-1">
+                <p className="dashboard-panel-empty type-caption text-text-tertiary py-1 flex items-center gap-1.5">
+                  <CheckCircle className="h-4 w-4 shrink-0 text-text-muted" aria-hidden />
                   {t('dashAllCaughtUp')}
                 </p>
               )}
@@ -892,7 +898,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {/* OPT-K91/K110 — section label + rows; no enclosing panel outline/wash cage */}
           {fixTasks.length > 0 && (
             <div className="py-1" data-testid="dashboard-needs-fixing">
-              <SectionLabel>{t('dashNeedsFixing')}</SectionLabel>
+              <SectionLabel headingLevel={2}>{t('dashNeedsFixing')}</SectionLabel>
               <div className="flex flex-col gap-0.5">
                 {fixTasks.slice(0, 3).map(task => (
                   <button
@@ -955,7 +961,15 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                     </div>
                     {/* Wave P-2 C08 — Active Courses lesson-progress track uses
                         --viz-bar-track for ≥3:1 contrast vs card surface. */}
-                    <div className="w-full rounded-full h-1" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
+                    <div
+                      className="w-full rounded-full h-1"
+                      style={{ backgroundColor: 'var(--viz-bar-track)' }}
+                      role="progressbar"
+                      aria-valuenow={Math.round(Math.min(100, (course.completedLessons / Math.max(course.totalLessons, 1)) * 100))}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label={t('dashLessonsCount').replace('{done}', String(course.completedLessons)).replace('{total}', String(course.totalLessons))}
+                    >
                       <div className="h-1 rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (course.completedLessons / Math.max(course.totalLessons, 1)) * 100)}%`, backgroundColor: resolveCourseColor(course.color) }} />
                     </div>
                   </MotionSection>
@@ -1007,7 +1021,11 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
             <BlueprintSurface className="p-3 border-0 shadow-none">
               <SectionLabel>{t('dashWeeklyMastery')}</SectionLabel>
               {masteryTrend.length > 0 ? (
-                <div className="flex items-end gap-1.5 h-20">
+                <div
+                  className="flex items-end gap-1.5 h-20"
+                  role="img"
+                  aria-label={`${t('dashWeeklyMastery')} — ${learnerModel.overallMastery}% (${masteryDelta >= 0 ? '+' : ''}${masteryDelta}% ${t('dashThisWeek')})`}
+                >
                   {masteryTrend.map((val, i) => (
                     <div key={i} className="flex-1 flex flex-col items-center gap-1">
                       {/* Wave P-C01 — historical bars use --viz-bar-fill-muted (theme-tuned
@@ -1027,7 +1045,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   ))}
                 </div>
               ) : (
-                <p className="py-4 text-center type-caption text-text-tertiary">{t('dashNoMasteryTrend')}</p>
+                <div className="py-4 text-center">
+                  <ChartLineUp className="mx-auto mb-1 h-5 w-5 text-text-muted" aria-hidden />
+                  <p className="type-caption text-text-tertiary">{t('dashNoMasteryTrend')}</p>
+                </div>
               )}
               <div className="mt-2 text-center">
                 <span className="ux-stat-value">{learnerModel.overallMastery}%</span>
@@ -1045,7 +1066,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {isMinimal && learnerModel.almostKnown.length > 0 ? (
             <div className="dashboard-pair-row" data-testid="dashboard-pair-weak-almost">
           <div className="min-w-0" data-testid="dashboard-weak-areas">
-            <SectionLabel>{t('dashWeakAreas')}</SectionLabel>
+            <SectionLabel headingLevel={2}>{t('dashWeakAreas')}</SectionLabel>
             <div className="proximity-track space-y-2">
               {weakSpotsWithReasons.length > 0 ? weakSpotsWithReasons.map((area) => (
                 <button
@@ -1079,7 +1100,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   </div>
                 </button>
               )) : (
-                <p className="py-3 text-center type-caption text-text-tertiary">{t('dashNoWeakAreas')}</p>
+                <div className="py-3 text-center">
+                  <CheckCircle className="mx-auto mb-1 h-5 w-5 text-text-muted" aria-hidden />
+                  <p className="type-caption text-text-tertiary">{t('dashNoWeakAreas')}</p>
+                </div>
               )}
             </div>
             {weakSpotsWithReasons.length > 0 && (
@@ -1119,7 +1143,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           ) : (
             <>
           <BlueprintSurface className="p-3" data-testid="dashboard-weak-areas">
-            <SectionLabel>{t('dashWeakAreas')}</SectionLabel>
+            <SectionLabel headingLevel={2}>{t('dashWeakAreas')}</SectionLabel>
             <div className="proximity-track space-y-2">
               {weakSpotsWithReasons.length > 0 ? weakSpotsWithReasons.map((area) => (
                 <button
@@ -1151,7 +1175,10 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   </div>
                 </button>
               )) : (
-                <p className="py-3 text-center type-caption text-text-tertiary">{t('dashNoWeakAreas')}</p>
+                <div className="py-3 text-center">
+                  <CheckCircle className="mx-auto mb-1 h-5 w-5 text-text-muted" aria-hidden />
+                  <p className="type-caption text-text-tertiary">{t('dashNoWeakAreas')}</p>
+                </div>
               )}
             </div>
             {weakSpotsWithReasons.length > 0 && (
@@ -1212,7 +1239,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {/* Upcoming Exam — OPT-K19: full-width primary under Minimal (not paired with meta) */}
           {isMinimal && courses.some(c => c.examDate) ? (
             <div className="dashboard-exam-primary min-w-0" data-testid="dashboard-upcoming-exam">
-              <SectionLabel>{t('dashUpcomingExam')}</SectionLabel>
+              <SectionLabel headingLevel={2}>{t('dashUpcomingExam')}</SectionLabel>
               {courses.filter(c => c.examDate).map(course => {
                 const daysLeft = Math.max(0, Math.ceil((new Date(course.examDate!).getTime() - Date.now()) / 86400000));
                 const courseMastery = selectCanonicalMastery(course);
@@ -1321,14 +1348,32 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   {calibration && (
                     <div>
                       <SectionLabel>{t('dashRecentCalibration')}</SectionLabel>
+                      {/* Legend: brand = predicted, emerald = actual (clarifies the paired bars) */}
+                      <div className="mb-1.5 flex items-center gap-3 type-micro text-text-tertiary">
+                        <span className="inline-flex items-center gap-1">
+                          <span className="h-2 w-2 rounded-full bg-brand-400" aria-hidden />
+                          {t('dashCalibrationPredicted')}
+                        </span>
+                        <span className="inline-flex items-center gap-1">
+                          <span className="h-2 w-2 rounded-full bg-accent-emerald" aria-hidden />
+                          {t('analyticsCalibrationActual')}
+                        </span>
+                      </div>
                       {learnerModel.confidenceCalibration.slice(0, 3).map((p, i) => {
                         const overconfident = p.predicted > p.actual + 0.15;
                         return (
                           <div key={i} className="flex items-center gap-2 mb-1.5">
                             <span className="type-micro text-text-secondary w-16 truncate">{p.concept}</span>
-                            <div className="dashboard-progress-track flex-1 relative">
-                              <div className="absolute inset-y-0 left-0 rounded-full bg-brand-400" style={{ width: `${p.predicted * 100}%` }} />
-                              <div className="absolute inset-y-0 left-0 rounded-full bg-accent-emerald opacity-90" style={{ width: `${p.actual * 100}%` }} />
+                            <div
+                              className="dashboard-progress-track flex-1 relative"
+                              role="img"
+                              aria-label={t('dashCalibrationRowAria')
+                                .replace('{concept}', p.concept)
+                                .replace('{predicted}', String(Math.round(p.predicted * 100)))
+                                .replace('{actual}', String(Math.round(p.actual * 100)))}
+                            >
+                              <div className="absolute inset-y-0 left-0 rounded-full bg-brand-400" style={{ width: `${p.predicted * 100}%` }} aria-hidden />
+                              <div className="absolute inset-y-0 left-0 rounded-full bg-accent-emerald opacity-90" style={{ width: `${p.actual * 100}%` }} aria-hidden />
                             </div>
                             {overconfident && (
                               <AlertTriangle
@@ -1370,9 +1415,17 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
                   return (
                     <div key={i} className="flex items-center gap-2 mb-1.5">
                       <span className="type-micro text-text-secondary w-16 truncate">{p.concept}</span>
-                      <div className="flex-1 h-1.5 rounded-full relative" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
-                        <div className="absolute h-1.5 rounded-full bg-brand-400" style={{ width: `${p.predicted * 100}%` }} />
-                        <div className="absolute h-1.5 rounded-full bg-accent-emerald" style={{ width: `${p.actual * 100}%`, opacity: 0.85 }} />
+                      <div
+                        className="flex-1 h-1.5 rounded-full relative"
+                        style={{ backgroundColor: 'var(--viz-bar-track)' }}
+                        role="img"
+                        aria-label={t('dashCalibrationRowAria')
+                          .replace('{concept}', p.concept)
+                          .replace('{predicted}', String(Math.round(p.predicted * 100)))
+                          .replace('{actual}', String(Math.round(p.actual * 100)))}
+                      >
+                        <div className="absolute h-1.5 rounded-full bg-brand-400" style={{ width: `${p.predicted * 100}%` }} aria-hidden />
+                        <div className="absolute h-1.5 rounded-full bg-accent-emerald" style={{ width: `${p.actual * 100}%`, opacity: 0.85 }} aria-hidden />
                       </div>
                       {overconfident && (
                         <AlertTriangle
@@ -1400,7 +1453,7 @@ export function Dashboard({ stats, courses, tasks, learnerModel, onNavigate, onS
           {/* Misconceptions — spaced repetition lives under concept mastery */}
           {isMinimal && unresolvedMisconceptions.length > 0 ? (
             <div className="min-w-0" data-testid="dashboard-pair-misconceptions-spaced">
-              <SectionLabel>{t('dashActiveMisconceptions')}</SectionLabel>
+              <SectionLabel headingLevel={2}>{t('dashActiveMisconceptions')}</SectionLabel>
               <div className="proximity-track-wide flex flex-col gap-2">
                 {unresolvedMisconceptions.slice(0, 2).map(m => (
                   <div key={m.id} className="type-caption">

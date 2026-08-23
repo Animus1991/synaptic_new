@@ -523,6 +523,7 @@ function AppRoot() {
         onStartTask={store.startTask}
         onQuizAttempt={(c, corr, conf, sk) => store.recordQuizAttempt(c, corr, conf, sk, store.activeTask?.courseId)}
         onLeitnerRate={(concept, rating) => store.submitLeitnerRating(concept, rating, store.activeTask?.courseId ?? store.selectedCourse?.id)}
+        onFeynmanResult={(concept, courseId, overallScore) => store.submitFeynmanResult(concept, overallScore, courseId)}
         onLogStudyMinutes={store.logStudyMinutes}
         userSettings={store.user.settings}
         onToggleTheme={store.toggleTheme}
@@ -642,6 +643,7 @@ function AppRoot() {
     language: (store.user.settings.language === 'el' ? 'el' : 'en') as 'en' | 'el',
     onLanguageChange: (lang: 'en' | 'el') => store.updateSettings({ language: lang }),
     onPatchSettings: store.updateSettings,
+    remoteSyncStatus: store.remoteSyncStatus,
   };
 
   const handleContentSelect = (hit: ContentSearchHit) => {

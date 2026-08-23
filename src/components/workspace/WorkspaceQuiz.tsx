@@ -25,7 +25,7 @@ function questionProps(question: string, onQuestionSelect?: (q: string) => void)
     return { className: 'type-body mb-3' };
   }
   return {
-    className: 'type-body mb-3 rounded-lg border border-transparent px-1 py-0.5 cursor-pointer hover:border-accent-cyan/30 hover:bg-accent-cyan/5 transition-colors',
+    className: 'type-body mb-3 rounded-lg border border-transparent px-1 py-0.5 cursor-pointer hover:border-accent-cyan/30 hover:bg-accent-cyan/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan/50',
     role: 'button' as const,
     tabIndex: 0,
     'data-testid': 'quiz-question-select',
@@ -101,7 +101,7 @@ export function WorkspaceQuiz({
               onComplete(i === quizDef.correctIndex);
             }}
             className={cn(
-              'ux-quiz-option ws-touch-floor flex w-full min-h-11 min-w-0 items-start gap-2.5 rounded-xl border-0 p-3 text-left type-body transition-colors sm:p-3.5',
+              'ux-quiz-option ws-touch-floor flex w-full min-h-11 min-w-0 items-start gap-2.5 rounded-xl border-0 p-3 text-left type-body transition-colors sm:p-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
               mcAnswer === i
                 ? i === quizDef.correctIndex
                   ? 'bg-accent-emerald/12 text-text-primary'
@@ -155,7 +155,7 @@ export function WorkspaceQuiz({
           type="button"
           onClick={check}
           disabled={!shortText.trim()}
-          className="px-4 py-2 rounded-lg bg-brand-600 text-white type-meta font-medium disabled:opacity-40"
+          className="px-4 py-2 rounded-lg bg-brand-600 text-white type-meta font-medium disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2"
         >
           {t('quizWkCheck')}
         </button>
@@ -191,12 +191,12 @@ export function WorkspaceQuiz({
             <li key={itemIdx} className="ux-quiz-option flex items-center gap-2 p-2 rounded-lg border-0 bg-surface-secondary/45 bg-surface-card type-body">
               <span className="text-text-muted w-5">{pos + 1}.</span>
               <span className="flex-1">{ord.items[itemIdx]}</span>
-              <button type="button" onClick={() => move(pos, -1)} className="px-2 py-0.5 type-caption rounded border border-white/10">↑</button>
-              <button type="button" onClick={() => move(pos, 1)} className="px-2 py-0.5 type-caption rounded border border-white/10">↓</button>
+              <button type="button" onClick={() => move(pos, -1)} className="px-2 py-0.5 type-caption rounded border border-border-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50">↑</button>
+              <button type="button" onClick={() => move(pos, 1)} className="px-2 py-0.5 type-caption rounded border border-border-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50">↓</button>
             </li>
           ))}
         </ul>
-        <button type="button" onClick={checkOrder} className="px-4 py-2 rounded-lg bg-brand-600 text-white type-meta font-medium">
+        <button type="button" onClick={checkOrder} className="px-4 py-2 rounded-lg bg-brand-600 text-white type-meta font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2">
           {t('quizWkCheckOrder')}
         </button>
         {orderChecked !== null && (
@@ -223,6 +223,7 @@ export function WorkspaceQuiz({
             <div key={li} className="flex items-center gap-2 type-body">
               <span className="ux-tier-b-panel flex-1 p-2 rounded-lg bg-surface-card border-0 bg-surface-secondary/45">{left}</span>
               <select
+                aria-label={left}
                 value={matches[li] ?? ''}
                 onChange={(e) => {
                   const v = e.target.value === '' ? undefined : Number(e.target.value);
@@ -248,7 +249,7 @@ export function WorkspaceQuiz({
           type="button"
           onClick={checkMatch}
           disabled={Object.keys(matches).length < match.left.length}
-          className="px-4 py-2 rounded-lg bg-brand-600 text-white type-meta font-medium disabled:opacity-40"
+          className="px-4 py-2 rounded-lg bg-brand-600 text-white type-meta font-medium disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2"
         >
           {t('quizWkCheckMatches')}
         </button>

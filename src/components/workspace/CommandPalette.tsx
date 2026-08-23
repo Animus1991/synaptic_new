@@ -146,7 +146,7 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="command-palette-search flex items-center gap-3 border-b border-border-subtle px-4 py-3">
-              <Search size={18} className="text-text-muted shrink-0" />
+              <Search size={18} className="text-text-muted shrink-0" aria-hidden />
               <input
                 ref={inputRef}
                 value={query}
@@ -162,10 +162,10 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-lg p-1 text-text-muted hover:bg-white/10 hover:text-text-secondary"
+                className="rounded-lg p-1 text-text-muted hover:bg-surface-hover hover:text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                 aria-label="Close command palette"
               >
-                <X size={14} />
+                <X size={14} aria-hidden />
               </button>
             </div>
 
@@ -190,10 +190,10 @@ export function CommandPalette({ open, onClose, items, placeholder }: Props) {
                           onMouseEnter={() => setActive(idx)}
                           onClick={() => runItem(it)}
                           className={cn(
-                            'command-palette-item flex w-full items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left type-body transition-colors',
+                            'command-palette-item flex w-full items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left type-body transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
                             isActive
                               ? 'bg-brand-500/15 text-text-secondary'
-                              : 'text-text-secondary hover:bg-white/5',
+                              : 'text-text-secondary hover:bg-surface-hover',
                           )}
                         >
                           <div className="min-w-0 flex-1">

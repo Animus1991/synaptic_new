@@ -154,7 +154,7 @@ export function DebatePanel({
               <button
                 type="button"
                 onClick={() => onOpenInReader(concept)}
-                className="ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 bg-surface-secondary/55 px-2.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+                className="ws-touch-floor inline-flex min-h-8 items-center rounded-md border-0 bg-surface-secondary/55 px-2.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                 data-testid="debate-open-reader"
               >
                 {t('panelReaderSource')}
@@ -170,7 +170,7 @@ export function DebatePanel({
                 key={`${i}-${text.slice(0, 24)}`}
                 type="button"
                 onClick={() => selectClaim(text)}
-                className="rounded-md border-0 bg-surface-secondary/50 px-2 py-0.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+                className="rounded-md border-0 bg-surface-secondary/50 px-2 py-0.5 type-caption text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               >
                 {text.slice(0, 56)}{text.length > 56 ? '…' : ''}
               </button>
@@ -195,7 +195,7 @@ export function DebatePanel({
               type="button"
               data-testid="debate-ai-counter"
               onClick={() => onAiCounter(selectedClaim)}
-              className="rounded-md border-0 bg-surface-secondary/55 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover"
+              className="rounded-md border-0 bg-surface-secondary/55 px-2.5 py-1 type-caption font-medium text-text-secondary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
             >
               {t('debateAiCounter')}
             </button>

@@ -64,8 +64,10 @@ describe('Library P0', () => {
     fireEvent.click(screen.getByTestId('library-remove-file-err-1'));
     expect(screen.getByTestId('library-remove-dialog-file-err-1')).toBeTruthy();
     fireEvent.click(screen.getByTestId('library-remove-dialog-file-err-1-confirm'));
-    expect(onRemoveFile).toHaveBeenCalledWith('file-err-1');
-  });
+    // Deletion is deferred behind a ~6s Undo window (setTimeout), so the parent
+    // callback fires after the toast TTL rather than synchronously on confirm.
+    await waitFor(() => expect(onRemoveFile).toHaveBeenCalledWith('file-err-1'), { timeout: 7000 });
+  }, 9000);
 
   it('+ File chip opens upload in extend mode for that course', () => {
     const { onUpload } = renderLibrary();

@@ -142,10 +142,10 @@ export function CourseView({
   );
   const courseTabs = useMemo(
     () => [
-      { id: 'path' as const, label: t('courseTabPath'), summary: t('courseTabPathSummary'), count: course.topics.length },
-      { id: 'map' as const, label: t('courseTabMap'), summary: t('courseTabMapSummary'), count: graphSummary.nodeCount },
-      { id: 'sources' as const, label: t('courseTabSources'), summary: t('courseTabSourcesSummary'), count: courseFileCount },
-      { id: 'analytics' as const, label: t('courseTabAnalytics'), summary: t('courseTabAnalyticsSummary'), count: course.topics.length },
+      { id: 'path' as const, label: t('courseTabPath'), summary: t('courseTabPathSummary'), count: course.topics.length, countLabel: `${course.topics.length} ${t('courseTabPath')}` },
+      { id: 'map' as const, label: t('courseTabMap'), summary: t('courseTabMapSummary'), count: graphSummary.nodeCount, countLabel: `${graphSummary.nodeCount} ${t('courseTabMap')}` },
+      { id: 'sources' as const, label: t('courseTabSources'), summary: t('courseTabSourcesSummary'), count: courseFileCount, countLabel: `${courseFileCount} ${t('courseTabSources')}` },
+      { id: 'analytics' as const, label: t('courseTabAnalytics'), summary: t('courseTabAnalyticsSummary'), count: course.topics.length, countLabel: `${course.topics.length} ${t('courseTabAnalytics')}` },
     ],
     [t, course.topics.length, graphSummary.nodeCount, courseFileCount],
   );
@@ -218,6 +218,8 @@ export function CourseView({
     <Page
       className="course-page shell-edge-balance"
       gap="sm"
+      role="region"
+      aria-label={course.title}
       data-testid="course-page"
       data-border-diet="cta-only"
       data-bleed="full"
@@ -536,7 +538,15 @@ export function CourseView({
           <span className="type-caption text-text-secondary tabular-nums">{course.completedLessons}/{course.totalLessons} {t('courseLessonsLabel')}</span>
         </div>
         {/* Wave P-2 C08 — Course Progress top-of-page track uses --viz-bar-track. */}
-        <div className="w-full rounded-full h-1.5" style={{ backgroundColor: 'var(--viz-bar-track)' }}>
+        <div
+          className="w-full rounded-full h-1.5"
+          style={{ backgroundColor: 'var(--viz-bar-track)' }}
+          role="progressbar"
+          aria-valuenow={Math.round(progress)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={t('coursePanelProgress')}
+        >
           <div
             className="h-1.5 rounded-full transition-all duration-700"
             style={{ width: `${progress}%`, backgroundColor: resolveCourseColor(course.color) }}
@@ -568,6 +578,7 @@ export function CourseView({
         onChange={setTab}
         testIdPrefix="course-tab"
         panelIdPrefix="course-panel"
+        ariaLabel={t('courseSectionsAria')}
         className="mt-2"
       />
 

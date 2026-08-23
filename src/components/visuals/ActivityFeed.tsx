@@ -17,6 +17,7 @@ const typeConfig: Record<ActivityType, ActivityVisual> = {
   mistake_fixed: { icon: Target, color: 'text-accent-emerald', bg: 'bg-accent-emerald/10' },
   task_complete: { icon: CheckCircle2, color: 'text-accent-emerald', bg: 'bg-accent-emerald/10' },
   study_time: { icon: Clock, color: 'text-accent-cyan', bg: 'bg-accent-cyan/10' },
+  feynman_complete: { icon: CheckCircle2, color: 'text-accent-cyan', bg: 'bg-accent-cyan/10' },
   upload: { icon: Upload, color: 'text-text-secondary', bg: 'bg-brand-500/10' },
 };
 
